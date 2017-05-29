@@ -1040,7 +1040,20 @@ function MessageHandler(sourceName, targetName, comObj) {
             targetName: targetName,
             isReply: true,
             callbackId: data.callbackId,
-            data: result
+            data: function () {
+              try {
+                if (Array.isArray(result) && _typeof(result[0]) === 'object' && typeof result[0].id === 'string') {
+                  result.map(function (obj) {
+                    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && obj.fieldType === 'Sig' && _typeof(obj.fieldValue) === 'object') {
+                      Object.assign(obj, { fieldValue: false });
+                    }
+                  });
+                }
+                return result;
+              } catch (err) {
+                return result;
+              }
+            }()
           });
         }, function (reason) {
           if (reason instanceof Error) {
@@ -25042,9 +25055,7 @@ var WidgetAnnotation = function WidgetAnnotationClosure() {
       data.fieldFlags = 0;
     }
     data.readOnly = this.hasFieldFlag(AnnotationFieldFlag.READONLY);
-    if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN);
-    }
+    if (data.fieldType === 'Sig') {}
   }
   Util.inherit(WidgetAnnotation, Annotation, {
     _constructFieldName: function WidgetAnnotation_constructFieldName(dict) {
@@ -25128,6 +25139,12 @@ var ButtonWidgetAnnotation = function ButtonWidgetAnnotationClosure() {
         return;
       }
       this.data.fieldValue = this.data.fieldValue.name;
+      if (params.dict && params.dict.has('AS')) {
+        var AS = params.dict.get('AS');
+        if (isName(AS)) {
+          this.data.patchedInfo = AS.name;
+        }
+      }
     }
     this.data.radioButton = this.hasFieldFlag(AnnotationFieldFlag.RADIO) && !this.hasFieldFlag(AnnotationFieldFlag.PUSHBUTTON);
     if (this.data.radioButton) {
@@ -37288,8 +37305,8 @@ exports.Type1Parser = Type1Parser;
 "use strict";
 
 
-var pdfjsVersion = '1.8.384';
-var pdfjsBuild = '8d55e6a0';
+var pdfjsVersion = '1.8.385';
+var pdfjsBuild = '241a9559';
 var pdfjsCoreWorker = __w_pdfjs_require__(8);
 {
   __w_pdfjs_require__(19);

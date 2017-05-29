@@ -1040,7 +1040,20 @@ function MessageHandler(sourceName, targetName, comObj) {
             targetName: targetName,
             isReply: true,
             callbackId: data.callbackId,
-            data: result
+            data: function () {
+              try {
+                if (Array.isArray(result) && _typeof(result[0]) === 'object' && typeof result[0].id === 'string') {
+                  result.map(function (obj) {
+                    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && obj.fieldType === 'Sig' && _typeof(obj.fieldValue) === 'object') {
+                      Object.assign(obj, { fieldValue: false });
+                    }
+                  });
+                }
+                return result;
+              } catch (err) {
+                return result;
+              }
+            }()
           });
         }, function (reason) {
           if (reason instanceof Error) {
@@ -12826,8 +12839,8 @@ var _UnsupportedManager = function UnsupportedManagerClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '1.8.384';
-  exports.build = build = '8d55e6a0';
+  exports.version = version = '1.8.385';
+  exports.build = build = '241a9559';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
@@ -28361,8 +28374,8 @@ if (!_util.globalScope.PDFJS) {
 }
 var PDFJS = _util.globalScope.PDFJS;
 {
-  PDFJS.version = '1.8.384';
-  PDFJS.build = '8d55e6a0';
+  PDFJS.version = '1.8.385';
+  PDFJS.build = '241a9559';
 }
 PDFJS.pdfBug = false;
 if (PDFJS.verbosity !== undefined) {
@@ -28843,9 +28856,7 @@ var WidgetAnnotation = function WidgetAnnotationClosure() {
       data.fieldFlags = 0;
     }
     data.readOnly = this.hasFieldFlag(AnnotationFieldFlag.READONLY);
-    if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN);
-    }
+    if (data.fieldType === 'Sig') {}
   }
   Util.inherit(WidgetAnnotation, Annotation, {
     _constructFieldName: function WidgetAnnotation_constructFieldName(dict) {
@@ -28929,6 +28940,12 @@ var ButtonWidgetAnnotation = function ButtonWidgetAnnotationClosure() {
         return;
       }
       this.data.fieldValue = this.data.fieldValue.name;
+      if (params.dict && params.dict.has('AS')) {
+        var AS = params.dict.get('AS');
+        if (isName(AS)) {
+          this.data.patchedInfo = AS.name;
+        }
+      }
     }
     this.data.radioButton = this.hasFieldFlag(AnnotationFieldFlag.RADIO) && !this.hasFieldFlag(AnnotationFieldFlag.PUSHBUTTON);
     if (this.data.radioButton) {
@@ -43989,8 +44006,8 @@ exports.TilingPattern = TilingPattern;
 "use strict";
 
 
-var pdfjsVersion = '1.8.384';
-var pdfjsBuild = '8d55e6a0';
+var pdfjsVersion = '1.8.385';
+var pdfjsBuild = '241a9559';
 var pdfjsSharedUtil = __w_pdfjs_require__(0);
 var pdfjsDisplayGlobal = __w_pdfjs_require__(26);
 var pdfjsDisplayAPI = __w_pdfjs_require__(10);
