@@ -1,3 +1,18 @@
+#PV instruction
+Prepare
+```
+$ npm install -g gulp-cli
+$ npm install
+```
+Build
+```
+$ gulp dist
+```
+Deploy
+```
+$ ./deploy-dist.sh
+
+```
 # PDF.js
 
 PDF.js is a Portable Document Format (PDF) viewer that is built with HTML5.
