@@ -636,7 +636,9 @@ var WidgetAnnotation = (function WidgetAnnotationClosure() {
 
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN);
+      // PV patch, force display signatures
+      // this.setFlags(AnnotationFlag.HIDDEN);
+      // end PV patch
     }
   }
 
@@ -784,6 +786,14 @@ var ButtonWidgetAnnotation = (function ButtonWidgetAnnotationClosure() {
         return;
       }
       this.data.fieldValue = this.data.fieldValue.name;
+      // PV patch, add additional info for checkbox
+      if (params.dict && params.dict.has('AS')) {
+        var AS = params.dict.get('AS');
+        if (isName(AS)) {
+          this.data.patchedInfo = AS.name;
+        }
+      }
+      // end PV patch
     }
 
     this.data.radioButton = this.hasFieldFlag(AnnotationFieldFlag.RADIO) &&

@@ -1253,7 +1253,31 @@ function MessageHandler(sourceName, targetName, comObj) {
             targetName,
             isReply: true,
             callbackId: data.callbackId,
-            data: result
+            // PV patch, fix circular structure for signature fields
+            // data: result
+            data: (function() {
+              try {
+                if (
+                  Array.isArray(result) &&
+                  typeof result[0] === 'object' &&
+                  typeof result[0].id === 'string'
+                ) {
+                  result.map(function (obj) {
+                    if (
+                      typeof obj === 'object' &&
+                      obj.fieldType === 'Sig' &&
+                      typeof obj.fieldValue === 'object'
+                    ) {
+                      Object.assign(obj, { fieldValue: false });
+                    }
+                  });
+                }
+                return result;
+              } catch (err) {
+                return result;
+              }
+            })()
+            // end PV patch
           });
         }, function (reason) {
           if (reason instanceof Error) {
