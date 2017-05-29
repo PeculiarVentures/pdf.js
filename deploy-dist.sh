@@ -7,6 +7,8 @@ set -e
 # show where we are on the machine
 pwd
 
+LAST_COMMIT=$(git rev-parse --short HEAD)
+
 remote=$(git config remote.origin.url)
 DIRECTORY=gh-dist-branch
 
@@ -39,7 +41,7 @@ cp -R ../build/dist/* ./
 # stage any changes and new files
 git add -A
 # now commit, ignoring branch gh-pages doesn't seem to work, so trying skip
-git commit --allow-empty -m "Auto-deploy pdf.js dist"
+git commit --allow-empty -m "Auto-deploy pdfjs-dist, commit $LAST_COMMIT"
 # and push, but send any output to /dev/null to hide anything sensitive
 git push --force --quiet origin dist > /dev/null 2>&1
 
