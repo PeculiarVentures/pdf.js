@@ -847,6 +847,17 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
         };
 
         this.stats.time('Page Request');
+        // PV patch, check for existing method (error from Rollbar)
+        if (
+          !this.transport.messageHandler ||
+          !this.transport.messageHandler.send
+        ) {
+          throw new Error(
+            'Internal PDFJS error, there no "send" ' +
+            ' method in transport.messageHandler'
+          );
+        }
+        // end PV patch
         this.transport.messageHandler.send('RenderPageRequest', {
           pageIndex: this.pageNumber - 1,
           intent: renderingIntent,
