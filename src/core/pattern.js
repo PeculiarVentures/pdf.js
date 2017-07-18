@@ -14,34 +14,13 @@
  */
 /* eslint-disable no-multi-spaces */
 
-'use strict';
-
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define('pdfjs/core/pattern', ['exports', 'pdfjs/shared/util',
-      'pdfjs/core/primitives', 'pdfjs/core/function',
-      'pdfjs/core/colorspace'], factory);
-  } else if (typeof exports !== 'undefined') {
-    factory(exports, require('../shared/util.js'), require('./primitives.js'),
-      require('./function.js'), require('./colorspace.js'));
-  } else {
-    factory((root.pdfjsCorePattern = {}), root.pdfjsSharedUtil,
-      root.pdfjsCorePrimitives, root.pdfjsCoreFunction,
-      root.pdfjsCoreColorSpace);
-  }
-}(this, function (exports, sharedUtil, corePrimitives, coreFunction,
-                  coreColorSpace) {
-
-var UNSUPPORTED_FEATURES = sharedUtil.UNSUPPORTED_FEATURES;
-var MissingDataException = sharedUtil.MissingDataException;
-var Util = sharedUtil.Util;
-var assert = sharedUtil.assert;
-var error = sharedUtil.error;
-var info = sharedUtil.info;
-var warn = sharedUtil.warn;
-var isStream = corePrimitives.isStream;
-var PDFFunction = coreFunction.PDFFunction;
-var ColorSpace = coreColorSpace.ColorSpace;
+import {
+  assert, FormatError, info, MissingDataException, unreachable,
+  UNSUPPORTED_FEATURES, Util, warn
+} from '../shared/util';
+import { ColorSpace } from './colorspace';
+import { isStream } from './primitives';
+import { PDFFunction } from './function';
 
 var ShadingType = {
   FUNCTION_BASED: 1,
@@ -50,21 +29,21 @@ var ShadingType = {
   FREE_FORM_MESH: 4,
   LATTICE_FORM_MESH: 5,
   COONS_PATCH_MESH: 6,
-  TENSOR_PATCH_MESH: 7
+  TENSOR_PATCH_MESH: 7,
 };
 
 var Pattern = (function PatternClosure() {
   // Constructor should define this.getPattern
   function Pattern() {
-    error('should not call Pattern constructor');
+    throw new Error('should not call Pattern constructor');
   }
 
   Pattern.prototype = {
     // Input: current Canvas context
     // Output: the appropriate fillStyle or strokeStyle
     getPattern: function Pattern_getPattern(ctx) {
-      error('Should not call Pattern.getStyle: ' + ctx);
-    }
+      throw new Error(`Should not call Pattern.getStyle: ${ctx}`);
+    },
   };
 
   Pattern.parseShading = function Pattern_parseShading(shading, matrix, xref,
@@ -85,14 +64,14 @@ var Pattern = (function PatternClosure() {
         case ShadingType.TENSOR_PATCH_MESH:
           return new Shadings.Mesh(shading, matrix, xref, res);
         default:
-          throw new Error('Unsupported ShadingType: ' + type);
+          throw new FormatError('Unsupported ShadingType: ' + type);
       }
     } catch (ex) {
       if (ex instanceof MissingDataException) {
         throw ex;
       }
       handler.send('UnsupportedFeature',
-                   {featureId: UNSUPPORTED_FEATURES.shadingPattern});
+                   { featureId: UNSUPPORTED_FEATURES.shadingPattern, });
       warn(ex);
       return new Shadings.Dummy();
     }
@@ -220,7 +199,7 @@ Shadings.RadialAxial = (function RadialAxialClosure() {
         r1 = coordsArr[5];
         type = 'radial';
       } else {
-        error('getPattern type unknown: ' + shadingType);
+        unreachable(`getPattern type unknown: ${shadingType}`);
       }
 
       var matrix = this.matrix;
@@ -235,7 +214,7 @@ Shadings.RadialAxial = (function RadialAxialClosure() {
       }
 
       return ['RadialAxial', type, this.colorStops, p0, p1, r0, r1];
-    }
+    },
   };
 
   return RadialAxial;
@@ -335,7 +314,7 @@ Shadings.Mesh = (function MeshClosure() {
         this.context.colorFn(components, 0, color, 0);
       }
       return this.context.colorSpace.getRgb(color, 0);
-    }
+    },
   };
 
   function decodeType4Shading(mesh, reader) {
@@ -611,7 +590,7 @@ Shadings.Mesh = (function MeshClosure() {
       mesh.figures.push({
         type: 'patch',
         coords: new Int32Array(ps), // making copies of ps and cs
-        colors: new Int32Array(cs)
+        colors: new Int32Array(cs),
       });
     }
   }
@@ -676,7 +655,7 @@ Shadings.Mesh = (function MeshClosure() {
       mesh.figures.push({
         type: 'patch',
         coords: new Int32Array(ps), // making copies of ps and cs
-        colors: new Int32Array(cs)
+        colors: new Int32Array(cs),
       });
     }
   }
@@ -753,7 +732,7 @@ Shadings.Mesh = (function MeshClosure() {
       decode: dict.getArray('Decode'),
       colorFn: fn,
       colorSpace: cs,
-      numComps: fn ? 1 : cs.numComps
+      numComps: fn ? 1 : cs.numComps,
     };
     var reader = new MeshStreamReader(stream, decodeContext);
 
@@ -776,7 +755,7 @@ Shadings.Mesh = (function MeshClosure() {
         patchMesh = true;
         break;
       default:
-        error('Unsupported mesh type.');
+        unreachable('Unsupported mesh type.');
         break;
     }
 
@@ -797,7 +776,7 @@ Shadings.Mesh = (function MeshClosure() {
     getIR: function Mesh_getIR() {
       return ['Mesh', this.shadingType, this.coords, this.colors, this.figures,
         this.bounds, this.matrix, this.bbox, this.background];
-    }
+    },
   };
 
   return Mesh;
@@ -811,18 +790,24 @@ Shadings.Dummy = (function DummyClosure() {
   Dummy.prototype = {
     getIR: function Dummy_getIR() {
       return ['Dummy'];
-    }
+    },
   };
   return Dummy;
 })();
 
 function getTilingPatternIR(operatorList, dict, args) {
-  var matrix = dict.getArray('Matrix');
-  var bbox = dict.getArray('BBox');
-  var xstep = dict.get('XStep');
-  var ystep = dict.get('YStep');
-  var paintType = dict.get('PaintType');
-  var tilingType = dict.get('TilingType');
+  let matrix = dict.getArray('Matrix');
+  let bbox = Util.normalizeRect(dict.getArray('BBox'));
+  let xstep = dict.get('XStep');
+  let ystep = dict.get('YStep');
+  let paintType = dict.get('PaintType');
+  let tilingType = dict.get('TilingType');
+
+  // Ensure that the pattern has a non-zero width and height, to prevent errors
+  // in `pattern_helper.js` (fixes issue8330.pdf).
+  if ((bbox[2] - bbox[0]) === 0 || (bbox[3] - bbox[1]) === 0) {
+    throw new FormatError(`Invalid getTilingPatternIR /BBox array: [${bbox}].`);
+  }
 
   return [
     'TilingPattern', args, operatorList, matrix, bbox, xstep, ystep,
@@ -830,6 +815,7 @@ function getTilingPatternIR(operatorList, dict, args) {
   ];
 }
 
-exports.Pattern = Pattern;
-exports.getTilingPatternIR = getTilingPatternIR;
-}));
+export {
+  Pattern,
+  getTilingPatternIR,
+};

@@ -7,6 +7,7 @@
     "cff_parser_spec.js",
     "cmap_spec.js",
     "crypto_spec.js",
+    "display_svg_spec.js",
     "document_spec.js",
     "dom_utils_spec.js",
     "evaluator_spec.js",
@@ -19,6 +20,7 @@
     "type1_parser_spec.js",
     "ui_utils_spec.js",
     "unicode_spec.js",
-    "util_spec.js"
+    "util_spec.js",
+    "util_stream_spec.js"
   ]
 }
