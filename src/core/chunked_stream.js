@@ -13,26 +13,10 @@
  * limitations under the License.
  */
 
-'use strict';
-
-(function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define('pdfjs/core/chunked_stream', ['exports', 'pdfjs/shared/util'],
-      factory);
-  } else if (typeof exports !== 'undefined') {
-    factory(exports, require('../shared/util.js'));
-  } else {
-    factory((root.pdfjsCoreChunkedStream = {}), root.pdfjsSharedUtil);
-  }
-}(this, function (exports, sharedUtil) {
-
-var MissingDataException = sharedUtil.MissingDataException;
-var arrayByteLength = sharedUtil.arrayByteLength;
-var arraysToBytes = sharedUtil.arraysToBytes;
-var assert = sharedUtil.assert;
-var createPromiseCapability = sharedUtil.createPromiseCapability;
-var isInt = sharedUtil.isInt;
-var isEmptyObj = sharedUtil.isEmptyObj;
+import {
+  arrayByteLength, arraysToBytes, assert, createPromiseCapability, isEmptyObj,
+  isInt, MissingDataException
+} from '../shared/util';
 
 var ChunkedStream = (function ChunkedStreamClosure() {
   function ChunkedStream(length, chunkSize, manager) {
@@ -451,12 +435,12 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
 
         if (prevChunk >= 0 && prevChunk + 1 !== chunk) {
           groupedChunks.push({ beginChunk,
-                               endChunk: prevChunk + 1 });
+                               endChunk: prevChunk + 1, });
           beginChunk = chunk;
         }
         if (i + 1 === chunks.length) {
           groupedChunks.push({ beginChunk,
-                               endChunk: chunk + 1 });
+                               endChunk: chunk + 1, });
         }
 
         prevChunk = chunk;
@@ -469,7 +453,7 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
                          args.loaded);
       this.msgHandler.send('DocProgress', {
         loaded: bytesLoaded,
-        total: this.length
+        total: this.length,
       });
     },
 
@@ -545,7 +529,7 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
 
       this.msgHandler.send('DocProgress', {
         loaded: this.stream.numChunksLoaded * this.chunkSize,
-        total: this.length
+        total: this.length,
       });
     },
 
@@ -572,12 +556,13 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
         var capability = this.promisesByRequest[requestId];
         capability.reject(new Error('Request was aborted'));
       }
-    }
+    },
   };
 
   return ChunkedStreamManager;
 })();
 
-exports.ChunkedStream = ChunkedStream;
-exports.ChunkedStreamManager = ChunkedStreamManager;
-}));
+export {
+  ChunkedStream,
+  ChunkedStreamManager,
+};

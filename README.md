@@ -78,15 +78,17 @@ If everything worked out, install all dependencies for PDF.js:
     $ npm install
 
 Finally you need to start a local web server as some browsers do not allow opening
-PDF files using a file:// URL. Run
+PDF files using a `file://` URL. Run:
 
     $ gulp server
 
-and then you can open
+and then you can open:
 
 + http://localhost:8888/web/viewer.html
 
-It is also possible to view all test PDF files on the right side by opening
+Please keep in mind that this requires an ES6 compatible browser; refer to [Building PDF.js](https://github.com/mozilla/pdf.js/blob/master/README.md#building-pdfjs) for usage with older browsers.
+
+It is also possible to view all test PDF files on the right side by opening:
 
 + http://localhost:8888/test/pdfs/?frame
 
@@ -118,6 +120,8 @@ demos below:
 The repository contains a hello world example that you can run locally:
 
 + [examples/helloworld/](https://github.com/mozilla/pdf.js/blob/master/examples/helloworld/)
+
+More examples can be found at the examples folder. Some of them are using the pdfjs-dist package, which can be built and installed in this repo directory via `gulp dist-install` command.
 
 For an introduction to the PDF.js code, check out the presentation by our
 contributor Julian Viereck:

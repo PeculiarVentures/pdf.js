@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import { createObjectURL, createValidAbsoluteUrl, PDFJS } from './pdfjs';
+import { createObjectURL, createValidAbsoluteUrl, PDFJS } from 'pdfjs-lib';
 
 if (typeof PDFJSDev !== 'undefined' && !PDFJSDev.test('CHROME || GENERIC')) {
   throw new Error('Module "pdfjs-web/download_manager" shall not be used ' +
@@ -69,7 +69,7 @@ DownloadManager.prototype = {
   downloadData: function DownloadManager_downloadData(data, filename,
                                                       contentType) {
     if (navigator.msSaveBlob) { // IE10 and above
-      return navigator.msSaveBlob(new Blob([data], { type: contentType }),
+      return navigator.msSaveBlob(new Blob([data], { type: contentType, }),
                                   filename);
     }
 
@@ -95,7 +95,7 @@ DownloadManager.prototype = {
 
     var blobUrl = URL.createObjectURL(blob);
     download(blobUrl, filename);
-  }
+  },
 };
 
 export {
