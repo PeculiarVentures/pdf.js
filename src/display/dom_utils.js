@@ -14,15 +14,19 @@
  */
 
 import {
-  assert, CMapCompressionType, createValidAbsoluteUrl, deprecated, globalScope,
+  assert, CMapCompressionType, createValidAbsoluteUrl, deprecated,
   removeNullCharacters, stringToBytes, warn
 } from '../shared/util';
+import globalScope from '../shared/global_scope';
 
-var DEFAULT_LINK_REL = 'noopener noreferrer nofollow';
+const DEFAULT_LINK_REL = 'noopener noreferrer nofollow';
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
 class DOMCanvasFactory {
   create(width, height) {
-    assert(width > 0 && height > 0, 'invalid canvas size');
+    if (width <= 0 || height <= 0) {
+      throw new Error('invalid canvas size');
+    }
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
     canvas.width = width;
@@ -34,14 +38,20 @@ class DOMCanvasFactory {
   }
 
   reset(canvasAndContext, width, height) {
-    assert(canvasAndContext.canvas, 'canvas is not specified');
-    assert(width > 0 && height > 0, 'invalid canvas size');
+    if (!canvasAndContext.canvas) {
+      throw new Error('canvas is not specified');
+    }
+    if (width <= 0 || height <= 0) {
+      throw new Error('invalid canvas size');
+    }
     canvasAndContext.canvas.width = width;
     canvasAndContext.canvas.height = height;
   }
 
   destroy(canvasAndContext) {
-    assert(canvasAndContext.canvas, 'canvas is not specified');
+    if (!canvasAndContext.canvas) {
+      throw new Error('canvas is not specified');
+    }
     // Zeroing the width and height cause Firefox to release graphics
     // resources immediately, which can greatly reduce memory consumption.
     canvasAndContext.canvas.width = 0;
@@ -58,6 +68,10 @@ class DOMCMapReaderFactory {
   }
 
   fetch({ name, }) {
+    if (!this.baseUrl) {
+      return Promise.reject(new Error('CMap baseUrl must be specified, ' +
+        'see "PDFJS.cMapUrl" (and also "PDFJS.cMapPacked").'));
+    }
     if (!name) {
       return Promise.reject(new Error('CMap name must be specified.'));
     }
@@ -97,6 +111,27 @@ class DOMCMapReaderFactory {
 
       request.send(null);
     });
+  }
+}
+
+class DOMSVGFactory {
+  create(width, height) {
+    assert(width > 0 && height > 0, 'Invalid SVG dimensions');
+
+    let svg = document.createElementNS(SVG_NS, 'svg:svg');
+    svg.setAttribute('version', '1.1');
+    svg.setAttribute('width', width + 'px');
+    svg.setAttribute('height', height + 'px');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+
+    return svg;
+  }
+
+  createElement(type) {
+    assert(typeof type === 'string', 'Invalid SVG element type');
+
+    return document.createElementNS(SVG_NS, type);
   }
 }
 
@@ -321,4 +356,5 @@ export {
   DEFAULT_LINK_REL,
   DOMCanvasFactory,
   DOMCMapReaderFactory,
+  DOMSVGFactory,
 };

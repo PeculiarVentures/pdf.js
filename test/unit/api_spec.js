@@ -480,7 +480,7 @@ describe('api', function() {
     });
     it('gets page index', function(done) {
       // reference to second page
-      var ref = {num: 17, gen: 0};
+      var ref = { num: 17, gen: 0, };
       var promise = doc.getPageIndex(ref);
       promise.then(function(pageIndex) {
         expect(pageIndex).toEqual(1);
@@ -490,7 +490,7 @@ describe('api', function() {
       });
     });
     it('gets invalid page index', function (done) {
-      var ref = { num: 3, gen: 0 }; // Reference to a font dictionary.
+      var ref = { num: 3, gen: 0, }; // Reference to a font dictionary.
       var promise = doc.getPageIndex(ref);
       promise.then(function () {
         done.fail('shall fail for invalid page reference.');
@@ -503,8 +503,9 @@ describe('api', function() {
     it('gets destinations, from /Dests dictionary', function(done) {
       var promise = doc.getDestinations();
       promise.then(function(data) {
-        expect(data).toEqual({ chapter1: [{ gen: 0, num: 17 }, { name: 'XYZ' },
-                                          0, 841.89, null] });
+        expect(data).toEqual({
+          chapter1: [{ gen: 0, num: 17, }, { name: 'XYZ', }, 0, 841.89, null],
+        });
         done();
       }).catch(function (reason) {
         done.fail(reason);
@@ -513,7 +514,7 @@ describe('api', function() {
     it('gets a destination, from /Dests dictionary', function(done) {
       var promise = doc.getDestination('chapter1');
       promise.then(function(data) {
-        expect(data).toEqual([{ gen: 0, num: 17 }, { name: 'XYZ' },
+        expect(data).toEqual([{ gen: 0, num: 17, }, { name: 'XYZ', },
                               0, 841.89, null]);
         done();
       }).catch(function (reason) {
@@ -538,8 +539,8 @@ describe('api', function() {
       });
       promise.then(function (destinations) {
         expect(destinations).toEqual({
-          'Page.1': [{ num: 1, gen: 0}, { name: 'XYZ' }, 0, 375, null],
-          'Page.2': [{ num: 6, gen: 0}, { name: 'XYZ' }, 0, 375, null],
+          'Page.1': [{ num: 1, gen: 0, }, { name: 'XYZ', }, 0, 375, null],
+          'Page.2': [{ num: 6, gen: 0, }, { name: 'XYZ', }, 0, 375, null],
         });
 
         loadingTask.destroy().then(done);
@@ -553,7 +554,7 @@ describe('api', function() {
         return pdfDocument.getDestination('Page.1');
       });
       promise.then(function (destination) {
-        expect(destination).toEqual([{ num: 1, gen: 0}, { name: 'XYZ' },
+        expect(destination).toEqual([{ num: 1, gen: 0, }, { name: 'XYZ', },
                                      0, 375, null]);
 
         loadingTask.destroy().then(done);
@@ -625,6 +626,28 @@ describe('api', function() {
           loadingTask3.destroy()
         ]).then(done);
       }).catch(function (reason) {
+        done.fail(reason);
+      });
+    });
+
+    it('gets default page mode', function(done) {
+      var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
+
+      loadingTask.promise.then(function(pdfDocument) {
+        return pdfDocument.getPageMode();
+      }).then(function(mode) {
+        expect(mode).toEqual('UseNone');
+
+        loadingTask.destroy().then(done);
+      }).catch(function (reason) {
+        done.fail(reason);
+      });
+    });
+    it('gets non-default page mode', function(done) {
+      doc.getPageMode().then(function(mode) {
+        expect(mode).toEqual('UseOutlines');
+        done();
+      }).catch(function(reason) {
         done.fail(reason);
       });
     });
@@ -767,9 +790,6 @@ describe('api', function() {
       });
     });
     it('gets metadata', function(done) {
-      if (isNodeJS()) {
-        pending('Document is not supported in Node.js.');
-      }
       var promise = doc.getMetadata();
       promise.then(function(metadata) {
         expect(metadata.info['Title']).toEqual('Basic API Test');
@@ -793,7 +813,7 @@ describe('api', function() {
     it('gets download info', function(done) {
       var promise = doc.getDownloadInfo();
       promise.then(function (data) {
-        expect(data).toEqual({ length: basicApiFileLength });
+        expect(data).toEqual({ length: basicApiFileLength, });
         done();
       }).catch(function (reason) {
         done.fail(reason);
@@ -802,7 +822,7 @@ describe('api', function() {
     it('gets stats', function(done) {
       var promise = doc.getStats();
       promise.then(function (stats) {
-        expect(stats).toEqual({ streamTypes: [], fontTypes: [] });
+        expect(stats).toEqual({ streamTypes: [], fontTypes: [], });
         done();
       }).catch(function (reason) {
         done.fail(reason);
@@ -835,6 +855,85 @@ describe('api', function() {
         done.fail(reason);
       });
     });
+
+    describe('Cross-origin', function() {
+      var loadingTask;
+      function _checkCanLoad(expectSuccess, filename, options) {
+        if (isNodeJS()) {
+          pending('Cannot simulate cross-origin requests in Node.js');
+        }
+        var params = buildGetDocumentParams(filename, options);
+        var url = new URL(params.url);
+        if (url.hostname === 'localhost') {
+          url.hostname = '127.0.0.1';
+        } else if (params.url.hostname === '127.0.0.1') {
+          url.hostname = 'localhost';
+        } else {
+          pending('Can only run cross-origin test on localhost!');
+        }
+        params.url = url.href;
+        loadingTask = getDocument(params);
+        return loadingTask.promise.then(function(pdf) {
+          return pdf.destroy();
+        }).then(function() {
+          expect(expectSuccess).toEqual(true);
+        }, function(error) {
+          if (expectSuccess) {
+            // For ease of debugging.
+            expect(error).toEqual('There should not be any error');
+          }
+          expect(expectSuccess).toEqual(false);
+        });
+      }
+      function testCanLoad(filename, options) {
+        return _checkCanLoad(true, filename, options);
+      }
+      function testCannotLoad(filename, options) {
+        return _checkCanLoad(false, filename, options);
+      }
+      afterEach(function(done) {
+        if (loadingTask) {
+          loadingTask.destroy().then(done);
+        } else {
+          done();
+        }
+      });
+      it('server disallows cors', function(done) {
+        testCannotLoad('basicapi.pdf').then(done);
+      });
+      it('server allows cors without credentials, default withCredentials',
+          function(done) {
+        testCanLoad('basicapi.pdf?cors=withoutCredentials').then(done);
+      });
+      it('server allows cors without credentials, and withCredentials=false',
+          function(done) {
+        testCanLoad('basicapi.pdf?cors=withoutCredentials', {
+          withCredentials: false,
+        }).then(done);
+      });
+      it('server allows cors without credentials, but withCredentials=true',
+          function(done) {
+        testCannotLoad('basicapi.pdf?cors=withoutCredentials', {
+          withCredentials: true,
+        }).then(done);
+      });
+      it('server allows cors with credentials, and withCredentials=true',
+          function(done) {
+        testCanLoad('basicapi.pdf?cors=withCredentials', {
+          withCredentials: true,
+        }).then(done);
+      });
+      it('server allows cors with credentials, and withCredentials=false',
+          function(done) {
+        // The server supports even more than we need, so if the previous tests
+        // pass, then this should pass for sure.
+        // The only case where this test fails is when the server does not reply
+        // with the Access-Control-Allow-Origin header.
+        testCanLoad('basicapi.pdf?cors=withCredentials', {
+          withCredentials: false,
+        }).then(done);
+      });
+    });
   });
   describe('Page', function() {
     var loadingTask;
@@ -864,7 +963,7 @@ describe('api', function() {
       expect(page.rotate).toEqual(0);
     });
     it('gets ref', function () {
-      expect(page.ref).toEqual({ num: 15, gen: 0 });
+      expect(page.ref).toEqual({ num: 15, gen: 0, });
     });
     it('gets userUnit', function () {
       expect(page.userUnit).toEqual(1.0);
@@ -886,12 +985,12 @@ describe('api', function() {
         expect(data.length).toEqual(4);
       });
 
-      var displayPromise = page.getAnnotations({ intent: 'display' }).then(
+      var displayPromise = page.getAnnotations({ intent: 'display', }).then(
           function (data) {
         expect(data.length).toEqual(4);
       });
 
-      var printPromise = page.getAnnotations({ intent: 'print' }).then(
+      var printPromise = page.getAnnotations({ intent: 'print', }).then(
           function (data) {
         expect(data.length).toEqual(4);
       });
@@ -1011,7 +1110,7 @@ describe('api', function() {
 
       promise.then(function (stats) {
         expect(stats).toEqual({ streamTypes: expectedStreamTypes,
-                                fontTypes: expectedFontTypes });
+                                fontTypes: expectedFontTypes, });
         done();
       }).catch(function (reason) {
         done.fail(reason);
@@ -1039,6 +1138,32 @@ describe('api', function() {
         CanvasFactory.destroy(canvasAndCtx);
         done();
       });
+    });
+    it('multiple render() on the same canvas', function(done) {
+      if (isNodeJS()) {
+        pending('TODO: Support Canvas testing in Node.js.');
+      }
+      var viewport = page.getViewport(1);
+      var canvasAndCtx = CanvasFactory.create(viewport.width, viewport.height);
+
+      var renderTask1 = page.render({
+        canvasContext: canvasAndCtx.context,
+        viewport,
+      });
+      var renderTask2 = page.render({
+        canvasContext: canvasAndCtx.context,
+        viewport,
+      });
+
+      Promise.all([
+        renderTask1.promise,
+        renderTask2.promise.then(() => {
+          done.fail('shall fail rendering');
+        }, (reason) => {
+          /* it fails because we already using this canvas */
+          expect(/multiple render\(\)/.test(reason.message)).toEqual(true);
+        })
+      ]).then(done);
     });
   });
   describe('Multiple PDFJS instances', function() {
