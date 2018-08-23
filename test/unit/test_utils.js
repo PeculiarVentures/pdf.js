@@ -14,6 +14,7 @@
  */
 
 import { CMapCompressionType, isNodeJS } from '../../src/shared/util';
+import { isRef } from '../../src/core/primitives';
 
 class NodeFileReaderFactory {
   static fetch(params) {
@@ -50,6 +51,10 @@ class NodeCMapReaderFactory {
   }
 
   fetch({ name, }) {
+    if (!this.baseUrl) {
+      return Promise.reject(new Error('CMap baseUrl must be specified, ' +
+        'see "PDFJS.cMapUrl" (and also "PDFJS.cMapPacked").'));
+    }
     if (!name) {
       return Promise.reject(new Error('CMap name must be specified.'));
     }
@@ -74,9 +79,40 @@ class NodeCMapReaderFactory {
   }
 }
 
+class XRefMock {
+  constructor(array) {
+    this._map = Object.create(null);
+
+    for (let key in array) {
+      let obj = array[key];
+      this._map[obj.ref.toString()] = obj.data;
+    }
+  }
+
+  fetch(ref) {
+    return this._map[ref.toString()];
+  }
+
+  fetchAsync(ref) {
+    return Promise.resolve(this.fetch(ref));
+  }
+
+  fetchIfRef(obj) {
+    if (!isRef(obj)) {
+      return obj;
+    }
+    return this.fetch(obj);
+  }
+
+  fetchIfRefAsync(obj) {
+    return Promise.resolve(this.fetchIfRef(obj));
+  }
+}
+
 export {
   NodeFileReaderFactory,
   NodeCMapReaderFactory,
+  XRefMock,
   buildGetDocumentParams,
   TEST_PDFS_PATH,
 };

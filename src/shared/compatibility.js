@@ -21,9 +21,7 @@ if ((typeof PDFJSDev === 'undefined' ||
      !PDFJSDev.test('FIREFOX || MOZCENTRAL || CHROME')) &&
     (typeof PDFJS === 'undefined' || !PDFJS.compatibilityChecked)) {
 
-var globalScope = (typeof window !== 'undefined') ? window :
-                  (typeof global !== 'undefined') ? global :
-                  (typeof self !== 'undefined') ? self : this;
+var globalScope = require('./global_scope');
 
 var userAgent = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
 var isAndroid = /Android/.test(userAgent);
@@ -51,6 +49,12 @@ PDFJS.compatibilityChecked = true;
 // Checking if the typed arrays are supported
 // Support: iOS<6.0 (subarray), IE<10, Android<4.0
 (function checkTypedArrayCompatibility() {
+  if (typeof Uint8ClampedArray === 'undefined') {
+    // Support: IE<11
+    globalScope.Uint8ClampedArray =
+      require('core-js/fn/typed/uint8-clamped-array');
+  }
+
   if (typeof Uint8Array !== 'undefined') {
     // Support: iOS<6.0
     if (typeof Uint8Array.prototype.subarray === 'undefined') {
@@ -104,7 +108,7 @@ PDFJS.compatibilityChecked = true;
         buffer[offset + 1] = (value >> 8) & 255;
         buffer[offset + 2] = (value >> 16) & 255;
         buffer[offset + 3] = (value >>> 24) & 255;
-      }
+      },
     };
   }
 
@@ -182,14 +186,14 @@ PDFJS.compatibilityChecked = true;
       return this;
     },
     enumerable: false,
-    configurable: true
+    configurable: true,
   });
   Object.defineProperty(cpaProto, 'byteLength', {
     get() {
       return this.length;
     },
     enumerable: false,
-    configurable: true
+    configurable: true,
   });
 })();
 
@@ -210,13 +214,13 @@ PDFJS.compatibilityChecked = true;
       if (hasDOM) {
         // some browsers (e.g. safari) cannot use defineProperty() on DOM
         // objects and thus the native version is not sufficient
-        Object.defineProperty(new Image(), 'id', { value: 'test' });
+        Object.defineProperty(new Image(), 'id', { value: 'test', });
       }
       // ... another test for android gb browser for non-DOM objects
       var Test = function Test() {};
-      Test.prototype = { get id() { } };
+      Test.prototype = { get id() { }, };
       Object.defineProperty(new Test(), 'id',
-        { value: '', configurable: true, enumerable: true, writable: false });
+        { value: '', configurable: true, enumerable: true, writable: false, });
     } catch (e) {
       definePropertyPossible = false;
     }
@@ -258,7 +262,7 @@ PDFJS.compatibilityChecked = true;
     // IE10 might have response, but not overrideMimeType
     // Support: IE10
     Object.defineProperty(xhrPrototype, 'overrideMimeType', {
-      value: function xmlHttpRequestOverrideMimeType(mimeType) {}
+      value: function xmlHttpRequestOverrideMimeType(mimeType) {},
     });
   }
   if ('responseType' in xhr) {
@@ -277,7 +281,7 @@ PDFJS.compatibilityChecked = true;
           this.overrideMimeType('text/plain; charset=x-user-defined');
         }
       }
-    }
+    },
   });
 
   // Support: IE9
@@ -288,7 +292,7 @@ PDFJS.compatibilityChecked = true;
           return new Uint8Array(new VBArray(this.responseBody).toArray());
         }
         return this.responseText;
-      }
+      },
     });
     return;
   }
@@ -305,7 +309,7 @@ PDFJS.compatibilityChecked = true;
         result[i] = text.charCodeAt(i) & 0xFF;
       }
       return result.buffer;
-    }
+    },
   });
 })();
 
@@ -420,11 +424,11 @@ PDFJS.compatibilityChecked = true;
       Object.defineProperty(this, '_dataset', {
         value: dataset,
         writable: false,
-        enumerable: false
+        enumerable: false,
       });
       return dataset;
     },
-    enumerable: true
+    enumerable: true,
   });
 })();
 
@@ -469,7 +473,7 @@ PDFJS.compatibilityChecked = true;
     },
     toggle(name) {
       changeList(this.element, name, true, true);
-    }
+    },
   };
 
   Object.defineProperty(HTMLElement.prototype, 'classList', {
@@ -482,17 +486,17 @@ PDFJS.compatibilityChecked = true;
         element: {
           value: this,
           writable: false,
-          enumerable: true
-        }
+          enumerable: true,
+        },
       });
       Object.defineProperty(this, '_classList', {
         value: classList,
         writable: false,
-        enumerable: false
+        enumerable: false,
       });
       return classList;
     },
-    enumerable: true
+    enumerable: true,
   });
 })();
 
@@ -511,7 +515,7 @@ PDFJS.compatibilityChecked = true;
       globalScope.postMessage({
         targetName: 'main',
         action: 'console_log',
-        data: args
+        data: args,
       });
     },
 
@@ -520,7 +524,7 @@ PDFJS.compatibilityChecked = true;
       globalScope.postMessage({
         targetName: 'main',
         action: 'console_error',
-        data: args
+        data: args,
       });
     },
 
@@ -534,7 +538,7 @@ PDFJS.compatibilityChecked = true;
         throw new Error('Unknown timer name ' + name);
       }
       this.log('Timer:', name, Date.now() - time);
-    }
+    },
   };
 
   globalScope.console = workerConsole;
@@ -552,7 +556,7 @@ PDFJS.compatibilityChecked = true;
     window.console = {
       log() {},
       error() {},
-      warn() {}
+      warn() {},
     };
     return;
   }
@@ -765,7 +769,7 @@ PDFJS.compatibilityChecked = true;
       return scripts[scripts.length - 1];
     },
     enumerable: true,
-    configurable: true
+    configurable: true,
   });
 })();
 
@@ -789,7 +793,7 @@ PDFJS.compatibilityChecked = true;
         typeProperty.set.call(this, value === 'number' ? 'text' : value);
       },
       enumerable: true,
-      configurable: true
+      configurable: true,
     });
   }
 })();
@@ -815,7 +819,7 @@ PDFJS.compatibilityChecked = true;
       readyStateProto.set.call(this, value);
     },
     enumerable: true,
-    configurable: true
+    configurable: true,
   });
 })();
 
@@ -835,364 +839,36 @@ PDFJS.compatibilityChecked = true;
   };
 })();
 
-/**
- * Polyfill for Promises:
- * The following promise implementation tries to generally implement the
- * Promise/A+ spec. Some notable differences from other promise libraries are:
- * - There currently isn't a separate deferred and promise object.
- * - Unhandled rejections eventually show an error if they aren't handled.
- *
- * Based off of the work in:
- * https://bugzilla.mozilla.org/show_bug.cgi?id=810490
- */
-(function checkPromise() {
-  if (globalScope.Promise) {
-    // Promises existing in the DOM/Worker, checking presence of all/resolve
-    if (typeof globalScope.Promise.all !== 'function') {
-      globalScope.Promise.all = function (iterable) {
-        var count = 0, results = [], resolve, reject;
-        var promise = new globalScope.Promise(function (resolve_, reject_) {
-          resolve = resolve_;
-          reject = reject_;
-        });
-        iterable.forEach(function (p, i) {
-          count++;
-          p.then(function (result) {
-            results[i] = result;
-            count--;
-            if (count === 0) {
-              resolve(results);
-            }
-          }, reject);
-        });
-        if (count === 0) {
-          resolve(results);
-        }
-        return promise;
-      };
-    }
-    if (typeof globalScope.Promise.resolve !== 'function') {
-      globalScope.Promise.resolve = function (value) {
-        return new globalScope.Promise(function (resolve) {
-          resolve(value);
-        });
-      };
-    }
-    if (typeof globalScope.Promise.reject !== 'function') {
-      globalScope.Promise.reject = function (reason) {
-        return new globalScope.Promise(function (resolve, reject) {
-          reject(reason);
-        });
-      };
-    }
-    if (typeof globalScope.Promise.prototype.catch !== 'function') {
-      globalScope.Promise.prototype.catch = function (onReject) {
-        return globalScope.Promise.prototype.then(undefined, onReject);
-      };
-    }
+// Provides support for Number.isNaN in legacy browsers.
+// Support: IE.
+(function checkNumberIsNaN() {
+  if (Number.isNaN) {
     return;
   }
+  Number.isNaN = require('core-js/fn/number/is-nan');
+})();
 
-  var STATUS_PENDING = 0;
-  var STATUS_RESOLVED = 1;
-  var STATUS_REJECTED = 2;
+// Provides support for Number.isInteger in legacy browsers.
+// Support: IE.
+(function checkNumberIsInteger() {
+  if (Number.isInteger) {
+    return;
+  }
+  Number.isInteger = require('core-js/fn/number/is-integer');
+})();
 
-  // In an attempt to avoid silent exceptions, unhandled rejections are
-  // tracked and if they aren't handled in a certain amount of time an
-  // error is logged.
-  var REJECTION_TIMEOUT = 500;
-
-  var HandlerManager = {
-    handlers: [],
-    running: false,
-    unhandledRejections: [],
-    pendingRejectionCheck: false,
-
-    scheduleHandlers: function scheduleHandlers(promise) {
-      if (promise._status === STATUS_PENDING) {
-        return;
-      }
-
-      this.handlers = this.handlers.concat(promise._handlers);
-      promise._handlers = [];
-
-      if (this.running) {
-        return;
-      }
-      this.running = true;
-
-      setTimeout(this.runHandlers.bind(this), 0);
-    },
-
-    runHandlers: function runHandlers() {
-      var RUN_TIMEOUT = 1; // ms
-      var timeoutAt = Date.now() + RUN_TIMEOUT;
-      while (this.handlers.length > 0) {
-        var handler = this.handlers.shift();
-
-        var nextStatus = handler.thisPromise._status;
-        var nextValue = handler.thisPromise._value;
-
-        try {
-          if (nextStatus === STATUS_RESOLVED) {
-            if (typeof handler.onResolve === 'function') {
-              nextValue = handler.onResolve(nextValue);
-            }
-          } else if (typeof handler.onReject === 'function') {
-              nextValue = handler.onReject(nextValue);
-              nextStatus = STATUS_RESOLVED;
-
-              if (handler.thisPromise._unhandledRejection) {
-                this.removeUnhandeledRejection(handler.thisPromise);
-              }
-          }
-        } catch (ex) {
-          nextStatus = STATUS_REJECTED;
-          nextValue = ex;
-        }
-
-        handler.nextPromise._updateStatus(nextStatus, nextValue);
-        if (Date.now() >= timeoutAt) {
-          break;
-        }
-      }
-
-      if (this.handlers.length > 0) {
-        setTimeout(this.runHandlers.bind(this), 0);
-        return;
-      }
-
-      this.running = false;
-    },
-
-    addUnhandledRejection: function addUnhandledRejection(promise) {
-      this.unhandledRejections.push({
-        promise,
-        time: Date.now()
-      });
-      this.scheduleRejectionCheck();
-    },
-
-    removeUnhandeledRejection: function removeUnhandeledRejection(promise) {
-      promise._unhandledRejection = false;
-      for (var i = 0; i < this.unhandledRejections.length; i++) {
-        if (this.unhandledRejections[i].promise === promise) {
-          this.unhandledRejections.splice(i);
-          i--;
-        }
-      }
-    },
-
-    scheduleRejectionCheck: function scheduleRejectionCheck() {
-      if (this.pendingRejectionCheck) {
-        return;
-      }
-      this.pendingRejectionCheck = true;
-      setTimeout(() => {
-        this.pendingRejectionCheck = false;
-        var now = Date.now();
-        for (var i = 0; i < this.unhandledRejections.length; i++) {
-          if (now - this.unhandledRejections[i].time > REJECTION_TIMEOUT) {
-            var unhandled = this.unhandledRejections[i].promise._value;
-            var msg = 'Unhandled rejection: ' + unhandled;
-            if (unhandled.stack) {
-              msg += '\n' + unhandled.stack;
-            }
-            // Raising and catching the error, so debugger can break on it.
-            try {
-              throw new Error(msg);
-            } catch (_) {
-              console.warn(msg);
-            }
-            this.unhandledRejections.splice(i);
-            i--;
-          }
-        }
-        if (this.unhandledRejections.length) {
-          this.scheduleRejectionCheck();
-        }
-      }, REJECTION_TIMEOUT);
-    }
-  };
-
-  var Promise = function Promise(resolver) {
-    this._status = STATUS_PENDING;
-    this._handlers = [];
-    try {
-      resolver.call(this, this._resolve.bind(this), this._reject.bind(this));
-    } catch (e) {
-      this._reject(e);
-    }
-  };
-
-  /**
-   * Builds a promise that is resolved when all the passed in promises are
-   * resolved.
-   * @param {array} promises array of data and/or promises to wait for.
-   * @return {Promise} New dependent promise.
-   */
-  Promise.all = function Promise_all(promises) {
-    var resolveAll, rejectAll;
-    var deferred = new Promise(function (resolve, reject) {
-      resolveAll = resolve;
-      rejectAll = reject;
-    });
-    var unresolved = promises.length;
-    var results = [];
-    if (unresolved === 0) {
-      resolveAll(results);
-      return deferred;
-    }
-    function reject(reason) {
-      if (deferred._status === STATUS_REJECTED) {
-        return;
-      }
-      results = [];
-      rejectAll(reason);
-    }
-    for (var i = 0, ii = promises.length; i < ii; ++i) {
-      var promise = promises[i];
-      var resolve = (function(i) {
-        return function(value) {
-          if (deferred._status === STATUS_REJECTED) {
-            return;
-          }
-          results[i] = value;
-          unresolved--;
-          if (unresolved === 0) {
-            resolveAll(results);
-          }
-        };
-      })(i);
-      if (Promise.isPromise(promise)) {
-        promise.then(resolve, reject);
-      } else {
-        resolve(promise);
-      }
-    }
-    return deferred;
-  };
-
-  /**
-   * Checks if the value is likely a promise (has a 'then' function).
-   * @return {boolean} true if value is thenable
-   */
-  Promise.isPromise = function Promise_isPromise(value) {
-    return value && typeof value.then === 'function';
-  };
-
-  /**
-   * Creates resolved promise
-   * @param value resolve value
-   * @returns {Promise}
-   */
-  Promise.resolve = function Promise_resolve(value) {
-    return new Promise(function (resolve) {
-      resolve(value);
-    });
-  };
-
-  /**
-   * Creates rejected promise
-   * @param reason rejection value
-   * @returns {Promise}
-   */
-  Promise.reject = function Promise_reject(reason) {
-    return new Promise(function (resolve, reject) {
-      reject(reason);
-    });
-  };
-
-  Promise.prototype = {
-    _status: null,
-    _value: null,
-    _handlers: null,
-    _unhandledRejection: null,
-
-    _updateStatus: function Promise__updateStatus(status, value) {
-      if (this._status === STATUS_RESOLVED ||
-          this._status === STATUS_REJECTED) {
-        return;
-      }
-
-      if (status === STATUS_RESOLVED &&
-          Promise.isPromise(value)) {
-        value.then(this._updateStatus.bind(this, STATUS_RESOLVED),
-                   this._updateStatus.bind(this, STATUS_REJECTED));
-        return;
-      }
-
-      this._status = status;
-      this._value = value;
-
-      if (status === STATUS_REJECTED && this._handlers.length === 0) {
-        this._unhandledRejection = true;
-        HandlerManager.addUnhandledRejection(this);
-      }
-
-      HandlerManager.scheduleHandlers(this);
-    },
-
-    _resolve: function Promise_resolve(value) {
-      this._updateStatus(STATUS_RESOLVED, value);
-    },
-
-    _reject: function Promise_reject(reason) {
-      this._updateStatus(STATUS_REJECTED, reason);
-    },
-
-    then: function Promise_then(onResolve, onReject) {
-      var nextPromise = new Promise(function (resolve, reject) {
-        this.resolve = resolve;
-        this.reject = reject;
-      });
-      this._handlers.push({
-        thisPromise: this,
-        onResolve,
-        onReject,
-        nextPromise,
-      });
-      HandlerManager.scheduleHandlers(this);
-      return nextPromise;
-    },
-
-    catch: function Promise_catch(onReject) {
-      return this.then(undefined, onReject);
-    }
-  };
-
-  globalScope.Promise = Promise;
+(function checkPromise() {
+  if (globalScope.Promise) {
+    return;
+  }
+  globalScope.Promise = require('core-js/fn/promise');
 })();
 
 (function checkWeakMap() {
   if (globalScope.WeakMap) {
     return;
   }
-
-  var id = 0;
-  function WeakMap() {
-    this.id = '$weakmap' + (id++);
-  }
-  WeakMap.prototype = {
-    has(obj) {
-      return !!Object.getOwnPropertyDescriptor(obj, this.id);
-    },
-    get(obj, defaultValue) {
-      return this.has(obj) ? obj[this.id] : defaultValue;
-    },
-    set(obj, value) {
-      Object.defineProperty(obj, this.id, {
-        value,
-        enumerable: false,
-        configurable: true
-      });
-    },
-    delete(obj) {
-      delete obj[this.id];
-    }
-  };
-
-  globalScope.WeakMap = WeakMap;
+  globalScope.WeakMap = require('core-js/fn/weak-map');
 })();
 
 // Polyfill from https://github.com/Polymer/URL
@@ -1708,92 +1384,94 @@ PDFJS.compatibilityChecked = true;
           (this._isRelative ? '//' + authority + this.host : '') +
           this.pathname + this._query + this._fragment;
     },
-    set href(href) {
+    // The named parameter should be different from the setter's function name.
+    // Otherwise Safari 5 will throw an error (see issue 8541)
+    set href(value) {
       clear.call(this);
-      parse.call(this, href);
+      parse.call(this, value);
     },
 
     get protocol() {
       return this._scheme + ':';
     },
-    set protocol(protocol) {
+    set protocol(value) {
       if (this._isInvalid) {
         return;
       }
-      parse.call(this, protocol + ':', 'scheme start');
+      parse.call(this, value + ':', 'scheme start');
     },
 
     get host() {
       return this._isInvalid ? '' : this._port ?
           this._host + ':' + this._port : this._host;
     },
-    set host(host) {
+    set host(value) {
       if (this._isInvalid || !this._isRelative) {
         return;
       }
-      parse.call(this, host, 'host');
+      parse.call(this, value, 'host');
     },
 
     get hostname() {
       return this._host;
     },
-    set hostname(hostname) {
+    set hostname(value) {
       if (this._isInvalid || !this._isRelative) {
         return;
       }
-      parse.call(this, hostname, 'hostname');
+      parse.call(this, value, 'hostname');
     },
 
     get port() {
       return this._port;
     },
-    set port(port) {
+    set port(value) {
       if (this._isInvalid || !this._isRelative) {
         return;
       }
-      parse.call(this, port, 'port');
+      parse.call(this, value, 'port');
     },
 
     get pathname() {
       return this._isInvalid ? '' : this._isRelative ?
           '/' + this._path.join('/') : this._schemeData;
     },
-    set pathname(pathname) {
+    set pathname(value) {
       if (this._isInvalid || !this._isRelative) {
         return;
       }
       this._path = [];
-      parse.call(this, pathname, 'relative path start');
+      parse.call(this, value, 'relative path start');
     },
 
     get search() {
       return this._isInvalid || !this._query || this._query === '?' ?
           '' : this._query;
     },
-    set search(search) {
+    set search(value) {
       if (this._isInvalid || !this._isRelative) {
         return;
       }
       this._query = '?';
-      if (search[0] === '?') {
-        search = search.slice(1);
+      if (value[0] === '?') {
+        value = value.slice(1);
       }
-      parse.call(this, search, 'query');
+      parse.call(this, value, 'query');
     },
 
     get hash() {
       return this._isInvalid || !this._fragment || this._fragment === '#' ?
           '' : this._fragment;
     },
-    set hash(hash) {
+    set hash(value) {
       if (this._isInvalid) {
         return;
       }
       this._fragment = '#';
-      if (hash[0] === '#') {
-        hash = hash.slice(1);
+      if (value[0] === '#') {
+        value = value.slice(1);
       }
-      parse.call(this, hash, 'fragment');
+      parse.call(this, value, 'fragment');
     },
 
     get origin() {
@@ -1812,13 +1490,21 @@ PDFJS.compatibilityChecked = true;
         case 'javascript':
         case 'mailto':
           return 'null';
+        case 'blob':
+          // Special case of blob: -- returns valid origin of _schemeData.
+          try {
+            return new JURL(this._schemeData).origin || 'null';
+          } catch (_) {
+            // Invalid _schemeData origin -- ignoring errors.
+          }
+          return 'null';
       }
       host = this.host;
       if (!host) {
         return '';
       }
       return this._scheme + '://' + host;
-    }
+    },
   };
 
   // Copy over the static methods

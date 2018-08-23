@@ -31,6 +31,16 @@ class IPDFLinkService {
   set page(value) {}
 
   /**
+   * @returns {number}
+   */
+  get rotation() {}
+
+  /**
+   * @param {number} value
+   */
+  set rotation(value) {}
+
+  /**
    * @param dest - The PDF destination object.
    */
   navigateTo(dest) {}
@@ -58,6 +68,11 @@ class IPDFLinkService {
   executeNamedAction(action) {}
 
   /**
+   * @param {Object} params
+   */
+  onFileAttachmentAnnotation({ id, filename, content, }) {}
+
+  /**
    * @param {number} pageNum - page number.
    * @param {Object} pageRef - reference to the page.
    */
@@ -68,10 +83,22 @@ class IPDFLinkService {
  * @interface
  */
 class IPDFHistory {
-  forward() {}
+  /**
+   * @param {string} fingerprint - The PDF document's unique fingerprint.
+   * @param {boolean} resetHistory - (optional) Reset the browsing history.
+   */
+  initialize(fingerprint, resetHistory = false) {}
+
+  /**
+   * @param {Object} params
+   */
+  push({ namedDest, explicitDest, pageNumber, }) {}
+
+  pushCurrentPosition() {}
+
   back() {}
-  push(params) {}
-  updateNextHashParam(hash) {}
+
+  forward() {}
 }
 
 /**
@@ -118,9 +145,39 @@ class IPDFAnnotationLayerFactory {
   /**
    * @param {HTMLDivElement} pageDiv
    * @param {PDFPage} pdfPage
+   * @param {IL10n} l10n
    * @param {boolean} renderInteractiveForms
    * @returns {AnnotationLayerBuilder}
    */
   createAnnotationLayerBuilder(pageDiv, pdfPage,
-                               renderInteractiveForms = false) {}
+                               renderInteractiveForms = false,
+                               l10n = undefined) {}
+}
+
+/**
+ * @interface
+ */
+class IL10n {
+  /**
+   * @returns {Promise<string>} - Resolves to 'rtl' or 'ltr'.
+   */
+  getDirection() {}
+
+  /**
+   * Translates text identified by the key and adds/formats data using the args
+   * property bag. If the key was not found, translation falls back to the
+   * fallback text.
+   * @param {string} key
+   * @param {object} args
+   * @param {string} fallback
+   * @returns {Promise<string>}
+   */
+  get(key, args, fallback) { }
+
+  /**
+   * Translates HTML element.
+   * @param {HTMLElement} element
+   * @returns {Promise<void>}
+   */
+  translate(element) { }
 }
