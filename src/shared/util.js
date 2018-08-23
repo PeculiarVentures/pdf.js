@@ -1303,7 +1303,6 @@ function MessageHandler(sourceName, targetName, comObj) {
             targetName,
             isReply: true,
             callbackId: data.callbackId,
-<<<<<<< HEAD
             // PV patch, fix circular structure for signature fields
             // data: result
             data: (function() {
@@ -1329,9 +1328,6 @@ function MessageHandler(sourceName, targetName, comObj) {
               }
             })()
             // end PV patch
-=======
-            data: result,
->>>>>>> ea29ec83e1bb4ea44d71cccc451c6b9374e10fb9
           });
         }, (reason) => {
           comObj.postMessage({
