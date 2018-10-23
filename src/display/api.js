@@ -41,40 +41,38 @@ let fallbackWorkerSrc;
 
 let fakeWorkerFilesLoader = null;
 if (typeof PDFJSDev !== 'undefined' && PDFJSDev.test('GENERIC')) {
-  let useRequireEnsure = false;
-  // For GENERIC build we need to add support for different fake file loaders
-  // for different frameworks.
-  if (typeof window === 'undefined') {
-    // node.js - disable worker and set require.ensure.
-    isWorkerDisabled = true;
-    if (typeof __non_webpack_require__.ensure === 'undefined') {
-      __non_webpack_require__.ensure = __non_webpack_require__('node-ensure');
-    }
-    useRequireEnsure = true;
-  } else if (typeof __non_webpack_require__ !== 'undefined' &&
-             typeof __non_webpack_require__.ensure === 'function') {
-    useRequireEnsure = true;
-  }
-  if (typeof requirejs !== 'undefined' && requirejs.toUrl) {
-    fallbackWorkerSrc = requirejs.toUrl('pdfjs-dist/build/pdf.worker.js');
-  }
+  let useRequireEnsure = true;
+  // // For GENERIC build we need to add support for different fake file loaders
+  // // for different frameworks.
+  // if (typeof window === 'undefined') {
+  //   // node.js - disable worker and set require.ensure.
+  //   isWorkerDisabled = true;
+  //   if (typeof __non_webpack_require__.ensure === 'undefined') {
+  //     __non_webpack_require__.ensure = __non_webpack_require__('node-ensure');
+  //   }
+  //   useRequireEnsure = true;
+  // } else if (typeof __non_webpack_require__ !== 'undefined' &&
+  //            typeof __non_webpack_require__.ensure === 'function') {
+  //   useRequireEnsure = true;
+  // }
+  // if (typeof requirejs !== 'undefined' && requirejs.toUrl) {
+  //   fallbackWorkerSrc = requirejs.toUrl('pdfjs-dist/build/pdf.worker.js');
+  // }
   const dynamicLoaderSupported =
     typeof requirejs !== 'undefined' && requirejs.load;
   fakeWorkerFilesLoader = useRequireEnsure ? (function() {
     return new Promise(function(resolve, reject) {
-      __non_webpack_require__.ensure([], function() {
-        try {
-          let worker;
-          if (typeof PDFJSDev !== 'undefined' && PDFJSDev.test('LIB')) {
-            worker = __non_webpack_require__('../pdf.worker.js');
-          } else {
-            worker = __non_webpack_require__('./pdf.worker.js');
-          }
-          resolve(worker.WorkerMessageHandler);
-        } catch (ex) {
-          reject(ex);
+      try {
+        let worker;
+        if (typeof PDFJSDev !== 'undefined' && PDFJSDev.test('LIB')) {
+          worker = __non_webpack_require__('../pdf.worker.js');
+        } else {
+          worker = __non_webpack_require__('./pdf.worker.js');
         }
-      }, reject, 'pdfjsWorker');
+        resolve(worker.WorkerMessageHandler);
+      } catch (ex) {
+        reject(ex);
+      }
     });
   }) : dynamicLoaderSupported ? (function() {
     return new Promise(function(resolve, reject) {

@@ -1297,6 +1297,8 @@ gulp.task('dist-pre',
         .pipe(gulp.dest(DIST_DIR + 'image_decoders')),
     gulp.src(LIB_DIR + '**/*', { base: LIB_DIR, })
         .pipe(gulp.dest(DIST_DIR + 'lib/')),
+    gulp.src('src/index.d.ts', { base: 'src', })
+        .pipe(gulp.dest(DIST_DIR)),
   ]);
 });
 
