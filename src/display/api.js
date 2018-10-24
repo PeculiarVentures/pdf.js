@@ -1349,7 +1349,9 @@ var PDFWorker = (function PDFWorkerClosure() {
     if (typeof fallbackWorkerSrc !== 'undefined') {
       return fallbackWorkerSrc;
     }
-    throw new Error('No "GlobalWorkerOptions.workerSrc" specified.');
+
+    return '';
+    // throw new Error('No "GlobalWorkerOptions.workerSrc" specified.');
   }
 
   function getMainThreadWorkerMessageHandler() {
