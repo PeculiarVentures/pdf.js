@@ -303,6 +303,7 @@ declare module 'pdfjs-dist' {
     color: number[]; // [r,g,b]
     borderWidth: number;
     hasAppearance: boolean;
+    [key: string]: any;
   }
   
   export interface PDFAnnotations {
@@ -374,6 +375,8 @@ declare module 'pdfjs-dist' {
      * @return An array of the visible portion of the PDF page in the user space units - [x1, y1, x2, y2].
      **/
     view: number[];
+
+    transport: any;
   
     /**
      * @param scale The desired scale of the viewport.
@@ -385,7 +388,7 @@ declare module 'pdfjs-dist' {
     /**
      * A promise that is resolved with an array of the annotation objects.
      **/
-    getAnnotations(): PDFPromise<{ [key: string]: any }[]>;
+    getAnnotations(): Promise<PDFAnnotationData[]>;
 
     /**
      * Begins the process of rendering a page to the desired context.
