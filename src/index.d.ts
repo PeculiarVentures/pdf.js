@@ -229,6 +229,9 @@ declare module 'pdfjs-dist' {
      *  A promise that is resolved with a lookup table for mapping named destinations to reference numbers.
      **/
     getDestinations(): PDFPromise<any[]>;
+
+
+    getAttachments(): Promise<{ [key: string]: object } | null>;
   
     /**
      *  A promise that is resolved with an array of all the JavaScript strings in the name tree.
@@ -382,8 +385,8 @@ declare module 'pdfjs-dist' {
     /**
      * A promise that is resolved with an array of the annotation objects.
      **/
-    getAnnotations(): PDFPromise<PDFAnnotations>;
-  
+    getAnnotations(): PDFPromise<{ [key: string]: any }[]>;
+
     /**
      * Begins the process of rendering a page to the desired context.
      * @param params Rendering options.
