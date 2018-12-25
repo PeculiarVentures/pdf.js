@@ -615,7 +615,9 @@ class WidgetAnnotation extends Annotation {
 
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN);
+      // PV patch, force display signatures
+      // this.setFlags(AnnotationFlag.HIDDEN);
+      // end PV patch
     }
   }
 
