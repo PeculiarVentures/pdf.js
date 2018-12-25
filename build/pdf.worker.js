@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.0.932';
-var pdfjsBuild = '3b436d44';
+var pdfjsVersion = '2.0.934';
+var pdfjsBuild = '8d220aea';
 var pdfjsCoreWorker = __w_pdfjs_require__(1);
 exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
 
@@ -339,7 +339,7 @@ var WorkerMessageHandler = {
     var cancelXHRs = null;
     var WorkerTasks = [];
     var apiVersion = docParams.apiVersion;
-    var workerVersion = '2.0.932';
+    var workerVersion = '2.0.934';
     if (apiVersion !== workerVersion) {
       throw new Error('The API version "' + apiVersion + '" does not match ' + ('the Worker version "' + workerVersion + '".'));
     }
@@ -23175,9 +23175,7 @@ var WidgetAnnotation = function (_Annotation) {
       data.fieldFlags = 0;
     }
     data.readOnly = _this2.hasFieldFlag(_util.AnnotationFieldFlag.READONLY);
-    if (data.fieldType === 'Sig') {
-      _this2.setFlags(_util.AnnotationFlag.HIDDEN);
-    }
+    if (data.fieldType === 'Sig') {}
     return _this2;
   }
 
