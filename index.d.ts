@@ -491,7 +491,7 @@ declare module 'pdfjs-dist' {
   * @params {PDFViewerParams}
   */
  export function PDFSinglePageViewer(params: PDFViewerParams): void;
- export function renderTextLayer(params: any): Promise<void>;
+ export function renderTextLayer(params: any): { promise: Promise<void> };
  export class SVGGraphics {
    embedFonts: boolean;
    constructor(a?: any, b?: any, c?: any);
