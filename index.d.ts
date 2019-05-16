@@ -335,6 +335,7 @@ declare module 'pdfjs-dist' {
     textLayer?: PDFRenderTextLayer;
     imageLayer?: PDFRenderImageLayer;
     continueCallback?: (_continue: () => void) => void;
+    renderInteractiveForms?: boolean;
   }
   
   export interface PDFViewerParams {
@@ -407,6 +408,8 @@ declare module 'pdfjs-dist' {
      **/
     getOperationList(): PDFPromise<any>;
     getOperatorList(): Promise<any>;
+
+    cleanup(): void;
   
     /**
      * Destroyes resources allocated by the page.

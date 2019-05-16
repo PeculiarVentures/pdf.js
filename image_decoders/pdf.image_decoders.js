@@ -136,8 +136,8 @@ var _jpg = __w_pdfjs_require__(116);
 
 var _jpx = __w_pdfjs_require__(117);
 
-var pdfjsVersion = '2.0.936';
-var pdfjsBuild = 'a92103d8';
+var pdfjsVersion = '2.0.937';
+var pdfjsBuild = '06a5c2ef';
 exports.Jbig2mage = _jbig.Jbig2mage;
 exports.JpegImage = _jpg.JpegImage;
 exports.JpxImage = _jpx.JpxImage;
