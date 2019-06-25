@@ -984,6 +984,7 @@ var PDFPageProxy = (function PDFPageProxyClosure() {
           pageIndex: this.pageNumber - 1,
           intent: renderingIntent,
           renderInteractiveForms: (params.renderInteractiveForms === true),
+          forceRenderSigAnnot: (params.forceRenderSigAnnot === true),
         });
       }
 

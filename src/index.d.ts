@@ -336,6 +336,7 @@ declare module 'pdfjs-dist' {
     imageLayer?: PDFRenderImageLayer;
     continueCallback?: (_continue: () => void) => void;
     renderInteractiveForms?: boolean;
+    forceRenderSigAnnot?: boolean;
   }
   
   export interface PDFViewerParams {

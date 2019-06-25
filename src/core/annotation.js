@@ -424,7 +424,7 @@ class Annotation {
     });
   }
 
-  getOperatorList(evaluator, task, renderForms) {
+  getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
     if (!this.appearance) {
       return Promise.resolve(new OperatorList());
     }
@@ -681,13 +681,17 @@ class WidgetAnnotation extends Annotation {
     return !!(this.data.fieldFlags & flag);
   }
 
-  getOperatorList(evaluator, task, renderForms) {
+  getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
     // Do not render form elements on the canvas when interactive forms are
     // enabled. The display layer is responsible for rendering them instead.
-    if (renderForms) {
+    if (renderForms &&
+      (this.data.fieldType !== 'Sig' || !forceRenderSigAnnot)
+    ) {
       return Promise.resolve(new OperatorList());
     }
-    return super.getOperatorList(evaluator, task, renderForms);
+    return super.getOperatorList(
+      evaluator, task, renderForms, forceRenderSigAnnot
+    );
   }
 }
 
@@ -723,9 +727,11 @@ class TextWidgetAnnotation extends WidgetAnnotation {
                      this.data.maxLen !== null;
   }
 
-  getOperatorList(evaluator, task, renderForms) {
+  getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
     if (renderForms || this.appearance) {
-      return super.getOperatorList(evaluator, task, renderForms);
+      return super.getOperatorList(
+        evaluator, task, renderForms, forceRenderSigAnnot
+      );
     }
 
     let operatorList = new OperatorList();
