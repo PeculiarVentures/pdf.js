@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.0.937';
-var pdfjsBuild = '06a5c2ef';
+var pdfjsVersion = '2.0.938';
+var pdfjsBuild = '084213b2';
 var pdfjsCoreWorker = __w_pdfjs_require__(1);
 exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
 
@@ -339,7 +339,7 @@ var WorkerMessageHandler = {
     var cancelXHRs = null;
     var WorkerTasks = [];
     var apiVersion = docParams.apiVersion;
-    var workerVersion = '2.0.937';
+    var workerVersion = '2.0.938';
     if (apiVersion !== workerVersion) {
       throw new Error('The API version "' + apiVersion + '" does not match ' + ('the Worker version "' + workerVersion + '".'));
     }
@@ -625,7 +625,8 @@ var WorkerMessageHandler = {
           handler: handler,
           task: task,
           intent: data.intent,
-          renderInteractiveForms: data.renderInteractiveForms
+          renderInteractiveForms: data.renderInteractiveForms,
+          forceRenderSigAnnot: data.forceRenderSigAnnot
         }).then(function (operatorList) {
           finishWorkerTask(task);
           (0, _util.info)('page=' + pageNum + ' - getOperatorList: time=' + (Date.now() - start) + 'ms, len=' + operatorList.totalLength);
@@ -9865,7 +9866,8 @@ var Page = function PageClosure() {
       var handler = _ref2.handler,
           task = _ref2.task,
           intent = _ref2.intent,
-          renderInteractiveForms = _ref2.renderInteractiveForms;
+          renderInteractiveForms = _ref2.renderInteractiveForms,
+          forceRenderSigAnnot = _ref2.forceRenderSigAnnot;
 
       var contentStreamPromise = this.pdfManager.ensure(this, 'getContentStream');
       var resourcesPromise = this.loadResources(['ExtGState', 'ColorSpace', 'Pattern', 'Shading', 'XObject', 'Font']);
@@ -9914,7 +9916,7 @@ var Page = function PageClosure() {
             opListPromises = [];
         for (i = 0, ii = annotations.length; i < ii; i++) {
           if (isAnnotationRenderable(annotations[i], intent)) {
-            opListPromises.push(annotations[i].getOperatorList(partialEvaluator, task, renderInteractiveForms));
+            opListPromises.push(annotations[i].getOperatorList(partialEvaluator, task, renderInteractiveForms, forceRenderSigAnnot));
           }
         }
         return Promise.all(opListPromises).then(function (opLists) {
@@ -23000,7 +23002,7 @@ var Annotation = function () {
     }
   }, {
     key: 'getOperatorList',
-    value: function getOperatorList(evaluator, task, renderForms) {
+    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
       var _this = this;
 
       if (!this.appearance) {
@@ -23212,11 +23214,11 @@ var WidgetAnnotation = function (_Annotation) {
     }
   }, {
     key: 'getOperatorList',
-    value: function getOperatorList(evaluator, task, renderForms) {
-      if (renderForms) {
+    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
+      if (renderForms && (this.data.fieldType !== 'Sig' || !forceRenderSigAnnot)) {
         return Promise.resolve(new _operator_list.OperatorList());
       }
-      return _get(WidgetAnnotation.prototype.__proto__ || Object.getPrototypeOf(WidgetAnnotation.prototype), 'getOperatorList', this).call(this, evaluator, task, renderForms);
+      return _get(WidgetAnnotation.prototype.__proto__ || Object.getPrototypeOf(WidgetAnnotation.prototype), 'getOperatorList', this).call(this, evaluator, task, renderForms, forceRenderSigAnnot);
     }
   }]);
 
@@ -23256,9 +23258,9 @@ var TextWidgetAnnotation = function (_WidgetAnnotation) {
 
   _createClass(TextWidgetAnnotation, [{
     key: 'getOperatorList',
-    value: function getOperatorList(evaluator, task, renderForms) {
+    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
       if (renderForms || this.appearance) {
-        return _get(TextWidgetAnnotation.prototype.__proto__ || Object.getPrototypeOf(TextWidgetAnnotation.prototype), 'getOperatorList', this).call(this, evaluator, task, renderForms);
+        return _get(TextWidgetAnnotation.prototype.__proto__ || Object.getPrototypeOf(TextWidgetAnnotation.prototype), 'getOperatorList', this).call(this, evaluator, task, renderForms, forceRenderSigAnnot);
       }
       var operatorList = new _operator_list.OperatorList();
       if (!this.data.defaultAppearance) {
