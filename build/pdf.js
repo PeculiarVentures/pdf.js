@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.0.938';
-var pdfjsBuild = '084213b2';
+var pdfjsVersion = '2.0.939';
+var pdfjsBuild = '698ffff5';
 var pdfjsSharedUtil = __w_pdfjs_require__(1);
 var pdfjsDisplayAPI = __w_pdfjs_require__(129);
 var pdfjsDisplayTextLayer = __w_pdfjs_require__(145);
@@ -7848,7 +7848,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DEFAULT_RANGE_CHUNK_SIZE = 65536;
-var isWorkerDisabled = false;
+var isWorkerDisabled = _worker_options.GlobalWorkerOptions.isWorkerDisabled || false;
 var fallbackWorkerSrc = void 0;
 var fakeWorkerFilesLoader = null;
 {
@@ -8023,7 +8023,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
-    apiVersion: '2.0.938',
+    apiVersion: '2.0.939',
     source: {
       data: source.data,
       url: source.url,
@@ -9562,8 +9562,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '2.0.938';
-  exports.build = build = '084213b2';
+  exports.version = version = '2.0.939';
+  exports.build = build = '698ffff5';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
@@ -12582,6 +12582,7 @@ Object.defineProperty(exports, "__esModule", {
 var GlobalWorkerOptions = Object.create(null);
 GlobalWorkerOptions.workerPort = GlobalWorkerOptions.workerPort === undefined ? null : GlobalWorkerOptions.workerPort;
 GlobalWorkerOptions.workerSrc = GlobalWorkerOptions.workerSrc === undefined ? '' : GlobalWorkerOptions.workerSrc;
+GlobalWorkerOptions.isWorkerDisabled = GlobalWorkerOptions.isWorkerDisabled === undefined ? false : GlobalWorkerOptions.isWorkerDisabled;
 exports.GlobalWorkerOptions = GlobalWorkerOptions;
 
 /***/ }),
