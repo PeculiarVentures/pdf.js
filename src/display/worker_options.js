@@ -34,6 +34,15 @@ GlobalWorkerOptions.workerPort = (GlobalWorkerOptions.workerPort === undefined ?
 GlobalWorkerOptions.workerSrc = (GlobalWorkerOptions.workerSrc === undefined ?
                                  '' : GlobalWorkerOptions.workerSrc);
 
+/**
+ * PV Patch,  enable ability to disable worker
+
+ * @var {string}
+ */
+GlobalWorkerOptions.isWorkerDisabled = (GlobalWorkerOptions.isWorkerDisabled === undefined ?
+  false : GlobalWorkerOptions.isWorkerDisabled);
+// end PV patch
+
 export {
   GlobalWorkerOptions,
 };

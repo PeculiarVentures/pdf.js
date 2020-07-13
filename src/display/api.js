@@ -36,7 +36,10 @@ import { WebGLContext } from './webgl';
 
 const DEFAULT_RANGE_CHUNK_SIZE = 65536; // 2^16 = 65536
 
-let isWorkerDisabled = false;
+// PV Patch, enable ability to disable worker
+// let isWorkerDisabled = false;
+let isWorkerDisabled = GlobalWorkerOptions.isWorkerDisabled || false;
+// end PV patch
 let fallbackWorkerSrc;
 
 let fakeWorkerFilesLoader = null;
