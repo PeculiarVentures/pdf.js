@@ -38,7 +38,6 @@ const DEFAULT_RANGE_CHUNK_SIZE = 65536; // 2^16 = 65536
 
 // PV Patch, enable ability to disable worker
 // let isWorkerDisabled = false;
-let isWorkerDisabled = GlobalWorkerOptions.isWorkerDisabled || false;
 // end PV patch
 let fallbackWorkerSrc;
 
@@ -1481,8 +1480,11 @@ var PDFWorker = (function PDFWorkerClosure() {
       // all requirements to run parts of pdf.js in a web worker.
       // Right now, the requirement is, that an Uint8Array is still an
       // Uint8Array as it arrives on the worker. (Chrome added this with v.15.)
-      if (typeof Worker !== 'undefined' && !isWorkerDisabled &&
-          !getMainThreadWorkerMessageHandler()) {
+      // PV Patch, enable ability to disable worker
+      if (typeof Worker !== 'undefined' &&
+        !GlobalWorkerOptions.isWorkerDisabled &&
+        !getMainThreadWorkerMessageHandler()) {
+      // end PV patch
         let workerSrc = getWorkerSrc();
 
         try {
@@ -1588,10 +1590,12 @@ var PDFWorker = (function PDFWorkerClosure() {
     },
 
     _setupFakeWorker: function PDFWorker_setupFakeWorker() {
-      if (!isWorkerDisabled) {
+      // PV Patch, enable ability to disable worker
+      if (!GlobalWorkerOptions.isWorkerDisabled) {
         warn('Setting up fake worker.');
-        isWorkerDisabled = true;
+        GlobalWorkerOptions.isWorkerDisabled = true;
       }
+      // end PV patch
 
       setupFakeWorkerGlobal().then((WorkerMessageHandler) => {
         if (this.destroyed) {
