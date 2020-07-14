@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.0.939';
-var pdfjsBuild = '698ffff5';
+var pdfjsVersion = '2.0.940';
+var pdfjsBuild = '6cadfc9e';
 var pdfjsSharedUtil = __w_pdfjs_require__(1);
 var pdfjsDisplayAPI = __w_pdfjs_require__(129);
 var pdfjsDisplayTextLayer = __w_pdfjs_require__(145);
@@ -7848,7 +7848,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var DEFAULT_RANGE_CHUNK_SIZE = 65536;
-var isWorkerDisabled = _worker_options.GlobalWorkerOptions.isWorkerDisabled || false;
 var fallbackWorkerSrc = void 0;
 var fakeWorkerFilesLoader = null;
 {
@@ -8023,7 +8022,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
-    apiVersion: '2.0.939',
+    apiVersion: '2.0.940',
     source: {
       data: source.data,
       url: source.url,
@@ -8697,7 +8696,7 @@ var PDFWorker = function PDFWorkerClosure() {
     _initialize: function PDFWorker_initialize() {
       var _this6 = this;
 
-      if (typeof Worker !== 'undefined' && !isWorkerDisabled && !getMainThreadWorkerMessageHandler()) {
+      if (typeof Worker !== 'undefined' && !_worker_options.GlobalWorkerOptions.isWorkerDisabled && !getMainThreadWorkerMessageHandler()) {
         var workerSrc = getWorkerSrc();
         try {
           if (!(0, _util.isSameOrigin)(window.location.href, workerSrc)) {
@@ -8775,9 +8774,9 @@ var PDFWorker = function PDFWorkerClosure() {
     _setupFakeWorker: function PDFWorker_setupFakeWorker() {
       var _this7 = this;
 
-      if (!isWorkerDisabled) {
+      if (!_worker_options.GlobalWorkerOptions.isWorkerDisabled) {
         (0, _util.warn)('Setting up fake worker.');
-        isWorkerDisabled = true;
+        _worker_options.GlobalWorkerOptions.isWorkerDisabled = true;
       }
       setupFakeWorkerGlobal().then(function (WorkerMessageHandler) {
         if (_this7.destroyed) {
@@ -9562,8 +9561,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
 }();
 var version, build;
 {
-  exports.version = version = '2.0.939';
-  exports.build = build = '698ffff5';
+  exports.version = version = '2.0.940';
+  exports.build = build = '6cadfc9e';
 }
 exports.getDocument = getDocument;
 exports.LoopbackPort = LoopbackPort;
