@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.0.940';
-var pdfjsBuild = '6cadfc9e';
+var pdfjsVersion = '2.0.941';
+var pdfjsBuild = 'fb8ec905';
 var pdfjsCoreWorker = __w_pdfjs_require__(1);
 exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
 
@@ -339,7 +339,7 @@ var WorkerMessageHandler = {
     var cancelXHRs = null;
     var WorkerTasks = [];
     var apiVersion = docParams.apiVersion;
-    var workerVersion = '2.0.940';
+    var workerVersion = '2.0.941';
     if (apiVersion !== workerVersion) {
       throw new Error('The API version "' + apiVersion + '" does not match ' + ('the Worker version "' + workerVersion + '".'));
     }
@@ -23200,12 +23200,16 @@ var WidgetAnnotation = function (_Annotation) {
       data.fieldFlags = 0;
     }
     data.readOnly = _this2.hasFieldFlag(_util.AnnotationFieldFlag.READONLY);
-    var actionDict = dict.get('A');
-    if ((0, _primitives.isDict)(actionDict)) {
-      data.actionDict = {
-        S: actionDict.get('S') || '',
-        JS: (0, _util.stringToPDFString)(actionDict.get('JS') || '')
-      };
+    try {
+      var actionDict = dict.get('A');
+      if ((0, _primitives.isDict)(actionDict)) {
+        data.actionDict = {
+          S: actionDict.get('S') || '',
+          JS: (0, _util.stringToPDFString)(actionDict.get('JS') || '')
+        };
+      }
+    } catch (err) {
+      console.warn('Failed to obtain action dictionary', err);
     }
     if (data.fieldType === 'Sig') {}
     return _this2;

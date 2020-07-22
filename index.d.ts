@@ -303,6 +303,10 @@ declare module 'pdfjs-dist' {
     color: number[]; // [r,g,b]
     borderWidth: number;
     hasAppearance: boolean;
+    actionDict?: {
+      S?: { name: string };
+      JS?: string;
+    };
     [key: string]: any;
   }
   
