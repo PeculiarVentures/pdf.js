@@ -613,6 +613,21 @@ class WidgetAnnotation extends Annotation {
 
     data.readOnly = this.hasFieldFlag(AnnotationFieldFlag.READONLY);
 
+    // PV patch, pass actions dictionary
+    try {
+      const actionDict = dict.get('A');
+
+      if (isDict(actionDict)) {
+        data.actionDict = {
+          S: actionDict.get('S') || '',
+          JS: stringToPDFString(actionDict.get('JS') || ''),
+        };
+      }
+    } catch (err) {
+      console.warn('Failed to obtain action dictionary', err);
+    }
+    // end PV patch
+
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
       // PV patch, force display signatures
