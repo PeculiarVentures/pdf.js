@@ -247,6 +247,11 @@ declare module 'pdfjs-dist' {
      * A promise that is resolved with the info and metadata of the PDF.
      **/
     getMetadata(): Promise<{ info: PDFInfo; metadata: PDFMetadata }>;
+
+    /**
+     * A promise that is resolved with the info and permissions of the PDF.
+     **/
+    getPermissions(): Promise<string[] | null>;
   
     /**
      * Is the PDF encrypted?
