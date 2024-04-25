@@ -653,6 +653,15 @@ var PDFDocumentProxy = (function PDFDocumentProxyClosure() {
       return this.transport.getMetadata();
     },
     /**
+     * @return {Promise} A promise that is resolved with an {Object} that has
+     * info and permissions properties.  Info is an {Object} filled with anything
+     * available in the information dictionary and similarly permissions is a
+     * {Permissions} object with information from the permissions section of the PDF.
+     */
+    getPermissions: function PDFDocumentProxy_getPermissions() {
+      return this.transport.getPermissions();
+    },
+    /**
      * @return {Promise} A promise that is resolved with a TypedArray that has
      * the raw data from the PDF.
      */
