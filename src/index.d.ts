@@ -293,7 +293,7 @@ declare module 'pdfjs-dist' {
     width: number;
     height: number;
     fontScale: number;
-    transforms: number[];
+    transform: number[];
   
     clone(options: PDFPageViewportOptions): PDFPageViewport;
     convertToViewportPoint(x: number, y: number): number[]; // [x, y]
