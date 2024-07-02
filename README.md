@@ -22,7 +22,7 @@ $ gulp dist
 > [!NOTE]
 > For Node.js >= 18.0.0
 > ```
-> $ gulp dist --openssl-legacy-provider
+> NODE_OPTIONS=--openssl-legacy-provider gulp dist
 > ```
 
 Deploy
