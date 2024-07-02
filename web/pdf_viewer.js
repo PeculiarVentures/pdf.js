@@ -150,8 +150,8 @@ var _pdf_single_page_viewer = __w_pdfjs_require__(20);
 
 var _pdf_viewer = __w_pdfjs_require__(22);
 
-var pdfjsVersion = '2.0.941';
-var pdfjsBuild = 'fb8ec905f';
+var pdfjsVersion = '2.0.945';
+var pdfjsBuild = 'a91b6ba4';
 exports.PDFViewer = _pdf_viewer.PDFViewer;
 exports.PDFSinglePageViewer = _pdf_single_page_viewer.PDFSinglePageViewer;
 exports.PDFPageView = _pdf_page_view.PDFPageView;
