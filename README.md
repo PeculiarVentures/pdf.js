@@ -1,13 +1,30 @@
 # PV instruction
-Prepare
+## Prepare
 ```
 $ npm install -g gulp-cli
 $ npm install
 ```
-Build
+
+> [!NOTE]
+> For Node.js >= 18.0.0
+> Add to `package.json`
+> ```
+>   "overrides": {
+>     "graceful-fs": "^4.2.11"
+>   }
+> ```
+
+## Build
 ```
 $ gulp dist
 ```
+
+> [!NOTE]
+> For Node.js >= 18.0.0
+> ```
+> $ gulp dist --openssl-legacy-provider
+> ```
+
 Deploy
 ```
 $ ./deploy-dist.sh
