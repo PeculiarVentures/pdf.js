@@ -515,13 +515,11 @@ var PDFDocumentLoadingTask = (function PDFDocumentLoadingTaskClosure() {
 
 /**
  * Abstract class to support range requests file loading.
- * @class
- * @alias PDFDataRangeTransport
  * @param {number} length
  * @param {Uint8Array} initialData
  */
-var PDFDataRangeTransport = (function pdfDataRangeTransportClosure() {
-  function PDFDataRangeTransport(length, initialData) {
+class PDFDataRangeTransport {
+  constructor(length, initialData) {
     this.length = length;
     this.initialData = initialData;
 
@@ -530,63 +528,51 @@ var PDFDataRangeTransport = (function pdfDataRangeTransportClosure() {
     this._progressiveReadListeners = [];
     this._readyCapability = createPromiseCapability();
   }
-  PDFDataRangeTransport.prototype =
-      /** @lends PDFDataRangeTransport.prototype */ {
-    addRangeListener:
-        function PDFDataRangeTransport_addRangeListener(listener) {
-      this._rangeListeners.push(listener);
-    },
 
-    addProgressListener:
-        function PDFDataRangeTransport_addProgressListener(listener) {
-      this._progressListeners.push(listener);
-    },
+  addRangeListener(listener) {
+    this._rangeListeners.push(listener);
+  }
 
-    addProgressiveReadListener:
-        function PDFDataRangeTransport_addProgressiveReadListener(listener) {
-      this._progressiveReadListeners.push(listener);
-    },
+  addProgressListener(listener) {
+    this._progressListeners.push(listener);
+  }
 
-    onDataRange: function PDFDataRangeTransport_onDataRange(begin, chunk) {
-      var listeners = this._rangeListeners;
-      for (var i = 0, n = listeners.length; i < n; ++i) {
-        listeners[i](begin, chunk);
+  addProgressiveReadListener(listener) {
+    this._progressiveReadListeners.push(listener);
+  }
+
+  onDataRange(begin, chunk) {
+    for (const listener of this._rangeListeners) {
+      listener(begin, chunk);
+    }
+  }
+
+  onDataProgress(loaded) {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressListeners) {
+        listener(loaded);
       }
-    },
+    });
+  }
 
-    onDataProgress: function PDFDataRangeTransport_onDataProgress(loaded) {
-      this._readyCapability.promise.then(() => {
-        var listeners = this._progressListeners;
-        for (var i = 0, n = listeners.length; i < n; ++i) {
-          listeners[i](loaded);
-        }
-      });
-    },
+  onDataProgressiveRead(chunk) {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressiveReadListeners) {
+        listener(chunk);
+      }
+    });
+  }
 
-    onDataProgressiveRead:
-        function PDFDataRangeTransport_onDataProgress(chunk) {
-      this._readyCapability.promise.then(() => {
-        var listeners = this._progressiveReadListeners;
-        for (var i = 0, n = listeners.length; i < n; ++i) {
-          listeners[i](chunk);
-        }
-      });
-    },
+  transportReady() {
+    this._readyCapability.resolve();
+  }
 
-    transportReady: function PDFDataRangeTransport_transportReady() {
-      this._readyCapability.resolve();
-    },
+  requestDataRange(begin, end) {
+    unreachable('Abstract method PDFDataRangeTransport.requestDataRange');
+  }
 
-    requestDataRange:
-        function PDFDataRangeTransport_requestDataRange(begin, end) {
-      unreachable('Abstract method PDFDataRangeTransport.requestDataRange');
-    },
-
-    abort: function PDFDataRangeTransport_abort() {
-    },
-  };
-  return PDFDataRangeTransport;
-})();
+  abort() {}
+}
 
 /**
  * Proxy to a PDFDocument in the worker thread. Also, contains commonly used
@@ -1771,12 +1757,9 @@ class WorkerTransport {
       fullReader.headersReady.then(() => {
         // If stream or range are disabled, it's our only way to report
         // loading progress.
-        if (!fullReader.isStreamingSupported ||
-            !fullReader.isRangeSupported) {
-          if (this._lastProgress) {
-            if (loadingTask.onProgress) {
-              loadingTask.onProgress(this._lastProgress);
-            }
+        if (!fullReader.isStreamingSupported || !fullReader.isRangeSupported) {
+          if (this._lastProgress && loadingTask.onProgress) {
+            loadingTask.onProgress(this._lastProgress);
           }
           fullReader.onProgress = (evt) => {
             if (loadingTask.onProgress) {
@@ -1874,6 +1857,14 @@ class WorkerTransport {
     }, this);
 
     messageHandler.on('DataLoaded', function(data) {
+      // For consistency: Ensure that progress is always reported when the
+      // entire PDF file has been loaded, regardless of how it was fetched.
+      if (loadingTask.onProgress) {
+        loadingTask.onProgress({
+          loaded: data.length,
+          total: data.length,
+        });
+      }
       this.downloadInfoCapability.resolve(data);
     }, this);
 
