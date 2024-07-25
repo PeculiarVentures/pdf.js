@@ -25,14 +25,14 @@ git init
 git remote add --fetch origin "$remote"
 
 # switch into the the gh-pages branch
-if git rev-parse --verify origin/dist-v2 > /dev/null 2>&1
+if git rev-parse --verify origin/dist-v3 > /dev/null 2>&1
 then
-    git checkout dist-v2
+    git checkout dist-v3
     # delete any old site as we are going to replace it
     # Note: this explodes if there aren't any, so moving it here for now
     git rm -rf .
 else
-    git checkout --orphan dist-v2
+    git checkout --orphan dist-v3
 fi
 
 # copy over or recompile the new site
@@ -41,9 +41,9 @@ cp -R ../build/dist/* ./
 # stage any changes and new files
 git add -A
 # now commit, ignoring branch gh-pages doesn't seem to work, so trying skip
-git commit --allow-empty -m "Auto-deploy dist-v2, commit $LAST_COMMIT"
+git commit --allow-empty -m "Auto-deploy dist-v3, commit $LAST_COMMIT"
 # and push, but send any output to /dev/null to hide anything sensitive
-git push --force --quiet origin dist-v2 > /dev/null 2>&1
+git push --force --quiet origin dist-v3 > /dev/null 2>&1
 
 # go back to where we started and remove the gh-pages git repo we made and used
 # for deployment
