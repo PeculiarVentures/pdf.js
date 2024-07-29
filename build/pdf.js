@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.1.287';
-var pdfjsBuild = 'ea3860769';
+var pdfjsVersion = '2.1.289';
+var pdfjsBuild = 'c0b34f17c';
 
 var pdfjsSharedUtil = __w_pdfjs_require__(1);
 
@@ -10112,7 +10112,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId: docId,
-    apiVersion: '2.1.287',
+    apiVersion: '2.1.289',
     source: {
       data: source.data,
       url: source.url,
@@ -10528,7 +10528,9 @@ function () {
           _ref3$canvasFactory = _ref3.canvasFactory,
           canvasFactory = _ref3$canvasFactory === void 0 ? null : _ref3$canvasFactory,
           _ref3$background = _ref3.background,
-          background = _ref3$background === void 0 ? null : _ref3$background;
+          background = _ref3$background === void 0 ? null : _ref3$background,
+          _ref3$forceRenderSigA = _ref3.forceRenderSigAnnot,
+          forceRenderSigAnnot = _ref3$forceRenderSigA === void 0 ? false : _ref3$forceRenderSigA;
       var stats = this._stats;
       stats.time('Overall');
       this.pendingCleanup = false;
@@ -10558,7 +10560,7 @@ function () {
           pageIndex: this.pageNumber - 1,
           intent: renderingIntent,
           renderInteractiveForms: renderInteractiveForms === true,
-          forceRenderSigAnnot: params.forceRenderSigAnnot === true
+          forceRenderSigAnnot: forceRenderSigAnnot === true
         });
       }
 
@@ -11514,7 +11516,7 @@ function () {
 
         switch (type) {
           case 'Font':
-            var _params = this._params;
+            var params = this._params;
 
             if ('error' in exportedData) {
               var exportedError = exportedData.error;
@@ -11525,7 +11527,7 @@ function () {
 
             var fontRegistry = null;
 
-            if (_params.pdfBug && _global_scope.default.FontInspector && _global_scope.default.FontInspector.enabled) {
+            if (params.pdfBug && _global_scope.default.FontInspector && _global_scope.default.FontInspector.enabled) {
               fontRegistry = {
                 registerFont: function registerFont(font, url) {
                   _global_scope.default['FontInspector'].fontAdded(font, url);
@@ -11534,9 +11536,9 @@ function () {
             }
 
             var font = new _font_loader.FontFaceObject(exportedData, {
-              isEvalSupported: _params.isEvalSupported,
-              disableFontFace: _params.disableFontFace,
-              ignoreErrors: _params.ignoreErrors,
+              isEvalSupported: params.isEvalSupported,
+              disableFontFace: params.disableFontFace,
+              ignoreErrors: params.ignoreErrors,
               onUnsupportedFeature: this._onUnsupportedFeature.bind(this),
               fontRegistry: fontRegistry
             });
@@ -12187,9 +12189,9 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-var version = '2.1.287';
+var version = '2.1.289';
 exports.version = version;
-var build = 'ea3860769';
+var build = 'c0b34f17c';
 exports.build = build;
 
 /***/ }),
