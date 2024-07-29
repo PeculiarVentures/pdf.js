@@ -14,6 +14,17 @@ $ npm install
 >   }
 > ```
 
+> [!NOTE]
+> On MacOs there might be issues in canvas installation.
+> Consider installing:
+> ```
+> $ arch -arm64 brew install pkg-config cairo pango libpng jpeg giflib librsvg
+> ```
+> And then:
+> ```
+> $ npm install --build-from-source canvas
+> ```
+
 ## Build
 ```
 $ gulp dist
