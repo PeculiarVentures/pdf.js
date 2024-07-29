@@ -14,7 +14,8 @@
  */
 
 import {
-  buildGetDocumentParams, NodeFileReaderFactory, TEST_PDFS_PATH
+  buildGetDocumentParams, NodeCanvasFactory, NodeFileReaderFactory,
+  TEST_PDFS_PATH
 } from './test_utils';
 import {
   createPromiseCapability, FontType, InvalidPDFException, MissingPDFException,
@@ -40,8 +41,7 @@ describe('api', function() {
 
   beforeAll(function(done) {
     if (isNodeJS()) {
-      // NOTE: To support running the canvas-related tests in Node.js,
-      // a `NodeCanvasFactory` would need to be added (in test_utils.js).
+      CanvasFactory = new NodeCanvasFactory();
     } else {
       CanvasFactory = new DOMCanvasFactory();
     }
@@ -64,14 +64,11 @@ describe('api', function() {
     it('creates pdf doc from URL', function(done) {
       var loadingTask = getDocument(basicApiGetDocumentParams);
 
-      var isProgressReportedResolved = false;
       var progressReportedCapability = createPromiseCapability();
-
       // Attach the callback that is used to report loading progress;
       // similarly to how viewer.js works.
       loadingTask.onProgress = function (progressData) {
-        if (!isProgressReportedResolved) {
-          isProgressReportedResolved = true;
+        if (!progressReportedCapability.settled) {
           progressReportedCapability.resolve(progressData);
         }
       };
@@ -183,25 +180,20 @@ describe('api', function() {
         function (done) {
       var loadingTask = getDocument(buildGetDocumentParams('pr6531_1.pdf'));
 
-      var isPasswordNeededResolved = false;
       var passwordNeededCapability = createPromiseCapability();
-      var isPasswordIncorrectResolved = false;
       var passwordIncorrectCapability = createPromiseCapability();
-
       // Attach the callback that is used to request a password;
       // similarly to how viewer.js handles passwords.
       loadingTask.onPassword = function (updatePassword, reason) {
         if (reason === PasswordResponses.NEED_PASSWORD &&
-            !isPasswordNeededResolved) {
-          isPasswordNeededResolved = true;
+            !passwordNeededCapability.settled) {
           passwordNeededCapability.resolve();
 
           updatePassword('qwerty'); // Provide an incorrect password.
           return;
         }
         if (reason === PasswordResponses.INCORRECT_PASSWORD &&
-            !isPasswordIncorrectResolved) {
-          isPasswordIncorrectResolved = true;
+            !passwordIncorrectCapability.settled) {
           passwordIncorrectCapability.resolve();
 
           updatePassword('asdfasdf'); // Provide the correct password.
@@ -650,6 +642,24 @@ describe('api', function() {
       }).catch(done.fail);
     });
 
+    it('gets default open action destination', function(done) {
+      var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
+
+      loadingTask.promise.then(function(pdfDocument) {
+        return pdfDocument.getOpenActionDestination();
+      }).then(function(dest) {
+        expect(dest).toEqual(null);
+
+        loadingTask.destroy().then(done);
+      }).catch(done.fail);
+    });
+    it('gets non-default open action destination', function(done) {
+      doc.getOpenActionDestination().then(function(dest) {
+        expect(dest).toEqual([{ num: 15, gen: 0, }, { name: 'FitH', }, null]);
+        done();
+      }).catch(done.fail);
+    });
+
     it('gets non-existent attachments', function(done) {
       var promise = doc.getAttachments();
       promise.then(function (data) {
@@ -829,6 +839,8 @@ describe('api', function() {
       var promise = doc.getMetadata();
       promise.then(function({ info, metadata, contentDispositionFilename, }) {
         expect(info['Title']).toEqual('Basic API Test');
+        // Custom, non-standard, information dictionary entries.
+        expect(info['Custom']).toEqual(undefined);
         // The following are PDF.js specific, non-standard, properties.
         expect(info['PDFFormatVersion']).toEqual('1.7');
         expect(info['IsLinearized']).toEqual(false);
@@ -842,6 +854,34 @@ describe('api', function() {
         done();
       }).catch(done.fail);
     });
+    it('gets metadata, with custom info dict entries', function(done) {
+      var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
+
+      loadingTask.promise.then(function(pdfDocument) {
+        return pdfDocument.getMetadata();
+      }).then(function({ info, metadata, contentDispositionFilename, }) {
+        expect(info['Creator']).toEqual('TeX');
+        expect(info['Producer']).toEqual('pdfeTeX-1.21a');
+        expect(info['CreationDate']).toEqual('D:20090401163925-07\'00\'');
+        // Custom, non-standard, information dictionary entries.
+        const custom = info['Custom'];
+        expect(typeof custom === 'object' && custom !== null).toEqual(true);
+
+        expect(custom['PTEX.Fullbanner']).toEqual('This is pdfeTeX, ' +
+          'Version 3.141592-1.21a-2.2 (Web2C 7.5.4) kpathsea version 3.5.6');
+        // The following are PDF.js specific, non-standard, properties.
+        expect(info['PDFFormatVersion']).toEqual('1.4');
+        expect(info['IsLinearized']).toEqual(false);
+        expect(info['IsAcroFormPresent']).toEqual(false);
+        expect(info['IsXFAPresent']).toEqual(false);
+
+        expect(metadata).toEqual(null);
+        expect(contentDispositionFilename).toEqual(null);
+
+        loadingTask.destroy().then(done);
+      }).catch(done.fail);
+    });
+
     it('gets data', function(done) {
       var promise = doc.getData();
       promise.then(function (data) {
@@ -1004,7 +1044,7 @@ describe('api', function() {
       expect(page.view).toEqual([0, 0, 595.28, 841.89]);
     });
     it('gets viewport', function () {
-      var viewport = page.getViewport(1.5, 90);
+      var viewport = page.getViewport({ scale: 1.5, rotation: 90, });
       expect(viewport.viewBox).toEqual(page.view);
       expect(viewport.scale).toEqual(1.5);
       expect(viewport.rotation).toEqual(90);
@@ -1015,8 +1055,9 @@ describe('api', function() {
     it('gets viewport respecting "dontFlip" argument', function () {
       const scale = 1;
       const rotation = 135;
-      let viewport = page.getViewport(scale, rotation);
-      let dontFlipViewport = page.getViewport(scale, rotation, true);
+      let viewport = page.getViewport({ scale, rotation, });
+      let dontFlipViewport = page.getViewport({ scale, rotation,
+                                                dontFlip: true, });
 
       expect(dontFlipViewport).not.toEqual(viewport);
       expect(dontFlipViewport).toEqual(viewport.clone({ dontFlip: true, }));
@@ -1125,6 +1166,39 @@ describe('api', function() {
         done();
       }).catch(done.fail);
     });
+
+    it('gets text content, with correct properties (issue 8276)',
+        function(done) {
+      const loadingTask = getDocument(
+        buildGetDocumentParams('issue8276_reduced.pdf'));
+
+      loadingTask.promise.then((pdfDoc) => {
+        pdfDoc.getPage(1).then((pdfPage) => {
+          pdfPage.getTextContent().then(({ items, styles, }) => {
+            expect(items.length).toEqual(1);
+            expect(Object.keys(styles)).toEqual(['Times']);
+
+            expect(items[0]).toEqual({
+              dir: 'ltr',
+              fontName: 'Times',
+              height: 18,
+              str: 'Issue 8276',
+              transform: [18, 0, 0, 18, 441.81, 708.4499999999999],
+              width: 77.49,
+            });
+            expect(styles.Times).toEqual({
+              fontFamily: 'serif',
+              ascent: NaN,
+              descent: NaN,
+              vertical: false,
+            });
+
+            loadingTask.destroy().then(done);
+          });
+        });
+      }).catch(done.fail);
+    });
+
     it('gets operator list', function(done) {
       var promise = page.getOperatorList();
       promise.then(function (oplist) {
@@ -1142,11 +1216,12 @@ describe('api', function() {
           pdfPage.getOperatorList().then((opList) => {
             let imgIndex = opList.fnArray.indexOf(OPS.paintImageXObject);
             let imgArgs = opList.argsArray[imgIndex];
-            let { data: imgData, } = pdfPage.objs.get(imgArgs[0]);
+            let { data, } = pdfPage.objs.get(imgArgs[0]);
 
-            expect(imgData instanceof Uint8ClampedArray).toEqual(true);
-            expect(imgData.length).toEqual(90000);
-            done();
+            expect(data instanceof Uint8ClampedArray).toEqual(true);
+            expect(data.length).toEqual(90000);
+
+            loadingTask.destroy().then(done);
           });
         });
       }).catch(done.fail);
@@ -1200,20 +1275,18 @@ describe('api', function() {
     });
     it('gets page stats after rendering page, with `pdfBug` set',
         function(done) {
-      if (isNodeJS()) {
-        pending('TODO: Support Canvas testing in Node.js.');
-      }
       let loadingTask = getDocument(
         buildGetDocumentParams(basicApiFileName, { pdfBug: true, }));
       let canvasAndCtx;
 
       loadingTask.promise.then((pdfDoc) => {
         return pdfDoc.getPage(1).then((pdfPage) => {
-          let viewport = pdfPage.getViewport(1);
+          let viewport = pdfPage.getViewport({ scale: 1, });
           canvasAndCtx = CanvasFactory.create(viewport.width, viewport.height);
 
           let renderTask = pdfPage.render({
             canvasContext: canvasAndCtx.context,
+            canvasFactory: CanvasFactory,
             viewport,
           });
           return renderTask.promise.then(() => {
@@ -1240,14 +1313,12 @@ describe('api', function() {
     });
 
     it('cancels rendering of page', function(done) {
-      if (isNodeJS()) {
-        pending('TODO: Support Canvas testing in Node.js.');
-      }
-      var viewport = page.getViewport(1);
+      var viewport = page.getViewport({ scale: 1, });
       var canvasAndCtx = CanvasFactory.create(viewport.width, viewport.height);
 
       var renderTask = page.render({
         canvasContext: canvasAndCtx.context,
+        canvasFactory: CanvasFactory,
         viewport,
       });
       renderTask.cancel();
@@ -1264,14 +1335,12 @@ describe('api', function() {
 
     it('re-render page, using the same canvas, after cancelling rendering',
         function(done) {
-      if (isNodeJS()) {
-        pending('TODO: Support Canvas testing in Node.js.');
-      }
-      let viewport = page.getViewport(1);
+      let viewport = page.getViewport({ scale: 1, });
       let canvasAndCtx = CanvasFactory.create(viewport.width, viewport.height);
 
       let renderTask = page.render({
         canvasContext: canvasAndCtx.context,
+        canvasFactory: CanvasFactory,
         viewport,
       });
       renderTask.cancel();
@@ -1283,6 +1352,7 @@ describe('api', function() {
       }).then(() => {
         let reRenderTask = page.render({
           canvasContext: canvasAndCtx.context,
+          canvasFactory: CanvasFactory,
           viewport,
         });
         return reRenderTask.promise;
@@ -1293,18 +1363,17 @@ describe('api', function() {
     });
 
     it('multiple render() on the same canvas', function(done) {
-      if (isNodeJS()) {
-        pending('TODO: Support Canvas testing in Node.js.');
-      }
-      var viewport = page.getViewport(1);
+      var viewport = page.getViewport({ scale: 1, });
       var canvasAndCtx = CanvasFactory.create(viewport.width, viewport.height);
 
       var renderTask1 = page.render({
         canvasContext: canvasAndCtx.context,
+        canvasFactory: CanvasFactory,
         viewport,
       });
       var renderTask2 = page.render({
         canvasContext: canvasAndCtx.context,
+        canvasFactory: CanvasFactory,
         viewport,
       });
 
@@ -1332,26 +1401,24 @@ describe('api', function() {
 
     // Render the first page of the given PDF file.
     // Fulfills the promise with the base64-encoded version of the PDF.
-    function renderPDF(filename) {
-      var loadingTask = getDocument(filename);
+    async function renderPDF(filename) {
+      const loadingTask = getDocument(filename);
       loadingTasks.push(loadingTask);
-      return loadingTask.promise
-        .then(function(pdf) {
-          pdfDocuments.push(pdf);
-          return pdf.getPage(1);
-        }).then(function(page) {
-          var viewport = page.getViewport(1.2);
-          var canvasAndCtx = CanvasFactory.create(viewport.width,
-                                                  viewport.height);
-          return page.render({
-            canvasContext: canvasAndCtx.context,
-            viewport,
-          }).then(function() {
-            var data = canvasAndCtx.canvas.toDataURL();
-            CanvasFactory.destroy(canvasAndCtx);
-            return data;
-          });
-        });
+      const pdf = await loadingTask.promise;
+      pdfDocuments.push(pdf);
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.2, });
+      const canvasAndCtx = CanvasFactory.create(viewport.width,
+                                                viewport.height);
+      const renderTask = page.render({
+        canvasContext: canvasAndCtx.context,
+        canvasFactory: CanvasFactory,
+        viewport,
+      });
+      await renderTask.promise;
+      const data = canvasAndCtx.canvas.toDataURL();
+      CanvasFactory.destroy(canvasAndCtx);
+      return data;
     }
 
     afterEach(function(done) {
@@ -1373,10 +1440,6 @@ describe('api', function() {
     });
 
     it('should correctly render PDFs in parallel', function(done) {
-      if (isNodeJS()) {
-        pending('TODO: Support Canvas testing in Node.js.');
-      }
-
       var baseline1, baseline2, baseline3;
       var promiseDone = renderPDF(pdf1).then(function(data1) {
         baseline1 = data1;

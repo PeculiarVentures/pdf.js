@@ -68,6 +68,10 @@ class BasePdfManager {
     return this.pdfDocument.getPage(pageIndex);
   }
 
+  fontFallback(id, handler) {
+    return this.pdfDocument.fontFallback(id, handler);
+  }
+
   cleanup() {
     return this.pdfDocument.cleanup();
   }
@@ -144,7 +148,6 @@ class NetworkPdfManager extends BasePdfManager {
 
     this.streamManager = new ChunkedStreamManager(pdfNetworkStream, {
       msgHandler: args.msgHandler,
-      url: args.url,
       length: args.length,
       disableAutoFetch: args.disableAutoFetch,
       rangeChunkSize: args.rangeChunkSize,

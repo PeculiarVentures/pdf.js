@@ -903,7 +903,9 @@ SVGGraphics = (function SVGGraphicsClosure() {
 
     // Path properties
     setLineWidth: function SVGGraphics_setLineWidth(width) {
-      this.current.lineWidth = width;
+      if (width > 0) {
+        this.current.lineWidth = width;
+      }
     },
     setLineCap: function SVGGraphics_setLineCap(style) {
       this.current.lineCap = LINE_CAP_STYLES[style];
@@ -1278,7 +1280,7 @@ SVGGraphics = (function SVGGraphicsClosure() {
                        matrix[3], matrix[4], matrix[5]);
       }
 
-      if (Array.isArray(bbox) && bbox.length === 4) {
+      if (bbox) {
         var width = bbox[2] - bbox[0];
         var height = bbox[3] - bbox[1];
 
