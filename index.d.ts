@@ -180,6 +180,12 @@ declare module 'pdfjs-dist' {
     PDFFormatVersion: string;
     IsAcroFormPresent: boolean;
     IsXFAPresent: boolean;
+    Title?: string;
+    IsLinearized: boolean;
+    IsCollectionPresent: boolean;
+    CreationDate?: string;
+    Creator?: string;
+    Producer?: string;
     [key: string]: any;	// return type is string, typescript chokes
   }
   
@@ -230,6 +236,15 @@ declare module 'pdfjs-dist' {
      **/
     getDestinations(): PDFPromise<any[]>;
 
+    getPageLayout(): Promise<
+        'SinglePage' |
+        'OneColumn' |
+        'TwoColumnLeft' |
+        'TwoColumnRight' |
+        'TwoPageLeft' |
+        'TwoPageRight' |
+        ''
+      >;
 
     getAttachments(): Promise<{ [key: string]: object } | null>;
   
@@ -308,6 +323,9 @@ declare module 'pdfjs-dist' {
     color: number[]; // [r,g,b]
     borderWidth: number;
     hasAppearance: boolean;
+    creationDate?: string;
+    modificationDate?: string;
+    contents: any;
     actionDict?: {
       S?: { name: string };
       JS?: string;
