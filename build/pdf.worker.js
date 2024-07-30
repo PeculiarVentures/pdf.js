@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.3.228';
-var pdfjsBuild = 'b1311a91c';
+var pdfjsVersion = '2.3.229';
+var pdfjsBuild = '611b09a9a';
 var pdfjsCoreWorker = __w_pdfjs_require__(1);
 exports.WorkerMessageHandler = pdfjsCoreWorker.WorkerMessageHandler;
 
@@ -213,7 +213,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = {
     var WorkerTasks = [];
     var verbosity = (0, _util.getVerbosityLevel)();
     var apiVersion = docParams.apiVersion;
-    var workerVersion = '2.3.228';
+    var workerVersion = '2.3.229';
     if (apiVersion !== workerVersion) {
       throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
     }
@@ -27117,7 +27117,15 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     } catch (err) {
       console.warn('Failed to obtain action dictionary', err);
     }
-    if (data.fieldType === 'Sig') {}
+    if (data.fieldType === 'Sig') {
+      if (data.fieldValue && data.fieldValue.objId) {
+        data.fieldValue = {
+          sigId: data.fieldValue.objId
+        };
+      } else {
+        data.fieldValue = null;
+      }
+    }
     return _this3;
   }
   _inherits(WidgetAnnotation, _Annotation2);
