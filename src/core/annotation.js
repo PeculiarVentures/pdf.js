@@ -783,8 +783,14 @@ class WidgetAnnotation extends Annotation {
     // since it's (most likely) a `Dict` which is non-serializable and will thus
     // cause errors when sending annotations to the main-thread (issue 10347).
     if (data.fieldType === 'Sig') {
+      // PV patch, if field value is Dict, extract signature object id from it
+      if (data.fieldValue && data.fieldValue.objId) {
+        data.fieldValue = { sigId: data.fieldValue.objId };
+      } else {
+        data.fieldValue = null;
+      }
+      // end PV patch
       // PV patch, force display signatures
-      // data.fieldValue = null;
       // this.setFlags(AnnotationFlag.HIDDEN);
       // end PV patch
     }
