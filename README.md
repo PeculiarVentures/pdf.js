@@ -43,7 +43,7 @@ $ ./deploy-dist.sh
 
 # PDF.js [![Build Status](https://travis-ci.org/mozilla/pdf.js.svg?branch=master)](https://travis-ci.org/mozilla/pdf.js)
 
-PDF.js is a Portable Document Format (PDF) viewer that is built with HTML5.
+[PDF.js](https://mozilla.github.io/pdf.js/) is a Portable Document Format (PDF) viewer that is built with HTML5.
 
 PDF.js is community-driven and supported by Mozilla Labs. Our goal is to
 create a general-purpose, web standards-based platform for parsing and
@@ -155,6 +155,10 @@ contributor Julian Viereck:
 More learning resources can be found at:
 
 + https://github.com/mozilla/pdf.js/wiki/Additional-Learning-Resources
+
+The API documentation can be found at:
+
++ https://mozilla.github.io/pdf.js/api/
 
 ## Questions
 

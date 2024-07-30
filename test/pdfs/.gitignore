@@ -76,6 +76,8 @@
 !issue10388_reduced.pdf
 !issue10438_reduced.pdf
 !issue10529.pdf
+!issue10542_reduced.pdf
+!issue10665_reduced.pdf
 !bad-PageLabels.pdf
 !decodeACSuccessive.pdf
 !filled-background.pdf
@@ -91,7 +93,10 @@
 !bug1200096.pdf
 !bug1068432.pdf
 !bug1146106.pdf
+!bug1245391_reduced.pdf
 !bug1252420.pdf
+!bug1513120_reduced.pdf
+!bug1552113.pdf
 !issue9949.pdf
 !bug1308536.pdf
 !bug1337429.pdf
@@ -239,6 +244,7 @@
 !bug1151216.pdf
 !bug1175962.pdf
 !bug1020226.pdf
+!issue9534_reduced.pdf
 !basicapi.pdf
 !issue2884_reduced.pdf
 !mixedfonts.pdf
@@ -288,6 +294,7 @@
 !issue5540.pdf
 !issue5549.pdf
 !issue5475.pdf
+!issue10519_reduced.pdf
 !annotation-border-styles.pdf
 !IdentityToUnicodeMap_charCodeOf.pdf
 !PDFJS-9279-reduced.pdf
@@ -319,6 +326,7 @@
 !annotation-strikeout.pdf
 !annotation-squiggly.pdf
 !annotation-highlight.pdf
+!annotation-freetext.pdf
 !annotation-line.pdf
 !annotation-square-circle.pdf
 !annotation-stamp.pdf
@@ -338,3 +346,5 @@
 !issue9972-1.pdf
 !issue9972-2.pdf
 !issue9972-3.pdf
+!tiling-pattern-box.pdf
+!tiling-pattern-large-steps.pdf

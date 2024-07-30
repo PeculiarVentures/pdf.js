@@ -16,16 +16,16 @@
 /* eslint no-var: error */
 
 import {
-  assert, createPromiseCapability, deprecated, getVerbosityLevel, info,
-  InvalidPDFException, isArrayBuffer, isSameOrigin, MissingPDFException,
-  NativeImageDecoding, PasswordException, setVerbosityLevel, shadow,
-  stringToBytes, UnexpectedResponseException, UnknownErrorException,
-  unreachable, URL, warn
+  assert, createPromiseCapability, getVerbosityLevel, info, InvalidPDFException,
+  isArrayBuffer, isSameOrigin, MissingPDFException, NativeImageDecoding,
+  PasswordException, setVerbosityLevel, shadow, stringToBytes,
+  UnexpectedResponseException, UnknownErrorException, unreachable, URL, warn
 } from '../shared/util';
 import {
-  DOMCanvasFactory, DOMCMapReaderFactory, DummyStatTimer, loadScript,
-  PageViewport, RenderingCancelledException, StatTimer
-} from './dom_utils';
+  deprecated, DOMCanvasFactory, DOMCMapReaderFactory, DummyStatTimer,
+  loadScript, PageViewport, releaseImageResources, RenderingCancelledException,
+  StatTimer
+} from './display_utils';
 import { FontFaceObject, FontLoader } from './font_loader';
 import { apiCompatibilityParams } from './api_compatibility';
 import { CanvasGraphics } from './canvas';
@@ -344,6 +344,7 @@ function getDocument(src) {
         networkStream = new PDFDataTransportStream({
           length: params.length,
           initialData: params.initialData,
+          progressiveDone: params.progressiveDone,
           disableRange: params.disableRange,
           disableStream: params.disableStream,
         }, rangeTransport);
@@ -389,6 +390,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   if (pdfDataRangeTransport) {
     source.length = pdfDataRangeTransport.length;
     source.initialData = pdfDataRangeTransport.initialData;
+    source.progressiveDone = pdfDataRangeTransport.progressiveDone;
   }
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId,
@@ -513,15 +515,18 @@ const PDFDocumentLoadingTask = (function PDFDocumentLoadingTaskClosure() {
  * Abstract class to support range requests file loading.
  * @param {number} length
  * @param {Uint8Array} initialData
+ * @param {boolean} progressiveDone
  */
 class PDFDataRangeTransport {
-  constructor(length, initialData) {
+  constructor(length, initialData, progressiveDone = false) {
     this.length = length;
     this.initialData = initialData;
+    this.progressiveDone = progressiveDone;
 
     this._rangeListeners = [];
     this._progressListeners = [];
     this._progressiveReadListeners = [];
+    this._progressiveDoneListeners = [];
     this._readyCapability = createPromiseCapability();
   }
 
@@ -537,16 +542,20 @@ class PDFDataRangeTransport {
     this._progressiveReadListeners.push(listener);
   }
 
+  addProgressiveDoneListener(listener) {
+    this._progressiveDoneListeners.push(listener);
+  }
+
   onDataRange(begin, chunk) {
     for (const listener of this._rangeListeners) {
       listener(begin, chunk);
     }
   }
 
-  onDataProgress(loaded) {
+  onDataProgress(loaded, total) {
     this._readyCapability.promise.then(() => {
       for (const listener of this._progressListeners) {
-        listener(loaded);
+        listener(loaded, total);
       }
     });
   }
@@ -555,6 +564,14 @@ class PDFDataRangeTransport {
     this._readyCapability.promise.then(() => {
       for (const listener of this._progressiveReadListeners) {
         listener(chunk);
+      }
+    });
+  }
+
+  onDataProgressiveDone() {
+    this._readyCapability.promise.then(() => {
+      for (const listener of this._progressiveDoneListeners) {
+        listener();
       }
     });
   }
@@ -575,9 +592,7 @@ class PDFDataRangeTransport {
  * properties that can be read synchronously.
  */
 class PDFDocumentProxy {
-  constructor(pdfInfo, transport, loadingTask) {
-    this.loadingTask = loadingTask;
-
+  constructor(pdfInfo, transport) {
     this._pdfInfo = pdfInfo;
     this._transport = transport;
   }
@@ -645,10 +660,26 @@ class PDFDocumentProxy {
 
   /**
    * @return {Promise} A promise that is resolved with a {string} containing
+   *   the page layout name.
+   */
+  getPageLayout() {
+    return this._transport.getPageLayout();
+  }
+
+  /**
+   * @return {Promise} A promise that is resolved with a {string} containing
    *   the page mode name.
    */
   getPageMode() {
     return this._transport.getPageMode();
+  }
+
+  /**
+   * @return {Promise} A promise that is resolved with an {Object} containing
+   *   the viewer preferences.
+   */
+  getViewerPreferences() {
+    return this._transport.getViewerPreferences();
   }
 
   /**
@@ -684,6 +715,7 @@ class PDFDocumentProxy {
    *     bold: boolean,
    *     italic: boolean,
    *     color: rgb Uint8ClampedArray,
+   *     count: integer or undefined,
    *     dest: dest obj,
    *     url: string,
    *     items: array of more items like this
@@ -762,6 +794,13 @@ class PDFDocumentProxy {
   get loadingParams() {
     return this._transport.loadingParams;
   }
+
+  /**
+   * @return {PDFDocumentLoadingTask} The loadingTask for the current document.
+   */
+  get loadingTask() {
+    return this._transport.loadingTask;
+  }
 }
 
 /**
@@ -790,7 +829,7 @@ class PDFDocumentProxy {
  *
  * @typedef {Object} TextContent
  * @property {array} items - array of {@link TextItem}
- * @property {Object} styles - {@link TextStyles} objects, indexed by font name.
+ * @property {Object} styles - {@link TextStyle} objects, indexed by font name.
  */
 
 /**
@@ -966,7 +1005,7 @@ class PDFPageProxy {
     const stats = this._stats;
     stats.time('Overall');
 
-    // If there was a pending destroy cancel it so no cleanup happens during
+    // If there was a pending destroy, cancel it so no cleanup happens during
     // this call to render.
     this.pendingCleanup = false;
 
@@ -1007,7 +1046,9 @@ class PDFPageProxy {
         intentState.renderTasks.splice(i, 1);
       }
 
-      if (this.cleanupAfterRender) {
+      // Attempt to reduce memory usage during *printing*, by always running
+      // cleanup once rendering has finished (regardless of cleanupAfterRender).
+      if (this.cleanupAfterRender || renderingIntent === 'print') {
         this.pendingCleanup = true;
       }
       this._tryCleanup();
@@ -1340,7 +1381,7 @@ class LoopbackPort {
   }
 
   terminate() {
-    this._listeners = [];
+    this._listeners.length = 0;
   }
 }
 
@@ -1730,8 +1771,8 @@ class WorkerTransport {
         waitOn.push(page._destroy());
       }
     });
-    this.pageCache = [];
-    this.pagePromises = [];
+    this.pageCache.length = 0;
+    this.pagePromises.length = 0;
     // We also need to wait for the worker to finish its long running tasks.
     const terminated = this.messageHandler.sendWithPromise('Terminate', null);
     waitOn.push(terminated);
@@ -1817,6 +1858,21 @@ class WorkerTransport {
       const rangeReader =
         this._networkStream.getRangeReader(data.begin, data.end);
 
+      // When streaming is enabled, it's possible that the data requested here
+      // has already been fetched via the `_fullRequestReader` implementation.
+      // However, given that the PDF data is loaded asynchronously on the
+      // main-thread and then sent via `postMessage` to the worker-thread,
+      // it may not have been available during parsing (hence the attempt to
+      // use range requests here).
+      //
+      // To avoid wasting time and resources here, we'll thus *not* dispatch
+      // range requests if the data was already loaded but has not been sent to
+      // the worker-thread yet (which will happen via the `_fullRequestReader`).
+      if (!rangeReader) {
+        sink.close();
+        return;
+      }
+
       sink.onPull = () => {
         rangeReader.read().then(function({ value, done, }) {
           if (done) {
@@ -1836,9 +1892,8 @@ class WorkerTransport {
     }, this);
 
     messageHandler.on('GetDoc', function({ pdfInfo, }) {
-      this.numPages = pdfInfo.numPages;
-      this.pdfDocument = new PDFDocumentProxy(pdfInfo, this, loadingTask);
-      loadingTask._capability.resolve(this.pdfDocument);
+      this._numPages = pdfInfo.numPages;
+      loadingTask._capability.resolve(new PDFDocumentProxy(pdfInfo, this));
     }, this);
 
     messageHandler.on('PasswordRequest', function(exception) {
@@ -1967,6 +2022,7 @@ class WorkerTransport {
           });
           break;
         case 'FontPath':
+        case 'FontType3Res':
           this.commonObjs.resolve(id, exportedData);
           break;
         default:
@@ -1976,13 +2032,14 @@ class WorkerTransport {
 
     messageHandler.on('obj', function(data) {
       if (this.destroyed) {
-        return; // Ignore any pending requests if the worker was terminated.
+        // Ignore any pending requests if the worker was terminated.
+        return undefined;
       }
 
       const [id, pageIndex, type, imageData] = data;
       const pageProxy = this.pageCache[pageIndex];
       if (pageProxy.objs.has(id)) {
-        return;
+        return undefined;
       }
 
       switch (type) {
@@ -1993,11 +2050,14 @@ class WorkerTransport {
               resolve(img);
             };
             img.onerror = function() {
-              reject(new Error('Error during JPEG image loading'));
               // Note that when the browser image loading/decoding fails,
               // we'll fallback to the built-in PDF.js JPEG decoder; see
               // `PartialEvaluator.buildPaintImageXObject` in the
               // `src/core/evaluator.js` file.
+              reject(new Error('Error during JPEG image loading'));
+
+              // Always remember to release the image data if errors occurred.
+              releaseImageResources(img);
             };
             img.src = imageData;
           }).then((img) => {
@@ -2016,6 +2076,7 @@ class WorkerTransport {
         default:
           throw new Error(`Got unknown object type ${type}`);
       }
+      return undefined;
     }, this);
 
     messageHandler.on('DocProgress', function(data) {
@@ -2036,11 +2097,11 @@ class WorkerTransport {
         return; // Ignore any pending requests if the worker was terminated.
       }
 
-      const page = this.pageCache[data.pageNum - 1];
+      const page = this.pageCache[data.pageIndex];
       const intentState = page.intentStates[data.intent];
 
       if (intentState.displayReadyCapability) {
-        intentState.displayReadyCapability.reject(data.error);
+        intentState.displayReadyCapability.reject(new Error(data.error));
       } else {
         throw new Error(data.error);
       }
@@ -2076,15 +2137,14 @@ class WorkerTransport {
       return new Promise(function(resolve, reject) {
         const img = new Image();
         img.onload = function() {
-          const width = img.width;
-          const height = img.height;
+          const { width, height, } = img;
           const size = width * height;
           const rgbaLength = size * 4;
           const buf = new Uint8ClampedArray(size * components);
-          const tmpCanvas = document.createElement('canvas');
+          let tmpCanvas = document.createElement('canvas');
           tmpCanvas.width = width;
           tmpCanvas.height = height;
-          const tmpCtx = tmpCanvas.getContext('2d');
+          let tmpCtx = tmpCanvas.getContext('2d');
           tmpCtx.drawImage(img, 0, 0);
           const data = tmpCtx.getImageData(0, 0, width, height).data;
 
@@ -2100,9 +2160,21 @@ class WorkerTransport {
             }
           }
           resolve({ data: buf, width, height, });
+
+          // Immediately release the image data once decoding has finished.
+          releaseImageResources(img);
+          // Zeroing the width and height cause Firefox to release graphics
+          // resources immediately, which can greatly reduce memory consumption.
+          tmpCanvas.width = 0;
+          tmpCanvas.height = 0;
+          tmpCanvas = null;
+          tmpCtx = null;
         };
         img.onerror = function() {
           reject(new Error('JpegDecode failed to load image'));
+
+          // Always remember to release the image data if errors occurred.
+          releaseImageResources(img);
         };
         img.src = imageUrl;
       });
@@ -2133,7 +2205,7 @@ class WorkerTransport {
 
   getPage(pageNumber) {
     if (!Number.isInteger(pageNumber) ||
-        pageNumber <= 0 || pageNumber > this.numPages) {
+        pageNumber <= 0 || pageNumber > this._numPages) {
       return Promise.reject(new Error('Invalid page request'));
     }
 
@@ -2188,12 +2260,20 @@ class WorkerTransport {
     return this.messageHandler.sendWithPromise('GetPageLabels', null);
   }
 
+  getPageLayout() {
+    return this.messageHandler.sendWithPromise('GetPageLayout', null);
+  }
+
   getPageMode() {
     return this.messageHandler.sendWithPromise('GetPageMode', null);
   }
 
+  getViewerPreferences() {
+    return this.messageHandler.sendWithPromise('GetViewerPreferences', null);
+  }
+
   getOpenActionDestination() {
-    return this.messageHandler.sendWithPromise('getOpenActionDestination',
+    return this.messageHandler.sendWithPromise('GetOpenActionDestination',
                                                null);
   }
 
@@ -2322,6 +2402,14 @@ class PDFObjects {
   }
 
   clear() {
+    for (const objId in this._objs) {
+      const { data, } = this._objs[objId];
+
+      if (typeof Image !== 'undefined' && data instanceof Image) {
+        // Always release the image data when clearing out the cached objects.
+        releaseImageResources(data);
+      }
+    }
     this._objs = Object.create(null);
   }
 }

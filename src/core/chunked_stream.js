@@ -15,9 +15,9 @@
 /* eslint no-var: error */
 
 import {
-  arrayByteLength, arraysToBytes, createPromiseCapability, isEmptyObj,
-  MissingDataException
+  arrayByteLength, arraysToBytes, createPromiseCapability, isEmptyObj
 } from '../shared/util';
+import { MissingDataException } from './core_utils';
 
 class ChunkedStream {
   constructor(length, chunkSize, manager) {
@@ -98,6 +98,10 @@ class ChunkedStream {
   }
 
   ensureByte(pos) {
+    if (pos < this.progressiveDataLength) {
+      return;
+    }
+
     const chunk = Math.floor(pos / this.chunkSize);
     if (chunk === this.lastSuccessfulEnsureByteChunk) {
       return;
@@ -234,7 +238,20 @@ class ChunkedStream {
   }
 
   makeSubStream(start, length, dict) {
-    this.ensureRange(start, start + length);
+    if (length) {
+      this.ensureRange(start, start + length);
+    } else {
+      // When the `length` is undefined you do *not*, under any circumstances,
+      // want to fallback on calling `this.ensureRange(start, this.end)` since
+      // that would force the *entire* PDF file to be loaded, thus completely
+      // breaking the whole purpose of using streaming and/or range requests.
+      //
+      // However, not doing any checking here could very easily lead to wasted
+      // time/resources during e.g. parsing, since `MissingDataException`s will
+      // require data to be re-parsed, which we attempt to minimize by at least
+      // checking that the *beginning* of the data is available here.
+      this.ensureByte(start);
+    }
 
     function ChunkedStreamSubstream() {}
     ChunkedStreamSubstream.prototype = Object.create(this);

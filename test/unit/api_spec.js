@@ -14,17 +14,17 @@
  */
 
 import {
-  buildGetDocumentParams, NodeCanvasFactory, NodeFileReaderFactory,
-  TEST_PDFS_PATH
+  buildGetDocumentParams, DOMFileReaderFactory, NodeCanvasFactory,
+  NodeFileReaderFactory, TEST_PDFS_PATH
 } from './test_utils';
 import {
-  createPromiseCapability, FontType, InvalidPDFException, MissingPDFException,
-  OPS, PasswordException, PasswordResponses, PermissionFlag, StreamType,
-  stringToBytes
+  createPromiseCapability, FontType, InvalidPDFException, isEmptyObj,
+  MissingPDFException, OPS, PasswordException, PasswordResponses,
+  PermissionFlag, StreamType
 } from '../../src/shared/util';
 import {
   DOMCanvasFactory, RenderingCancelledException, StatTimer
-} from '../../src/display/dom_utils';
+} from '../../src/display/display_utils';
 import {
   getDocument, PDFDataRangeTransport, PDFDocumentProxy, PDFPageProxy, PDFWorker
 } from '../../src/display/api';
@@ -110,50 +110,37 @@ describe('api', function() {
       }).catch(done.fail);
     });
     it('creates pdf doc from typed array', function(done) {
-      var typedArrayPdf;
+      let typedArrayPdfPromise;
       if (isNodeJS()) {
-        typedArrayPdf = NodeFileReaderFactory.fetch({
+        typedArrayPdfPromise = NodeFileReaderFactory.fetch({
           path: TEST_PDFS_PATH.node + basicApiFileName,
         });
       } else {
-        let nonBinaryRequest = false;
-        let request = new XMLHttpRequest();
-        request.open('GET', TEST_PDFS_PATH.dom + basicApiFileName, false);
-        try {
-          request.responseType = 'arraybuffer';
-          nonBinaryRequest = request.responseType !== 'arraybuffer';
-        } catch (e) {
-          nonBinaryRequest = true;
-        }
-        if (nonBinaryRequest && request.overrideMimeType) {
-          request.overrideMimeType('text/plain; charset=x-user-defined');
-        }
-        request.send(null);
-
-        if (nonBinaryRequest) {
-          typedArrayPdf = stringToBytes(request.responseText);
-        } else {
-          typedArrayPdf = new Uint8Array(request.response);
-        }
+        typedArrayPdfPromise = DOMFileReaderFactory.fetch({
+          path: TEST_PDFS_PATH.dom + basicApiFileName,
+        });
       }
-      // Sanity check to make sure that we fetched the entire PDF file.
-      expect(typedArrayPdf.length).toEqual(basicApiFileLength);
 
-      const loadingTask = getDocument(typedArrayPdf);
+      typedArrayPdfPromise.then((typedArrayPdf) => {
+        // Sanity check to make sure that we fetched the entire PDF file.
+        expect(typedArrayPdf.length).toEqual(basicApiFileLength);
 
-      const progressReportedCapability = createPromiseCapability();
-      loadingTask.onProgress = function(data) {
-        progressReportedCapability.resolve(data);
-      };
+        const loadingTask = getDocument(typedArrayPdf);
 
-      Promise.all([
-        loadingTask.promise,
-        progressReportedCapability.promise,
-      ]).then(function(data) {
-        expect(data[0] instanceof PDFDocumentProxy).toEqual(true);
-        expect(data[1].loaded / data[1].total).toEqual(1);
+        const progressReportedCapability = createPromiseCapability();
+        loadingTask.onProgress = function(data) {
+          progressReportedCapability.resolve(data);
+        };
 
-        loadingTask.destroy().then(done);
+        return Promise.all([
+          loadingTask.promise,
+          progressReportedCapability.promise,
+        ]).then(function(data) {
+          expect(data[0] instanceof PDFDocumentProxy).toEqual(true);
+          expect(data[1].loaded / data[1].total).toEqual(1);
+
+          loadingTask.destroy().then(done);
+        });
       }).catch(done.fail);
     });
     it('creates pdf doc from invalid PDF file', function(done) {
@@ -624,6 +611,24 @@ describe('api', function() {
       }).catch(done.fail);
     });
 
+    it('gets default page layout', function(done) {
+      var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
+
+      loadingTask.promise.then(function(pdfDocument) {
+        return pdfDocument.getPageLayout();
+      }).then(function(mode) {
+        expect(mode).toEqual('');
+
+        loadingTask.destroy().then(done);
+      }).catch(done.fail);
+    });
+    it('gets non-default page layout', function(done) {
+      doc.getPageLayout().then(function(mode) {
+        expect(mode).toEqual('SinglePage');
+        done();
+      }).catch(done.fail);
+    });
+
     it('gets default page mode', function(done) {
       var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
 
@@ -638,6 +643,27 @@ describe('api', function() {
     it('gets non-default page mode', function(done) {
       doc.getPageMode().then(function(mode) {
         expect(mode).toEqual('UseOutlines');
+        done();
+      }).catch(done.fail);
+    });
+
+    it('gets default viewer preferences', function(done) {
+      var loadingTask = getDocument(buildGetDocumentParams('tracemonkey.pdf'));
+
+      loadingTask.promise.then(function(pdfDocument) {
+        return pdfDocument.getViewerPreferences();
+      }).then(function(prefs) {
+        expect(typeof prefs === 'object' && prefs !== null &&
+               isEmptyObj(prefs)).toEqual(true);
+
+        loadingTask.destroy().then(done);
+      }).catch(done.fail);
+    });
+    it('gets non-default viewer preferences', function(done) {
+      doc.getViewerPreferences().then(function(prefs) {
+        expect(prefs).toEqual({
+          Direction: 'L2R',
+        });
         done();
       }).catch(done.fail);
     });
@@ -846,6 +872,7 @@ describe('api', function() {
         expect(info['IsLinearized']).toEqual(false);
         expect(info['IsAcroFormPresent']).toEqual(false);
         expect(info['IsXFAPresent']).toEqual(false);
+        expect(info['IsCollectionPresent']).toEqual(false);
 
         expect(metadata instanceof Metadata).toEqual(true);
         expect(metadata.get('dc:title')).toEqual('Basic API Test');
@@ -874,6 +901,7 @@ describe('api', function() {
         expect(info['IsLinearized']).toEqual(false);
         expect(info['IsAcroFormPresent']).toEqual(false);
         expect(info['IsXFAPresent']).toEqual(false);
+        expect(info['IsCollectionPresent']).toEqual(false);
 
         expect(metadata).toEqual(null);
         expect(contentDispositionFilename).toEqual(null);
@@ -966,7 +994,7 @@ describe('api', function() {
         return _checkCanLoad(false, filename, options);
       }
       afterEach(function(done) {
-        if (loadingTask) {
+        if (loadingTask && !loadingTask.destroyed) {
           loadingTask.destroy().then(done);
         } else {
           done();
@@ -1397,7 +1425,6 @@ describe('api', function() {
     // A PDF using the Arial font.
     var pdf3 = buildGetDocumentParams('issue6068.pdf');
     var loadingTasks = [];
-    var pdfDocuments = [];
 
     // Render the first page of the given PDF file.
     // Fulfills the promise with the base64-encoded version of the PDF.
@@ -1405,7 +1432,6 @@ describe('api', function() {
       const loadingTask = getDocument(filename);
       loadingTasks.push(loadingTask);
       const pdf = await loadingTask.promise;
-      pdfDocuments.push(pdf);
       const page = await pdf.getPage(1);
       const viewport = page.getViewport({ scale: 1.2, });
       const canvasAndCtx = CanvasFactory.create(viewport.width,
@@ -1425,18 +1451,10 @@ describe('api', function() {
       // Issue 6205 reported an issue with font rendering, so clear the loaded
       // fonts so that we can see whether loading PDFs in parallel does not
       // cause any issues with the rendered fonts.
-      var destroyPromises = pdfDocuments.map(function(pdfDocument) {
-        return pdfDocument.destroy();
-      });
-
-      // Destroy the workers.
-      var destroyPromises2 = loadingTasks.map(function(loadingTask) {
+      const destroyPromises = loadingTasks.map(function(loadingTask) {
         return loadingTask.destroy();
       });
-
-      Promise.all(destroyPromises.concat(destroyPromises2)).then(function() {
-        done();
-      });
+      Promise.all(destroyPromises).then(done);
     });
 
     it('should correctly render PDFs in parallel', function(done) {
@@ -1465,99 +1483,112 @@ describe('api', function() {
       }).catch(done.fail);
     });
   });
-  describe('PDFDataRangeTransport', function () {
-    var loadPromise;
-    function getDocumentData() {
-      const pdfPath = new URL('../pdfs/tracemonkey.pdf', window.location).href;
-      if (loadPromise) {
-        return loadPromise;
-      }
-      loadPromise = new Promise(function (resolve, reject) {
-        var xhr = new XMLHttpRequest(pdfPath);
-        xhr.open('GET', pdfPath);
-        xhr.responseType = 'arraybuffer';
-        xhr.onload = function () {
-          resolve(new Uint8Array(xhr.response));
-        };
-        xhr.onerror = function () {
-          reject(new Error('PDF is not loaded'));
-        };
-        xhr.send();
-      });
-      return loadPromise;
-    }
-    it('should fetch document info and page using ranges', function (done) {
-      if (isNodeJS()) {
-        pending('XMLHttpRequest is not supported in Node.js.');
-      }
 
-      var transport;
-      var initialDataLength = 4000;
-      var fetches = 0;
-      var getDocumentPromise = getDocumentData().then(function (data) {
-        var initialData = data.subarray(0, initialDataLength);
-        transport = new PDFDataRangeTransport(data.length, initialData);
-        transport.requestDataRange = function (begin, end) {
+  describe('PDFDataRangeTransport', function() {
+    let dataPromise;
+
+    beforeAll(function(done) {
+      const fileName = 'tracemonkey.pdf';
+      if (isNodeJS()) {
+        dataPromise = NodeFileReaderFactory.fetch({
+          path: TEST_PDFS_PATH.node + fileName,
+        });
+      } else {
+        dataPromise = DOMFileReaderFactory.fetch({
+          path: TEST_PDFS_PATH.dom + fileName,
+        });
+      }
+      done();
+    });
+
+    afterAll(function() {
+      dataPromise = null;
+    });
+
+    it('should fetch document info and page using ranges', function(done) {
+      const initialDataLength = 4000;
+      let fetches = 0, loadingTask;
+
+      dataPromise.then(function(data) {
+        const initialData = data.subarray(0, initialDataLength);
+        const transport = new PDFDataRangeTransport(data.length, initialData);
+        transport.requestDataRange = function(begin, end) {
           fetches++;
-          waitSome(function () {
+          waitSome(function() {
             transport.onDataProgress(4000);
             transport.onDataRange(begin, data.subarray(begin, end));
           });
         };
-        var loadingTask = getDocument(transport);
+        loadingTask = getDocument(transport);
         return loadingTask.promise;
-      });
-      var pdfDocument;
-      var getPagePromise = getDocumentPromise.then(function (pdfDocument_) {
-        pdfDocument = pdfDocument_;
-        var pagePromise = pdfDocument.getPage(10);
-        return pagePromise;
-      });
-
-      getPagePromise.then(function (page) {
+      }).then(function(pdfDocument) {
         expect(pdfDocument.numPages).toEqual(14);
-        expect(page.rotate).toEqual(0);
+
+        return pdfDocument.getPage(10);
+      }).then(function(pdfPage) {
+        expect(pdfPage.rotate).toEqual(0);
         expect(fetches).toBeGreaterThan(2);
-        done();
+
+        loadingTask.destroy().then(done);
       }).catch(done.fail);
     });
-    it('should fetch document info and page using range and streaming',
-        function (done) {
-      if (isNodeJS()) {
-        pending('XMLHttpRequest is not supported in Node.js.');
-      }
 
-      var transport;
-      var initialDataLength = 4000;
-      var fetches = 0;
-      var getDocumentPromise = getDocumentData().then(function (data) {
-        var initialData = data.subarray(0, initialDataLength);
-        transport = new PDFDataRangeTransport(data.length, initialData);
-        transport.requestDataRange = function (begin, end) {
+    it('should fetch document info and page using range and streaming',
+        function(done) {
+      const initialDataLength = 4000;
+      let fetches = 0, loadingTask;
+
+      dataPromise.then(function(data) {
+        const initialData = data.subarray(0, initialDataLength);
+        const transport = new PDFDataRangeTransport(data.length, initialData);
+        transport.requestDataRange = function(begin, end) {
           fetches++;
           if (fetches === 1) {
-            // send rest of the data on first range request.
+            // Send rest of the data on first range request.
             transport.onDataProgressiveRead(data.subarray(initialDataLength));
           }
-          waitSome(function () {
+          waitSome(function() {
             transport.onDataRange(begin, data.subarray(begin, end));
           });
         };
-        var loadingTask = getDocument(transport);
+        loadingTask = getDocument(transport);
         return loadingTask.promise;
-      });
-      var pdfDocument;
-      var getPagePromise = getDocumentPromise.then(function (pdfDocument_) {
-        pdfDocument = pdfDocument_;
-        var pagePromise = pdfDocument.getPage(10);
-        return pagePromise;
-      });
-
-      getPagePromise.then(function (page) {
+      }).then(function(pdfDocument) {
         expect(pdfDocument.numPages).toEqual(14);
-        expect(page.rotate).toEqual(0);
+
+        return pdfDocument.getPage(10);
+      }).then(function(pdfPage) {
+        expect(pdfPage.rotate).toEqual(0);
         expect(fetches).toEqual(1);
-        done();
+
+        waitSome(function() {
+          loadingTask.destroy().then(done);
+        });
+      }).catch(done.fail);
+    });
+
+    it('should fetch document info and page, without range, ' +
+       'using complete initialData', function(done) {
+      let fetches = 0, loadingTask;
+
+      dataPromise.then(function(data) {
+        const transport =
+          new PDFDataRangeTransport(data.length, data,
+                                    /* progressiveDone = */ true);
+        transport.requestDataRange = function(begin, end) {
+          fetches++;
+        };
+        loadingTask = getDocument({ disableRange: true, range: transport, });
+        return loadingTask.promise;
+      }).then(function(pdfDocument) {
+        expect(pdfDocument.numPages).toEqual(14);
+
+        return pdfDocument.getPage(10);
+      }).then(function(pdfPage) {
+        expect(pdfPage.rotate).toEqual(0);
+        expect(fetches).toEqual(0);
+
+        loadingTask.destroy().then(done);
       }).catch(done.fail);
     });
   });

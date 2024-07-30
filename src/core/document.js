@@ -15,12 +15,15 @@
 /* eslint no-var: error */
 
 import {
-  assert, FormatError, getInheritableProperty, info, isArrayBuffer, isBool,
-  isNum, isSpace, isString, MissingDataException, OPS, shadow, stringToBytes,
-  stringToPDFString, Util, warn, XRefEntryException, XRefParseException
+  assert, bytesToString, FormatError, info, isArrayBuffer, isBool, isNum,
+  isSpace, isString, OPS, shadow, stringToBytes, stringToPDFString, Util, warn
 } from '../shared/util';
 import { Catalog, ObjectLoader, XRef } from './obj';
 import { Dict, isDict, isName, isStream, Ref } from './primitives';
+import {
+  getInheritableProperty, MissingDataException, XRefEntryException,
+  XRefParseException
+} from './core_utils';
 import { NullStream, Stream, StreamsSequenceStream } from './stream';
 import { AnnotationFactory } from './annotation';
 import { calculateMD5 } from './crypto';
@@ -51,13 +54,15 @@ class Page {
     this.evaluatorOptions = pdfManager.evaluatorOptions;
     this.resourcesPromise = null;
 
-    const uniquePrefix = `p${this.pageIndex}_`;
     const idCounters = {
       obj: 0,
     };
     this.idFactory = {
       createObjId() {
-        return uniquePrefix + (++idCounters.obj);
+        return `p${pageIndex}_${++idCounters.obj}`;
+      },
+      getDocId() {
+        return `g_${pdfManager.docId}`;
       },
     };
   }
@@ -192,7 +197,6 @@ class Page {
     ]);
 
     const partialEvaluator = new PartialEvaluator({
-      pdfManager: this.pdfManager,
       xref: this.xref,
       handler,
       pageIndex: this.pageIndex,
@@ -267,7 +271,6 @@ class Page {
     const dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
     return dataPromises.then(([contentStream]) => {
       const partialEvaluator = new PartialEvaluator({
-        pdfManager: this.pdfManager,
         xref: this.xref,
         handler,
         pageIndex: this.pageIndex,
@@ -334,20 +337,11 @@ const FINGERPRINT_FIRST_BYTES = 1024;
 const EMPTY_FINGERPRINT = '\x00\x00\x00\x00\x00\x00\x00' +
                           '\x00\x00\x00\x00\x00\x00\x00\x00\x00';
 
-function find(stream, needle, limit, backwards) {
-  const pos = stream.pos;
-  const end = stream.end;
-  if (pos + limit > end) {
-    limit = end - pos;
-  }
+function find(stream, needle, limit, backwards = false) {
+  assert(limit > 0, 'The "limit" must be a positive integer.');
 
-  const strBuf = [];
-  for (let i = 0; i < limit; ++i) {
-    strBuf.push(String.fromCharCode(stream.getByte()));
-  }
-  const str = strBuf.join('');
+  const str = bytesToString(stream.peekBytes(limit));
 
-  stream.pos = pos;
   const index = backwards ? str.lastIndexOf(needle) : str.indexOf(needle);
   if (index === -1) {
     return false;
@@ -401,8 +395,7 @@ class PDFDocument {
       if (this.acroForm) {
         this.xfa = this.acroForm.get('XFA');
         const fields = this.acroForm.get('Fields');
-        if ((!fields || !Array.isArray(fields) || fields.length === 0) &&
-            !this.xfa) {
+        if ((!Array.isArray(fields) || fields.length === 0) && !this.xfa) {
           this.acroForm = null; // No fields and no XFA, so it's not a form.
         }
       }
@@ -412,6 +405,19 @@ class PDFDocument {
       }
       info('Cannot fetch AcroForm entry; assuming no AcroForms are present');
       this.acroForm = null;
+    }
+
+    // Check if a Collection dictionary is present in the document.
+    try {
+      const collection = this.catalog.catDict.get('Collection');
+      if (isDict(collection) && collection.getKeys().length > 0) {
+        this.collection = collection;
+      }
+    } catch (ex) {
+      if (ex instanceof MissingDataException) {
+        throw ex;
+      }
+      info('Cannot fetch Collection dictionary.');
     }
   }
 
@@ -534,6 +540,7 @@ class PDFDocument {
       IsLinearized: !!this.linearization,
       IsAcroFormPresent: !!this.acroForm,
       IsXFAPresent: !!this.xfa,
+      IsCollectionPresent: !!this.collection,
     };
 
     let infoDict;
@@ -611,7 +618,7 @@ class PDFDocument {
     const { catalog, linearization, } = this;
     assert(linearization && linearization.pageFirst === pageIndex);
 
-    const ref = new Ref(linearization.objectNumberFirst, 0);
+    const ref = Ref.get(linearization.objectNumberFirst, 0);
     return this.xref.fetchAsync(ref).then((obj) => {
       // Ensure that the object that was found is actually a Page dictionary.
       if (isDict(obj, 'Page') ||
