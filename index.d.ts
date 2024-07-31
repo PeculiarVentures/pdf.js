@@ -412,7 +412,7 @@ declare module 'pdfjs-dist' {
      * @param rotate Degrees to rotate the viewport.  If omitted this defaults to the page rotation.
      * @return
      **/
-    getViewport(params: { scale: number; rotate?: number; dontFlip?: boolean }): PDFPageViewport;
+    getViewport(params: { scale: number; rotate?: number; dontFlip?: boolean; offsetX?: number; offsetY?: number; }): PDFPageViewport;
   
     /**
      * A promise that is resolved with an array of the annotation objects.
@@ -437,10 +437,13 @@ declare module 'pdfjs-dist' {
     getOperationList(): PDFPromise<any>;
     getOperatorList(): Promise<any>;
 
-    cleanup(): void;
+    /**
+     * Returns of cleanup actually happened.
+     */
+    cleanup(): boolean;
   
     /**
-     * Destroyes resources allocated by the page.
+     * Destroys resources allocated by the page.
      **/
     destroy(): void;
   }

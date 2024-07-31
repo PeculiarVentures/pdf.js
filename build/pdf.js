@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.4.29';
-var pdfjsBuild = '611b09a9a';
+var pdfjsVersion = '2.4.488';
+var pdfjsBuild = '720924d1e';
 var pdfjsSharedUtil = __w_pdfjs_require__(1);
 var pdfjsDisplayAPI = __w_pdfjs_require__(3);
 var pdfjsDisplayTextLayer = __w_pdfjs_require__(16);
@@ -1058,7 +1058,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.4.29',
+    apiVersion: '2.4.488',
     source: {
       data: source.data,
       url: source.url,
@@ -1776,6 +1776,10 @@ const PDFWorker = exports.PDFWorker = function PDFWorkerClosure() {
       }
       if (_is_node.isNodeJS && typeof require === "function") {
         const worker = eval("require")(getWorkerSrc());
+        return worker.WorkerMessageHandler;
+      }
+      if (typeof window !== "undefined" && _worker_options.GlobalWorkerOptions.isWorkerDisabled && typeof require === "function") {
+        const worker = require("./pdf.worker.js");
         return worker.WorkerMessageHandler;
       }
       await (0, _display_utils.loadScript)(getWorkerSrc());
@@ -2656,8 +2660,8 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   }
   return InternalRenderTask;
 }();
-const version = exports.version = '2.4.29';
-const build = exports.build = '611b09a9a';
+const version = exports.version = '2.4.488';
+const build = exports.build = '720924d1e';
 
 /***/ }),
 /* 4 */

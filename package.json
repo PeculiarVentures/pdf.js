@@ -1,6 +1,6 @@
 {
   "name": "pdfjs-dist",
-  "version": "2.4.29",
+  "version": "2.4.488",
   "main": "build/pdf.js",
   "description": "Generic build of Mozilla's PDF.js library.",
   "keywords": [

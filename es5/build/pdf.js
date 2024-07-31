@@ -123,8 +123,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var pdfjsVersion = '2.4.29';
-var pdfjsBuild = '611b09a9a';
+var pdfjsVersion = '2.4.488';
+var pdfjsBuild = '720924d1e';
 var pdfjsSharedUtil = __w_pdfjs_require__(1);
 var pdfjsDisplayAPI = __w_pdfjs_require__(290);
 var pdfjsDisplayTextLayer = __w_pdfjs_require__(302);
@@ -12905,7 +12905,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId: docId,
-    apiVersion: '2.4.29',
+    apiVersion: '2.4.488',
     source: {
       data: source.data,
       url: source.url,
@@ -13811,7 +13811,7 @@ var PDFWorker = exports.PDFWorker = function PDFWorkerClosure() {
     fakeWorkerCapability = (0, _util.createPromiseCapability)();
     var loader = /*#__PURE__*/function () {
       var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var mainWorkerMessageHandler, worker;
+        var mainWorkerMessageHandler, worker, _worker;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
@@ -13829,11 +13829,18 @@ var PDFWorker = exports.PDFWorker = function PDFWorkerClosure() {
               worker = eval("require")(_getWorkerSrc());
               return _context.abrupt("return", worker.WorkerMessageHandler);
             case 6:
-              _context.next = 8;
-              return (0, _display_utils.loadScript)(_getWorkerSrc());
-            case 8:
-              return _context.abrupt("return", window.pdfjsWorker.WorkerMessageHandler);
+              if (!(typeof window !== "undefined" && _worker_options.GlobalWorkerOptions.isWorkerDisabled && typeof require === "function")) {
+                _context.next = 9;
+                break;
+              }
+              _worker = require("./pdf.worker.js");
+              return _context.abrupt("return", _worker.WorkerMessageHandler);
             case 9:
+              _context.next = 11;
+              return (0, _display_utils.loadScript)(_getWorkerSrc());
+            case 11:
+              return _context.abrupt("return", window.pdfjsWorker.WorkerMessageHandler);
+            case 12:
             case "end":
               return _context.stop();
           }
@@ -14848,8 +14855,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
   }();
   return InternalRenderTask;
 }();
-var version = exports.version = '2.4.29';
-var build = exports.build = '611b09a9a';
+var version = exports.version = '2.4.488';
+var build = exports.build = '720924d1e';
 
 /***/ }),
 /* 291 */
