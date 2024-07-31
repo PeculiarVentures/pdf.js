@@ -1681,9 +1681,12 @@ const PDFWorker = (function PDFWorkerClosure() {
       // PV patch: allow to disabled worker via options to be loaded in browser
       if (
         typeof window !== "undefined" &&
-        GlobalWorkerOptions.isWorkerDisabled
+        GlobalWorkerOptions.isWorkerDisabled &&
+        // eslint-disable-next-line no-undef
+        typeof __non_webpack_require__ === "function"
       ) {
-        const worker = require("./pdf.worker.js");
+        // eslint-disable-next-line no-undef
+        const worker = __non_webpack_require__("./pdf.worker.js");
 
         return worker.WorkerMessageHandler;
       }
