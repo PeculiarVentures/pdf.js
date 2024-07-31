@@ -1678,6 +1678,16 @@ const PDFWorker = (function PDFWorkerClosure() {
         const worker = eval("require")(getWorkerSrc());
         return worker.WorkerMessageHandler;
       }
+      // PV patch: allow to disabled worker via options to be loaded in browser
+      if (
+        typeof window !== "undefined" &&
+        GlobalWorkerOptions.isWorkerDisabled
+      ) {
+        const worker = require("./pdf.worker.js");
+
+        return worker.WorkerMessageHandler;
+      }
+      // end PV patch
       await loadScript(getWorkerSrc());
       return window.pdfjsWorker.WorkerMessageHandler;
     };
