@@ -22,7 +22,10 @@ mkdir $DIRECTORY
 cd gh-dist-branch
 # now lets setup a new repo so we can update the gh-pages branch
 git init
-git remote add --fetch origin "$remote"
+git remote add origin "$remote"
+
+# Fetch only the specific branch with a shallow clone
+git fetch --depth 1 origin dist-v3
 
 # switch into the the gh-pages branch
 if git rev-parse --verify origin/dist-v3 > /dev/null 2>&1
