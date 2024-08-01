@@ -133,8 +133,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", {
   }
 });
 var _worker = __w_pdfjs_require__(1);
-var pdfjsVersion = '2.5.34';
-var pdfjsBuild = '7c265f3ad';
+var pdfjsVersion = '2.6.383';
+var pdfjsBuild = '17cc73c6f';
 
 /***/ }),
 /* 1 */
@@ -143,19 +143,22 @@ var pdfjsBuild = '7c265f3ad';
 "use strict";
 
 
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.WorkerTask = exports.WorkerMessageHandler = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _pdf_manager = __w_pdfjs_require__(297);
+var _primitives = __w_pdfjs_require__(300);
+var _pdf_manager = __w_pdfjs_require__(301);
+var _writer = __w_pdfjs_require__(322);
 var _is_node = __w_pdfjs_require__(4);
-var _message_handler = __w_pdfjs_require__(336);
-var _worker_stream = __w_pdfjs_require__(337);
-var _core_utils = __w_pdfjs_require__(299);
+var _message_handler = __w_pdfjs_require__(341);
+var _worker_stream = __w_pdfjs_require__(342);
+var _core_utils = __w_pdfjs_require__(303);
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _toArray(r) { return _arrayWithHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableRest(); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -164,472 +167,566 @@ function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" !=
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var WorkerTask = exports.WorkerTask = function WorkerTaskClosure() {
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var WorkerTask = exports.WorkerTask = /*#__PURE__*/function () {
   function WorkerTask(name) {
+    _classCallCheck(this, WorkerTask);
     this.name = name;
     this.terminated = false;
     this._capability = (0, _util.createPromiseCapability)();
   }
-  WorkerTask.prototype = {
-    get finished() {
+  return _createClass(WorkerTask, [{
+    key: "finished",
+    get: function get() {
       return this._capability.promise;
-    },
-    finish: function finish() {
+    }
+  }, {
+    key: "finish",
+    value: function finish() {
       this._capability.resolve();
-    },
-    terminate: function terminate() {
+    }
+  }, {
+    key: "terminate",
+    value: function terminate() {
       this.terminated = true;
-    },
-    ensureNotTerminated: function ensureNotTerminated() {
+    }
+  }, {
+    key: "ensureNotTerminated",
+    value: function ensureNotTerminated() {
       if (this.terminated) {
         throw new Error("Worker task was terminated");
       }
     }
-  };
-  return WorkerTask;
+  }]);
 }();
-var WorkerMessageHandler = exports.WorkerMessageHandler = {
-  setup: function setup(handler, port) {
-    var testMessageProcessed = false;
-    handler.on("test", function wphSetupTest(data) {
-      if (testMessageProcessed) {
-        return;
-      }
-      testMessageProcessed = true;
-      if (!(data instanceof Uint8Array)) {
-        handler.send("test", null);
-        return;
-      }
-      var supportTransfers = data[0] === 255;
-      handler.postMessageTransfers = supportTransfers;
-      handler.send("test", {
-        supportTransfers: supportTransfers
-      });
-    });
-    handler.on("configure", function wphConfigure(data) {
-      (0, _util.setVerbosityLevel)(data.verbosity);
-    });
-    handler.on("GetDocRequest", function wphSetupDoc(data) {
-      return WorkerMessageHandler.createDocumentHandler(data, port);
-    });
-  },
-  createDocumentHandler: function createDocumentHandler(docParams, port) {
-    var pdfManager;
-    var terminated = false;
-    var cancelXHRs = null;
-    var WorkerTasks = [];
-    var verbosity = (0, _util.getVerbosityLevel)();
-    var apiVersion = docParams.apiVersion;
-    var workerVersion = '2.5.34';
-    if (apiVersion !== workerVersion) {
-      throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
-    }
-    var enumerableProperties = [];
-    for (var property in []) {
-      enumerableProperties.push(property);
-    }
-    if (enumerableProperties.length) {
-      throw new Error("The `Array.prototype` contains unexpected enumerable properties: " + enumerableProperties.join(", ") + "; thus breaking e.g. `for...in` iteration of `Array`s.");
-    }
-    var docId = docParams.docId;
-    var docBaseUrl = docParams.docBaseUrl;
-    var workerHandlerName = docParams.docId + "_worker";
-    var handler = new _message_handler.MessageHandler(workerHandlerName, docId, port);
-    handler.postMessageTransfers = docParams.postMessageTransfers;
-    function ensureNotTerminated() {
-      if (terminated) {
-        throw new Error("Worker was terminated");
-      }
-    }
-    function startWorkerTask(task) {
-      WorkerTasks.push(task);
-    }
-    function finishWorkerTask(task) {
-      task.finish();
-      var i = WorkerTasks.indexOf(task);
-      WorkerTasks.splice(i, 1);
-    }
-    function loadDocument(_x) {
-      return _loadDocument.apply(this, arguments);
-    }
-    function _loadDocument() {
-      _loadDocument = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(recoveryMode) {
-        var _yield$Promise$all, _yield$Promise$all2, numPages, fingerprint;
-        return _regeneratorRuntime().wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
-            case 0:
-              _context.next = 2;
-              return pdfManager.ensureDoc("checkHeader");
-            case 2:
-              _context.next = 4;
-              return pdfManager.ensureDoc("parseStartXRef");
-            case 4:
-              _context.next = 6;
-              return pdfManager.ensureDoc("parse", [recoveryMode]);
-            case 6:
-              if (recoveryMode) {
-                _context.next = 9;
-                break;
-              }
-              _context.next = 9;
-              return pdfManager.ensureDoc("checkFirstPage");
-            case 9:
-              _context.next = 11;
-              return Promise.all([pdfManager.ensureDoc("numPages"), pdfManager.ensureDoc("fingerprint")]);
-            case 11:
-              _yield$Promise$all = _context.sent;
-              _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
-              numPages = _yield$Promise$all2[0];
-              fingerprint = _yield$Promise$all2[1];
-              return _context.abrupt("return", {
-                numPages: numPages,
-                fingerprint: fingerprint
-              });
-            case 16:
-            case "end":
-              return _context.stop();
-          }
-        }, _callee);
-      }));
-      return _loadDocument.apply(this, arguments);
-    }
-    function getPdfManager(data, evaluatorOptions) {
-      var pdfManagerCapability = (0, _util.createPromiseCapability)();
-      var newPdfManager;
-      var source = data.source;
-      if (source.data) {
-        try {
-          newPdfManager = new _pdf_manager.LocalPdfManager(docId, source.data, source.password, evaluatorOptions, docBaseUrl);
-          pdfManagerCapability.resolve(newPdfManager);
-        } catch (ex) {
-          pdfManagerCapability.reject(ex);
-        }
-        return pdfManagerCapability.promise;
-      }
-      var pdfStream,
-        cachedChunks = [];
-      try {
-        pdfStream = new _worker_stream.PDFWorkerStream(handler);
-      } catch (ex) {
-        pdfManagerCapability.reject(ex);
-        return pdfManagerCapability.promise;
-      }
-      var fullRequest = pdfStream.getFullReader();
-      fullRequest.headersReady.then(function () {
-        if (!fullRequest.isRangeSupported) {
+var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function () {
+  function WorkerMessageHandler() {
+    _classCallCheck(this, WorkerMessageHandler);
+  }
+  return _createClass(WorkerMessageHandler, null, [{
+    key: "setup",
+    value: function setup(handler, port) {
+      var testMessageProcessed = false;
+      handler.on("test", function wphSetupTest(data) {
+        if (testMessageProcessed) {
           return;
         }
-        var disableAutoFetch = source.disableAutoFetch || fullRequest.isStreamingSupported;
-        newPdfManager = new _pdf_manager.NetworkPdfManager(docId, pdfStream, {
-          msgHandler: handler,
-          password: source.password,
-          length: fullRequest.contentLength,
-          disableAutoFetch: disableAutoFetch,
-          rangeChunkSize: source.rangeChunkSize
-        }, evaluatorOptions, docBaseUrl);
-        for (var i = 0; i < cachedChunks.length; i++) {
-          newPdfManager.sendProgressiveData(cachedChunks[i]);
+        testMessageProcessed = true;
+        if (!(data instanceof Uint8Array)) {
+          handler.send("test", null);
+          return;
         }
-        cachedChunks = [];
-        pdfManagerCapability.resolve(newPdfManager);
-        cancelXHRs = null;
-      })["catch"](function (reason) {
-        pdfManagerCapability.reject(reason);
-        cancelXHRs = null;
-      });
-      var loaded = 0;
-      var flushChunks = function flushChunks() {
-        var pdfFile = (0, _util.arraysToBytes)(cachedChunks);
-        if (source.length && pdfFile.length !== source.length) {
-          (0, _util.warn)("reported HTTP length is different from actual");
-        }
-        try {
-          newPdfManager = new _pdf_manager.LocalPdfManager(docId, pdfFile, source.password, evaluatorOptions, docBaseUrl);
-          pdfManagerCapability.resolve(newPdfManager);
-        } catch (ex) {
-          pdfManagerCapability.reject(ex);
-        }
-        cachedChunks = [];
-      };
-      var readPromise = new Promise(function (resolve, reject) {
-        var _readChunk = function readChunk(_ref) {
-          var value = _ref.value,
-            done = _ref.done;
-          try {
-            ensureNotTerminated();
-            if (done) {
-              if (!newPdfManager) {
-                flushChunks();
-              }
-              cancelXHRs = null;
-              return;
-            }
-            loaded += (0, _util.arrayByteLength)(value);
-            if (!fullRequest.isStreamingSupported) {
-              handler.send("DocProgress", {
-                loaded: loaded,
-                total: Math.max(loaded, fullRequest.contentLength || 0)
-              });
-            }
-            if (newPdfManager) {
-              newPdfManager.sendProgressiveData(value);
-            } else {
-              cachedChunks.push(value);
-            }
-            fullRequest.read().then(_readChunk, reject);
-          } catch (e) {
-            reject(e);
-          }
-        };
-        fullRequest.read().then(_readChunk, reject);
-      });
-      readPromise["catch"](function (e) {
-        pdfManagerCapability.reject(e);
-        cancelXHRs = null;
-      });
-      cancelXHRs = function cancelXHRs(reason) {
-        pdfStream.cancelAllRequests(reason);
-      };
-      return pdfManagerCapability.promise;
-    }
-    function setupDoc(data) {
-      function onSuccess(doc) {
-        ensureNotTerminated();
-        handler.send("GetDoc", {
-          pdfInfo: doc
+        var supportTransfers = data[0] === 255;
+        handler.postMessageTransfers = supportTransfers;
+        handler.send("test", {
+          supportTransfers: supportTransfers
         });
+      });
+      handler.on("configure", function wphConfigure(data) {
+        (0, _util.setVerbosityLevel)(data.verbosity);
+      });
+      handler.on("GetDocRequest", function wphSetupDoc(data) {
+        return WorkerMessageHandler.createDocumentHandler(data, port);
+      });
+    }
+  }, {
+    key: "createDocumentHandler",
+    value: function createDocumentHandler(docParams, port) {
+      var pdfManager;
+      var terminated = false;
+      var cancelXHRs = null;
+      var WorkerTasks = [];
+      var verbosity = (0, _util.getVerbosityLevel)();
+      var apiVersion = docParams.apiVersion;
+      var workerVersion = '2.6.383';
+      if (apiVersion !== workerVersion) {
+        throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
       }
-      function onFailure(ex) {
-        ensureNotTerminated();
-        if (ex instanceof _util.PasswordException) {
-          var task = new WorkerTask("PasswordException: response ".concat(ex.code));
-          startWorkerTask(task);
-          handler.sendWithPromise("PasswordRequest", ex).then(function (_ref2) {
-            var password = _ref2.password;
-            finishWorkerTask(task);
-            pdfManager.updatePassword(password);
-            pdfManagerReady();
-          })["catch"](function () {
-            finishWorkerTask(task);
-            handler.send("DocException", ex);
-          });
-        } else if (ex instanceof _util.InvalidPDFException || ex instanceof _util.MissingPDFException || ex instanceof _util.UnexpectedResponseException || ex instanceof _util.UnknownErrorException) {
-          handler.send("DocException", ex);
-        } else {
-          handler.send("DocException", new _util.UnknownErrorException(ex.message, ex.toString()));
-        }
+      var enumerableProperties = [];
+      for (var property in []) {
+        enumerableProperties.push(property);
       }
-      function pdfManagerReady() {
-        ensureNotTerminated();
-        loadDocument(false).then(onSuccess, function loadFailure(ex) {
-          ensureNotTerminated();
-          if (!(ex instanceof _core_utils.XRefParseException)) {
-            onFailure(ex);
-            return;
-          }
-          pdfManager.requestLoadedStream();
-          pdfManager.onLoadedStream().then(function () {
-            ensureNotTerminated();
-            loadDocument(true).then(onSuccess, onFailure);
-          });
-        }, onFailure);
+      if (enumerableProperties.length) {
+        throw new Error("The `Array.prototype` contains unexpected enumerable properties: " + enumerableProperties.join(", ") + "; thus breaking e.g. `for...in` iteration of `Array`s.");
       }
-      ensureNotTerminated();
-      var evaluatorOptions = {
-        maxImageSize: data.maxImageSize,
-        disableFontFace: data.disableFontFace,
-        ignoreErrors: data.ignoreErrors,
-        isEvalSupported: data.isEvalSupported,
-        fontExtraProperties: data.fontExtraProperties
-      };
-      getPdfManager(data, evaluatorOptions).then(function (newPdfManager) {
+      var docId = docParams.docId;
+      var docBaseUrl = docParams.docBaseUrl;
+      var workerHandlerName = docParams.docId + "_worker";
+      var handler = new _message_handler.MessageHandler(workerHandlerName, docId, port);
+      handler.postMessageTransfers = docParams.postMessageTransfers;
+      function ensureNotTerminated() {
         if (terminated) {
-          newPdfManager.terminate(new _util.AbortException("Worker was terminated."));
           throw new Error("Worker was terminated");
         }
-        pdfManager = newPdfManager;
-        pdfManager.onLoadedStream().then(function (stream) {
-          handler.send("DataLoaded", {
-            length: stream.bytes.byteLength
-          });
+      }
+      function startWorkerTask(task) {
+        WorkerTasks.push(task);
+      }
+      function finishWorkerTask(task) {
+        task.finish();
+        var i = WorkerTasks.indexOf(task);
+        WorkerTasks.splice(i, 1);
+      }
+      function loadDocument(_x) {
+        return _loadDocument.apply(this, arguments);
+      }
+      function _loadDocument() {
+        _loadDocument = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(recoveryMode) {
+          var _yield$Promise$all, _yield$Promise$all2, numPages, fingerprint;
+          return _regeneratorRuntime().wrap(function _callee$(_context) {
+            while (1) switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return pdfManager.ensureDoc("checkHeader");
+              case 2:
+                _context.next = 4;
+                return pdfManager.ensureDoc("parseStartXRef");
+              case 4:
+                _context.next = 6;
+                return pdfManager.ensureDoc("parse", [recoveryMode]);
+              case 6:
+                if (recoveryMode) {
+                  _context.next = 9;
+                  break;
+                }
+                _context.next = 9;
+                return pdfManager.ensureDoc("checkFirstPage");
+              case 9:
+                _context.next = 11;
+                return Promise.all([pdfManager.ensureDoc("numPages"), pdfManager.ensureDoc("fingerprint")]);
+              case 11:
+                _yield$Promise$all = _context.sent;
+                _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
+                numPages = _yield$Promise$all2[0];
+                fingerprint = _yield$Promise$all2[1];
+                return _context.abrupt("return", {
+                  numPages: numPages,
+                  fingerprint: fingerprint
+                });
+              case 16:
+              case "end":
+                return _context.stop();
+            }
+          }, _callee);
+        }));
+        return _loadDocument.apply(this, arguments);
+      }
+      function getPdfManager(data, evaluatorOptions) {
+        var pdfManagerCapability = (0, _util.createPromiseCapability)();
+        var newPdfManager;
+        var source = data.source;
+        if (source.data) {
+          try {
+            newPdfManager = new _pdf_manager.LocalPdfManager(docId, source.data, source.password, evaluatorOptions, docBaseUrl);
+            pdfManagerCapability.resolve(newPdfManager);
+          } catch (ex) {
+            pdfManagerCapability.reject(ex);
+          }
+          return pdfManagerCapability.promise;
+        }
+        var pdfStream,
+          cachedChunks = [];
+        try {
+          pdfStream = new _worker_stream.PDFWorkerStream(handler);
+        } catch (ex) {
+          pdfManagerCapability.reject(ex);
+          return pdfManagerCapability.promise;
+        }
+        var fullRequest = pdfStream.getFullReader();
+        fullRequest.headersReady.then(function () {
+          if (!fullRequest.isRangeSupported) {
+            return;
+          }
+          var disableAutoFetch = source.disableAutoFetch || fullRequest.isStreamingSupported;
+          newPdfManager = new _pdf_manager.NetworkPdfManager(docId, pdfStream, {
+            msgHandler: handler,
+            password: source.password,
+            length: fullRequest.contentLength,
+            disableAutoFetch: disableAutoFetch,
+            rangeChunkSize: source.rangeChunkSize
+          }, evaluatorOptions, docBaseUrl);
+          for (var i = 0; i < cachedChunks.length; i++) {
+            newPdfManager.sendProgressiveData(cachedChunks[i]);
+          }
+          cachedChunks = [];
+          pdfManagerCapability.resolve(newPdfManager);
+          cancelXHRs = null;
+        })["catch"](function (reason) {
+          pdfManagerCapability.reject(reason);
+          cancelXHRs = null;
         });
-      }).then(pdfManagerReady, onFailure);
-    }
-    handler.on("GetPage", function wphSetupGetPage(data) {
-      return pdfManager.getPage(data.pageIndex).then(function (page) {
-        return Promise.all([pdfManager.ensure(page, "rotate"), pdfManager.ensure(page, "ref"), pdfManager.ensure(page, "userUnit"), pdfManager.ensure(page, "view")]).then(function (_ref3) {
-          var _ref4 = _slicedToArray(_ref3, 4),
-            rotate = _ref4[0],
-            ref = _ref4[1],
-            userUnit = _ref4[2],
-            view = _ref4[3];
-          return {
-            rotate: rotate,
-            ref: ref,
-            userUnit: userUnit,
-            view: view
+        var loaded = 0;
+        var flushChunks = function flushChunks() {
+          var pdfFile = (0, _util.arraysToBytes)(cachedChunks);
+          if (source.length && pdfFile.length !== source.length) {
+            (0, _util.warn)("reported HTTP length is different from actual");
+          }
+          try {
+            newPdfManager = new _pdf_manager.LocalPdfManager(docId, pdfFile, source.password, evaluatorOptions, docBaseUrl);
+            pdfManagerCapability.resolve(newPdfManager);
+          } catch (ex) {
+            pdfManagerCapability.reject(ex);
+          }
+          cachedChunks = [];
+        };
+        var readPromise = new Promise(function (resolve, reject) {
+          var _readChunk = function readChunk(_ref) {
+            var value = _ref.value,
+              done = _ref.done;
+            try {
+              ensureNotTerminated();
+              if (done) {
+                if (!newPdfManager) {
+                  flushChunks();
+                }
+                cancelXHRs = null;
+                return;
+              }
+              loaded += (0, _util.arrayByteLength)(value);
+              if (!fullRequest.isStreamingSupported) {
+                handler.send("DocProgress", {
+                  loaded: loaded,
+                  total: Math.max(loaded, fullRequest.contentLength || 0)
+                });
+              }
+              if (newPdfManager) {
+                newPdfManager.sendProgressiveData(value);
+              } else {
+                cachedChunks.push(value);
+              }
+              fullRequest.read().then(_readChunk, reject);
+            } catch (e) {
+              reject(e);
+            }
           };
+          fullRequest.read().then(_readChunk, reject);
         });
-      });
-    });
-    handler.on("GetPageIndex", function wphSetupGetPageIndex(data) {
-      var ref = _primitives.Ref.get(data.ref.num, data.ref.gen);
-      var catalog = pdfManager.pdfDocument.catalog;
-      return catalog.getPageIndex(ref);
-    });
-    handler.on("GetDestinations", function wphSetupGetDestinations(data) {
-      return pdfManager.ensureCatalog("destinations");
-    });
-    handler.on("GetDestination", function wphSetupGetDestination(data) {
-      return pdfManager.ensureCatalog("getDestination", [data.id]);
-    });
-    handler.on("GetPageLabels", function wphSetupGetPageLabels(data) {
-      return pdfManager.ensureCatalog("pageLabels");
-    });
-    handler.on("GetPageLayout", function wphSetupGetPageLayout(data) {
-      return pdfManager.ensureCatalog("pageLayout");
-    });
-    handler.on("GetPageMode", function wphSetupGetPageMode(data) {
-      return pdfManager.ensureCatalog("pageMode");
-    });
-    handler.on("GetViewerPreferences", function (data) {
-      return pdfManager.ensureCatalog("viewerPreferences");
-    });
-    handler.on("GetOpenAction", function (data) {
-      return pdfManager.ensureCatalog("openAction");
-    });
-    handler.on("GetAttachments", function wphSetupGetAttachments(data) {
-      return pdfManager.ensureCatalog("attachments");
-    });
-    handler.on("GetJavaScript", function wphSetupGetJavaScript(data) {
-      return pdfManager.ensureCatalog("javaScript");
-    });
-    handler.on("GetOutline", function wphSetupGetOutline(data) {
-      return pdfManager.ensureCatalog("documentOutline");
-    });
-    handler.on("GetPermissions", function (data) {
-      return pdfManager.ensureCatalog("permissions");
-    });
-    handler.on("GetMetadata", function wphSetupGetMetadata(data) {
-      return Promise.all([pdfManager.ensureDoc("documentInfo"), pdfManager.ensureCatalog("metadata")]);
-    });
-    handler.on("GetData", function wphSetupGetData(data) {
-      pdfManager.requestLoadedStream();
-      return pdfManager.onLoadedStream().then(function (stream) {
-        return stream.bytes;
-      });
-    });
-    handler.on("GetStats", function wphSetupGetStats(data) {
-      return pdfManager.pdfDocument.xref.stats;
-    });
-    handler.on("GetAnnotations", function (_ref5) {
-      var pageIndex = _ref5.pageIndex,
-        intent = _ref5.intent;
-      return pdfManager.getPage(pageIndex).then(function (page) {
-        return page.getAnnotationsData(intent);
-      });
-    });
-    handler.on("GetOperatorList", function wphSetupRenderPage(data, sink) {
-      var pageIndex = data.pageIndex;
-      pdfManager.getPage(pageIndex).then(function (page) {
-        var task = new WorkerTask("GetOperatorList: page ".concat(pageIndex));
-        startWorkerTask(task);
-        var start = verbosity >= _util.VerbosityLevel.INFOS ? Date.now() : 0;
-        page.getOperatorList({
-          handler: handler,
-          sink: sink,
-          task: task,
-          intent: data.intent,
-          renderInteractiveForms: data.renderInteractiveForms,
-          forceRenderSigAnnot: data.forceRenderSigAnnot
-        }).then(function (operatorListInfo) {
-          finishWorkerTask(task);
-          if (start) {
-            (0, _util.info)("page=".concat(pageIndex + 1, " - getOperatorList: time=") + "".concat(Date.now() - start, "ms, len=").concat(operatorListInfo.length));
-          }
-          sink.close();
-        }, function (reason) {
-          finishWorkerTask(task);
-          if (task.terminated) {
-            return;
-          }
-          handler.send("UnsupportedFeature", {
-            featureId: _util.UNSUPPORTED_FEATURES.errorOperatorList
+        readPromise["catch"](function (e) {
+          pdfManagerCapability.reject(e);
+          cancelXHRs = null;
+        });
+        cancelXHRs = function cancelXHRs(reason) {
+          pdfStream.cancelAllRequests(reason);
+        };
+        return pdfManagerCapability.promise;
+      }
+      function setupDoc(data) {
+        function onSuccess(doc) {
+          ensureNotTerminated();
+          handler.send("GetDoc", {
+            pdfInfo: doc
           });
-          sink.error(reason);
+        }
+        function onFailure(ex) {
+          ensureNotTerminated();
+          if (ex instanceof _util.PasswordException) {
+            var task = new WorkerTask("PasswordException: response ".concat(ex.code));
+            startWorkerTask(task);
+            handler.sendWithPromise("PasswordRequest", ex).then(function (_ref2) {
+              var password = _ref2.password;
+              finishWorkerTask(task);
+              pdfManager.updatePassword(password);
+              pdfManagerReady();
+            })["catch"](function () {
+              finishWorkerTask(task);
+              handler.send("DocException", ex);
+            });
+          } else if (ex instanceof _util.InvalidPDFException || ex instanceof _util.MissingPDFException || ex instanceof _util.UnexpectedResponseException || ex instanceof _util.UnknownErrorException) {
+            handler.send("DocException", ex);
+          } else {
+            handler.send("DocException", new _util.UnknownErrorException(ex.message, ex.toString()));
+          }
+        }
+        function pdfManagerReady() {
+          ensureNotTerminated();
+          loadDocument(false).then(onSuccess, function (reason) {
+            ensureNotTerminated();
+            if (!(reason instanceof _core_utils.XRefParseException)) {
+              onFailure(reason);
+              return;
+            }
+            pdfManager.requestLoadedStream();
+            pdfManager.onLoadedStream().then(function () {
+              ensureNotTerminated();
+              loadDocument(true).then(onSuccess, onFailure);
+            });
+          });
+        }
+        ensureNotTerminated();
+        var evaluatorOptions = {
+          maxImageSize: data.maxImageSize,
+          disableFontFace: data.disableFontFace,
+          ignoreErrors: data.ignoreErrors,
+          isEvalSupported: data.isEvalSupported,
+          fontExtraProperties: data.fontExtraProperties
+        };
+        getPdfManager(data, evaluatorOptions).then(function (newPdfManager) {
+          if (terminated) {
+            newPdfManager.terminate(new _util.AbortException("Worker was terminated."));
+            throw new Error("Worker was terminated");
+          }
+          pdfManager = newPdfManager;
+          pdfManager.onLoadedStream().then(function (stream) {
+            handler.send("DataLoaded", {
+              length: stream.bytes.byteLength
+            });
+          });
+        }).then(pdfManagerReady, onFailure);
+      }
+      handler.on("GetPage", function wphSetupGetPage(data) {
+        return pdfManager.getPage(data.pageIndex).then(function (page) {
+          return Promise.all([pdfManager.ensure(page, "rotate"), pdfManager.ensure(page, "ref"), pdfManager.ensure(page, "userUnit"), pdfManager.ensure(page, "view")]).then(function (_ref3) {
+            var _ref4 = _slicedToArray(_ref3, 4),
+              rotate = _ref4[0],
+              ref = _ref4[1],
+              userUnit = _ref4[2],
+              view = _ref4[3];
+            return {
+              rotate: rotate,
+              ref: ref,
+              userUnit: userUnit,
+              view: view
+            };
+          });
         });
       });
-    }, this);
-    handler.on("GetTextContent", function wphExtractText(data, sink) {
-      var pageIndex = data.pageIndex;
-      sink.onPull = function (desiredSize) {};
-      sink.onCancel = function (reason) {};
-      pdfManager.getPage(pageIndex).then(function (page) {
-        var task = new WorkerTask("GetTextContent: page " + pageIndex);
-        startWorkerTask(task);
-        var start = verbosity >= _util.VerbosityLevel.INFOS ? Date.now() : 0;
-        page.extractTextContent({
-          handler: handler,
-          task: task,
-          sink: sink,
-          normalizeWhitespace: data.normalizeWhitespace,
-          combineTextItems: data.combineTextItems
-        }).then(function () {
-          finishWorkerTask(task);
-          if (start) {
-            (0, _util.info)("page=".concat(pageIndex + 1, " - getTextContent: time=") + "".concat(Date.now() - start, "ms"));
-          }
-          sink.close();
-        }, function (reason) {
-          finishWorkerTask(task);
-          if (task.terminated) {
-            return;
-          }
-          sink.error(reason);
+      handler.on("GetPageIndex", function wphSetupGetPageIndex(_ref5) {
+        var ref = _ref5.ref;
+        var pageRef = _primitives.Ref.get(ref.num, ref.gen);
+        return pdfManager.ensureCatalog("getPageIndex", [pageRef]);
+      });
+      handler.on("GetDestinations", function wphSetupGetDestinations(data) {
+        return pdfManager.ensureCatalog("destinations");
+      });
+      handler.on("GetDestination", function wphSetupGetDestination(data) {
+        return pdfManager.ensureCatalog("getDestination", [data.id]);
+      });
+      handler.on("GetPageLabels", function wphSetupGetPageLabels(data) {
+        return pdfManager.ensureCatalog("pageLabels");
+      });
+      handler.on("GetPageLayout", function wphSetupGetPageLayout(data) {
+        return pdfManager.ensureCatalog("pageLayout");
+      });
+      handler.on("GetPageMode", function wphSetupGetPageMode(data) {
+        return pdfManager.ensureCatalog("pageMode");
+      });
+      handler.on("GetViewerPreferences", function (data) {
+        return pdfManager.ensureCatalog("viewerPreferences");
+      });
+      handler.on("GetOpenAction", function (data) {
+        return pdfManager.ensureCatalog("openAction");
+      });
+      handler.on("GetAttachments", function wphSetupGetAttachments(data) {
+        return pdfManager.ensureCatalog("attachments");
+      });
+      handler.on("GetJavaScript", function wphSetupGetJavaScript(data) {
+        return pdfManager.ensureCatalog("javaScript");
+      });
+      handler.on("GetOutline", function wphSetupGetOutline(data) {
+        return pdfManager.ensureCatalog("documentOutline");
+      });
+      handler.on("GetOptionalContentConfig", function (data) {
+        return pdfManager.ensureCatalog("optionalContentConfig");
+      });
+      handler.on("GetPermissions", function (data) {
+        return pdfManager.ensureCatalog("permissions");
+      });
+      handler.on("GetMetadata", function wphSetupGetMetadata(data) {
+        return Promise.all([pdfManager.ensureDoc("documentInfo"), pdfManager.ensureCatalog("metadata")]);
+      });
+      handler.on("GetData", function wphSetupGetData(data) {
+        pdfManager.requestLoadedStream();
+        return pdfManager.onLoadedStream().then(function (stream) {
+          return stream.bytes;
         });
       });
-    });
-    handler.on("FontFallback", function (data) {
-      return pdfManager.fontFallback(data.id, handler);
-    });
-    handler.on("Cleanup", function wphCleanup(data) {
-      return pdfManager.cleanup(true);
-    });
-    handler.on("Terminate", function wphTerminate(data) {
-      terminated = true;
-      var waitOn = [];
-      if (pdfManager) {
-        pdfManager.terminate(new _util.AbortException("Worker was terminated."));
-        var cleanupPromise = pdfManager.cleanup();
-        waitOn.push(cleanupPromise);
-        pdfManager = null;
-      } else {
-        (0, _primitives.clearPrimitiveCaches)();
-      }
-      if (cancelXHRs) {
-        cancelXHRs(new _util.AbortException("Worker was terminated."));
-      }
-      WorkerTasks.forEach(function (task) {
-        waitOn.push(task.finished);
-        task.terminate();
+      handler.on("GetStats", function wphSetupGetStats(data) {
+        return pdfManager.ensureXRef("stats");
       });
-      return Promise.all(waitOn).then(function () {
-        handler.destroy();
-        handler = null;
+      handler.on("GetAnnotations", function (_ref6) {
+        var pageIndex = _ref6.pageIndex,
+          intent = _ref6.intent;
+        return pdfManager.getPage(pageIndex).then(function (page) {
+          return page.getAnnotationsData(intent);
+        });
       });
-    });
-    handler.on("Ready", function wphReady(data) {
-      setupDoc(docParams);
-      docParams = null;
-    });
-    return workerHandlerName;
-  },
-  initializeFromPort: function initializeFromPort(port) {
-    var handler = new _message_handler.MessageHandler("worker", "main", port);
-    WorkerMessageHandler.setup(handler, port);
-    handler.send("ready", null);
-  }
-};
+      handler.on("SaveDocument", function (_ref7) {
+        var numPages = _ref7.numPages,
+          annotationStorage = _ref7.annotationStorage,
+          filename = _ref7.filename;
+        pdfManager.requestLoadedStream();
+        var promises = [pdfManager.onLoadedStream()];
+        var document = pdfManager.pdfDocument;
+        var _loop = function _loop(pageIndex) {
+          promises.push(pdfManager.getPage(pageIndex).then(function (page) {
+            var task = new WorkerTask("Save: page ".concat(pageIndex));
+            return page.save(handler, task, annotationStorage);
+          }));
+        };
+        for (var pageIndex = 0; pageIndex < numPages; pageIndex++) {
+          _loop(pageIndex);
+        }
+        return Promise.all(promises).then(function (_ref8) {
+          var _ref9 = _toArray(_ref8),
+            stream = _ref9[0],
+            refs = _ref9.slice(1);
+          var newRefs = [];
+          var _iterator = _createForOfIteratorHelper(refs),
+            _step;
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var ref = _step.value;
+              newRefs = ref.filter(function (x) {
+                return x !== null;
+              }).reduce(function (a, b) {
+                return a.concat(b);
+              }, newRefs);
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+          if (newRefs.length === 0) {
+            return stream.bytes;
+          }
+          var xref = document.xref;
+          var newXrefInfo = Object.create(null);
+          if (xref.trailer) {
+            var _info = Object.create(null);
+            var xrefInfo = xref.trailer.get("Info") || null;
+            if (xrefInfo) {
+              xrefInfo.forEach(function (key, value) {
+                if ((0, _util.isString)(key) && (0, _util.isString)(value)) {
+                  _info[key] = (0, _util.stringToPDFString)(value);
+                }
+              });
+            }
+            newXrefInfo = {
+              rootRef: xref.trailer.getRaw("Root") || null,
+              encrypt: xref.trailer.getRaw("Encrypt") || null,
+              newRef: xref.getNewRef(),
+              infoRef: xref.trailer.getRaw("Info") || null,
+              info: _info,
+              fileIds: xref.trailer.getRaw("ID") || null,
+              startXRef: document.startXRef,
+              filename: filename
+            };
+          }
+          xref.resetNewRef();
+          return (0, _writer.incrementalUpdate)(stream.bytes, newXrefInfo, newRefs);
+        });
+      });
+      handler.on("GetOperatorList", function wphSetupRenderPage(data, sink) {
+        var pageIndex = data.pageIndex;
+        pdfManager.getPage(pageIndex).then(function (page) {
+          var task = new WorkerTask("GetOperatorList: page ".concat(pageIndex));
+          startWorkerTask(task);
+          var start = verbosity >= _util.VerbosityLevel.INFOS ? Date.now() : 0;
+          page.getOperatorList({
+            handler: handler,
+            sink: sink,
+            task: task,
+            intent: data.intent,
+            renderInteractiveForms: data.renderInteractiveForms,
+            annotationStorage: data.annotationStorage,
+            forceRenderSigAnnot: data.forceRenderSigAnnot
+          }).then(function (operatorListInfo) {
+            finishWorkerTask(task);
+            if (start) {
+              (0, _util.info)("page=".concat(pageIndex + 1, " - getOperatorList: time=") + "".concat(Date.now() - start, "ms, len=").concat(operatorListInfo.length));
+            }
+            sink.close();
+          }, function (reason) {
+            finishWorkerTask(task);
+            if (task.terminated) {
+              return;
+            }
+            handler.send("UnsupportedFeature", {
+              featureId: _util.UNSUPPORTED_FEATURES.errorOperatorList
+            });
+            sink.error(reason);
+          });
+        });
+      }, this);
+      handler.on("GetTextContent", function wphExtractText(data, sink) {
+        var pageIndex = data.pageIndex;
+        sink.onPull = function (desiredSize) {};
+        sink.onCancel = function (reason) {};
+        pdfManager.getPage(pageIndex).then(function (page) {
+          var task = new WorkerTask("GetTextContent: page " + pageIndex);
+          startWorkerTask(task);
+          var start = verbosity >= _util.VerbosityLevel.INFOS ? Date.now() : 0;
+          page.extractTextContent({
+            handler: handler,
+            task: task,
+            sink: sink,
+            normalizeWhitespace: data.normalizeWhitespace,
+            combineTextItems: data.combineTextItems
+          }).then(function () {
+            finishWorkerTask(task);
+            if (start) {
+              (0, _util.info)("page=".concat(pageIndex + 1, " - getTextContent: time=") + "".concat(Date.now() - start, "ms"));
+            }
+            sink.close();
+          }, function (reason) {
+            finishWorkerTask(task);
+            if (task.terminated) {
+              return;
+            }
+            sink.error(reason);
+          });
+        });
+      });
+      handler.on("FontFallback", function (data) {
+        return pdfManager.fontFallback(data.id, handler);
+      });
+      handler.on("Cleanup", function wphCleanup(data) {
+        return pdfManager.cleanup(true);
+      });
+      handler.on("Terminate", function wphTerminate(data) {
+        terminated = true;
+        var waitOn = [];
+        if (pdfManager) {
+          pdfManager.terminate(new _util.AbortException("Worker was terminated."));
+          var cleanupPromise = pdfManager.cleanup();
+          waitOn.push(cleanupPromise);
+          pdfManager = null;
+        } else {
+          (0, _primitives.clearPrimitiveCaches)();
+        }
+        if (cancelXHRs) {
+          cancelXHRs(new _util.AbortException("Worker was terminated."));
+        }
+        WorkerTasks.forEach(function (task) {
+          waitOn.push(task.finished);
+          task.terminate();
+        });
+        return Promise.all(waitOn).then(function () {
+          handler.destroy();
+          handler = null;
+        });
+      });
+      handler.on("Ready", function wphReady(data) {
+        setupDoc(docParams);
+        docParams = null;
+      });
+      return workerHandlerName;
+    }
+  }, {
+    key: "initializeFromPort",
+    value: function initializeFromPort(port) {
+      var handler = new _message_handler.MessageHandler("worker", "main", port);
+      WorkerMessageHandler.setup(handler, port);
+      handler.send("ready", null);
+    }
+  }]);
+}();
 function isMessagePort(maybePort) {
   return typeof maybePort.postMessage === "function" && "onmessage" in maybePort;
 }
@@ -655,12 +752,13 @@ exports.bytesToString = bytesToString;
 exports.createObjectURL = void 0;
 exports.createPromiseCapability = createPromiseCapability;
 exports.createValidAbsoluteUrl = createValidAbsoluteUrl;
+exports.escapeString = escapeString;
+exports.getModificationDate = getModificationDate;
 exports.getVerbosityLevel = getVerbosityLevel;
 exports.info = info;
 exports.isArrayBuffer = isArrayBuffer;
 exports.isArrayEqual = isArrayEqual;
 exports.isBool = isBool;
-exports.isEmptyObj = isEmptyObj;
 exports.isNum = isNum;
 exports.isSameOrigin = isSameOrigin;
 exports.isString = isString;
@@ -950,7 +1048,8 @@ var UNSUPPORTED_FEATURES = exports.UNSUPPORTED_FEATURES = {
   errorOperatorList: "errorOperatorList",
   errorFontToUnicode: "errorFontToUnicode",
   errorFontLoadNative: "errorFontLoadNative",
-  errorFontGetPath: "errorFontGetPath"
+  errorFontGetPath: "errorFontGetPath",
+  errorMarkedContent: "errorMarkedContent"
 };
 var PasswordResponses = exports.PasswordResponses = {
   NEED_PASSWORD: 1,
@@ -1329,17 +1428,14 @@ function stringToPDFString(str) {
   }
   return strBuf.join("");
 }
+function escapeString(str) {
+  return str.replace(/([\(\)\\])/g, "\\$1");
+}
 function stringToUTF8String(str) {
   return decodeURIComponent(escape(str));
 }
 function utf8StringToString(str) {
   return unescape(encodeURIComponent(str));
-}
-function isEmptyObj(obj) {
-  for (var key in obj) {
-    return false;
-  }
-  return true;
 }
 function isBool(v) {
   return typeof v === "boolean";
@@ -1360,6 +1456,11 @@ function isArrayEqual(arr1, arr2) {
   return arr1.every(function (element, index) {
     return element === arr2[index];
   });
+}
+function getModificationDate() {
+  var date = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new Date(Date.now());
+  var buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), (date.getUTCDate() + 1).toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
+  return buffer.join("");
 }
 function createPromiseCapability() {
   var capability = Object.create(null);
@@ -1546,38 +1647,44 @@ if (typeof globalThis === "undefined" || !globalThis._pdfjsCompatibilityChecked)
     }
     __w_pdfjs_require__(120);
   })();
+  (function checkObjectFromEntries() {
+    if (Object.fromEntries) {
+      return;
+    }
+    __w_pdfjs_require__(123);
+  })();
   (function checkMathLog2() {
     if (Math.log2) {
       return;
     }
-    Math.log2 = __w_pdfjs_require__(123);
+    Math.log2 = __w_pdfjs_require__(127);
   })();
   (function checkNumberIsNaN() {
     if (Number.isNaN) {
       return;
     }
-    Number.isNaN = __w_pdfjs_require__(125);
+    Number.isNaN = __w_pdfjs_require__(129);
   })();
   (function checkNumberIsInteger() {
     if (Number.isInteger) {
       return;
     }
-    Number.isInteger = __w_pdfjs_require__(127);
+    Number.isInteger = __w_pdfjs_require__(131);
   })();
   (function checkTypedArraySlice() {
     if (Uint8Array.prototype.slice) {
       return;
     }
-    __w_pdfjs_require__(130);
+    __w_pdfjs_require__(134);
   })();
   (function checkPromise() {
     if (globalThis.Promise && globalThis.Promise.allSettled) {
       return;
     }
-    globalThis.Promise = __w_pdfjs_require__(139);
+    globalThis.Promise = __w_pdfjs_require__(143);
   })();
   (function checkURL() {
-    globalThis.URL = __w_pdfjs_require__(183);
+    globalThis.URL = __w_pdfjs_require__(185);
   })();
   (function checkReadableStream() {
     var isReadableStreamSupported = false;
@@ -1594,67 +1701,73 @@ if (typeof globalThis === "undefined" || !globalThis._pdfjsCompatibilityChecked)
     if (isReadableStreamSupported) {
       return;
     }
-    globalThis.ReadableStream = __w_pdfjs_require__(199).ReadableStream;
+    globalThis.ReadableStream = __w_pdfjs_require__(201).ReadableStream;
   })();
   (function checkMapEntries() {
     if (globalThis.Map && globalThis.Map.prototype.entries) {
       return;
     }
-    globalThis.Map = __w_pdfjs_require__(200);
+    globalThis.Map = __w_pdfjs_require__(202);
   })();
   (function checkSetEntries() {
     if (globalThis.Set && globalThis.Set.prototype.entries) {
       return;
     }
-    globalThis.Set = __w_pdfjs_require__(213);
+    globalThis.Set = __w_pdfjs_require__(215);
   })();
   (function checkWeakMap() {
     if (globalThis.WeakMap) {
       return;
     }
-    globalThis.WeakMap = __w_pdfjs_require__(239);
+    globalThis.WeakMap = __w_pdfjs_require__(241);
   })();
   (function checkWeakSet() {
     if (globalThis.WeakSet) {
       return;
     }
-    globalThis.WeakSet = __w_pdfjs_require__(247);
+    globalThis.WeakSet = __w_pdfjs_require__(249);
   })();
   (function checkStringCodePointAt() {
     if (String.prototype.codePointAt) {
       return;
     }
-    __w_pdfjs_require__(250);
+    __w_pdfjs_require__(252);
   })();
   (function checkStringFromCodePoint() {
     if (String.fromCodePoint) {
       return;
     }
-    String.fromCodePoint = __w_pdfjs_require__(252);
+    String.fromCodePoint = __w_pdfjs_require__(254);
   })();
   (function checkSymbol() {
     if (globalThis.Symbol) {
       return;
     }
-    __w_pdfjs_require__(254);
+    __w_pdfjs_require__(256);
   })();
   (function checkStringPadStart() {
     if (String.prototype.padStart) {
       return;
     }
-    __w_pdfjs_require__(286);
+    __w_pdfjs_require__(288);
   })();
   (function checkStringPadEnd() {
     if (String.prototype.padEnd) {
       return;
     }
-    __w_pdfjs_require__(291);
+    __w_pdfjs_require__(293);
   })();
   (function checkObjectValues() {
     if (Object.values) {
       return;
     }
-    Object.values = __w_pdfjs_require__(293);
+    Object.values = __w_pdfjs_require__(295);
+  })();
+  (function checkObjectEntries() {
+    if (Object.entries) {
+      return;
+    }
+    Object.entries = __w_pdfjs_require__(298);
   })();
 }
 
@@ -1670,7 +1783,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isNodeJS = void 0;
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-var isNodeJS = exports.isNodeJS = (typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && process + "" === "[object process]" && !process.versions.nw && !process.versions.electron;
+var isNodeJS = exports.isNodeJS = (typeof process === "undefined" ? "undefined" : _typeof(process)) === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
 
 /***/ }),
 /* 5 */
@@ -4132,11 +4245,171 @@ module.exports = !$assign || fails(function () {
 "use strict";
 
 __w_pdfjs_require__(124);
+__w_pdfjs_require__(125);
+var path = __w_pdfjs_require__(119);
+module.exports = path.Object.fromEntries;
+
+/***/ }),
+/* 124 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var toIndexedObject = __w_pdfjs_require__(16);
+var addToUnscopables = __w_pdfjs_require__(88);
+var Iterators = __w_pdfjs_require__(102);
+var InternalStateModule = __w_pdfjs_require__(55);
+var defineProperty = __w_pdfjs_require__(48).f;
+var defineIterator = __w_pdfjs_require__(96);
+var createIterResultObject = __w_pdfjs_require__(107);
+var IS_PURE = __w_pdfjs_require__(40);
+var DESCRIPTORS = __w_pdfjs_require__(10);
+var ARRAY_ITERATOR = 'Array Iterator';
+var setInternalState = InternalStateModule.set;
+var getInternalState = InternalStateModule.getterFor(ARRAY_ITERATOR);
+module.exports = defineIterator(Array, 'Array', function (iterated, kind) {
+ setInternalState(this, {
+  type: ARRAY_ITERATOR,
+  target: toIndexedObject(iterated),
+  index: 0,
+  kind: kind
+ });
+}, function () {
+ var state = getInternalState(this);
+ var target = state.target;
+ var index = state.index++;
+ if (!target || index >= target.length) {
+  state.target = undefined;
+  return createIterResultObject(undefined, true);
+ }
+ switch (state.kind) {
+ case 'keys':
+  return createIterResultObject(index, false);
+ case 'values':
+  return createIterResultObject(target[index], false);
+ }
+ return createIterResultObject([
+  index,
+  target[index]
+ ], false);
+}, 'values');
+var values = Iterators.Arguments = Iterators.Array;
+addToUnscopables('keys');
+addToUnscopables('values');
+addToUnscopables('entries');
+if (!IS_PURE && DESCRIPTORS && values.name !== 'values')
+ try {
+  defineProperty(values, 'name', { value: 'values' });
+ } catch (error) {
+ }
+
+/***/ }),
+/* 125 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var $ = __w_pdfjs_require__(7);
+var iterate = __w_pdfjs_require__(126);
+var createProperty = __w_pdfjs_require__(115);
+$({
+ target: 'Object',
+ stat: true
+}, {
+ fromEntries: function fromEntries(iterable) {
+  var obj = {};
+  iterate(iterable, function (k, v) {
+   createProperty(obj, k, v);
+  }, { AS_ENTRIES: true });
+  return obj;
+ }
+});
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var bind = __w_pdfjs_require__(110);
+var call = __w_pdfjs_require__(12);
+var anObject = __w_pdfjs_require__(50);
+var tryToString = __w_pdfjs_require__(35);
+var isArrayIteratorMethod = __w_pdfjs_require__(113);
+var lengthOfArrayLike = __w_pdfjs_require__(67);
+var isPrototypeOf = __w_pdfjs_require__(28);
+var getIterator = __w_pdfjs_require__(116);
+var getIteratorMethod = __w_pdfjs_require__(117);
+var iteratorClose = __w_pdfjs_require__(112);
+var $TypeError = TypeError;
+var Result = function (stopped, result) {
+ this.stopped = stopped;
+ this.result = result;
+};
+var ResultPrototype = Result.prototype;
+module.exports = function (iterable, unboundFunction, options) {
+ var that = options && options.that;
+ var AS_ENTRIES = !!(options && options.AS_ENTRIES);
+ var IS_RECORD = !!(options && options.IS_RECORD);
+ var IS_ITERATOR = !!(options && options.IS_ITERATOR);
+ var INTERRUPTED = !!(options && options.INTERRUPTED);
+ var fn = bind(unboundFunction, that);
+ var iterator, iterFn, index, length, result, next, step;
+ var stop = function (condition) {
+  if (iterator)
+   iteratorClose(iterator, 'normal', condition);
+  return new Result(true, condition);
+ };
+ var callFn = function (value) {
+  if (AS_ENTRIES) {
+   anObject(value);
+   return INTERRUPTED ? fn(value[0], value[1], stop) : fn(value[0], value[1]);
+  }
+  return INTERRUPTED ? fn(value, stop) : fn(value);
+ };
+ if (IS_RECORD) {
+  iterator = iterable.iterator;
+ } else if (IS_ITERATOR) {
+  iterator = iterable;
+ } else {
+  iterFn = getIteratorMethod(iterable);
+  if (!iterFn)
+   throw new $TypeError(tryToString(iterable) + ' is not iterable');
+  if (isArrayIteratorMethod(iterFn)) {
+   for (index = 0, length = lengthOfArrayLike(iterable); length > index; index++) {
+    result = callFn(iterable[index]);
+    if (result && isPrototypeOf(ResultPrototype, result))
+     return result;
+   }
+   return new Result(false);
+  }
+  iterator = getIterator(iterable, iterFn);
+ }
+ next = IS_RECORD ? iterable.next : iterator.next;
+ while (!(step = call(next, iterator)).done) {
+  try {
+   result = callFn(step.value);
+  } catch (error) {
+   iteratorClose(iterator, 'throw', error);
+  }
+  if (typeof result == 'object' && result && isPrototypeOf(ResultPrototype, result))
+   return result;
+ }
+ return new Result(false);
+};
+
+/***/ }),
+/* 127 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(128);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Math.log2;
 
 /***/ }),
-/* 124 */
+/* 128 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4154,17 +4427,17 @@ $({
 });
 
 /***/ }),
-/* 125 */
+/* 129 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(126);
+__w_pdfjs_require__(130);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Number.isNaN;
 
 /***/ }),
-/* 126 */
+/* 130 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4180,30 +4453,30 @@ $({
 });
 
 /***/ }),
-/* 127 */
+/* 131 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(128);
+__w_pdfjs_require__(132);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Number.isInteger;
 
 /***/ }),
-/* 128 */
+/* 132 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var isIntegralNumber = __w_pdfjs_require__(129);
+var isIntegralNumber = __w_pdfjs_require__(133);
 $({
  target: 'Number',
  stat: true
 }, { isInteger: isIntegralNumber });
 
 /***/ }),
-/* 129 */
+/* 133 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4215,23 +4488,23 @@ module.exports = Number.isInteger || function isInteger(it) {
 };
 
 /***/ }),
-/* 130 */
+/* 134 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(131);
+__w_pdfjs_require__(135);
 
 /***/ }),
-/* 131 */
+/* 135 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var ArrayBufferViewCore = __w_pdfjs_require__(132);
-var typedArraySpeciesConstructor = __w_pdfjs_require__(135);
+var ArrayBufferViewCore = __w_pdfjs_require__(136);
+var typedArraySpeciesConstructor = __w_pdfjs_require__(139);
 var fails = __w_pdfjs_require__(11);
-var arraySlice = __w_pdfjs_require__(138);
+var arraySlice = __w_pdfjs_require__(142);
 var aTypedArray = ArrayBufferViewCore.aTypedArray;
 var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
 var FORCED = fails(function () {
@@ -4249,12 +4522,12 @@ exportTypedArrayMethod('slice', function slice(start, end) {
 }, FORCED);
 
 /***/ }),
-/* 132 */
+/* 136 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var NATIVE_ARRAY_BUFFER = __w_pdfjs_require__(133);
+var NATIVE_ARRAY_BUFFER = __w_pdfjs_require__(137);
 var DESCRIPTORS = __w_pdfjs_require__(10);
 var global = __w_pdfjs_require__(8);
 var isCallable = __w_pdfjs_require__(25);
@@ -4264,7 +4537,7 @@ var classof = __w_pdfjs_require__(76);
 var tryToString = __w_pdfjs_require__(35);
 var createNonEnumerableProperty = __w_pdfjs_require__(47);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
 var isPrototypeOf = __w_pdfjs_require__(28);
 var getPrototypeOf = __w_pdfjs_require__(99);
 var setPrototypeOf = __w_pdfjs_require__(103);
@@ -4443,7 +4716,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 133 */
+/* 137 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4451,7 +4724,7 @@ module.exports = {
 module.exports = typeof ArrayBuffer != 'undefined' && typeof DataView != 'undefined';
 
 /***/ }),
-/* 134 */
+/* 138 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4467,13 +4740,13 @@ module.exports = function (target, name, descriptor) {
 };
 
 /***/ }),
-/* 135 */
+/* 139 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var ArrayBufferViewCore = __w_pdfjs_require__(132);
-var speciesConstructor = __w_pdfjs_require__(136);
+var ArrayBufferViewCore = __w_pdfjs_require__(136);
+var speciesConstructor = __w_pdfjs_require__(140);
 var aTypedArrayConstructor = ArrayBufferViewCore.aTypedArrayConstructor;
 var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
 module.exports = function (originalArray) {
@@ -4481,13 +4754,13 @@ module.exports = function (originalArray) {
 };
 
 /***/ }),
-/* 136 */
+/* 140 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var anObject = __w_pdfjs_require__(50);
-var aConstructor = __w_pdfjs_require__(137);
+var aConstructor = __w_pdfjs_require__(141);
 var isNullOrUndefined = __w_pdfjs_require__(21);
 var wellKnownSymbol = __w_pdfjs_require__(37);
 var SPECIES = wellKnownSymbol('species');
@@ -4498,7 +4771,7 @@ module.exports = function (O, defaultConstructor) {
 };
 
 /***/ }),
-/* 137 */
+/* 141 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4513,7 +4786,7 @@ module.exports = function (argument) {
 };
 
 /***/ }),
-/* 138 */
+/* 142 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4522,33 +4795,33 @@ var uncurryThis = __w_pdfjs_require__(18);
 module.exports = uncurryThis([].slice);
 
 /***/ }),
-/* 139 */
+/* 143 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(140);
-__w_pdfjs_require__(148);
-__w_pdfjs_require__(149);
+__w_pdfjs_require__(144);
+__w_pdfjs_require__(124);
 __w_pdfjs_require__(151);
-__w_pdfjs_require__(179);
-__w_pdfjs_require__(180);
+__w_pdfjs_require__(153);
 __w_pdfjs_require__(181);
 __w_pdfjs_require__(182);
+__w_pdfjs_require__(183);
+__w_pdfjs_require__(184);
 __w_pdfjs_require__(94);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Promise;
 
 /***/ }),
-/* 140 */
+/* 144 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(141);
+__w_pdfjs_require__(145);
 
 /***/ }),
-/* 141 */
+/* 145 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4561,10 +4834,10 @@ var copyConstructorProperties = __w_pdfjs_require__(59);
 var create = __w_pdfjs_require__(89);
 var createNonEnumerableProperty = __w_pdfjs_require__(47);
 var createPropertyDescriptor = __w_pdfjs_require__(15);
-var installErrorCause = __w_pdfjs_require__(142);
-var installErrorStack = __w_pdfjs_require__(143);
-var iterate = __w_pdfjs_require__(146);
-var normalizeStringArgument = __w_pdfjs_require__(147);
+var installErrorCause = __w_pdfjs_require__(146);
+var installErrorStack = __w_pdfjs_require__(147);
+var iterate = __w_pdfjs_require__(126);
+var normalizeStringArgument = __w_pdfjs_require__(150);
 var wellKnownSymbol = __w_pdfjs_require__(37);
 var TO_STRING_TAG = wellKnownSymbol('toStringTag');
 var $Error = Error;
@@ -4604,7 +4877,7 @@ $({
 }, { AggregateError: $AggregateError });
 
 /***/ }),
-/* 142 */
+/* 146 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4618,14 +4891,14 @@ module.exports = function (O, options) {
 };
 
 /***/ }),
-/* 143 */
+/* 147 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var createNonEnumerableProperty = __w_pdfjs_require__(47);
-var clearErrorStack = __w_pdfjs_require__(144);
-var ERROR_STACK_INSTALLABLE = __w_pdfjs_require__(145);
+var clearErrorStack = __w_pdfjs_require__(148);
+var ERROR_STACK_INSTALLABLE = __w_pdfjs_require__(149);
 var captureStackTrace = Error.captureStackTrace;
 module.exports = function (error, C, stack, dropEntries) {
  if (ERROR_STACK_INSTALLABLE) {
@@ -4637,7 +4910,7 @@ module.exports = function (error, C, stack, dropEntries) {
 };
 
 /***/ }),
-/* 144 */
+/* 148 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4659,7 +4932,7 @@ module.exports = function (stack, dropEntries) {
 };
 
 /***/ }),
-/* 145 */
+/* 149 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4675,80 +4948,7 @@ module.exports = !fails(function () {
 });
 
 /***/ }),
-/* 146 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-var bind = __w_pdfjs_require__(110);
-var call = __w_pdfjs_require__(12);
-var anObject = __w_pdfjs_require__(50);
-var tryToString = __w_pdfjs_require__(35);
-var isArrayIteratorMethod = __w_pdfjs_require__(113);
-var lengthOfArrayLike = __w_pdfjs_require__(67);
-var isPrototypeOf = __w_pdfjs_require__(28);
-var getIterator = __w_pdfjs_require__(116);
-var getIteratorMethod = __w_pdfjs_require__(117);
-var iteratorClose = __w_pdfjs_require__(112);
-var $TypeError = TypeError;
-var Result = function (stopped, result) {
- this.stopped = stopped;
- this.result = result;
-};
-var ResultPrototype = Result.prototype;
-module.exports = function (iterable, unboundFunction, options) {
- var that = options && options.that;
- var AS_ENTRIES = !!(options && options.AS_ENTRIES);
- var IS_RECORD = !!(options && options.IS_RECORD);
- var IS_ITERATOR = !!(options && options.IS_ITERATOR);
- var INTERRUPTED = !!(options && options.INTERRUPTED);
- var fn = bind(unboundFunction, that);
- var iterator, iterFn, index, length, result, next, step;
- var stop = function (condition) {
-  if (iterator)
-   iteratorClose(iterator, 'normal', condition);
-  return new Result(true, condition);
- };
- var callFn = function (value) {
-  if (AS_ENTRIES) {
-   anObject(value);
-   return INTERRUPTED ? fn(value[0], value[1], stop) : fn(value[0], value[1]);
-  }
-  return INTERRUPTED ? fn(value, stop) : fn(value);
- };
- if (IS_RECORD) {
-  iterator = iterable.iterator;
- } else if (IS_ITERATOR) {
-  iterator = iterable;
- } else {
-  iterFn = getIteratorMethod(iterable);
-  if (!iterFn)
-   throw new $TypeError(tryToString(iterable) + ' is not iterable');
-  if (isArrayIteratorMethod(iterFn)) {
-   for (index = 0, length = lengthOfArrayLike(iterable); length > index; index++) {
-    result = callFn(iterable[index]);
-    if (result && isPrototypeOf(ResultPrototype, result))
-     return result;
-   }
-   return new Result(false);
-  }
-  iterator = getIterator(iterable, iterFn);
- }
- next = IS_RECORD ? iterable.next : iterator.next;
- while (!(step = call(next, iterator)).done) {
-  try {
-   result = callFn(step.value);
-  } catch (error) {
-   iteratorClose(iterator, 'throw', error);
-  }
-  if (typeof result == 'object' && result && isPrototypeOf(ResultPrototype, result))
-   return result;
- }
- return new Result(false);
-};
-
-/***/ }),
-/* 147 */
+/* 150 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4759,74 +4959,20 @@ module.exports = function (argument, $default) {
 };
 
 /***/ }),
-/* 148 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-var toIndexedObject = __w_pdfjs_require__(16);
-var addToUnscopables = __w_pdfjs_require__(88);
-var Iterators = __w_pdfjs_require__(102);
-var InternalStateModule = __w_pdfjs_require__(55);
-var defineProperty = __w_pdfjs_require__(48).f;
-var defineIterator = __w_pdfjs_require__(96);
-var createIterResultObject = __w_pdfjs_require__(107);
-var IS_PURE = __w_pdfjs_require__(40);
-var DESCRIPTORS = __w_pdfjs_require__(10);
-var ARRAY_ITERATOR = 'Array Iterator';
-var setInternalState = InternalStateModule.set;
-var getInternalState = InternalStateModule.getterFor(ARRAY_ITERATOR);
-module.exports = defineIterator(Array, 'Array', function (iterated, kind) {
- setInternalState(this, {
-  type: ARRAY_ITERATOR,
-  target: toIndexedObject(iterated),
-  index: 0,
-  kind: kind
- });
-}, function () {
- var state = getInternalState(this);
- var target = state.target;
- var index = state.index++;
- if (!target || index >= target.length) {
-  state.target = undefined;
-  return createIterResultObject(undefined, true);
- }
- switch (state.kind) {
- case 'keys':
-  return createIterResultObject(index, false);
- case 'values':
-  return createIterResultObject(target[index], false);
- }
- return createIterResultObject([
-  index,
-  target[index]
- ], false);
-}, 'values');
-var values = Iterators.Arguments = Iterators.Array;
-addToUnscopables('keys');
-addToUnscopables('values');
-addToUnscopables('entries');
-if (!IS_PURE && DESCRIPTORS && values.name !== 'values')
- try {
-  defineProperty(values, 'name', { value: 'values' });
- } catch (error) {
- }
-
-/***/ }),
-/* 149 */
+/* 151 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var TO_STRING_TAG_SUPPORT = __w_pdfjs_require__(77);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var toString = __w_pdfjs_require__(150);
+var toString = __w_pdfjs_require__(152);
 if (!TO_STRING_TAG_SUPPORT) {
  defineBuiltIn(Object.prototype, 'toString', toString, { unsafe: true });
 }
 
 /***/ }),
-/* 150 */
+/* 152 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -4838,47 +4984,47 @@ module.exports = TO_STRING_TAG_SUPPORT ? {}.toString : function toString() {
 };
 
 /***/ }),
-/* 151 */
+/* 153 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(152);
-__w_pdfjs_require__(172);
+__w_pdfjs_require__(154);
 __w_pdfjs_require__(174);
-__w_pdfjs_require__(175);
 __w_pdfjs_require__(176);
 __w_pdfjs_require__(177);
+__w_pdfjs_require__(178);
+__w_pdfjs_require__(179);
 
 /***/ }),
-/* 152 */
+/* 154 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var IS_PURE = __w_pdfjs_require__(40);
-var IS_NODE = __w_pdfjs_require__(153);
+var IS_NODE = __w_pdfjs_require__(155);
 var global = __w_pdfjs_require__(8);
 var call = __w_pdfjs_require__(12);
 var defineBuiltIn = __w_pdfjs_require__(51);
 var setPrototypeOf = __w_pdfjs_require__(103);
 var setToStringTag = __w_pdfjs_require__(101);
-var setSpecies = __w_pdfjs_require__(154);
+var setSpecies = __w_pdfjs_require__(156);
 var aCallable = __w_pdfjs_require__(34);
 var isCallable = __w_pdfjs_require__(25);
 var isObject = __w_pdfjs_require__(24);
-var anInstance = __w_pdfjs_require__(155);
-var speciesConstructor = __w_pdfjs_require__(136);
-var task = __w_pdfjs_require__(156).set;
-var microtask = __w_pdfjs_require__(160);
-var hostReportErrors = __w_pdfjs_require__(165);
-var perform = __w_pdfjs_require__(166);
-var Queue = __w_pdfjs_require__(162);
+var anInstance = __w_pdfjs_require__(157);
+var speciesConstructor = __w_pdfjs_require__(140);
+var task = __w_pdfjs_require__(158).set;
+var microtask = __w_pdfjs_require__(162);
+var hostReportErrors = __w_pdfjs_require__(167);
+var perform = __w_pdfjs_require__(168);
+var Queue = __w_pdfjs_require__(164);
 var InternalStateModule = __w_pdfjs_require__(55);
-var NativePromiseConstructor = __w_pdfjs_require__(167);
-var PromiseConstructorDetection = __w_pdfjs_require__(168);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
+var NativePromiseConstructor = __w_pdfjs_require__(169);
+var PromiseConstructorDetection = __w_pdfjs_require__(170);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
 var PROMISE = 'Promise';
 var FORCED_PROMISE_CONSTRUCTOR = PromiseConstructorDetection.CONSTRUCTOR;
 var NATIVE_PROMISE_REJECTION_EVENT = PromiseConstructorDetection.REJECTION_EVENT;
@@ -5132,7 +5278,7 @@ setToStringTag(PromiseConstructor, PROMISE, false, true);
 setSpecies(PROMISE);
 
 /***/ }),
-/* 153 */
+/* 155 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5142,13 +5288,13 @@ var classof = __w_pdfjs_require__(19);
 module.exports = classof(global.process) === 'process';
 
 /***/ }),
-/* 154 */
+/* 156 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var getBuiltIn = __w_pdfjs_require__(27);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
 var wellKnownSymbol = __w_pdfjs_require__(37);
 var DESCRIPTORS = __w_pdfjs_require__(10);
 var SPECIES = wellKnownSymbol('species');
@@ -5165,7 +5311,7 @@ module.exports = function (CONSTRUCTOR_NAME) {
 };
 
 /***/ }),
-/* 155 */
+/* 157 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5179,23 +5325,23 @@ module.exports = function (it, Prototype) {
 };
 
 /***/ }),
-/* 156 */
+/* 158 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var global = __w_pdfjs_require__(8);
-var apply = __w_pdfjs_require__(157);
+var apply = __w_pdfjs_require__(159);
 var bind = __w_pdfjs_require__(110);
 var isCallable = __w_pdfjs_require__(25);
 var hasOwn = __w_pdfjs_require__(42);
 var fails = __w_pdfjs_require__(11);
 var html = __w_pdfjs_require__(92);
-var arraySlice = __w_pdfjs_require__(138);
+var arraySlice = __w_pdfjs_require__(142);
 var createElement = __w_pdfjs_require__(46);
-var validateArgumentsLength = __w_pdfjs_require__(158);
-var IS_IOS = __w_pdfjs_require__(159);
-var IS_NODE = __w_pdfjs_require__(153);
+var validateArgumentsLength = __w_pdfjs_require__(160);
+var IS_IOS = __w_pdfjs_require__(161);
+var IS_NODE = __w_pdfjs_require__(155);
 var set = global.setImmediate;
 var clear = global.clearImmediate;
 var process = global.process;
@@ -5277,7 +5423,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 157 */
+/* 159 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5291,7 +5437,7 @@ module.exports = typeof Reflect == 'object' && Reflect.apply || (NATIVE_BIND ? c
 });
 
 /***/ }),
-/* 158 */
+/* 160 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5304,7 +5450,7 @@ module.exports = function (passed, required) {
 };
 
 /***/ }),
-/* 159 */
+/* 161 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5313,20 +5459,20 @@ var userAgent = __w_pdfjs_require__(32);
 module.exports = /(?:ipad|iphone|ipod).*applewebkit/i.test(userAgent);
 
 /***/ }),
-/* 160 */
+/* 162 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var global = __w_pdfjs_require__(8);
-var safeGetBuiltIn = __w_pdfjs_require__(161);
+var safeGetBuiltIn = __w_pdfjs_require__(163);
 var bind = __w_pdfjs_require__(110);
-var macrotask = __w_pdfjs_require__(156).set;
-var Queue = __w_pdfjs_require__(162);
-var IS_IOS = __w_pdfjs_require__(159);
-var IS_IOS_PEBBLE = __w_pdfjs_require__(163);
-var IS_WEBOS_WEBKIT = __w_pdfjs_require__(164);
-var IS_NODE = __w_pdfjs_require__(153);
+var macrotask = __w_pdfjs_require__(158).set;
+var Queue = __w_pdfjs_require__(164);
+var IS_IOS = __w_pdfjs_require__(161);
+var IS_IOS_PEBBLE = __w_pdfjs_require__(165);
+var IS_WEBOS_WEBKIT = __w_pdfjs_require__(166);
+var IS_NODE = __w_pdfjs_require__(155);
 var MutationObserver = global.MutationObserver || global.WebKitMutationObserver;
 var document = global.document;
 var process = global.process;
@@ -5383,7 +5529,7 @@ if (!microtask) {
 module.exports = microtask;
 
 /***/ }),
-/* 161 */
+/* 163 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5399,7 +5545,7 @@ module.exports = function (name) {
 };
 
 /***/ }),
-/* 162 */
+/* 164 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5434,7 +5580,7 @@ Queue.prototype = {
 module.exports = Queue;
 
 /***/ }),
-/* 163 */
+/* 165 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5443,7 +5589,7 @@ var userAgent = __w_pdfjs_require__(32);
 module.exports = /ipad|iphone|ipod/i.test(userAgent) && typeof Pebble != 'undefined';
 
 /***/ }),
-/* 164 */
+/* 166 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5452,7 +5598,7 @@ var userAgent = __w_pdfjs_require__(32);
 module.exports = /web0s(?!.*chrome)/i.test(userAgent);
 
 /***/ }),
-/* 165 */
+/* 167 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5465,7 +5611,7 @@ module.exports = function (a, b) {
 };
 
 /***/ }),
-/* 166 */
+/* 168 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5485,7 +5631,7 @@ module.exports = function (exec) {
 };
 
 /***/ }),
-/* 167 */
+/* 169 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5494,19 +5640,19 @@ var global = __w_pdfjs_require__(8);
 module.exports = global.Promise;
 
 /***/ }),
-/* 168 */
+/* 170 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var global = __w_pdfjs_require__(8);
-var NativePromiseConstructor = __w_pdfjs_require__(167);
+var NativePromiseConstructor = __w_pdfjs_require__(169);
 var isCallable = __w_pdfjs_require__(25);
 var isForced = __w_pdfjs_require__(71);
 var inspectSource = __w_pdfjs_require__(54);
 var wellKnownSymbol = __w_pdfjs_require__(37);
-var IS_BROWSER = __w_pdfjs_require__(169);
-var IS_DENO = __w_pdfjs_require__(170);
+var IS_BROWSER = __w_pdfjs_require__(171);
+var IS_DENO = __w_pdfjs_require__(172);
 var IS_PURE = __w_pdfjs_require__(40);
 var V8_VERSION = __w_pdfjs_require__(31);
 var NativePromisePrototype = NativePromiseConstructor && NativePromiseConstructor.prototype;
@@ -5545,17 +5691,17 @@ module.exports = {
 };
 
 /***/ }),
-/* 169 */
+/* 171 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var IS_DENO = __w_pdfjs_require__(170);
-var IS_NODE = __w_pdfjs_require__(153);
+var IS_DENO = __w_pdfjs_require__(172);
+var IS_NODE = __w_pdfjs_require__(155);
 module.exports = !IS_DENO && !IS_NODE && typeof window == 'object' && typeof document == 'object';
 
 /***/ }),
-/* 170 */
+/* 172 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5563,7 +5709,7 @@ module.exports = !IS_DENO && !IS_NODE && typeof window == 'object' && typeof doc
 module.exports = typeof Deno == 'object' && Deno && typeof Deno.version == 'object';
 
 /***/ }),
-/* 171 */
+/* 173 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5586,7 +5732,7 @@ module.exports.f = function (C) {
 };
 
 /***/ }),
-/* 172 */
+/* 174 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5594,10 +5740,10 @@ module.exports.f = function (C) {
 var $ = __w_pdfjs_require__(7);
 var call = __w_pdfjs_require__(12);
 var aCallable = __w_pdfjs_require__(34);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
-var perform = __w_pdfjs_require__(166);
-var iterate = __w_pdfjs_require__(146);
-var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(173);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
+var perform = __w_pdfjs_require__(168);
+var iterate = __w_pdfjs_require__(126);
+var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(175);
 $({
  target: 'Promise',
  stat: true,
@@ -5634,29 +5780,29 @@ $({
 });
 
 /***/ }),
-/* 173 */
+/* 175 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var NativePromiseConstructor = __w_pdfjs_require__(167);
+var NativePromiseConstructor = __w_pdfjs_require__(169);
 var checkCorrectnessOfIteration = __w_pdfjs_require__(118);
-var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(168).CONSTRUCTOR;
+var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(170).CONSTRUCTOR;
 module.exports = FORCED_PROMISE_CONSTRUCTOR || !checkCorrectnessOfIteration(function (iterable) {
  NativePromiseConstructor.all(iterable).then(undefined, function () {
  });
 });
 
 /***/ }),
-/* 174 */
+/* 176 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var IS_PURE = __w_pdfjs_require__(40);
-var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(168).CONSTRUCTOR;
-var NativePromiseConstructor = __w_pdfjs_require__(167);
+var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(170).CONSTRUCTOR;
+var NativePromiseConstructor = __w_pdfjs_require__(169);
 var getBuiltIn = __w_pdfjs_require__(27);
 var isCallable = __w_pdfjs_require__(25);
 var defineBuiltIn = __w_pdfjs_require__(51);
@@ -5679,7 +5825,7 @@ if (!IS_PURE && isCallable(NativePromiseConstructor)) {
 }
 
 /***/ }),
-/* 175 */
+/* 177 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5687,10 +5833,10 @@ if (!IS_PURE && isCallable(NativePromiseConstructor)) {
 var $ = __w_pdfjs_require__(7);
 var call = __w_pdfjs_require__(12);
 var aCallable = __w_pdfjs_require__(34);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
-var perform = __w_pdfjs_require__(166);
-var iterate = __w_pdfjs_require__(146);
-var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(173);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
+var perform = __w_pdfjs_require__(168);
+var iterate = __w_pdfjs_require__(126);
+var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(175);
 $({
  target: 'Promise',
  stat: true,
@@ -5713,14 +5859,14 @@ $({
 });
 
 /***/ }),
-/* 176 */
+/* 178 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
-var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(168).CONSTRUCTOR;
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
+var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(170).CONSTRUCTOR;
 $({
  target: 'Promise',
  stat: true,
@@ -5735,7 +5881,7 @@ $({
 });
 
 /***/ }),
-/* 177 */
+/* 179 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5743,9 +5889,9 @@ $({
 var $ = __w_pdfjs_require__(7);
 var getBuiltIn = __w_pdfjs_require__(27);
 var IS_PURE = __w_pdfjs_require__(40);
-var NativePromiseConstructor = __w_pdfjs_require__(167);
-var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(168).CONSTRUCTOR;
-var promiseResolve = __w_pdfjs_require__(178);
+var NativePromiseConstructor = __w_pdfjs_require__(169);
+var FORCED_PROMISE_CONSTRUCTOR = __w_pdfjs_require__(170).CONSTRUCTOR;
+var promiseResolve = __w_pdfjs_require__(180);
 var PromiseConstructorWrapper = getBuiltIn('Promise');
 var CHECK_WRAPPER = IS_PURE && !FORCED_PROMISE_CONSTRUCTOR;
 $({
@@ -5759,14 +5905,14 @@ $({
 });
 
 /***/ }),
-/* 178 */
+/* 180 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var anObject = __w_pdfjs_require__(50);
 var isObject = __w_pdfjs_require__(24);
-var newPromiseCapability = __w_pdfjs_require__(171);
+var newPromiseCapability = __w_pdfjs_require__(173);
 module.exports = function (C, x) {
  anObject(C);
  if (isObject(x) && x.constructor === C)
@@ -5778,7 +5924,7 @@ module.exports = function (C, x) {
 };
 
 /***/ }),
-/* 179 */
+/* 181 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5786,10 +5932,10 @@ module.exports = function (C, x) {
 var $ = __w_pdfjs_require__(7);
 var call = __w_pdfjs_require__(12);
 var aCallable = __w_pdfjs_require__(34);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
-var perform = __w_pdfjs_require__(166);
-var iterate = __w_pdfjs_require__(146);
-var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(173);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
+var perform = __w_pdfjs_require__(168);
+var iterate = __w_pdfjs_require__(126);
+var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(175);
 $({
  target: 'Promise',
  stat: true,
@@ -5838,7 +5984,7 @@ $({
 });
 
 /***/ }),
-/* 180 */
+/* 182 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -5847,10 +5993,10 @@ var $ = __w_pdfjs_require__(7);
 var call = __w_pdfjs_require__(12);
 var aCallable = __w_pdfjs_require__(34);
 var getBuiltIn = __w_pdfjs_require__(27);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
-var perform = __w_pdfjs_require__(166);
-var iterate = __w_pdfjs_require__(146);
-var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(173);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
+var perform = __w_pdfjs_require__(168);
+var iterate = __w_pdfjs_require__(126);
+var PROMISE_STATICS_INCORRECT_ITERATION = __w_pdfjs_require__(175);
 var PROMISE_ANY_ERROR = 'No one promise resolved';
 $({
  target: 'Promise',
@@ -5895,13 +6041,13 @@ $({
 });
 
 /***/ }),
-/* 181 */
+/* 183 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var newPromiseCapabilityModule = __w_pdfjs_require__(171);
+var newPromiseCapabilityModule = __w_pdfjs_require__(173);
 $({
  target: 'Promise',
  stat: true
@@ -5917,19 +6063,19 @@ $({
 });
 
 /***/ }),
-/* 182 */
+/* 184 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var IS_PURE = __w_pdfjs_require__(40);
-var NativePromiseConstructor = __w_pdfjs_require__(167);
+var NativePromiseConstructor = __w_pdfjs_require__(169);
 var fails = __w_pdfjs_require__(11);
 var getBuiltIn = __w_pdfjs_require__(27);
 var isCallable = __w_pdfjs_require__(25);
-var speciesConstructor = __w_pdfjs_require__(136);
-var promiseResolve = __w_pdfjs_require__(178);
+var speciesConstructor = __w_pdfjs_require__(140);
+var promiseResolve = __w_pdfjs_require__(180);
 var defineBuiltIn = __w_pdfjs_require__(51);
 var NativePromisePrototype = NativePromiseConstructor && NativePromiseConstructor.prototype;
 var NON_GENERIC = !!NativePromiseConstructor && fails(function () {
@@ -5967,39 +6113,18 @@ if (!IS_PURE && isCallable(NativePromiseConstructor)) {
 }
 
 /***/ }),
-/* 183 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(184);
-__w_pdfjs_require__(193);
-__w_pdfjs_require__(196);
-__w_pdfjs_require__(197);
-__w_pdfjs_require__(198);
-var path = __w_pdfjs_require__(119);
-module.exports = path.URL;
-
-/***/ }),
-/* 184 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(185);
-__w_pdfjs_require__(190);
-__w_pdfjs_require__(191);
-__w_pdfjs_require__(192);
-var path = __w_pdfjs_require__(119);
-module.exports = path.URLSearchParams;
-
-/***/ }),
 /* 185 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 __w_pdfjs_require__(186);
+__w_pdfjs_require__(195);
+__w_pdfjs_require__(198);
+__w_pdfjs_require__(199);
+__w_pdfjs_require__(200);
+var path = __w_pdfjs_require__(119);
+module.exports = path.URL;
 
 /***/ }),
 /* 186 */
@@ -6007,21 +6132,42 @@ __w_pdfjs_require__(186);
 
 "use strict";
 
-__w_pdfjs_require__(148);
+__w_pdfjs_require__(187);
+__w_pdfjs_require__(192);
+__w_pdfjs_require__(193);
+__w_pdfjs_require__(194);
+var path = __w_pdfjs_require__(119);
+module.exports = path.URLSearchParams;
+
+/***/ }),
+/* 187 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(188);
+
+/***/ }),
+/* 188 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(124);
 var $ = __w_pdfjs_require__(7);
 var global = __w_pdfjs_require__(8);
-var safeGetBuiltIn = __w_pdfjs_require__(161);
+var safeGetBuiltIn = __w_pdfjs_require__(163);
 var call = __w_pdfjs_require__(12);
 var uncurryThis = __w_pdfjs_require__(18);
 var DESCRIPTORS = __w_pdfjs_require__(10);
-var USE_NATIVE_URL = __w_pdfjs_require__(187);
+var USE_NATIVE_URL = __w_pdfjs_require__(189);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
-var defineBuiltIns = __w_pdfjs_require__(188);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
+var defineBuiltIns = __w_pdfjs_require__(190);
 var setToStringTag = __w_pdfjs_require__(101);
 var createIteratorConstructor = __w_pdfjs_require__(97);
 var InternalStateModule = __w_pdfjs_require__(55);
-var anInstance = __w_pdfjs_require__(155);
+var anInstance = __w_pdfjs_require__(157);
 var isCallable = __w_pdfjs_require__(25);
 var hasOwn = __w_pdfjs_require__(42);
 var bind = __w_pdfjs_require__(110);
@@ -6034,9 +6180,9 @@ var createPropertyDescriptor = __w_pdfjs_require__(15);
 var getIterator = __w_pdfjs_require__(116);
 var getIteratorMethod = __w_pdfjs_require__(117);
 var createIterResultObject = __w_pdfjs_require__(107);
-var validateArgumentsLength = __w_pdfjs_require__(158);
+var validateArgumentsLength = __w_pdfjs_require__(160);
 var wellKnownSymbol = __w_pdfjs_require__(37);
-var arraySort = __w_pdfjs_require__(189);
+var arraySort = __w_pdfjs_require__(191);
 var ITERATOR = wellKnownSymbol('iterator');
 var URL_SEARCH_PARAMS = 'URLSearchParams';
 var URL_SEARCH_PARAMS_ITERATOR = URL_SEARCH_PARAMS + 'Iterator';
@@ -6411,7 +6557,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 187 */
+/* 189 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -6437,7 +6583,7 @@ module.exports = !fails(function () {
 });
 
 /***/ }),
-/* 188 */
+/* 190 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -6450,12 +6596,12 @@ module.exports = function (target, src, options) {
 };
 
 /***/ }),
-/* 189 */
+/* 191 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var arraySlice = __w_pdfjs_require__(138);
+var arraySlice = __w_pdfjs_require__(142);
 var floor = Math.floor;
 var sort = function (array, comparefn) {
  var length = array.length;
@@ -6488,7 +6634,7 @@ var sort = function (array, comparefn) {
 module.exports = sort;
 
 /***/ }),
-/* 190 */
+/* 192 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -6496,7 +6642,7 @@ module.exports = sort;
 var defineBuiltIn = __w_pdfjs_require__(51);
 var uncurryThis = __w_pdfjs_require__(18);
 var toString = __w_pdfjs_require__(75);
-var validateArgumentsLength = __w_pdfjs_require__(158);
+var validateArgumentsLength = __w_pdfjs_require__(160);
 var $URLSearchParams = URLSearchParams;
 var URLSearchParamsPrototype = $URLSearchParams.prototype;
 var append = uncurryThis(URLSearchParamsPrototype.append);
@@ -6547,7 +6693,7 @@ if (params + '' !== 'a=2') {
 }
 
 /***/ }),
-/* 191 */
+/* 193 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -6555,7 +6701,7 @@ if (params + '' !== 'a=2') {
 var defineBuiltIn = __w_pdfjs_require__(51);
 var uncurryThis = __w_pdfjs_require__(18);
 var toString = __w_pdfjs_require__(75);
-var validateArgumentsLength = __w_pdfjs_require__(158);
+var validateArgumentsLength = __w_pdfjs_require__(160);
 var $URLSearchParams = URLSearchParams;
 var URLSearchParamsPrototype = $URLSearchParams.prototype;
 var getAll = uncurryThis(URLSearchParamsPrototype.getAll);
@@ -6583,14 +6729,14 @@ if (params.has('a', 2) || !params.has('a', undefined)) {
 }
 
 /***/ }),
-/* 192 */
+/* 194 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var DESCRIPTORS = __w_pdfjs_require__(10);
 var uncurryThis = __w_pdfjs_require__(18);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
 var URLSearchParamsPrototype = URLSearchParams.prototype;
 var forEach = uncurryThis(URLSearchParamsPrototype.forEach);
 if (DESCRIPTORS && !('size' in URLSearchParamsPrototype)) {
@@ -6608,15 +6754,15 @@ if (DESCRIPTORS && !('size' in URLSearchParamsPrototype)) {
 }
 
 /***/ }),
-/* 193 */
+/* 195 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(194);
+__w_pdfjs_require__(196);
 
 /***/ }),
-/* 194 */
+/* 196 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -6624,23 +6770,23 @@ __w_pdfjs_require__(194);
 __w_pdfjs_require__(94);
 var $ = __w_pdfjs_require__(7);
 var DESCRIPTORS = __w_pdfjs_require__(10);
-var USE_NATIVE_URL = __w_pdfjs_require__(187);
+var USE_NATIVE_URL = __w_pdfjs_require__(189);
 var global = __w_pdfjs_require__(8);
 var bind = __w_pdfjs_require__(110);
 var uncurryThis = __w_pdfjs_require__(18);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
-var anInstance = __w_pdfjs_require__(155);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
+var anInstance = __w_pdfjs_require__(157);
 var hasOwn = __w_pdfjs_require__(42);
 var assign = __w_pdfjs_require__(122);
 var arrayFrom = __w_pdfjs_require__(109);
-var arraySlice = __w_pdfjs_require__(138);
+var arraySlice = __w_pdfjs_require__(142);
 var codeAt = __w_pdfjs_require__(95).codeAt;
-var toASCII = __w_pdfjs_require__(195);
+var toASCII = __w_pdfjs_require__(197);
 var $toString = __w_pdfjs_require__(75);
 var setToStringTag = __w_pdfjs_require__(101);
-var validateArgumentsLength = __w_pdfjs_require__(158);
-var URLSearchParamsModule = __w_pdfjs_require__(186);
+var validateArgumentsLength = __w_pdfjs_require__(160);
+var URLSearchParamsModule = __w_pdfjs_require__(188);
 var InternalStateModule = __w_pdfjs_require__(55);
 var setInternalState = InternalStateModule.set;
 var getInternalURLState = InternalStateModule.getterFor('URL');
@@ -7653,7 +7799,7 @@ $({
 }, { URL: URLConstructor });
 
 /***/ }),
-/* 195 */
+/* 197 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -7789,7 +7935,7 @@ module.exports = function (input) {
 };
 
 /***/ }),
-/* 196 */
+/* 198 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -7797,9 +7943,9 @@ module.exports = function (input) {
 var $ = __w_pdfjs_require__(7);
 var getBuiltIn = __w_pdfjs_require__(27);
 var fails = __w_pdfjs_require__(11);
-var validateArgumentsLength = __w_pdfjs_require__(158);
+var validateArgumentsLength = __w_pdfjs_require__(160);
 var toString = __w_pdfjs_require__(75);
-var USE_NATIVE_URL = __w_pdfjs_require__(187);
+var USE_NATIVE_URL = __w_pdfjs_require__(189);
 var URL = getBuiltIn('URL');
 var THROWS_WITHOUT_ARGUMENTS = USE_NATIVE_URL && fails(function () {
  URL.canParse();
@@ -7825,16 +7971,16 @@ $({
 });
 
 /***/ }),
-/* 197 */
+/* 199 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var getBuiltIn = __w_pdfjs_require__(27);
-var validateArgumentsLength = __w_pdfjs_require__(158);
+var validateArgumentsLength = __w_pdfjs_require__(160);
 var toString = __w_pdfjs_require__(75);
-var USE_NATIVE_URL = __w_pdfjs_require__(187);
+var USE_NATIVE_URL = __w_pdfjs_require__(189);
 var URL = getBuiltIn('URL');
 $({
  target: 'URL',
@@ -7854,7 +8000,7 @@ $({
 });
 
 /***/ }),
-/* 198 */
+/* 200 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -7872,7 +8018,7 @@ $({
 });
 
 /***/ }),
-/* 199 */
+/* 201 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 (function (global, factory) {
@@ -10789,35 +10935,35 @@ $({
 }));
 
 /***/ }),
-/* 200 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(148);
-__w_pdfjs_require__(201);
-__w_pdfjs_require__(211);
-__w_pdfjs_require__(149);
-__w_pdfjs_require__(94);
-var path = __w_pdfjs_require__(119);
-module.exports = path.Map;
-
-/***/ }),
-/* 201 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(202);
-
-/***/ }),
 /* 202 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var collection = __w_pdfjs_require__(203);
-var collectionStrong = __w_pdfjs_require__(210);
+__w_pdfjs_require__(124);
+__w_pdfjs_require__(203);
+__w_pdfjs_require__(213);
+__w_pdfjs_require__(151);
+__w_pdfjs_require__(94);
+var path = __w_pdfjs_require__(119);
+module.exports = path.Map;
+
+/***/ }),
+/* 203 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(204);
+
+/***/ }),
+/* 204 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var collection = __w_pdfjs_require__(205);
+var collectionStrong = __w_pdfjs_require__(212);
 collection('Map', function (init) {
  return function Map() {
   return init(this, arguments.length ? arguments[0] : undefined);
@@ -10825,7 +10971,7 @@ collection('Map', function (init) {
 }, collectionStrong);
 
 /***/ }),
-/* 203 */
+/* 205 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -10835,16 +10981,16 @@ var global = __w_pdfjs_require__(8);
 var uncurryThis = __w_pdfjs_require__(18);
 var isForced = __w_pdfjs_require__(71);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var InternalMetadataModule = __w_pdfjs_require__(204);
-var iterate = __w_pdfjs_require__(146);
-var anInstance = __w_pdfjs_require__(155);
+var InternalMetadataModule = __w_pdfjs_require__(206);
+var iterate = __w_pdfjs_require__(126);
+var anInstance = __w_pdfjs_require__(157);
 var isCallable = __w_pdfjs_require__(25);
 var isNullOrUndefined = __w_pdfjs_require__(21);
 var isObject = __w_pdfjs_require__(24);
 var fails = __w_pdfjs_require__(11);
 var checkCorrectnessOfIteration = __w_pdfjs_require__(118);
 var setToStringTag = __w_pdfjs_require__(101);
-var inheritIfRequired = __w_pdfjs_require__(209);
+var inheritIfRequired = __w_pdfjs_require__(211);
 module.exports = function (CONSTRUCTOR_NAME, wrapper, common) {
  var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
  var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
@@ -10928,7 +11074,7 @@ module.exports = function (CONSTRUCTOR_NAME, wrapper, common) {
 };
 
 /***/ }),
-/* 204 */
+/* 206 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -10940,10 +11086,10 @@ var isObject = __w_pdfjs_require__(24);
 var hasOwn = __w_pdfjs_require__(42);
 var defineProperty = __w_pdfjs_require__(48).f;
 var getOwnPropertyNamesModule = __w_pdfjs_require__(61);
-var getOwnPropertyNamesExternalModule = __w_pdfjs_require__(205);
-var isExtensible = __w_pdfjs_require__(206);
+var getOwnPropertyNamesExternalModule = __w_pdfjs_require__(207);
+var isExtensible = __w_pdfjs_require__(208);
 var uid = __w_pdfjs_require__(44);
-var FREEZING = __w_pdfjs_require__(208);
+var FREEZING = __w_pdfjs_require__(210);
 var REQUIRED = false;
 var METADATA = uid('meta');
 var id = 0;
@@ -11017,7 +11163,7 @@ var meta = module.exports = {
 hiddenKeys[METADATA] = true;
 
 /***/ }),
-/* 205 */
+/* 207 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11025,7 +11171,7 @@ hiddenKeys[METADATA] = true;
 var classof = __w_pdfjs_require__(19);
 var toIndexedObject = __w_pdfjs_require__(16);
 var $getOwnPropertyNames = __w_pdfjs_require__(61).f;
-var arraySlice = __w_pdfjs_require__(138);
+var arraySlice = __w_pdfjs_require__(142);
 var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames ? Object.getOwnPropertyNames(window) : [];
 var getWindowNames = function (it) {
  try {
@@ -11039,7 +11185,7 @@ module.exports.f = function getOwnPropertyNames(it) {
 };
 
 /***/ }),
-/* 206 */
+/* 208 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11047,7 +11193,7 @@ module.exports.f = function getOwnPropertyNames(it) {
 var fails = __w_pdfjs_require__(11);
 var isObject = __w_pdfjs_require__(24);
 var classof = __w_pdfjs_require__(19);
-var ARRAY_BUFFER_NON_EXTENSIBLE = __w_pdfjs_require__(207);
+var ARRAY_BUFFER_NON_EXTENSIBLE = __w_pdfjs_require__(209);
 var $isExtensible = Object.isExtensible;
 var FAILS_ON_PRIMITIVES = fails(function () {
  $isExtensible(1);
@@ -11061,7 +11207,7 @@ module.exports = FAILS_ON_PRIMITIVES || ARRAY_BUFFER_NON_EXTENSIBLE ? function i
 } : $isExtensible;
 
 /***/ }),
-/* 207 */
+/* 209 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11076,7 +11222,7 @@ module.exports = fails(function () {
 });
 
 /***/ }),
-/* 208 */
+/* 210 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11087,7 +11233,7 @@ module.exports = !fails(function () {
 });
 
 /***/ }),
-/* 209 */
+/* 211 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11103,23 +11249,23 @@ module.exports = function ($this, dummy, Wrapper) {
 };
 
 /***/ }),
-/* 210 */
+/* 212 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var create = __w_pdfjs_require__(89);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
-var defineBuiltIns = __w_pdfjs_require__(188);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
+var defineBuiltIns = __w_pdfjs_require__(190);
 var bind = __w_pdfjs_require__(110);
-var anInstance = __w_pdfjs_require__(155);
+var anInstance = __w_pdfjs_require__(157);
 var isNullOrUndefined = __w_pdfjs_require__(21);
-var iterate = __w_pdfjs_require__(146);
+var iterate = __w_pdfjs_require__(126);
 var defineIterator = __w_pdfjs_require__(96);
 var createIterResultObject = __w_pdfjs_require__(107);
-var setSpecies = __w_pdfjs_require__(154);
+var setSpecies = __w_pdfjs_require__(156);
 var DESCRIPTORS = __w_pdfjs_require__(10);
-var fastKey = __w_pdfjs_require__(204).fastKey;
+var fastKey = __w_pdfjs_require__(206).fastKey;
 var InternalStateModule = __w_pdfjs_require__(55);
 var setInternalState = InternalStateModule.set;
 var internalStateGetterFor = InternalStateModule.getterFor;
@@ -11297,7 +11443,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 211 */
+/* 213 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11306,8 +11452,8 @@ var $ = __w_pdfjs_require__(7);
 var uncurryThis = __w_pdfjs_require__(18);
 var aCallable = __w_pdfjs_require__(34);
 var requireObjectCoercible = __w_pdfjs_require__(20);
-var iterate = __w_pdfjs_require__(146);
-var MapHelpers = __w_pdfjs_require__(212);
+var iterate = __w_pdfjs_require__(126);
+var MapHelpers = __w_pdfjs_require__(214);
 var IS_PURE = __w_pdfjs_require__(40);
 var fails = __w_pdfjs_require__(11);
 var Map = MapHelpers.Map;
@@ -11342,7 +11488,7 @@ $({
 });
 
 /***/ }),
-/* 212 */
+/* 214 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11359,46 +11505,24 @@ module.exports = {
 };
 
 /***/ }),
-/* 213 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(148);
-__w_pdfjs_require__(149);
-__w_pdfjs_require__(214);
-__w_pdfjs_require__(216);
-__w_pdfjs_require__(227);
-__w_pdfjs_require__(229);
-__w_pdfjs_require__(231);
-__w_pdfjs_require__(233);
-__w_pdfjs_require__(235);
-__w_pdfjs_require__(237);
-__w_pdfjs_require__(94);
-var path = __w_pdfjs_require__(119);
-module.exports = path.Set;
-
-/***/ }),
-/* 214 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(215);
-
-/***/ }),
 /* 215 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var collection = __w_pdfjs_require__(203);
-var collectionStrong = __w_pdfjs_require__(210);
-collection('Set', function (init) {
- return function Set() {
-  return init(this, arguments.length ? arguments[0] : undefined);
- };
-}, collectionStrong);
+__w_pdfjs_require__(124);
+__w_pdfjs_require__(151);
+__w_pdfjs_require__(216);
+__w_pdfjs_require__(218);
+__w_pdfjs_require__(229);
+__w_pdfjs_require__(231);
+__w_pdfjs_require__(233);
+__w_pdfjs_require__(235);
+__w_pdfjs_require__(237);
+__w_pdfjs_require__(239);
+__w_pdfjs_require__(94);
+var path = __w_pdfjs_require__(119);
+module.exports = path.Set;
 
 /***/ }),
 /* 216 */
@@ -11406,9 +11530,31 @@ collection('Set', function (init) {
 
 "use strict";
 
+__w_pdfjs_require__(217);
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var collection = __w_pdfjs_require__(205);
+var collectionStrong = __w_pdfjs_require__(212);
+collection('Set', function (init) {
+ return function Set() {
+  return init(this, arguments.length ? arguments[0] : undefined);
+ };
+}, collectionStrong);
+
+/***/ }),
+/* 218 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
 var $ = __w_pdfjs_require__(7);
-var difference = __w_pdfjs_require__(217);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var difference = __w_pdfjs_require__(219);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11417,18 +11563,18 @@ $({
 }, { difference: difference });
 
 /***/ }),
-/* 217 */
+/* 219 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var SetHelpers = __w_pdfjs_require__(219);
-var clone = __w_pdfjs_require__(220);
-var size = __w_pdfjs_require__(223);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSet = __w_pdfjs_require__(221);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var SetHelpers = __w_pdfjs_require__(221);
+var clone = __w_pdfjs_require__(222);
+var size = __w_pdfjs_require__(225);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSet = __w_pdfjs_require__(223);
+var iterateSimple = __w_pdfjs_require__(224);
 var has = SetHelpers.has;
 var remove = SetHelpers.remove;
 module.exports = function difference(other) {
@@ -11449,19 +11595,19 @@ module.exports = function difference(other) {
 };
 
 /***/ }),
-/* 218 */
+/* 220 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var has = __w_pdfjs_require__(219).has;
+var has = __w_pdfjs_require__(221).has;
 module.exports = function (it) {
  has(it);
  return it;
 };
 
 /***/ }),
-/* 219 */
+/* 221 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11477,13 +11623,13 @@ module.exports = {
 };
 
 /***/ }),
-/* 220 */
+/* 222 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var SetHelpers = __w_pdfjs_require__(219);
-var iterate = __w_pdfjs_require__(221);
+var SetHelpers = __w_pdfjs_require__(221);
+var iterate = __w_pdfjs_require__(223);
 var Set = SetHelpers.Set;
 var add = SetHelpers.add;
 module.exports = function (set) {
@@ -11495,14 +11641,14 @@ module.exports = function (set) {
 };
 
 /***/ }),
-/* 221 */
+/* 223 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var uncurryThis = __w_pdfjs_require__(18);
-var iterateSimple = __w_pdfjs_require__(222);
-var SetHelpers = __w_pdfjs_require__(219);
+var iterateSimple = __w_pdfjs_require__(224);
+var SetHelpers = __w_pdfjs_require__(221);
 var Set = SetHelpers.Set;
 var SetPrototype = SetHelpers.proto;
 var forEach = uncurryThis(SetPrototype.forEach);
@@ -11516,7 +11662,7 @@ module.exports = function (set, fn, interruptible) {
 };
 
 /***/ }),
-/* 222 */
+/* 224 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11534,19 +11680,19 @@ module.exports = function (record, fn, ITERATOR_INSTEAD_OF_RECORD) {
 };
 
 /***/ }),
-/* 223 */
+/* 225 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var uncurryThisAccessor = __w_pdfjs_require__(104);
-var SetHelpers = __w_pdfjs_require__(219);
+var SetHelpers = __w_pdfjs_require__(221);
 module.exports = uncurryThisAccessor(SetHelpers.proto, 'size', 'get') || function (set) {
  return set.size;
 };
 
 /***/ }),
-/* 224 */
+/* 226 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11555,7 +11701,7 @@ var aCallable = __w_pdfjs_require__(34);
 var anObject = __w_pdfjs_require__(50);
 var call = __w_pdfjs_require__(12);
 var toIntegerOrInfinity = __w_pdfjs_require__(65);
-var getIteratorDirect = __w_pdfjs_require__(225);
+var getIteratorDirect = __w_pdfjs_require__(227);
 var INVALID_SIZE = 'Invalid size';
 var $RangeError = RangeError;
 var $TypeError = TypeError;
@@ -11586,7 +11732,7 @@ module.exports = function (obj) {
 };
 
 /***/ }),
-/* 225 */
+/* 227 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11600,7 +11746,7 @@ module.exports = function (obj) {
 };
 
 /***/ }),
-/* 226 */
+/* 228 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -11637,15 +11783,15 @@ module.exports = function (name) {
 };
 
 /***/ }),
-/* 227 */
+/* 229 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var fails = __w_pdfjs_require__(11);
-var intersection = __w_pdfjs_require__(228);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var intersection = __w_pdfjs_require__(230);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 var INCORRECT = !setMethodAcceptSetLike('intersection') || fails(function () {
  return String(Array.from(new Set([
   1,
@@ -11664,17 +11810,17 @@ $({
 }, { intersection: intersection });
 
 /***/ }),
-/* 228 */
+/* 230 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var SetHelpers = __w_pdfjs_require__(219);
-var size = __w_pdfjs_require__(223);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSet = __w_pdfjs_require__(221);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var SetHelpers = __w_pdfjs_require__(221);
+var size = __w_pdfjs_require__(225);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSet = __w_pdfjs_require__(223);
+var iterateSimple = __w_pdfjs_require__(224);
 var Set = SetHelpers.Set;
 var add = SetHelpers.add;
 var has = SetHelpers.has;
@@ -11697,14 +11843,14 @@ module.exports = function intersection(other) {
 };
 
 /***/ }),
-/* 229 */
+/* 231 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var isDisjointFrom = __w_pdfjs_require__(230);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var isDisjointFrom = __w_pdfjs_require__(232);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11713,17 +11859,17 @@ $({
 }, { isDisjointFrom: isDisjointFrom });
 
 /***/ }),
-/* 230 */
+/* 232 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var has = __w_pdfjs_require__(219).has;
-var size = __w_pdfjs_require__(223);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSet = __w_pdfjs_require__(221);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var has = __w_pdfjs_require__(221).has;
+var size = __w_pdfjs_require__(225);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSet = __w_pdfjs_require__(223);
+var iterateSimple = __w_pdfjs_require__(224);
 var iteratorClose = __w_pdfjs_require__(112);
 module.exports = function isDisjointFrom(other) {
  var O = aSet(this);
@@ -11741,14 +11887,14 @@ module.exports = function isDisjointFrom(other) {
 };
 
 /***/ }),
-/* 231 */
+/* 233 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var isSubsetOf = __w_pdfjs_require__(232);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var isSubsetOf = __w_pdfjs_require__(234);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11757,15 +11903,15 @@ $({
 }, { isSubsetOf: isSubsetOf });
 
 /***/ }),
-/* 232 */
+/* 234 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var size = __w_pdfjs_require__(223);
-var iterate = __w_pdfjs_require__(221);
-var getSetRecord = __w_pdfjs_require__(224);
+var aSet = __w_pdfjs_require__(220);
+var size = __w_pdfjs_require__(225);
+var iterate = __w_pdfjs_require__(223);
+var getSetRecord = __w_pdfjs_require__(226);
 module.exports = function isSubsetOf(other) {
  var O = aSet(this);
  var otherRec = getSetRecord(other);
@@ -11778,14 +11924,14 @@ module.exports = function isSubsetOf(other) {
 };
 
 /***/ }),
-/* 233 */
+/* 235 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var isSupersetOf = __w_pdfjs_require__(234);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var isSupersetOf = __w_pdfjs_require__(236);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11794,16 +11940,16 @@ $({
 }, { isSupersetOf: isSupersetOf });
 
 /***/ }),
-/* 234 */
+/* 236 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var has = __w_pdfjs_require__(219).has;
-var size = __w_pdfjs_require__(223);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var has = __w_pdfjs_require__(221).has;
+var size = __w_pdfjs_require__(225);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSimple = __w_pdfjs_require__(224);
 var iteratorClose = __w_pdfjs_require__(112);
 module.exports = function isSupersetOf(other) {
  var O = aSet(this);
@@ -11818,14 +11964,14 @@ module.exports = function isSupersetOf(other) {
 };
 
 /***/ }),
-/* 235 */
+/* 237 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var symmetricDifference = __w_pdfjs_require__(236);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var symmetricDifference = __w_pdfjs_require__(238);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11834,16 +11980,16 @@ $({
 }, { symmetricDifference: symmetricDifference });
 
 /***/ }),
-/* 236 */
+/* 238 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var SetHelpers = __w_pdfjs_require__(219);
-var clone = __w_pdfjs_require__(220);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var SetHelpers = __w_pdfjs_require__(221);
+var clone = __w_pdfjs_require__(222);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSimple = __w_pdfjs_require__(224);
 var add = SetHelpers.add;
 var has = SetHelpers.has;
 var remove = SetHelpers.remove;
@@ -11861,14 +12007,14 @@ module.exports = function symmetricDifference(other) {
 };
 
 /***/ }),
-/* 237 */
+/* 239 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var union = __w_pdfjs_require__(238);
-var setMethodAcceptSetLike = __w_pdfjs_require__(226);
+var union = __w_pdfjs_require__(240);
+var setMethodAcceptSetLike = __w_pdfjs_require__(228);
 $({
  target: 'Set',
  proto: true,
@@ -11877,16 +12023,16 @@ $({
 }, { union: union });
 
 /***/ }),
-/* 238 */
+/* 240 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var aSet = __w_pdfjs_require__(218);
-var add = __w_pdfjs_require__(219).add;
-var clone = __w_pdfjs_require__(220);
-var getSetRecord = __w_pdfjs_require__(224);
-var iterateSimple = __w_pdfjs_require__(222);
+var aSet = __w_pdfjs_require__(220);
+var add = __w_pdfjs_require__(221).add;
+var clone = __w_pdfjs_require__(222);
+var getSetRecord = __w_pdfjs_require__(226);
+var iterateSimple = __w_pdfjs_require__(224);
 module.exports = function union(other) {
  var O = aSet(this);
  var keysIter = getSetRecord(other).getIterator();
@@ -11898,38 +12044,38 @@ module.exports = function union(other) {
 };
 
 /***/ }),
-/* 239 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(148);
-__w_pdfjs_require__(149);
-__w_pdfjs_require__(240);
-var path = __w_pdfjs_require__(119);
-module.exports = path.WeakMap;
-
-/***/ }),
-/* 240 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(241);
-
-/***/ }),
 /* 241 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var FREEZING = __w_pdfjs_require__(208);
+__w_pdfjs_require__(124);
+__w_pdfjs_require__(151);
+__w_pdfjs_require__(242);
+var path = __w_pdfjs_require__(119);
+module.exports = path.WeakMap;
+
+/***/ }),
+/* 242 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(243);
+
+/***/ }),
+/* 243 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var FREEZING = __w_pdfjs_require__(210);
 var global = __w_pdfjs_require__(8);
 var uncurryThis = __w_pdfjs_require__(18);
-var defineBuiltIns = __w_pdfjs_require__(188);
-var InternalMetadataModule = __w_pdfjs_require__(204);
-var collection = __w_pdfjs_require__(203);
-var collectionWeak = __w_pdfjs_require__(242);
+var defineBuiltIns = __w_pdfjs_require__(190);
+var InternalMetadataModule = __w_pdfjs_require__(206);
+var collection = __w_pdfjs_require__(205);
+var collectionWeak = __w_pdfjs_require__(244);
 var isObject = __w_pdfjs_require__(24);
 var enforceInternalState = __w_pdfjs_require__(55).enforce;
 var fails = __w_pdfjs_require__(11);
@@ -12023,20 +12169,20 @@ if (NATIVE_WEAK_MAP)
  }
 
 /***/ }),
-/* 242 */
+/* 244 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var uncurryThis = __w_pdfjs_require__(18);
-var defineBuiltIns = __w_pdfjs_require__(188);
-var getWeakData = __w_pdfjs_require__(204).getWeakData;
-var anInstance = __w_pdfjs_require__(155);
+var defineBuiltIns = __w_pdfjs_require__(190);
+var getWeakData = __w_pdfjs_require__(206).getWeakData;
+var anInstance = __w_pdfjs_require__(157);
 var anObject = __w_pdfjs_require__(50);
 var isNullOrUndefined = __w_pdfjs_require__(21);
 var isObject = __w_pdfjs_require__(24);
-var iterate = __w_pdfjs_require__(146);
-var ArrayIterationModule = __w_pdfjs_require__(243);
+var iterate = __w_pdfjs_require__(126);
+var ArrayIterationModule = __w_pdfjs_require__(245);
 var hasOwn = __w_pdfjs_require__(42);
 var InternalStateModule = __w_pdfjs_require__(55);
 var setInternalState = InternalStateModule.set;
@@ -12153,7 +12299,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 243 */
+/* 245 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12163,7 +12309,7 @@ var uncurryThis = __w_pdfjs_require__(18);
 var IndexedObject = __w_pdfjs_require__(17);
 var toObject = __w_pdfjs_require__(43);
 var lengthOfArrayLike = __w_pdfjs_require__(67);
-var arraySpeciesCreate = __w_pdfjs_require__(244);
+var arraySpeciesCreate = __w_pdfjs_require__(246);
 var push = uncurryThis([].push);
 var createMethod = function (TYPE) {
  var IS_MAP = TYPE === 1;
@@ -12224,23 +12370,23 @@ module.exports = {
 };
 
 /***/ }),
-/* 244 */
+/* 246 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var arraySpeciesConstructor = __w_pdfjs_require__(245);
+var arraySpeciesConstructor = __w_pdfjs_require__(247);
 module.exports = function (originalArray, length) {
  return new (arraySpeciesConstructor(originalArray))(length === 0 ? 0 : length);
 };
 
 /***/ }),
-/* 245 */
+/* 247 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var isArray = __w_pdfjs_require__(246);
+var isArray = __w_pdfjs_require__(248);
 var isConstructor = __w_pdfjs_require__(114);
 var isObject = __w_pdfjs_require__(24);
 var wellKnownSymbol = __w_pdfjs_require__(37);
@@ -12262,7 +12408,7 @@ module.exports = function (originalArray) {
 };
 
 /***/ }),
-/* 246 */
+/* 248 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12273,38 +12419,16 @@ module.exports = Array.isArray || function isArray(argument) {
 };
 
 /***/ }),
-/* 247 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(148);
-__w_pdfjs_require__(149);
-__w_pdfjs_require__(248);
-var path = __w_pdfjs_require__(119);
-module.exports = path.WeakSet;
-
-/***/ }),
-/* 248 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-__w_pdfjs_require__(249);
-
-/***/ }),
 /* 249 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var collection = __w_pdfjs_require__(203);
-var collectionWeak = __w_pdfjs_require__(242);
-collection('WeakSet', function (init) {
- return function WeakSet() {
-  return init(this, arguments.length ? arguments[0] : undefined);
- };
-}, collectionWeak);
+__w_pdfjs_require__(124);
+__w_pdfjs_require__(151);
+__w_pdfjs_require__(250);
+var path = __w_pdfjs_require__(119);
+module.exports = path.WeakSet;
 
 /***/ }),
 /* 250 */
@@ -12313,11 +12437,33 @@ collection('WeakSet', function (init) {
 "use strict";
 
 __w_pdfjs_require__(251);
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var collection = __w_pdfjs_require__(205);
+var collectionWeak = __w_pdfjs_require__(244);
+collection('WeakSet', function (init) {
+ return function WeakSet() {
+  return init(this, arguments.length ? arguments[0] : undefined);
+ };
+}, collectionWeak);
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(253);
 var entryUnbind = __w_pdfjs_require__(81);
 module.exports = entryUnbind('String', 'codePointAt');
 
 /***/ }),
-/* 251 */
+/* 253 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12334,17 +12480,17 @@ $({
 });
 
 /***/ }),
-/* 252 */
+/* 254 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(253);
+__w_pdfjs_require__(255);
 var path = __w_pdfjs_require__(119);
 module.exports = path.String.fromCodePoint;
 
 /***/ }),
-/* 253 */
+/* 255 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12379,16 +12525,14 @@ $({
 });
 
 /***/ }),
-/* 254 */
+/* 256 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(255);
-__w_pdfjs_require__(149);
-__w_pdfjs_require__(258);
-__w_pdfjs_require__(269);
-__w_pdfjs_require__(270);
+__w_pdfjs_require__(257);
+__w_pdfjs_require__(151);
+__w_pdfjs_require__(260);
 __w_pdfjs_require__(271);
 __w_pdfjs_require__(272);
 __w_pdfjs_require__(273);
@@ -12404,25 +12548,27 @@ __w_pdfjs_require__(282);
 __w_pdfjs_require__(283);
 __w_pdfjs_require__(284);
 __w_pdfjs_require__(285);
+__w_pdfjs_require__(286);
+__w_pdfjs_require__(287);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Symbol;
 
 /***/ }),
-/* 255 */
+/* 257 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var fails = __w_pdfjs_require__(11);
-var isArray = __w_pdfjs_require__(246);
+var isArray = __w_pdfjs_require__(248);
 var isObject = __w_pdfjs_require__(24);
 var toObject = __w_pdfjs_require__(43);
 var lengthOfArrayLike = __w_pdfjs_require__(67);
-var doesNotExceedSafeInteger = __w_pdfjs_require__(256);
+var doesNotExceedSafeInteger = __w_pdfjs_require__(258);
 var createProperty = __w_pdfjs_require__(115);
-var arraySpeciesCreate = __w_pdfjs_require__(244);
-var arrayMethodHasSpeciesSupport = __w_pdfjs_require__(257);
+var arraySpeciesCreate = __w_pdfjs_require__(246);
+var arrayMethodHasSpeciesSupport = __w_pdfjs_require__(259);
 var wellKnownSymbol = __w_pdfjs_require__(37);
 var V8_VERSION = __w_pdfjs_require__(31);
 var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
@@ -12468,7 +12614,7 @@ $({
 });
 
 /***/ }),
-/* 256 */
+/* 258 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12482,7 +12628,7 @@ module.exports = function (it) {
 };
 
 /***/ }),
-/* 257 */
+/* 259 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12503,19 +12649,19 @@ module.exports = function (METHOD_NAME) {
 };
 
 /***/ }),
-/* 258 */
+/* 260 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(259);
-__w_pdfjs_require__(263);
+__w_pdfjs_require__(261);
 __w_pdfjs_require__(265);
-__w_pdfjs_require__(266);
+__w_pdfjs_require__(267);
 __w_pdfjs_require__(268);
+__w_pdfjs_require__(270);
 
 /***/ }),
-/* 259 */
+/* 261 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12538,25 +12684,25 @@ var createPropertyDescriptor = __w_pdfjs_require__(15);
 var nativeObjectCreate = __w_pdfjs_require__(89);
 var objectKeys = __w_pdfjs_require__(91);
 var getOwnPropertyNamesModule = __w_pdfjs_require__(61);
-var getOwnPropertyNamesExternal = __w_pdfjs_require__(205);
+var getOwnPropertyNamesExternal = __w_pdfjs_require__(207);
 var getOwnPropertySymbolsModule = __w_pdfjs_require__(70);
 var getOwnPropertyDescriptorModule = __w_pdfjs_require__(9);
 var definePropertyModule = __w_pdfjs_require__(48);
 var definePropertiesModule = __w_pdfjs_require__(90);
 var propertyIsEnumerableModule = __w_pdfjs_require__(14);
 var defineBuiltIn = __w_pdfjs_require__(51);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
 var shared = __w_pdfjs_require__(38);
 var sharedKey = __w_pdfjs_require__(57);
 var hiddenKeys = __w_pdfjs_require__(58);
 var uid = __w_pdfjs_require__(44);
 var wellKnownSymbol = __w_pdfjs_require__(37);
-var wrappedWellKnownSymbolModule = __w_pdfjs_require__(260);
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-var defineSymbolToPrimitive = __w_pdfjs_require__(262);
+var wrappedWellKnownSymbolModule = __w_pdfjs_require__(262);
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+var defineSymbolToPrimitive = __w_pdfjs_require__(264);
 var setToStringTag = __w_pdfjs_require__(101);
 var InternalStateModule = __w_pdfjs_require__(55);
-var $forEach = __w_pdfjs_require__(243).forEach;
+var $forEach = __w_pdfjs_require__(245).forEach;
 var HIDDEN = sharedKey('hidden');
 var SYMBOL = 'Symbol';
 var PROTOTYPE = 'prototype';
@@ -12774,7 +12920,7 @@ setToStringTag($Symbol, SYMBOL);
 hiddenKeys[HIDDEN] = true;
 
 /***/ }),
-/* 260 */
+/* 262 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12783,14 +12929,14 @@ var wellKnownSymbol = __w_pdfjs_require__(37);
 exports.f = wellKnownSymbol;
 
 /***/ }),
-/* 261 */
+/* 263 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var path = __w_pdfjs_require__(119);
 var hasOwn = __w_pdfjs_require__(42);
-var wrappedWellKnownSymbolModule = __w_pdfjs_require__(260);
+var wrappedWellKnownSymbolModule = __w_pdfjs_require__(262);
 var defineProperty = __w_pdfjs_require__(48).f;
 module.exports = function (NAME) {
  var Symbol = path.Symbol || (path.Symbol = {});
@@ -12799,7 +12945,7 @@ module.exports = function (NAME) {
 };
 
 /***/ }),
-/* 262 */
+/* 264 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12821,7 +12967,7 @@ module.exports = function () {
 };
 
 /***/ }),
-/* 263 */
+/* 265 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12831,7 +12977,7 @@ var getBuiltIn = __w_pdfjs_require__(27);
 var hasOwn = __w_pdfjs_require__(42);
 var toString = __w_pdfjs_require__(75);
 var shared = __w_pdfjs_require__(38);
-var NATIVE_SYMBOL_REGISTRY = __w_pdfjs_require__(264);
+var NATIVE_SYMBOL_REGISTRY = __w_pdfjs_require__(266);
 var StringToSymbolRegistry = shared('string-to-symbol-registry');
 var SymbolToStringRegistry = shared('symbol-to-string-registry');
 $({
@@ -12851,7 +12997,7 @@ $({
 });
 
 /***/ }),
-/* 264 */
+/* 266 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12860,7 +13006,7 @@ var NATIVE_SYMBOL = __w_pdfjs_require__(30);
 module.exports = NATIVE_SYMBOL && !!Symbol['for'] && !!Symbol.keyFor;
 
 /***/ }),
-/* 265 */
+/* 267 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -12870,7 +13016,7 @@ var hasOwn = __w_pdfjs_require__(42);
 var isSymbol = __w_pdfjs_require__(26);
 var tryToString = __w_pdfjs_require__(35);
 var shared = __w_pdfjs_require__(38);
-var NATIVE_SYMBOL_REGISTRY = __w_pdfjs_require__(264);
+var NATIVE_SYMBOL_REGISTRY = __w_pdfjs_require__(266);
 var SymbolToStringRegistry = shared('symbol-to-string-registry');
 $({
  target: 'Symbol',
@@ -12886,21 +13032,21 @@ $({
 });
 
 /***/ }),
-/* 266 */
+/* 268 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
 var getBuiltIn = __w_pdfjs_require__(27);
-var apply = __w_pdfjs_require__(157);
+var apply = __w_pdfjs_require__(159);
 var call = __w_pdfjs_require__(12);
 var uncurryThis = __w_pdfjs_require__(18);
 var fails = __w_pdfjs_require__(11);
 var isCallable = __w_pdfjs_require__(25);
 var isSymbol = __w_pdfjs_require__(26);
-var arraySlice = __w_pdfjs_require__(138);
-var getReplacerFunction = __w_pdfjs_require__(267);
+var arraySlice = __w_pdfjs_require__(142);
+var getReplacerFunction = __w_pdfjs_require__(269);
 var NATIVE_SYMBOL = __w_pdfjs_require__(30);
 var $String = String;
 var $stringify = getBuiltIn('JSON', 'stringify');
@@ -12956,13 +13102,13 @@ if ($stringify) {
 }
 
 /***/ }),
-/* 267 */
+/* 269 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var uncurryThis = __w_pdfjs_require__(18);
-var isArray = __w_pdfjs_require__(246);
+var isArray = __w_pdfjs_require__(248);
 var isCallable = __w_pdfjs_require__(25);
 var classof = __w_pdfjs_require__(19);
 var toString = __w_pdfjs_require__(75);
@@ -12997,7 +13143,7 @@ module.exports = function (replacer) {
 };
 
 /***/ }),
-/* 268 */
+/* 270 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13022,16 +13168,16 @@ $({
 });
 
 /***/ }),
-/* 269 */
+/* 271 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
 defineWellKnownSymbol('asyncIterator');
 
 /***/ }),
-/* 270 */
+/* 272 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13044,7 +13190,7 @@ var hasOwn = __w_pdfjs_require__(42);
 var isCallable = __w_pdfjs_require__(25);
 var isPrototypeOf = __w_pdfjs_require__(28);
 var toString = __w_pdfjs_require__(75);
-var defineBuiltInAccessor = __w_pdfjs_require__(134);
+var defineBuiltInAccessor = __w_pdfjs_require__(138);
 var copyConstructorProperties = __w_pdfjs_require__(59);
 var NativeSymbol = global.Symbol;
 var SymbolPrototype = NativeSymbol && NativeSymbol.prototype;
@@ -13085,31 +13231,13 @@ if (DESCRIPTORS && isCallable(NativeSymbol) && (!('description' in SymbolPrototy
 }
 
 /***/ }),
-/* 271 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('hasInstance');
-
-/***/ }),
-/* 272 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('isConcatSpreadable');
-
-/***/ }),
 /* 273 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('iterator');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('hasInstance');
 
 /***/ }),
 /* 274 */
@@ -13117,8 +13245,8 @@ defineWellKnownSymbol('iterator');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('match');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('isConcatSpreadable');
 
 /***/ }),
 /* 275 */
@@ -13126,8 +13254,8 @@ defineWellKnownSymbol('match');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('matchAll');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('iterator');
 
 /***/ }),
 /* 276 */
@@ -13135,8 +13263,8 @@ defineWellKnownSymbol('matchAll');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('replace');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('match');
 
 /***/ }),
 /* 277 */
@@ -13144,8 +13272,8 @@ defineWellKnownSymbol('replace');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('search');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('matchAll');
 
 /***/ }),
 /* 278 */
@@ -13153,8 +13281,8 @@ defineWellKnownSymbol('search');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('species');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('replace');
 
 /***/ }),
 /* 279 */
@@ -13162,8 +13290,8 @@ defineWellKnownSymbol('species');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('split');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('search');
 
 /***/ }),
 /* 280 */
@@ -13171,10 +13299,8 @@ defineWellKnownSymbol('split');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-var defineSymbolToPrimitive = __w_pdfjs_require__(262);
-defineWellKnownSymbol('toPrimitive');
-defineSymbolToPrimitive();
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('species');
 
 /***/ }),
 /* 281 */
@@ -13182,11 +13308,8 @@ defineSymbolToPrimitive();
 
 "use strict";
 
-var getBuiltIn = __w_pdfjs_require__(27);
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-var setToStringTag = __w_pdfjs_require__(101);
-defineWellKnownSymbol('toStringTag');
-setToStringTag(getBuiltIn('Symbol'), 'Symbol');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('split');
 
 /***/ }),
 /* 282 */
@@ -13194,11 +13317,34 @@ setToStringTag(getBuiltIn('Symbol'), 'Symbol');
 
 "use strict";
 
-var defineWellKnownSymbol = __w_pdfjs_require__(261);
-defineWellKnownSymbol('unscopables');
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+var defineSymbolToPrimitive = __w_pdfjs_require__(264);
+defineWellKnownSymbol('toPrimitive');
+defineSymbolToPrimitive();
 
 /***/ }),
 /* 283 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var getBuiltIn = __w_pdfjs_require__(27);
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+var setToStringTag = __w_pdfjs_require__(101);
+defineWellKnownSymbol('toStringTag');
+setToStringTag(getBuiltIn('Symbol'), 'Symbol');
+
+/***/ }),
+/* 284 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var defineWellKnownSymbol = __w_pdfjs_require__(263);
+defineWellKnownSymbol('unscopables');
+
+/***/ }),
+/* 285 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13208,7 +13354,7 @@ var setToStringTag = __w_pdfjs_require__(101);
 setToStringTag(global.JSON, 'JSON', true);
 
 /***/ }),
-/* 284 */
+/* 286 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13217,7 +13363,7 @@ var setToStringTag = __w_pdfjs_require__(101);
 setToStringTag(Math, 'Math', true);
 
 /***/ }),
-/* 285 */
+/* 287 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13229,24 +13375,24 @@ $({ global: true }, { Reflect: {} });
 setToStringTag(global.Reflect, 'Reflect', true);
 
 /***/ }),
-/* 286 */
+/* 288 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(287);
+__w_pdfjs_require__(289);
 var entryUnbind = __w_pdfjs_require__(81);
 module.exports = entryUnbind('String', 'padStart');
 
 /***/ }),
-/* 287 */
+/* 289 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var $padStart = __w_pdfjs_require__(288).start;
-var WEBKIT_BUG = __w_pdfjs_require__(290);
+var $padStart = __w_pdfjs_require__(290).start;
+var WEBKIT_BUG = __w_pdfjs_require__(292);
 $({
  target: 'String',
  proto: true,
@@ -13258,7 +13404,7 @@ $({
 });
 
 /***/ }),
-/* 288 */
+/* 290 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13266,7 +13412,7 @@ $({
 var uncurryThis = __w_pdfjs_require__(18);
 var toLength = __w_pdfjs_require__(68);
 var toString = __w_pdfjs_require__(75);
-var $repeat = __w_pdfjs_require__(289);
+var $repeat = __w_pdfjs_require__(291);
 var requireObjectCoercible = __w_pdfjs_require__(20);
 var repeat = uncurryThis($repeat);
 var stringSlice = uncurryThis(''.slice);
@@ -13293,7 +13439,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 289 */
+/* 291 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13315,7 +13461,7 @@ module.exports = function repeat(count) {
 };
 
 /***/ }),
-/* 290 */
+/* 292 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13324,24 +13470,24 @@ var userAgent = __w_pdfjs_require__(32);
 module.exports = /Version\/10(?:\.\d+){1,2}(?: [\w./]+)?(?: Mobile\/\w+)? Safari\//.test(userAgent);
 
 /***/ }),
-/* 291 */
+/* 293 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(292);
+__w_pdfjs_require__(294);
 var entryUnbind = __w_pdfjs_require__(81);
 module.exports = entryUnbind('String', 'padEnd');
 
 /***/ }),
-/* 292 */
+/* 294 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var $padEnd = __w_pdfjs_require__(288).end;
-var WEBKIT_BUG = __w_pdfjs_require__(290);
+var $padEnd = __w_pdfjs_require__(290).end;
+var WEBKIT_BUG = __w_pdfjs_require__(292);
 $({
  target: 'String',
  proto: true,
@@ -13353,23 +13499,23 @@ $({
 });
 
 /***/ }),
-/* 293 */
+/* 295 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
-__w_pdfjs_require__(294);
+__w_pdfjs_require__(296);
 var path = __w_pdfjs_require__(119);
 module.exports = path.Object.values;
 
 /***/ }),
-/* 294 */
+/* 296 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 var $ = __w_pdfjs_require__(7);
-var $values = __w_pdfjs_require__(295).values;
+var $values = __w_pdfjs_require__(297).values;
 $({
  target: 'Object',
  stat: true
@@ -13380,7 +13526,7 @@ $({
 });
 
 /***/ }),
-/* 295 */
+/* 297 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13426,7 +13572,34 @@ module.exports = {
 };
 
 /***/ }),
-/* 296 */
+/* 298 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+__w_pdfjs_require__(299);
+var path = __w_pdfjs_require__(119);
+module.exports = path.Object.entries;
+
+/***/ }),
+/* 299 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+var $ = __w_pdfjs_require__(7);
+var $entries = __w_pdfjs_require__(297).entries;
+$({
+ target: 'Object',
+ stat: true
+}, {
+ entries: function entries(O) {
+  return $entries(O);
+ }
+});
+
+/***/ }),
+/* 300 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13446,6 +13619,18 @@ exports.isRefsEqual = isRefsEqual;
 exports.isStream = isStream;
 var _util = __w_pdfjs_require__(2);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
@@ -13494,6 +13679,9 @@ var Dict = exports.Dict = function DictClosure() {
   Dict.prototype = {
     assignXref: function Dict_assignXref(newXref) {
       this.xref = newXref;
+    },
+    get size() {
+      return Object.keys(this._map).length;
     },
     get: function get(key1, key2, key3) {
       var value = this._map[key1];
@@ -13556,6 +13744,9 @@ var Dict = exports.Dict = function DictClosure() {
     getKeys: function Dict_getKeys() {
       return Object.keys(this._map);
     },
+    getRawValues: function Dict_getRawValues() {
+      return Object.values(this._map);
+    },
     set: function Dict_set(key, value) {
       this._map[key] = value;
     },
@@ -13569,21 +13760,108 @@ var Dict = exports.Dict = function DictClosure() {
     }
   };
   Dict.empty = new Dict(null);
-  Dict.merge = function (xref, dictArray) {
+  Dict.merge = function (_ref) {
+    var xref = _ref.xref,
+      dictArray = _ref.dictArray,
+      _ref$mergeSubDicts = _ref.mergeSubDicts,
+      mergeSubDicts = _ref$mergeSubDicts === void 0 ? false : _ref$mergeSubDicts;
     var mergedDict = new Dict(xref);
-    for (var i = 0, ii = dictArray.length; i < ii; i++) {
-      var dict = dictArray[i];
-      if (!isDict(dict)) {
-        continue;
+    if (!mergeSubDicts) {
+      var _iterator = _createForOfIteratorHelper(dictArray),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var dict = _step.value;
+          if (!(dict instanceof Dict)) {
+            continue;
+          }
+          for (var _i = 0, _Object$entries = Object.entries(dict._map); _i < _Object$entries.length; _i++) {
+            var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
+              key = _Object$entries$_i[0],
+              value = _Object$entries$_i[1];
+            if (mergedDict._map[key] === undefined) {
+              mergedDict._map[key] = value;
+            }
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
-      for (var keyName in dict._map) {
-        if (mergedDict._map[keyName] !== undefined) {
+      return mergedDict.size > 0 ? mergedDict : Dict.empty;
+    }
+    var properties = new Map();
+    var _iterator2 = _createForOfIteratorHelper(dictArray),
+      _step2;
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var _dict = _step2.value;
+        if (!(_dict instanceof Dict)) {
           continue;
         }
-        mergedDict._map[keyName] = dict._map[keyName];
+        for (var _i2 = 0, _Object$entries2 = Object.entries(_dict._map); _i2 < _Object$entries2.length; _i2++) {
+          var _Object$entries2$_i = _slicedToArray(_Object$entries2[_i2], 2),
+            _key = _Object$entries2$_i[0],
+            _value = _Object$entries2$_i[1];
+          var property = properties.get(_key);
+          if (property === undefined) {
+            property = [];
+            properties.set(_key, property);
+          }
+          property.push(_value);
+        }
       }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
     }
-    return mergedDict;
+    var _iterator3 = _createForOfIteratorHelper(properties),
+      _step3;
+    try {
+      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+        var _step3$value = _slicedToArray(_step3.value, 2),
+          name = _step3$value[0],
+          values = _step3$value[1];
+        if (values.length === 1 || !(values[0] instanceof Dict)) {
+          mergedDict._map[name] = values[0];
+          continue;
+        }
+        var subDict = new Dict(xref);
+        var _iterator4 = _createForOfIteratorHelper(values),
+          _step4;
+        try {
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var _dict2 = _step4.value;
+            if (!(_dict2 instanceof Dict)) {
+              continue;
+            }
+            for (var _i3 = 0, _Object$entries3 = Object.entries(_dict2._map); _i3 < _Object$entries3.length; _i3++) {
+              var _Object$entries3$_i = _slicedToArray(_Object$entries3[_i3], 2),
+                _key2 = _Object$entries3$_i[0],
+                _value2 = _Object$entries3$_i[1];
+              if (subDict._map[_key2] === undefined) {
+                subDict._map[_key2] = _value2;
+              }
+            }
+          }
+        } catch (err) {
+          _iterator4.e(err);
+        } finally {
+          _iterator4.f();
+        }
+        if (subDict.size > 0) {
+          mergedDict._map[name] = subDict;
+        }
+      }
+    } catch (err) {
+      _iterator3.e(err);
+    } finally {
+      _iterator3.f();
+    }
+    properties.clear();
+    return mergedDict.size > 0 ? mergedDict : Dict.empty;
   };
   return Dict;
 }();
@@ -13611,53 +13889,80 @@ var Ref = exports.Ref = function RefClosure() {
   };
   return Ref;
 }();
-var RefSet = exports.RefSet = function RefSetClosure() {
+var RefSet = exports.RefSet = /*#__PURE__*/function () {
   function RefSet() {
-    this.dict = Object.create(null);
+    _classCallCheck(this, RefSet);
+    this._set = new Set();
   }
-  RefSet.prototype = {
-    has: function RefSet_has(ref) {
-      return ref.toString() in this.dict;
-    },
-    put: function RefSet_put(ref) {
-      this.dict[ref.toString()] = true;
-    },
-    remove: function RefSet_remove(ref) {
-      delete this.dict[ref.toString()];
+  return _createClass(RefSet, [{
+    key: "has",
+    value: function has(ref) {
+      return this._set.has(ref.toString());
     }
-  };
-  return RefSet;
+  }, {
+    key: "put",
+    value: function put(ref) {
+      this._set.add(ref.toString());
+    }
+  }, {
+    key: "remove",
+    value: function remove(ref) {
+      this._set["delete"](ref.toString());
+    }
+  }]);
 }();
-var RefSetCache = exports.RefSetCache = function RefSetCacheClosure() {
+var RefSetCache = exports.RefSetCache = /*#__PURE__*/function () {
   function RefSetCache() {
-    this.dict = Object.create(null);
+    _classCallCheck(this, RefSetCache);
+    this._map = new Map();
   }
-  RefSetCache.prototype = {
-    get size() {
-      return Object.keys(this.dict).length;
-    },
-    get: function RefSetCache_get(ref) {
-      return this.dict[ref.toString()];
-    },
-    has: function RefSetCache_has(ref) {
-      return ref.toString() in this.dict;
-    },
-    put: function RefSetCache_put(ref, obj) {
-      this.dict[ref.toString()] = obj;
-    },
-    putAlias: function RefSetCache_putAlias(ref, aliasRef) {
-      this.dict[ref.toString()] = this.get(aliasRef);
-    },
-    forEach: function RefSetCache_forEach(callback) {
-      for (var i in this.dict) {
-        callback(this.dict[i]);
-      }
-    },
-    clear: function RefSetCache_clear() {
-      this.dict = Object.create(null);
+  return _createClass(RefSetCache, [{
+    key: "size",
+    get: function get() {
+      return this._map.size;
     }
-  };
-  return RefSetCache;
+  }, {
+    key: "get",
+    value: function get(ref) {
+      return this._map.get(ref.toString());
+    }
+  }, {
+    key: "has",
+    value: function has(ref) {
+      return this._map.has(ref.toString());
+    }
+  }, {
+    key: "put",
+    value: function put(ref, obj) {
+      this._map.set(ref.toString(), obj);
+    }
+  }, {
+    key: "putAlias",
+    value: function putAlias(ref, aliasRef) {
+      this._map.set(ref.toString(), this.get(aliasRef));
+    }
+  }, {
+    key: "forEach",
+    value: function forEach(callback) {
+      var _iterator5 = _createForOfIteratorHelper(this._map.values()),
+        _step5;
+      try {
+        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+          var value = _step5.value;
+          callback(value);
+        }
+      } catch (err) {
+        _iterator5.e(err);
+      } finally {
+        _iterator5.f();
+      }
+    }
+  }, {
+    key: "clear",
+    value: function clear() {
+      this._map.clear();
+    }
+  }]);
 }();
 function isEOF(v) {
   return v === EOF;
@@ -13687,7 +13992,7 @@ function clearPrimitiveCaches() {
 }
 
 /***/ }),
-/* 297 */
+/* 301 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13698,10 +14003,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.NetworkPdfManager = exports.LocalPdfManager = void 0;
 var _util = __w_pdfjs_require__(2);
-var _chunked_stream = __w_pdfjs_require__(298);
-var _core_utils = __w_pdfjs_require__(299);
-var _document = __w_pdfjs_require__(300);
-var _stream = __w_pdfjs_require__(303);
+var _chunked_stream = __w_pdfjs_require__(302);
+var _core_utils = __w_pdfjs_require__(303);
+var _document = __w_pdfjs_require__(304);
+var _stream = __w_pdfjs_require__(307);
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
 function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
@@ -13983,7 +14288,7 @@ var NetworkPdfManager = exports.NetworkPdfManager = /*#__PURE__*/function (_Base
 }(BasePdfManager);
 
 /***/ }),
-/* 298 */
+/* 302 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -13994,7 +14299,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ChunkedStreamManager = exports.ChunkedStream = void 0;
 var _util = __w_pdfjs_require__(2);
-var _core_utils = __w_pdfjs_require__(299);
+var _core_utils = __w_pdfjs_require__(303);
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
@@ -14012,8 +14317,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
     this.pos = 0;
     this.end = length;
     this.chunkSize = chunkSize;
-    this.loadedChunks = [];
-    this.numChunksLoaded = 0;
+    this._loadedChunks = new Set();
     this.numChunks = Math.ceil(length / chunkSize);
     this.manager = manager;
     this.progressiveDataLength = 0;
@@ -14024,7 +14328,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
     value: function getMissingChunks() {
       var chunks = [];
       for (var chunk = 0, n = this.numChunks; chunk < n; ++chunk) {
-        if (!this.loadedChunks[chunk]) {
+        if (!this._loadedChunks.has(chunk)) {
           chunks.push(chunk);
         }
       }
@@ -14034,6 +14338,11 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
     key: "getBaseStreams",
     value: function getBaseStreams() {
       return [this];
+    }
+  }, {
+    key: "numChunksLoaded",
+    get: function get() {
+      return this._loadedChunks.size;
     }
   }, {
     key: "allChunksLoaded",
@@ -14055,10 +14364,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
       var beginChunk = Math.floor(begin / chunkSize);
       var endChunk = Math.floor((end - 1) / chunkSize) + 1;
       for (var curChunk = beginChunk; curChunk < endChunk; ++curChunk) {
-        if (!this.loadedChunks[curChunk]) {
-          this.loadedChunks[curChunk] = true;
-          ++this.numChunksLoaded;
-        }
+        this._loadedChunks.add(curChunk);
       }
     }
   }, {
@@ -14071,10 +14377,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
       this.progressiveDataLength = position;
       var endChunk = position >= this.end ? this.numChunks : Math.floor(position / this.chunkSize);
       for (var curChunk = beginChunk; curChunk < endChunk; ++curChunk) {
-        if (!this.loadedChunks[curChunk]) {
-          this.loadedChunks[curChunk] = true;
-          ++this.numChunksLoaded;
-        }
+        this._loadedChunks.add(curChunk);
       }
     }
   }, {
@@ -14087,7 +14390,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
       if (chunk === this.lastSuccessfulEnsureByteChunk) {
         return;
       }
-      if (!this.loadedChunks[chunk]) {
+      if (!this._loadedChunks.has(chunk)) {
         throw new _core_utils.MissingDataException(pos, pos + 1);
       }
       this.lastSuccessfulEnsureByteChunk = chunk;
@@ -14105,7 +14408,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
       var beginChunk = Math.floor(begin / chunkSize);
       var endChunk = Math.floor((end - 1) / chunkSize) + 1;
       for (var chunk = beginChunk; chunk < endChunk; ++chunk) {
-        if (!this.loadedChunks[chunk]) {
+        if (!this._loadedChunks.has(chunk)) {
           throw new _core_utils.MissingDataException(begin, end);
         }
       }
@@ -14116,7 +14419,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
       var numChunks = this.numChunks;
       for (var i = 0; i < numChunks; ++i) {
         var chunk = (beginChunk + i) % numChunks;
-        if (!this.loadedChunks[chunk]) {
+        if (!this._loadedChunks.has(chunk)) {
           return chunk;
         }
       }
@@ -14125,7 +14428,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
   }, {
     key: "hasChunk",
     value: function hasChunk(chunk) {
-      return !!this.loadedChunks[chunk];
+      return this._loadedChunks.has(chunk);
     }
   }, {
     key: "length",
@@ -14262,7 +14565,7 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function () {
         var endChunk = Math.floor((this.end - 1) / chunkSize) + 1;
         var missingChunks = [];
         for (var chunk = beginChunk; chunk < endChunk; ++chunk) {
-          if (!this.loadedChunks[chunk]) {
+          if (!this._loadedChunks.has(chunk)) {
             missingChunks.push(chunk);
           }
         }
@@ -14292,9 +14595,9 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
     this.disableAutoFetch = args.disableAutoFetch;
     this.msgHandler = args.msgHandler;
     this.currRequestId = 0;
-    this.chunksNeededByRequest = Object.create(null);
-    this.requestsByChunk = Object.create(null);
-    this.promisesByRequest = Object.create(null);
+    this._chunksNeededByRequest = new Map();
+    this._requestsByChunk = new Map();
+    this._promisesByRequest = new Map();
     this.progressiveDataLength = 0;
     this.aborted = false;
     this._loadedStreamCapability = (0, _util.createPromiseCapability)();
@@ -14358,16 +14661,17 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
   }, {
     key: "_requestChunks",
     value: function _requestChunks(chunks) {
+      var _this2 = this;
       var requestId = this.currRequestId++;
-      var chunksNeeded = Object.create(null);
-      this.chunksNeededByRequest[requestId] = chunksNeeded;
+      var chunksNeeded = new Set();
+      this._chunksNeededByRequest.set(requestId, chunksNeeded);
       var _iterator = _createForOfIteratorHelper(chunks),
         _step;
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var _chunk = _step.value;
-          if (!this.stream.hasChunk(_chunk)) {
-            chunksNeeded[_chunk] = true;
+          var chunk = _step.value;
+          if (!this.stream.hasChunk(chunk)) {
+            chunksNeeded.add(chunk);
           }
         }
       } catch (err) {
@@ -14375,39 +14679,53 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
       } finally {
         _iterator.f();
       }
-      if ((0, _util.isEmptyObj)(chunksNeeded)) {
+      if (chunksNeeded.size === 0) {
         return Promise.resolve();
       }
       var capability = (0, _util.createPromiseCapability)();
-      this.promisesByRequest[requestId] = capability;
+      this._promisesByRequest.set(requestId, capability);
       var chunksToRequest = [];
-      for (var chunk in chunksNeeded) {
-        chunk = chunk | 0;
-        if (!(chunk in this.requestsByChunk)) {
-          this.requestsByChunk[chunk] = [];
-          chunksToRequest.push(chunk);
-        }
-        this.requestsByChunk[chunk].push(requestId);
-      }
-      if (!chunksToRequest.length) {
-        return capability.promise;
-      }
-      var groupedChunksToRequest = this.groupChunks(chunksToRequest);
-      var _iterator2 = _createForOfIteratorHelper(groupedChunksToRequest),
+      var _iterator2 = _createForOfIteratorHelper(chunksNeeded),
         _step2;
       try {
         for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var groupedChunk = _step2.value;
-          var begin = groupedChunk.beginChunk * this.chunkSize;
-          var end = Math.min(groupedChunk.endChunk * this.chunkSize, this.length);
-          this.sendRequest(begin, end);
+          var _chunk = _step2.value;
+          var requestIds = this._requestsByChunk.get(_chunk);
+          if (!requestIds) {
+            requestIds = [];
+            this._requestsByChunk.set(_chunk, requestIds);
+            chunksToRequest.push(_chunk);
+          }
+          requestIds.push(requestId);
         }
       } catch (err) {
         _iterator2.e(err);
       } finally {
         _iterator2.f();
       }
-      return capability.promise;
+      if (chunksToRequest.length > 0) {
+        var groupedChunksToRequest = this.groupChunks(chunksToRequest);
+        var _iterator3 = _createForOfIteratorHelper(groupedChunksToRequest),
+          _step3;
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var groupedChunk = _step3.value;
+            var begin = groupedChunk.beginChunk * this.chunkSize;
+            var end = Math.min(groupedChunk.endChunk * this.chunkSize, this.length);
+            this.sendRequest(begin, end);
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+      return capability.promise["catch"](function (reason) {
+        if (_this2.aborted) {
+          return;
+        }
+        throw reason;
+      });
     }
   }, {
     key: "getStream",
@@ -14431,11 +14749,11 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
     value: function requestRanges() {
       var ranges = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var chunksToRequest = [];
-      var _iterator3 = _createForOfIteratorHelper(ranges),
-        _step3;
+      var _iterator4 = _createForOfIteratorHelper(ranges),
+        _step4;
       try {
-        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-          var range = _step3.value;
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var range = _step4.value;
           var beginChunk = this.getBeginChunk(range.begin);
           var endChunk = this.getEndChunk(range.end);
           for (var chunk = beginChunk; chunk < endChunk; ++chunk) {
@@ -14445,9 +14763,9 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
           }
         }
       } catch (err) {
-        _iterator3.e(err);
+        _iterator4.e(err);
       } finally {
-        _iterator3.f();
+        _iterator4.f();
       }
       chunksToRequest.sort(function (a, b) {
         return a - b;
@@ -14510,29 +14828,32 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
       }
       var loadedRequests = [];
       for (var curChunk = beginChunk; curChunk < endChunk; ++curChunk) {
-        var requestIds = this.requestsByChunk[curChunk] || [];
-        delete this.requestsByChunk[curChunk];
-        var _iterator4 = _createForOfIteratorHelper(requestIds),
-          _step4;
+        var requestIds = this._requestsByChunk.get(curChunk);
+        if (!requestIds) {
+          continue;
+        }
+        this._requestsByChunk["delete"](curChunk);
+        var _iterator5 = _createForOfIteratorHelper(requestIds),
+          _step5;
         try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var requestId = _step4.value;
-            var chunksNeeded = this.chunksNeededByRequest[requestId];
-            if (curChunk in chunksNeeded) {
-              delete chunksNeeded[curChunk];
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var requestId = _step5.value;
+            var chunksNeeded = this._chunksNeededByRequest.get(requestId);
+            if (chunksNeeded.has(curChunk)) {
+              chunksNeeded["delete"](curChunk);
             }
-            if (!(0, _util.isEmptyObj)(chunksNeeded)) {
+            if (chunksNeeded.size > 0) {
               continue;
             }
             loadedRequests.push(requestId);
           }
         } catch (err) {
-          _iterator4.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator4.f();
+          _iterator5.f();
         }
       }
-      if (!this.disableAutoFetch && (0, _util.isEmptyObj)(this.requestsByChunk)) {
+      if (!this.disableAutoFetch && this._requestsByChunk.size === 0) {
         var nextEmptyChunk;
         if (this.stream.numChunksLoaded === 1) {
           var lastChunk = this.stream.numChunks - 1;
@@ -14548,8 +14869,8 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
       }
       for (var _i = 0, _loadedRequests = loadedRequests; _i < _loadedRequests.length; _i++) {
         var _requestId = _loadedRequests[_i];
-        var capability = this.promisesByRequest[_requestId];
-        delete this.promisesByRequest[_requestId];
+        var capability = this._promisesByRequest.get(_requestId);
+        this._promisesByRequest["delete"](_requestId);
         capability.resolve();
       }
       this.msgHandler.send("DocProgress", {
@@ -14579,15 +14900,24 @@ var ChunkedStreamManager = exports.ChunkedStreamManager = /*#__PURE__*/function 
       if (this.pdfNetworkStream) {
         this.pdfNetworkStream.cancelAllRequests(reason);
       }
-      for (var requestId in this.promisesByRequest) {
-        this.promisesByRequest[requestId].reject(reason);
+      var _iterator6 = _createForOfIteratorHelper(this._promisesByRequest.values()),
+        _step6;
+      try {
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var capability = _step6.value;
+          capability.reject(reason);
+        }
+      } catch (err) {
+        _iterator6.e(err);
+      } finally {
+        _iterator6.f();
       }
     }
   }]);
 }();
 
 /***/ }),
-/* 299 */
+/* 303 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -14727,7 +15057,7 @@ function isWhiteSpace(ch) {
 }
 
 /***/ }),
-/* 300 */
+/* 304 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -14738,16 +15068,15 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Page = exports.PDFDocument = void 0;
 var _util = __w_pdfjs_require__(2);
-var _obj = __w_pdfjs_require__(301);
-var _primitives = __w_pdfjs_require__(296);
-var _core_utils = __w_pdfjs_require__(299);
-var _stream = __w_pdfjs_require__(303);
-var _annotation = __w_pdfjs_require__(316);
-var _crypto = __w_pdfjs_require__(313);
-var _parser = __w_pdfjs_require__(302);
-var _operator_list = __w_pdfjs_require__(317);
-var _evaluator = __w_pdfjs_require__(318);
-var _function = __w_pdfjs_require__(332);
+var _obj = __w_pdfjs_require__(305);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
+var _stream = __w_pdfjs_require__(307);
+var _annotation = __w_pdfjs_require__(320);
+var _crypto = __w_pdfjs_require__(317);
+var _parser = __w_pdfjs_require__(306);
+var _operator_list = __w_pdfjs_require__(321);
+var _evaluator = __w_pdfjs_require__(323);
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
@@ -14759,6 +15088,13 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -14776,10 +15112,10 @@ var Page = exports.Page = /*#__PURE__*/function () {
       pageIndex = _ref.pageIndex,
       pageDict = _ref.pageDict,
       ref = _ref.ref,
+      globalIdFactory = _ref.globalIdFactory,
       fontCache = _ref.fontCache,
       builtInCMapCache = _ref.builtInCMapCache,
-      globalImageCache = _ref.globalImageCache,
-      pdfFunctionFactory = _ref.pdfFunctionFactory;
+      globalImageCache = _ref.globalImageCache;
     _classCallCheck(this, Page);
     this.pdfManager = pdfManager;
     this.pageIndex = pageIndex;
@@ -14789,20 +15125,24 @@ var Page = exports.Page = /*#__PURE__*/function () {
     this.fontCache = fontCache;
     this.builtInCMapCache = builtInCMapCache;
     this.globalImageCache = globalImageCache;
-    this.pdfFunctionFactory = pdfFunctionFactory;
     this.evaluatorOptions = pdfManager.evaluatorOptions;
     this.resourcesPromise = null;
     var idCounters = {
       obj: 0
     };
-    this.idFactory = {
-      createObjId: function createObjId() {
-        return "p".concat(pageIndex, "_").concat(++idCounters.obj);
-      },
-      getDocId: function getDocId() {
-        return "g_".concat(pdfManager.docId);
+    this._localIdFactory = /*#__PURE__*/function (_globalIdFactory) {
+      function _class() {
+        _classCallCheck(this, _class);
+        return _callSuper(this, _class, arguments);
       }
-    };
+      _inherits(_class, _globalIdFactory);
+      return _createClass(_class, null, [{
+        key: "createObjId",
+        value: function createObjId() {
+          return "p".concat(pageIndex, "_").concat(++idCounters.obj);
+        }
+      }]);
+    }(globalIdFactory);
   }
   return _createClass(Page, [{
     key: "_getInheritableProperty",
@@ -14820,7 +15160,10 @@ var Page = exports.Page = /*#__PURE__*/function () {
       if (value.length === 1 || !(0, _primitives.isDict)(value[0])) {
         return value[0];
       }
-      return _primitives.Dict.merge(this.xref, value);
+      return _primitives.Dict.merge({
+        xref: this.xref,
+        dictArray: value
+      });
     }
   }, {
     key: "content",
@@ -14923,6 +15266,42 @@ var Page = exports.Page = /*#__PURE__*/function () {
       return stream;
     }
   }, {
+    key: "save",
+    value: function save(handler, task, annotationStorage) {
+      var partialEvaluator = new _evaluator.PartialEvaluator({
+        xref: this.xref,
+        handler: handler,
+        pageIndex: this.pageIndex,
+        idFactory: this._localIdFactory,
+        fontCache: this.fontCache,
+        builtInCMapCache: this.builtInCMapCache,
+        globalImageCache: this.globalImageCache,
+        options: this.evaluatorOptions
+      });
+      return this._parsedAnnotations.then(function (annotations) {
+        var newRefsPromises = [];
+        var _iterator2 = _createForOfIteratorHelper(annotations),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var annotation = _step2.value;
+            if (!isAnnotationRenderable(annotation, "print")) {
+              continue;
+            }
+            newRefsPromises.push(annotation.save(partialEvaluator, task, annotationStorage)["catch"](function (reason) {
+              (0, _util.warn)("save - ignoring annotation data during " + "\"".concat(task.name, "\" task: \"").concat(reason, "\"."));
+              return null;
+            }));
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+        return Promise.all(newRefsPromises);
+      });
+    }
+  }, {
     key: "loadResources",
     value: function loadResources(keys) {
       var _this = this;
@@ -14943,6 +15322,7 @@ var Page = exports.Page = /*#__PURE__*/function () {
         task = _ref2.task,
         intent = _ref2.intent,
         renderInteractiveForms = _ref2.renderInteractiveForms,
+        annotationStorage = _ref2.annotationStorage,
         forceRenderSigAnnot = _ref2.forceRenderSigAnnot;
       var contentStreamPromise = this.pdfManager.ensure(this, "getContentStream");
       var resourcesPromise = this.loadResources(["ExtGState", "ColorSpace", "Pattern", "Shading", "XObject", "Font"]);
@@ -14950,18 +15330,17 @@ var Page = exports.Page = /*#__PURE__*/function () {
         xref: this.xref,
         handler: handler,
         pageIndex: this.pageIndex,
-        idFactory: this.idFactory,
+        idFactory: this._localIdFactory,
         fontCache: this.fontCache,
         builtInCMapCache: this.builtInCMapCache,
         globalImageCache: this.globalImageCache,
-        options: this.evaluatorOptions,
-        pdfFunctionFactory: this.pdfFunctionFactory
+        options: this.evaluatorOptions
       });
       var dataPromises = Promise.all([contentStreamPromise, resourcesPromise]);
       var pageListPromise = dataPromises.then(function (_ref3) {
         var _ref4 = _slicedToArray(_ref3, 1),
           contentStream = _ref4[0];
-        var opList = new _operator_list.OperatorList(intent, sink, _this2.pageIndex);
+        var opList = new _operator_list.OperatorList(intent, sink);
         handler.send("StartRenderPage", {
           transparency: partialEvaluator.hasBlendModes(_this2.resources),
           pageIndex: _this2.pageIndex,
@@ -14987,36 +15366,36 @@ var Page = exports.Page = /*#__PURE__*/function () {
           };
         }
         var opListPromises = [];
-        var _iterator2 = _createForOfIteratorHelper(annotations),
-          _step2;
+        var _iterator3 = _createForOfIteratorHelper(annotations),
+          _step3;
         try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var annotation = _step2.value;
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var annotation = _step3.value;
             if (isAnnotationRenderable(annotation, intent)) {
-              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderInteractiveForms, forceRenderSigAnnot)["catch"](function (reason) {
+              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderInteractiveForms, annotationStorage, forceRenderSigAnnot)["catch"](function (reason) {
                 (0, _util.warn)("getOperatorList - ignoring annotation data during " + "\"".concat(task.name, "\" task: \"").concat(reason, "\"."));
                 return null;
               }));
             }
           }
         } catch (err) {
-          _iterator2.e(err);
+          _iterator3.e(err);
         } finally {
-          _iterator2.f();
+          _iterator3.f();
         }
         return Promise.all(opListPromises).then(function (opLists) {
           pageOpList.addOp(_util.OPS.beginAnnotations, []);
-          var _iterator3 = _createForOfIteratorHelper(opLists),
-            _step3;
+          var _iterator4 = _createForOfIteratorHelper(opLists),
+            _step4;
           try {
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-              var opList = _step3.value;
+            for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+              var opList = _step4.value;
               pageOpList.addOpList(opList);
             }
           } catch (err) {
-            _iterator3.e(err);
+            _iterator4.e(err);
           } finally {
-            _iterator3.f();
+            _iterator4.f();
           }
           pageOpList.addOp(_util.OPS.endAnnotations, []);
           pageOpList.flush(true);
@@ -15045,12 +15424,11 @@ var Page = exports.Page = /*#__PURE__*/function () {
           xref: _this3.xref,
           handler: handler,
           pageIndex: _this3.pageIndex,
-          idFactory: _this3.idFactory,
+          idFactory: _this3._localIdFactory,
           fontCache: _this3.fontCache,
           builtInCMapCache: _this3.builtInCMapCache,
           globalImageCache: _this3.globalImageCache,
-          options: _this3.evaluatorOptions,
-          pdfFunctionFactory: _this3.pdfFunctionFactory
+          options: _this3.evaluatorOptions
         });
         return partialEvaluator.getTextContent({
           stream: contentStream,
@@ -15086,20 +15464,20 @@ var Page = exports.Page = /*#__PURE__*/function () {
       var _this4 = this;
       var parsedAnnotations = this.pdfManager.ensure(this, "annotations").then(function () {
         var annotationPromises = [];
-        var _iterator4 = _createForOfIteratorHelper(_this4.annotations),
-          _step4;
+        var _iterator5 = _createForOfIteratorHelper(_this4.annotations),
+          _step5;
         try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var annotationRef = _step4.value;
-            annotationPromises.push(_annotation.AnnotationFactory.create(_this4.xref, annotationRef, _this4.pdfManager, _this4.idFactory)["catch"](function (reason) {
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var annotationRef = _step5.value;
+            annotationPromises.push(_annotation.AnnotationFactory.create(_this4.xref, annotationRef, _this4.pdfManager, _this4._localIdFactory)["catch"](function (reason) {
               (0, _util.warn)("_parsedAnnotations: \"".concat(reason, "\"."));
               return null;
             }));
           }
         } catch (err) {
-          _iterator4.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator4.f();
+          _iterator5.f();
         }
         return Promise.all(annotationPromises).then(function (annotations) {
           return annotations.filter(function (annotation) {
@@ -15173,46 +15551,40 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
     this.pdfManager = pdfManager;
     this.stream = stream;
     this.xref = new _obj.XRef(stream, pdfManager);
-    this.pdfFunctionFactory = new _function.PDFFunctionFactory({
-      xref: this.xref,
-      isEvalSupported: pdfManager.evaluatorOptions.isEvalSupported
-    });
     this._pagePromises = [];
+    this._version = null;
+    var idCounters = {
+      font: 0
+    };
+    this._globalIdFactory = /*#__PURE__*/function () {
+      function _class2() {
+        _classCallCheck(this, _class2);
+      }
+      return _createClass(_class2, null, [{
+        key: "getDocId",
+        value: function getDocId() {
+          return "g_".concat(pdfManager.docId);
+        }
+      }, {
+        key: "createFontId",
+        value: function createFontId() {
+          return "f".concat(++idCounters.font);
+        }
+      }, {
+        key: "createObjId",
+        value: function createObjId() {
+          (0, _util.unreachable)("Abstract method `createObjId` called.");
+        }
+      }]);
+    }();
   }
   return _createClass(PDFDocument, [{
     key: "parse",
     value: function parse(recoveryMode) {
-      this.setup(recoveryMode);
-      var version = this.catalog.catDict.get("Version");
-      if ((0, _primitives.isName)(version)) {
-        this.pdfFormatVersion = version.name;
-      }
-      try {
-        this.acroForm = this.catalog.catDict.get("AcroForm");
-        if (this.acroForm) {
-          this.xfa = this.acroForm.get("XFA");
-          var fields = this.acroForm.get("Fields");
-          if ((!Array.isArray(fields) || fields.length === 0) && !this.xfa) {
-            this.acroForm = null;
-          }
-        }
-      } catch (ex) {
-        if (ex instanceof _core_utils.MissingDataException) {
-          throw ex;
-        }
-        (0, _util.info)("Cannot fetch AcroForm entry; assuming no AcroForms are present");
-        this.acroForm = null;
-      }
-      try {
-        var collection = this.catalog.catDict.get("Collection");
-        if ((0, _primitives.isDict)(collection) && collection.getKeys().length > 0) {
-          this.collection = collection;
-        }
-      } catch (ex) {
-        if (ex instanceof _core_utils.MissingDataException) {
-          throw ex;
-        }
-        (0, _util.info)("Cannot fetch Collection dictionary.");
+      this.xref.parse(recoveryMode);
+      this.catalog = new _obj.Catalog(this.pdfManager, this.xref);
+      if (this.catalog.version) {
+        this._version = this.catalog.version;
       }
     }
   }, {
@@ -15289,8 +15661,8 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
         }
         version += String.fromCharCode(ch);
       }
-      if (!this.pdfFormatVersion) {
-        this.pdfFormatVersion = version.substring(5);
+      if (!this._version) {
+        this._version = version.substring(5);
       }
     }
   }, {
@@ -15299,17 +15671,62 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
       this.xref.setStartXRef(this.startXRef);
     }
   }, {
-    key: "setup",
-    value: function setup(recoveryMode) {
-      this.xref.parse(recoveryMode);
-      this.catalog = new _obj.Catalog(this.pdfManager, this.xref);
-    }
-  }, {
     key: "numPages",
     get: function get() {
       var linearization = this.linearization;
       var num = linearization ? linearization.numPages : this.catalog.numPages;
       return (0, _util.shadow)(this, "numPages", num);
+    }
+  }, {
+    key: "_hasOnlyDocumentSignatures",
+    value: function _hasOnlyDocumentSignatures(fields) {
+      var _this5 = this;
+      var recursionDepth = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var RECURSION_LIMIT = 10;
+      return fields.every(function (field) {
+        field = _this5.xref.fetchIfRef(field);
+        if (field.has("Kids")) {
+          if (++recursionDepth > RECURSION_LIMIT) {
+            (0, _util.warn)("_hasOnlyDocumentSignatures: maximum recursion depth reached");
+            return false;
+          }
+          return _this5._hasOnlyDocumentSignatures(field.get("Kids"), recursionDepth);
+        }
+        var isSignature = (0, _primitives.isName)(field.get("FT"), "Sig");
+        var rectangle = field.get("Rect");
+        var isInvisible = Array.isArray(rectangle) && rectangle.every(function (value) {
+          return value === 0;
+        });
+        return isSignature && isInvisible;
+      });
+    }
+  }, {
+    key: "formInfo",
+    get: function get() {
+      var formInfo = {
+        hasAcroForm: false,
+        hasXfa: false
+      };
+      var acroForm = this.catalog.acroForm;
+      if (!acroForm) {
+        return (0, _util.shadow)(this, "formInfo", formInfo);
+      }
+      try {
+        var xfa = acroForm.get("XFA");
+        var hasXfa = Array.isArray(xfa) && xfa.length > 0 || (0, _primitives.isStream)(xfa) && !xfa.isEmpty;
+        formInfo.hasXfa = hasXfa;
+        var fields = acroForm.get("Fields");
+        var hasFields = Array.isArray(fields) && fields.length > 0;
+        var sigFlags = acroForm.get("SigFlags");
+        var hasOnlyDocumentSignatures = !!(sigFlags & 0x1) && this._hasOnlyDocumentSignatures(fields);
+        formInfo.hasAcroForm = hasFields && !hasOnlyDocumentSignatures;
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.info)("Cannot fetch form information.");
+      }
+      return (0, _util.shadow)(this, "formInfo", formInfo);
     }
   }, {
     key: "documentInfo",
@@ -15325,7 +15742,7 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
         ModDate: _util.isString,
         Trapped: _primitives.isName
       };
-      var version = this.pdfFormatVersion;
+      var version = this._version;
       if (typeof version !== "string" || !PDF_HEADER_VERSION_REGEXP.test(version)) {
         (0, _util.warn)("Invalid PDF header version number: ".concat(version));
         version = null;
@@ -15333,9 +15750,9 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
       var docInfo = {
         PDFFormatVersion: version,
         IsLinearized: !!this.linearization,
-        IsAcroFormPresent: !!this.acroForm,
-        IsXFAPresent: !!this.xfa,
-        IsCollectionPresent: !!this.collection
+        IsAcroFormPresent: this.formInfo.hasAcroForm,
+        IsXFAPresent: this.formInfo.hasXfa,
+        IsCollectionPresent: !!this.catalog.collection
       };
       var infoDict;
       try {
@@ -15347,11 +15764,11 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
         (0, _util.info)("The document information dictionary is invalid.");
       }
       if ((0, _primitives.isDict)(infoDict)) {
-        var _iterator5 = _createForOfIteratorHelper(infoDict.getKeys()),
-          _step5;
+        var _iterator6 = _createForOfIteratorHelper(infoDict.getKeys()),
+          _step6;
         try {
-          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            var key = _step5.value;
+          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+            var key = _step6.value;
             var value = infoDict.get(key);
             if (DocumentInfoValidators[key]) {
               if (DocumentInfoValidators[key](value)) {
@@ -15376,9 +15793,9 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
             }
           }
         } catch (err) {
-          _iterator5.e(err);
+          _iterator6.e(err);
         } finally {
-          _iterator5.f();
+          _iterator6.f();
         }
       }
       return (0, _util.shadow)(this, "documentInfo", docInfo);
@@ -15422,7 +15839,7 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
   }, {
     key: "getPage",
     value: function getPage(pageIndex) {
-      var _this5 = this;
+      var _this6 = this;
       if (this._pagePromises[pageIndex] !== undefined) {
         return this._pagePromises[pageIndex];
       }
@@ -15434,22 +15851,22 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
           pageDict = _ref11[0],
           ref = _ref11[1];
         return new Page({
-          pdfManager: _this5.pdfManager,
-          xref: _this5.xref,
+          pdfManager: _this6.pdfManager,
+          xref: _this6.xref,
           pageIndex: pageIndex,
           pageDict: pageDict,
           ref: ref,
+          globalIdFactory: _this6._globalIdFactory,
           fontCache: catalog.fontCache,
           builtInCMapCache: catalog.builtInCMapCache,
-          globalImageCache: catalog.globalImageCache,
-          pdfFunctionFactory: _this5.pdfFunctionFactory
+          globalImageCache: catalog.globalImageCache
         });
       });
     }
   }, {
     key: "checkFirstPage",
     value: function checkFirstPage() {
-      var _this6 = this;
+      var _this7 = this;
       return this.getPage(0)["catch"]( /*#__PURE__*/function () {
         var _ref12 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(reason) {
           return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -15459,9 +15876,9 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
                   _context.next = 5;
                   break;
                 }
-                _this6._pagePromises.length = 0;
+                _this7._pagePromises.length = 0;
                 _context.next = 4;
-                return _this6.cleanup();
+                return _this7.cleanup();
               case 4:
                 throw new _core_utils.XRefParseException();
               case 5:
@@ -15506,7 +15923,7 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 301 */
+/* 305 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -15517,12 +15934,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.XRef = exports.ObjectLoader = exports.FileSpec = exports.Catalog = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _parser = __w_pdfjs_require__(302);
-var _core_utils = __w_pdfjs_require__(299);
-var _crypto = __w_pdfjs_require__(313);
-var _colorspace = __w_pdfjs_require__(314);
-var _image_utils = __w_pdfjs_require__(315);
+var _primitives = __w_pdfjs_require__(300);
+var _parser = __w_pdfjs_require__(306);
+var _core_utils = __w_pdfjs_require__(303);
+var _crypto = __w_pdfjs_require__(317);
+var _colorspace = __w_pdfjs_require__(318);
+var _image_utils = __w_pdfjs_require__(319);
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
 function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
@@ -15554,8 +15971,8 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     _classCallCheck(this, Catalog);
     this.pdfManager = pdfManager;
     this.xref = xref;
-    this.catDict = xref.getCatalogObj();
-    if (!(0, _primitives.isDict)(this.catDict)) {
+    this._catDict = xref.getCatalogObj();
+    if (!(0, _primitives.isDict)(this._catDict)) {
       throw new _util.FormatError("Catalog object is not a dictionary.");
     }
     this.fontCache = new _primitives.RefSetCache();
@@ -15564,9 +15981,52 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     this.pageKidsCountCache = new _primitives.RefSetCache();
   }
   return _createClass(Catalog, [{
+    key: "version",
+    get: function get() {
+      var version = this._catDict.get("Version");
+      if (!(0, _primitives.isName)(version)) {
+        return (0, _util.shadow)(this, "version", null);
+      }
+      return (0, _util.shadow)(this, "version", version.name);
+    }
+  }, {
+    key: "collection",
+    get: function get() {
+      var collection = null;
+      try {
+        var obj = this._catDict.get("Collection");
+        if ((0, _primitives.isDict)(obj) && obj.size > 0) {
+          collection = obj;
+        }
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.info)("Cannot fetch Collection entry; assuming no collection is present.");
+      }
+      return (0, _util.shadow)(this, "collection", collection);
+    }
+  }, {
+    key: "acroForm",
+    get: function get() {
+      var acroForm = null;
+      try {
+        var obj = this._catDict.get("AcroForm");
+        if ((0, _primitives.isDict)(obj) && obj.size > 0) {
+          acroForm = obj;
+        }
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.info)("Cannot fetch AcroForm entry; assuming no forms are present.");
+      }
+      return (0, _util.shadow)(this, "acroForm", acroForm);
+    }
+  }, {
     key: "metadata",
     get: function get() {
-      var streamRef = this.catDict.getRaw("Metadata");
+      var streamRef = this._catDict.getRaw("Metadata");
       if (!(0, _primitives.isRef)(streamRef)) {
         return (0, _util.shadow)(this, "metadata", null);
       }
@@ -15592,7 +16052,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "toplevelPagesDict",
     get: function get() {
-      var pagesObj = this.catDict.get("Pages");
+      var pagesObj = this._catDict.get("Pages");
       if (!(0, _primitives.isDict)(pagesObj)) {
         throw new _util.FormatError("Invalid top-level pages dictionary.");
       }
@@ -15615,7 +16075,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "_readDocumentOutline",
     value: function _readDocumentOutline() {
-      var obj = this.catDict.get("Outlines");
+      var obj = this._catDict.get("Outlines");
       if (!(0, _primitives.isDict)(obj)) {
         return null;
       }
@@ -15728,6 +16188,170 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
       return permissions;
     }
   }, {
+    key: "optionalContentConfig",
+    get: function get() {
+      var config = null;
+      try {
+        var properties = this._catDict.get("OCProperties");
+        if (!properties) {
+          return (0, _util.shadow)(this, "optionalContentConfig", null);
+        }
+        var defaultConfig = properties.get("D");
+        if (!defaultConfig) {
+          return (0, _util.shadow)(this, "optionalContentConfig", null);
+        }
+        var groupsData = properties.get("OCGs");
+        if (!Array.isArray(groupsData)) {
+          return (0, _util.shadow)(this, "optionalContentConfig", null);
+        }
+        var groups = [];
+        var groupRefs = [];
+        var _iterator = _createForOfIteratorHelper(groupsData),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var groupRef = _step.value;
+            if (!(0, _primitives.isRef)(groupRef)) {
+              continue;
+            }
+            groupRefs.push(groupRef);
+            var group = this.xref.fetchIfRef(groupRef);
+            groups.push({
+              id: groupRef.toString(),
+              name: (0, _util.isString)(group.get("Name")) ? (0, _util.stringToPDFString)(group.get("Name")) : null,
+              intent: (0, _util.isString)(group.get("Intent")) ? (0, _util.stringToPDFString)(group.get("Intent")) : null
+            });
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        config = this._readOptionalContentConfig(defaultConfig, groupRefs);
+        config.groups = groups;
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.warn)("Unable to read optional content config: ".concat(ex));
+      }
+      return (0, _util.shadow)(this, "optionalContentConfig", config);
+    }
+  }, {
+    key: "_readOptionalContentConfig",
+    value: function _readOptionalContentConfig(config, contentGroupRefs) {
+      function parseOnOff(refs) {
+        var onParsed = [];
+        if (Array.isArray(refs)) {
+          var _iterator2 = _createForOfIteratorHelper(refs),
+            _step2;
+          try {
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+              var value = _step2.value;
+              if (!(0, _primitives.isRef)(value)) {
+                continue;
+              }
+              if (contentGroupRefs.includes(value)) {
+                onParsed.push(value.toString());
+              }
+            }
+          } catch (err) {
+            _iterator2.e(err);
+          } finally {
+            _iterator2.f();
+          }
+        }
+        return onParsed;
+      }
+      function parseOrder(refs) {
+        var nestedLevels = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        if (!Array.isArray(refs)) {
+          return null;
+        }
+        var order = [];
+        var _iterator3 = _createForOfIteratorHelper(refs),
+          _step3;
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var value = _step3.value;
+            if ((0, _primitives.isRef)(value) && contentGroupRefs.includes(value)) {
+              parsedOrderRefs.put(value);
+              order.push(value.toString());
+              continue;
+            }
+            var nestedOrder = parseNestedOrder(value, nestedLevels);
+            if (nestedOrder) {
+              order.push(nestedOrder);
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+        if (nestedLevels > 0) {
+          return order;
+        }
+        var hiddenGroups = [];
+        var _iterator4 = _createForOfIteratorHelper(contentGroupRefs),
+          _step4;
+        try {
+          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+            var groupRef = _step4.value;
+            if (parsedOrderRefs.has(groupRef)) {
+              continue;
+            }
+            hiddenGroups.push(groupRef.toString());
+          }
+        } catch (err) {
+          _iterator4.e(err);
+        } finally {
+          _iterator4.f();
+        }
+        if (hiddenGroups.length) {
+          order.push({
+            name: null,
+            order: hiddenGroups
+          });
+        }
+        return order;
+      }
+      function parseNestedOrder(ref, nestedLevels) {
+        if (++nestedLevels > MAX_NESTED_LEVELS) {
+          (0, _util.warn)("parseNestedOrder - reached MAX_NESTED_LEVELS.");
+          return null;
+        }
+        var value = xref.fetchIfRef(ref);
+        if (!Array.isArray(value)) {
+          return null;
+        }
+        var nestedName = xref.fetchIfRef(value[0]);
+        if (typeof nestedName !== "string") {
+          return null;
+        }
+        var nestedOrder = parseOrder(value.slice(1), nestedLevels);
+        if (!nestedOrder || !nestedOrder.length) {
+          return null;
+        }
+        return {
+          name: (0, _util.stringToPDFString)(nestedName),
+          order: nestedOrder
+        };
+      }
+      var xref = this.xref,
+        parsedOrderRefs = new _primitives.RefSet(),
+        MAX_NESTED_LEVELS = 10;
+      return {
+        name: (0, _util.isString)(config.get("Name")) ? (0, _util.stringToPDFString)(config.get("Name")) : null,
+        creator: (0, _util.isString)(config.get("Creator")) ? (0, _util.stringToPDFString)(config.get("Creator")) : null,
+        baseState: (0, _primitives.isName)(config.get("BaseState")) ? config.get("BaseState").name : null,
+        on: parseOnOff(config.get("ON")),
+        off: parseOnOff(config.get("OFF")),
+        order: parseOrder(config.get("Order")),
+        groups: null
+      };
+    }
+  }, {
     key: "numPages",
     get: function get() {
       var obj = this.toplevelPagesDict.get("Count");
@@ -15767,11 +16391,11 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "_readDests",
     value: function _readDests() {
-      var obj = this.catDict.get("Names");
+      var obj = this._catDict.get("Names");
       if (obj && obj.has("Dests")) {
         return new NameTree(obj.getRaw("Dests"), this.xref);
-      } else if (this.catDict.has("Dests")) {
-        return this.catDict.get("Dests");
+      } else if (this._catDict.has("Dests")) {
+        return this._catDict.get("Dests");
       }
       return undefined;
     }
@@ -15792,7 +16416,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "_readPageLabels",
     value: function _readPageLabels() {
-      var obj = this.catDict.getRaw("PageLabels");
+      var obj = this._catDict.getRaw("PageLabels");
       if (!obj) {
         return null;
       }
@@ -15876,7 +16500,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "pageLayout",
     get: function get() {
-      var obj = this.catDict.get("PageLayout");
+      var obj = this._catDict.get("PageLayout");
       var pageLayout = "";
       if ((0, _primitives.isName)(obj)) {
         switch (obj.name) {
@@ -15894,7 +16518,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "pageMode",
     get: function get() {
-      var obj = this.catDict.get("PageMode");
+      var obj = this._catDict.get("PageMode");
       var pageMode = "UseNone";
       if ((0, _primitives.isName)(obj)) {
         switch (obj.name) {
@@ -15932,7 +16556,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
         PrintPageRange: Array.isArray,
         NumCopies: Number.isInteger
       };
-      var obj = this.catDict.get("ViewerPreferences");
+      var obj = this._catDict.get("ViewerPreferences");
       var prefs = null;
       if ((0, _primitives.isDict)(obj)) {
         for (var key in ViewerPreferencesValidators) {
@@ -16043,7 +16667,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "openAction",
     get: function get() {
-      var obj = this.catDict.get("OpenAction");
+      var obj = this._catDict.get("OpenAction");
       var openAction = null;
       if ((0, _primitives.isDict)(obj)) {
         var destDict = new _primitives.Dict(this.xref);
@@ -16079,7 +16703,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "attachments",
     get: function get() {
-      var obj = this.catDict.get("Names");
+      var obj = this._catDict.get("Names");
       var attachments = null;
       if (obj && obj.has("EmbeddedFiles")) {
         var nameTree = new NameTree(obj.getRaw("EmbeddedFiles"), this.xref);
@@ -16097,7 +16721,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
   }, {
     key: "javaScript",
     get: function get() {
-      var obj = this.catDict.get("Names");
+      var obj = this._catDict.get("Names");
       var javaScript = null;
       function appendIfJavaScriptDict(jsDict) {
         var type = jsDict.get("S");
@@ -16125,7 +16749,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
           }
         }
       }
-      var openAction = this.catDict.get("OpenAction");
+      var openAction = this._catDict.get("OpenAction");
       if ((0, _primitives.isDict)(openAction) && (0, _primitives.isName)(openAction.get("S"), "JavaScript")) {
         appendIfJavaScriptDict(openAction);
       }
@@ -16139,20 +16763,20 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
         promises.push(promise);
       });
       return Promise.all(promises).then(function (translatedFonts) {
-        var _iterator = _createForOfIteratorHelper(translatedFonts),
-          _step;
+        var _iterator5 = _createForOfIteratorHelper(translatedFonts),
+          _step5;
         try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var translatedFont = _step.value;
+          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+            var translatedFont = _step5.value;
             if (translatedFont.loadedName === id) {
               translatedFont.fallback(handler);
               return;
             }
           }
         } catch (err) {
-          _iterator.e(err);
+          _iterator5.e(err);
         } finally {
-          _iterator.f();
+          _iterator5.f();
         }
       });
     }
@@ -16169,17 +16793,17 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
         promises.push(promise);
       });
       return Promise.all(promises).then(function (translatedFonts) {
-        var _iterator2 = _createForOfIteratorHelper(translatedFonts),
-          _step2;
+        var _iterator6 = _createForOfIteratorHelper(translatedFonts),
+          _step6;
         try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var dict = _step2.value.dict;
+          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+            var dict = _step6.value.dict;
             delete dict.translated;
           }
         } catch (err) {
-          _iterator2.e(err);
+          _iterator6.e(err);
         } finally {
-          _iterator2.f();
+          _iterator6.f();
         }
         _this2.fontCache.clear();
         _this2.builtInCMapCache.clear();
@@ -16189,7 +16813,7 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     key: "getPageDict",
     value: function getPageDict(pageIndex) {
       var capability = (0, _util.createPromiseCapability)();
-      var nodesToVisit = [this.catDict.getRaw("Pages")];
+      var nodesToVisit = [this._catDict.getRaw("Pages")];
       var visitedNodes = new _primitives.RefSet();
       var xref = this.xref,
         pageKidsCountCache = this.pageKidsCountCache;
@@ -16495,8 +17119,18 @@ var XRef = exports.XRef = function XRefClosure() {
       streamTypes: Object.create(null),
       fontTypes: Object.create(null)
     };
+    this._newRefNum = null;
   }
   XRef.prototype = {
+    getNewRef: function XRef_getNewRef() {
+      if (this._newRefNum === null) {
+        this._newRefNum = this.entries.length;
+      }
+      return _primitives.Ref.get(this._newRefNum++, 0);
+    },
+    resetNewRef: function XRef_resetNewRef() {
+      this._newRefNum = null;
+    },
     setStartXRef: function XRef_setStartXRef(startXRef) {
       this.startXRefQueue = [startXRef];
     },
@@ -17326,22 +17960,26 @@ var ObjectLoader = exports.ObjectLoader = function () {
     return value instanceof _primitives.Ref || value instanceof _primitives.Dict || Array.isArray(value) || (0, _primitives.isStream)(value);
   }
   function addChildren(node, nodesToVisit) {
-    if (node instanceof _primitives.Dict || (0, _primitives.isStream)(node)) {
-      var dict = node instanceof _primitives.Dict ? node : node.dict;
-      var dictKeys = dict.getKeys();
-      for (var i = 0, ii = dictKeys.length; i < ii; i++) {
-        var rawValue = dict.getRaw(dictKeys[i]);
+    if (node instanceof _primitives.Dict) {
+      node = node.getRawValues();
+    } else if ((0, _primitives.isStream)(node)) {
+      node = node.dict.getRawValues();
+    } else if (!Array.isArray(node)) {
+      return;
+    }
+    var _iterator7 = _createForOfIteratorHelper(node),
+      _step7;
+    try {
+      for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+        var rawValue = _step7.value;
         if (mayHaveChildren(rawValue)) {
           nodesToVisit.push(rawValue);
         }
       }
-    } else if (Array.isArray(node)) {
-      for (var _i3 = 0, _ii2 = node.length; _i3 < _ii2; _i3++) {
-        var value = node[_i3];
-        if (mayHaveChildren(value)) {
-          nodesToVisit.push(value);
-        }
-      }
+    } catch (err) {
+      _iterator7.e(err);
+    } finally {
+      _iterator7.f();
     }
   }
   function ObjectLoader(dict, keys, xref) {
@@ -17384,7 +18022,7 @@ var ObjectLoader = exports.ObjectLoader = function () {
     _walk: function _walk(nodesToVisit) {
       var _this6 = this;
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-        var nodesToRevisit, pendingRequests, currentNode, baseStreams, foundMissingData, i, ii, stream, _i4, _ii3, node;
+        var nodesToRevisit, pendingRequests, currentNode, baseStreams, foundMissingData, i, ii, stream, _i3, _ii2, node;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
@@ -17454,8 +18092,8 @@ var ObjectLoader = exports.ObjectLoader = function () {
               _context4.next = 25;
               return _this6.xref.stream.manager.requestRanges(pendingRequests);
             case 25:
-              for (_i4 = 0, _ii3 = nodesToRevisit.length; _i4 < _ii3; _i4++) {
-                node = nodesToRevisit[_i4];
+              for (_i3 = 0, _ii2 = nodesToRevisit.length; _i3 < _ii2; _i3++) {
+                node = nodesToRevisit[_i3];
                 if (node instanceof _primitives.Ref) {
                   _this6.refSet.remove(node);
                 }
@@ -17476,7 +18114,7 @@ var ObjectLoader = exports.ObjectLoader = function () {
 }();
 
 /***/ }),
-/* 302 */
+/* 306 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -17486,14 +18124,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Parser = exports.Linearization = exports.Lexer = void 0;
-var _stream = __w_pdfjs_require__(303);
+var _stream = __w_pdfjs_require__(307);
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _core_utils = __w_pdfjs_require__(299);
-var _ccitt_stream = __w_pdfjs_require__(304);
-var _jbig2_stream = __w_pdfjs_require__(306);
-var _jpeg_stream = __w_pdfjs_require__(309);
-var _jpx_stream = __w_pdfjs_require__(311);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
+var _ccitt_stream = __w_pdfjs_require__(308);
+var _jbig2_stream = __w_pdfjs_require__(310);
+var _jpeg_stream = __w_pdfjs_require__(313);
+var _jpx_stream = __w_pdfjs_require__(315);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -17635,10 +18273,11 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
         I = 0x49,
         SPACE = 0x20,
         LF = 0xa,
-        CR = 0xd;
-      var n = 10,
+        CR = 0xd,
         NUL = 0x0;
-      var startPos = stream.pos;
+      var lexer = this.lexer,
+        startPos = stream.pos,
+        n = 10;
       var state = 0,
         ch,
         maybeEIPos;
@@ -17661,6 +18300,17 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
                 state = 0;
                 break;
               }
+            }
+            if (state !== 2) {
+              continue;
+            }
+            if (lexer.knownCommands) {
+              var nextObj = lexer.peekObj();
+              if (nextObj instanceof _primitives.Cmd && !lexer.knownCommands[nextObj.cmd]) {
+                state = 0;
+              }
+            } else {
+              (0, _util.warn)("findDefaultInlineStreamEnd - `lexer.knownCommands` is undefined.");
             }
             if (state === 2) {
               break;
@@ -18492,6 +19142,26 @@ var Lexer = exports.Lexer = /*#__PURE__*/function () {
       return _primitives.Cmd.get(str);
     }
   }, {
+    key: "peekObj",
+    value: function peekObj() {
+      var streamPos = this.stream.pos,
+        currentChar = this.currentChar,
+        beginInlineImagePos = this.beginInlineImagePos;
+      var nextObj;
+      try {
+        nextObj = this.getObj();
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.warn)("peekObj: ".concat(ex));
+      }
+      this.stream.pos = streamPos;
+      this.currentChar = currentChar;
+      this.beginInlineImagePos = beginInlineImagePos;
+      return nextObj;
+    }
+  }, {
     key: "skipToNextLine",
     value: function skipToNextLine() {
       var ch = this.currentChar;
@@ -18568,7 +19238,7 @@ var Linearization = exports.Linearization = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 303 */
+/* 307 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -18579,8 +19249,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.StringStream = exports.StreamsSequenceStream = exports.Stream = exports.RunLengthStream = exports.PredictorStream = exports.NullStream = exports.LZWStream = exports.FlateStream = exports.DecryptStream = exports.DecodeStream = exports.AsciiHexStream = exports.Ascii85Stream = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _core_utils = __w_pdfjs_require__(299);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -19594,7 +20264,7 @@ var NullStream = exports.NullStream = function NullStreamClosure() {
 }();
 
 /***/ }),
-/* 304 */
+/* 308 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -19604,9 +20274,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CCITTFaxStream = void 0;
-var _primitives = __w_pdfjs_require__(296);
-var _ccitt = __w_pdfjs_require__(305);
-var _stream = __w_pdfjs_require__(303);
+var _primitives = __w_pdfjs_require__(300);
+var _ccitt = __w_pdfjs_require__(309);
+var _stream = __w_pdfjs_require__(307);
 var CCITTFaxStream = exports.CCITTFaxStream = function CCITTFaxStreamClosure() {
   function CCITTFaxStream(str, maybeLength, params) {
     this.str = str;
@@ -19646,7 +20316,7 @@ var CCITTFaxStream = exports.CCITTFaxStream = function CCITTFaxStreamClosure() {
 }();
 
 /***/ }),
-/* 305 */
+/* 309 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -20179,7 +20849,7 @@ var CCITTFaxDecoder = exports.CCITTFaxDecoder = function CCITTFaxDecoder() {
 }();
 
 /***/ }),
-/* 306 */
+/* 310 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -20189,9 +20859,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Jbig2Stream = void 0;
-var _primitives = __w_pdfjs_require__(296);
-var _stream = __w_pdfjs_require__(303);
-var _jbig = __w_pdfjs_require__(307);
+var _primitives = __w_pdfjs_require__(300);
+var _stream = __w_pdfjs_require__(307);
+var _jbig = __w_pdfjs_require__(311);
 var _util = __w_pdfjs_require__(2);
 var Jbig2Stream = exports.Jbig2Stream = function Jbig2StreamClosure() {
   function Jbig2Stream(stream, maybeLength, dict, params) {
@@ -20244,7 +20914,7 @@ var Jbig2Stream = exports.Jbig2Stream = function Jbig2StreamClosure() {
 }();
 
 /***/ }),
-/* 307 */
+/* 311 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -20256,9 +20926,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Jbig2Image = void 0;
 var _util = __w_pdfjs_require__(2);
-var _core_utils = __w_pdfjs_require__(299);
-var _arithmetic_decoder = __w_pdfjs_require__(308);
-var _ccitt = __w_pdfjs_require__(305);
+var _core_utils = __w_pdfjs_require__(303);
+var _arithmetic_decoder = __w_pdfjs_require__(312);
+var _ccitt = __w_pdfjs_require__(309);
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
@@ -22067,7 +22737,7 @@ var Jbig2Image = exports.Jbig2Image = function Jbig2ImageClosure() {
 }();
 
 /***/ }),
-/* 308 */
+/* 312 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -22415,7 +23085,7 @@ var ArithmeticDecoder = exports.ArithmeticDecoder = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 309 */
+/* 313 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -22425,9 +23095,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.JpegStream = void 0;
-var _stream = __w_pdfjs_require__(303);
-var _primitives = __w_pdfjs_require__(296);
-var _jpg = __w_pdfjs_require__(310);
+var _stream = __w_pdfjs_require__(307);
+var _primitives = __w_pdfjs_require__(300);
+var _jpg = __w_pdfjs_require__(314);
 var _util = __w_pdfjs_require__(2);
 var JpegStream = exports.JpegStream = function JpegStreamClosure() {
   function JpegStream(stream, maybeLength, dict, params) {
@@ -22500,7 +23170,7 @@ var JpegStream = exports.JpegStream = function JpegStreamClosure() {
 }();
 
 /***/ }),
-/* 310 */
+/* 314 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -22511,7 +23181,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.JpegImage = void 0;
 var _util = __w_pdfjs_require__(2);
-var _core_utils = __w_pdfjs_require__(299);
+var _core_utils = __w_pdfjs_require__(303);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -22644,8 +23314,8 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
             }
           } else if (nextByte === 0xd9) {
             if (parseDNLMarker) {
-              var maybeScanLines = blockRow * 8;
-              if (maybeScanLines > 0 && maybeScanLines < frame.scanLines / 10) {
+              var maybeScanLines = blockRow * (frame.precision === 8 ? 8 : 0);
+              if (maybeScanLines > 0 && Math.round(frame.scanLines / maybeScanLines) >= 10) {
                 throw new DNLMarkerError("Found EOI marker (0xFFD9) while parsing scan data, " + "possibly caused by incorrect `scanLines` parameter", maybeScanLines);
               }
             }
@@ -23335,8 +24005,10 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
             var components = [],
               component;
             for (i = 0; i < selectorsCount; i++) {
-              var componentIndex = frame.componentIds[data[offset++]];
+              var index = data[offset++];
+              var componentIndex = frame.componentIds[index];
               component = frame.components[componentIndex];
+              component.index = index;
               var tableSpec = data[offset++];
               component.huffmanTableDC = huffmanTablesDC[tableSpec >> 4];
               component.huffmanTableAC = huffmanTablesAC[tableSpec & 15];
@@ -23397,6 +24069,7 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
           component.quantizationTable = quantizationTable;
         }
         this.components.push({
+          index: component.index,
           output: buildComponentData(frame, component),
           scaleX: component.h / frame.maxH,
           scaleY: component.v / frame.maxV,
@@ -23464,6 +24137,8 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
       }
       if (this.numComponents === 3) {
         if (this._colorTransform === 0) {
+          return false;
+        } else if (this.components[0].index === 0x52 && this.components[1].index === 0x47 && this.components[2].index === 0x42) {
           return false;
         }
         return true;
@@ -23566,7 +24241,7 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
 }();
 
 /***/ }),
-/* 311 */
+/* 315 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -23576,8 +24251,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.JpxStream = void 0;
-var _stream = __w_pdfjs_require__(303);
-var _jpx = __w_pdfjs_require__(312);
+var _stream = __w_pdfjs_require__(307);
+var _jpx = __w_pdfjs_require__(316);
 var _util = __w_pdfjs_require__(2);
 var JpxStream = exports.JpxStream = function JpxStreamClosure() {
   function JpxStream(stream, maybeLength, dict, params) {
@@ -23636,7 +24311,7 @@ var JpxStream = exports.JpxStream = function JpxStreamClosure() {
 }();
 
 /***/ }),
-/* 312 */
+/* 316 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -23648,8 +24323,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.JpxImage = void 0;
 var _util = __w_pdfjs_require__(2);
-var _core_utils = __w_pdfjs_require__(299);
-var _arithmetic_decoder = __w_pdfjs_require__(308);
+var _core_utils = __w_pdfjs_require__(303);
+var _arithmetic_decoder = __w_pdfjs_require__(312);
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
@@ -25589,7 +26264,7 @@ var JpxImage = exports.JpxImage = function JpxImageClosure() {
 }();
 
 /***/ }),
-/* 313 */
+/* 317 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -25600,8 +26275,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.calculateSHA512 = exports.calculateSHA384 = exports.calculateSHA256 = exports.calculateMD5 = exports.PDF20 = exports.PDF17 = exports.CipherTransformFactory = exports.ARCFourCipher = exports.AES256Cipher = exports.AES128Cipher = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _stream = __w_pdfjs_require__(303);
+var _primitives = __w_pdfjs_require__(300);
+var _stream = __w_pdfjs_require__(307);
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
 function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
@@ -25660,6 +26335,7 @@ var ARCFourCipher = exports.ARCFourCipher = function ARCFourCipherClosure() {
     }
   };
   ARCFourCipher.prototype.decryptBlock = ARCFourCipher.prototype.encryptBlock;
+  ARCFourCipher.prototype.encrypt = ARCFourCipher.prototype.encryptBlock;
   return ARCFourCipher;
 }();
 var calculateMD5 = exports.calculateMD5 = function calculateMD5Closure() {
@@ -26120,6 +26796,9 @@ var NullCipher = function NullCipherClosure() {
   function NullCipher() {}
   NullCipher.prototype = {
     decryptBlock: function NullCipher_decryptBlock(data) {
+      return data;
+    },
+    encrypt: function NullCipher_encrypt(data) {
       return data;
     }
   };
@@ -26664,6 +27343,33 @@ var CipherTransform = function CipherTransformClosure() {
       var data = (0, _util.stringToBytes)(s);
       data = cipher.decryptBlock(data, true);
       return (0, _util.bytesToString)(data);
+    },
+    encryptString: function CipherTransform_encryptString(s) {
+      var cipher = new this.StringCipherConstructor();
+      if (cipher instanceof AESBaseCipher) {
+        var strLen = s.length;
+        var pad = 16 - strLen % 16;
+        if (pad !== 16) {
+          s = s.padEnd(16 * Math.ceil(strLen / 16), String.fromCharCode(pad));
+        }
+        var iv = new Uint8Array(16);
+        if (typeof crypto !== "undefined") {
+          crypto.getRandomValues(iv);
+        } else {
+          for (var i = 0; i < 16; i++) {
+            iv[i] = Math.floor(256 * Math.random());
+          }
+        }
+        var _data = (0, _util.stringToBytes)(s);
+        _data = cipher.encrypt(_data, iv);
+        var buf = new Uint8Array(16 + _data.length);
+        buf.set(iv);
+        buf.set(_data, 16);
+        return (0, _util.bytesToString)(buf);
+      }
+      var data = (0, _util.stringToBytes)(s);
+      data = cipher.encrypt(data);
+      return (0, _util.bytesToString)(data);
     }
   };
   return CipherTransform;
@@ -26957,7 +27663,7 @@ var CipherTransformFactory = exports.CipherTransformFactory = function CipherTra
 }();
 
 /***/ }),
-/* 314 */
+/* 318 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -26968,7 +27674,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.ColorSpace = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
 function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
@@ -26977,6 +27684,9 @@ function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? O
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -27110,175 +27820,205 @@ var ColorSpace = exports.ColorSpace = /*#__PURE__*/function () {
       return (0, _util.shadow)(this, "usesZeroToOneRange", true);
     }
   }], [{
-    key: "parse",
-    value: function parse(cs, xref, res, pdfFunctionFactory) {
-      var IR = this.parseToIR(cs, xref, res, pdfFunctionFactory);
-      return this.fromIR(IR);
-    }
-  }, {
-    key: "fromIR",
-    value: function fromIR(IR) {
-      var name = Array.isArray(IR) ? IR[0] : IR;
-      var whitePoint, blackPoint, gamma;
-      switch (name) {
-        case "DeviceGrayCS":
-          return this.singletons.gray;
-        case "DeviceRgbCS":
-          return this.singletons.rgb;
-        case "DeviceCmykCS":
-          return this.singletons.cmyk;
-        case "CalGrayCS":
-          whitePoint = IR[1];
-          blackPoint = IR[2];
-          gamma = IR[3];
-          return new CalGrayCS(whitePoint, blackPoint, gamma);
-        case "CalRGBCS":
-          whitePoint = IR[1];
-          blackPoint = IR[2];
-          gamma = IR[3];
-          var matrix = IR[4];
-          return new CalRGBCS(whitePoint, blackPoint, gamma, matrix);
-        case "PatternCS":
-          var basePatternCS = IR[1];
-          if (basePatternCS) {
-            basePatternCS = this.fromIR(basePatternCS);
-          }
-          return new PatternCS(basePatternCS);
-        case "IndexedCS":
-          var baseIndexedCS = IR[1];
-          var hiVal = IR[2];
-          var lookup = IR[3];
-          return new IndexedCS(this.fromIR(baseIndexedCS), hiVal, lookup);
-        case "AlternateCS":
-          var numComps = IR[1];
-          var alt = IR[2];
-          var tintFn = IR[3];
-          return new AlternateCS(numComps, this.fromIR(alt), tintFn);
-        case "LabCS":
-          whitePoint = IR[1];
-          blackPoint = IR[2];
-          var range = IR[3];
-          return new LabCS(whitePoint, blackPoint, range);
-        default:
-          throw new _util.FormatError("Unknown colorspace name: ".concat(name));
+    key: "_cache",
+    value: function _cache(cacheKey, xref, localColorSpaceCache, parsedColorSpace) {
+      if (!localColorSpaceCache) {
+        throw new Error('ColorSpace._cache - expected "localColorSpaceCache" argument.');
+      }
+      if (!parsedColorSpace) {
+        throw new Error('ColorSpace._cache - expected "parsedColorSpace" argument.');
+      }
+      var csName, csRef;
+      if (cacheKey instanceof _primitives.Ref) {
+        csRef = cacheKey;
+        cacheKey = xref.fetch(cacheKey);
+      }
+      if (cacheKey instanceof _primitives.Name) {
+        csName = cacheKey.name;
+      }
+      if (csName || csRef) {
+        localColorSpaceCache.set(csName, csRef, parsedColorSpace);
       }
     }
   }, {
-    key: "parseToIR",
-    value: function parseToIR(cs, xref) {
-      var res = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    key: "getCached",
+    value: function getCached(cacheKey, xref, localColorSpaceCache) {
+      if (!localColorSpaceCache) {
+        throw new Error('ColorSpace.getCached - expected "localColorSpaceCache" argument.');
+      }
+      if (cacheKey instanceof _primitives.Ref) {
+        var localColorSpace = localColorSpaceCache.getByRef(cacheKey);
+        if (localColorSpace) {
+          return localColorSpace;
+        }
+        try {
+          cacheKey = xref.fetch(cacheKey);
+        } catch (ex) {
+          if (ex instanceof _core_utils.MissingDataException) {
+            throw ex;
+          }
+        }
+      }
+      if (cacheKey instanceof _primitives.Name) {
+        var _localColorSpace = localColorSpaceCache.getByName(cacheKey.name);
+        if (_localColorSpace) {
+          return _localColorSpace;
+        }
+      }
+      return null;
+    }
+  }, {
+    key: "parseAsync",
+    value: function () {
+      var _parseAsync = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref) {
+        var cs, xref, _ref$resources, resources, pdfFunctionFactory, localColorSpaceCache, parsedColorSpace;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              cs = _ref.cs, xref = _ref.xref, _ref$resources = _ref.resources, resources = _ref$resources === void 0 ? null : _ref$resources, pdfFunctionFactory = _ref.pdfFunctionFactory, localColorSpaceCache = _ref.localColorSpaceCache;
+              parsedColorSpace = this._parse(cs, xref, resources, pdfFunctionFactory);
+              this._cache(cs, xref, localColorSpaceCache, parsedColorSpace);
+              return _context.abrupt("return", parsedColorSpace);
+            case 4:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function parseAsync(_x) {
+        return _parseAsync.apply(this, arguments);
+      }
+      return parseAsync;
+    }()
+  }, {
+    key: "parse",
+    value: function parse(_ref2) {
+      var cs = _ref2.cs,
+        xref = _ref2.xref,
+        _ref2$resources = _ref2.resources,
+        resources = _ref2$resources === void 0 ? null : _ref2$resources,
+        pdfFunctionFactory = _ref2.pdfFunctionFactory,
+        localColorSpaceCache = _ref2.localColorSpaceCache;
+      var cachedColorSpace = this.getCached(cs, xref, localColorSpaceCache);
+      if (cachedColorSpace) {
+        return cachedColorSpace;
+      }
+      var parsedColorSpace = this._parse(cs, xref, resources, pdfFunctionFactory);
+      this._cache(cs, xref, localColorSpaceCache, parsedColorSpace);
+      return parsedColorSpace;
+    }
+  }, {
+    key: "_parse",
+    value: function _parse(cs, xref) {
+      var resources = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var pdfFunctionFactory = arguments.length > 3 ? arguments[3] : undefined;
       cs = xref.fetchIfRef(cs);
       if ((0, _primitives.isName)(cs)) {
         switch (cs.name) {
           case "DeviceGray":
           case "G":
-            return "DeviceGrayCS";
+            return this.singletons.gray;
           case "DeviceRGB":
           case "RGB":
-            return "DeviceRgbCS";
+            return this.singletons.rgb;
           case "DeviceCMYK":
           case "CMYK":
-            return "DeviceCmykCS";
+            return this.singletons.cmyk;
           case "Pattern":
-            return ["PatternCS", null];
+            return new PatternCS(null);
           default:
-            if ((0, _primitives.isDict)(res)) {
-              var colorSpaces = res.get("ColorSpace");
+            if ((0, _primitives.isDict)(resources)) {
+              var colorSpaces = resources.get("ColorSpace");
               if ((0, _primitives.isDict)(colorSpaces)) {
-                var resCS = colorSpaces.get(cs.name);
-                if (resCS) {
-                  if ((0, _primitives.isName)(resCS)) {
-                    return this.parseToIR(resCS, xref, res, pdfFunctionFactory);
+                var resourcesCS = colorSpaces.get(cs.name);
+                if (resourcesCS) {
+                  if ((0, _primitives.isName)(resourcesCS)) {
+                    return this._parse(resourcesCS, xref, resources, pdfFunctionFactory);
                   }
-                  cs = resCS;
+                  cs = resourcesCS;
                   break;
                 }
               }
             }
-            throw new _util.FormatError("unrecognized colorspace ".concat(cs.name));
+            throw new _util.FormatError("Unrecognized ColorSpace: ".concat(cs.name));
         }
       }
       if (Array.isArray(cs)) {
         var mode = xref.fetchIfRef(cs[0]).name;
-        var numComps, params, alt, whitePoint, blackPoint, gamma;
+        var params, numComps, baseCS, whitePoint, blackPoint, gamma;
         switch (mode) {
           case "DeviceGray":
           case "G":
-            return "DeviceGrayCS";
+            return this.singletons.gray;
           case "DeviceRGB":
           case "RGB":
-            return "DeviceRgbCS";
+            return this.singletons.rgb;
           case "DeviceCMYK":
           case "CMYK":
-            return "DeviceCmykCS";
+            return this.singletons.cmyk;
           case "CalGray":
             params = xref.fetchIfRef(cs[1]);
             whitePoint = params.getArray("WhitePoint");
             blackPoint = params.getArray("BlackPoint");
             gamma = params.get("Gamma");
-            return ["CalGrayCS", whitePoint, blackPoint, gamma];
+            return new CalGrayCS(whitePoint, blackPoint, gamma);
           case "CalRGB":
             params = xref.fetchIfRef(cs[1]);
             whitePoint = params.getArray("WhitePoint");
             blackPoint = params.getArray("BlackPoint");
             gamma = params.getArray("Gamma");
             var matrix = params.getArray("Matrix");
-            return ["CalRGBCS", whitePoint, blackPoint, gamma, matrix];
+            return new CalRGBCS(whitePoint, blackPoint, gamma, matrix);
           case "ICCBased":
             var stream = xref.fetchIfRef(cs[1]);
             var dict = stream.dict;
             numComps = dict.get("N");
-            alt = dict.get("Alternate");
+            var alt = dict.get("Alternate");
             if (alt) {
-              var altIR = this.parseToIR(alt, xref, res, pdfFunctionFactory);
-              var altCS = this.fromIR(altIR, pdfFunctionFactory);
+              var altCS = this._parse(alt, xref, resources, pdfFunctionFactory);
               if (altCS.numComps === numComps) {
-                return altIR;
+                return altCS;
               }
               (0, _util.warn)("ICCBased color space: Ignoring incorrect /Alternate entry.");
             }
             if (numComps === 1) {
-              return "DeviceGrayCS";
+              return this.singletons.gray;
             } else if (numComps === 3) {
-              return "DeviceRgbCS";
+              return this.singletons.rgb;
             } else if (numComps === 4) {
-              return "DeviceCmykCS";
+              return this.singletons.cmyk;
             }
             break;
           case "Pattern":
-            var basePatternCS = cs[1] || null;
-            if (basePatternCS) {
-              basePatternCS = this.parseToIR(basePatternCS, xref, res, pdfFunctionFactory);
+            baseCS = cs[1] || null;
+            if (baseCS) {
+              baseCS = this._parse(baseCS, xref, resources, pdfFunctionFactory);
             }
-            return ["PatternCS", basePatternCS];
+            return new PatternCS(baseCS);
           case "Indexed":
           case "I":
-            var baseIndexedCS = this.parseToIR(cs[1], xref, res, pdfFunctionFactory);
+            baseCS = this._parse(cs[1], xref, resources, pdfFunctionFactory);
             var hiVal = xref.fetchIfRef(cs[2]) + 1;
             var lookup = xref.fetchIfRef(cs[3]);
-            if ((0, _primitives.isStream)(lookup)) {
-              lookup = lookup.getBytes();
-            }
-            return ["IndexedCS", baseIndexedCS, hiVal, lookup];
+            return new IndexedCS(baseCS, hiVal, lookup);
           case "Separation":
           case "DeviceN":
             var name = xref.fetchIfRef(cs[1]);
             numComps = Array.isArray(name) ? name.length : 1;
-            alt = this.parseToIR(cs[2], xref, res, pdfFunctionFactory);
-            var tintFn = pdfFunctionFactory.create(xref.fetchIfRef(cs[3]));
-            return ["AlternateCS", numComps, alt, tintFn];
+            baseCS = this._parse(cs[2], xref, resources, pdfFunctionFactory);
+            var tintFn = pdfFunctionFactory.create(cs[3]);
+            return new AlternateCS(numComps, baseCS, tintFn);
           case "Lab":
             params = xref.fetchIfRef(cs[1]);
             whitePoint = params.getArray("WhitePoint");
             blackPoint = params.getArray("BlackPoint");
             var range = params.getArray("Range");
-            return ["LabCS", whitePoint, blackPoint, range];
+            return new LabCS(whitePoint, blackPoint, range);
           default:
-            throw new _util.FormatError("unimplemented color space object \"".concat(mode, "\""));
+            throw new _util.FormatError("Unimplemented ColorSpace object: ".concat(mode));
         }
       }
-      throw new _util.FormatError("unrecognized color space object: \"".concat(cs, "\""));
+      throw new _util.FormatError("Unrecognized ColorSpace object: ".concat(cs));
     }
   }, {
     key: "isDefaultDecode",
@@ -27395,21 +28135,17 @@ var IndexedCS = /*#__PURE__*/function (_ColorSpace3) {
     _this3 = _callSuper(this, IndexedCS, ["Indexed", 1]);
     _this3.base = base;
     _this3.highVal = highVal;
-    var baseNumComps = base.numComps;
-    var length = baseNumComps * highVal;
+    var length = base.numComps * highVal;
+    _this3.lookup = new Uint8Array(length);
     if ((0, _primitives.isStream)(lookup)) {
-      _this3.lookup = new Uint8Array(length);
       var bytes = lookup.getBytes(length);
       _this3.lookup.set(bytes);
-    } else if ((0, _util.isString)(lookup)) {
-      _this3.lookup = new Uint8Array(length);
+    } else if (typeof lookup === "string") {
       for (var i = 0; i < length; ++i) {
-        _this3.lookup[i] = lookup.charCodeAt(i);
+        _this3.lookup[i] = lookup.charCodeAt(i) & 0xff;
       }
-    } else if (lookup instanceof Uint8Array) {
-      _this3.lookup = lookup;
     } else {
-      throw new _util.FormatError("Unrecognized lookup table: ".concat(lookup));
+      throw new _util.FormatError("IndexedCS - unrecognized lookup table: ".concat(lookup));
     }
     return _this3;
   }
@@ -27671,6 +28407,9 @@ var CalRGBCS = function CalRGBCSClosure() {
     if (color <= 0.0031308) {
       return adjustToRange(0, 1, 12.92 * color);
     }
+    if (color >= 0.99554525) {
+      return 1;
+    }
     return adjustToRange(0, 1, (1 + 0.055) * Math.pow(color, 1 / 2.4) - 0.055);
   }
   function adjustToRange(min, max, value) {
@@ -27733,9 +28472,9 @@ var CalRGBCS = function CalRGBCSClosure() {
     var A = adjustToRange(0, 1, src[srcOffset] * scale);
     var B = adjustToRange(0, 1, src[srcOffset + 1] * scale);
     var C = adjustToRange(0, 1, src[srcOffset + 2] * scale);
-    var AGR = Math.pow(A, cs.GR);
-    var BGG = Math.pow(B, cs.GG);
-    var CGB = Math.pow(C, cs.GB);
+    var AGR = A === 1 ? 1 : Math.pow(A, cs.GR);
+    var BGG = B === 1 ? 1 : Math.pow(B, cs.GG);
+    var CGB = C === 1 ? 1 : Math.pow(C, cs.GB);
     var X = cs.MXA * AGR + cs.MXB * BGG + cs.MXC * CGB;
     var Y = cs.MYA * AGR + cs.MYB * BGG + cs.MYC * CGB;
     var Z = cs.MZA * AGR + cs.MZB * BGG + cs.MZC * CGB;
@@ -27949,7 +28688,7 @@ var LabCS = function LabCSClosure() {
 }();
 
 /***/ }),
-/* 315 */
+/* 319 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -27958,23 +28697,35 @@ var LabCS = function LabCSClosure() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.LocalImageCache = exports.GlobalImageCache = void 0;
+exports.LocalImageCache = exports.LocalGStateCache = exports.LocalFunctionCache = exports.LocalColorSpaceCache = exports.GlobalImageCache = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
+var _primitives = __w_pdfjs_require__(300);
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-var LocalImageCache = exports.LocalImageCache = /*#__PURE__*/function () {
-  function LocalImageCache() {
-    _classCallCheck(this, LocalImageCache);
-    this._nameRefMap = new Map();
-    this._imageMap = new Map();
+var BaseLocalCache = /*#__PURE__*/function () {
+  function BaseLocalCache(options) {
+    _classCallCheck(this, BaseLocalCache);
+    if (this.constructor === BaseLocalCache) {
+      (0, _util.unreachable)("Cannot initialize BaseLocalCache.");
+    }
+    if (!options || !options.onlyRefs) {
+      this._nameRefMap = new Map();
+      this._imageMap = new Map();
+    }
     this._imageCache = new _primitives.RefSetCache();
   }
-  return _createClass(LocalImageCache, [{
+  return _createClass(BaseLocalCache, [{
     key: "getByName",
     value: function getByName(name) {
       var ref = this._nameRefMap.get(name);
@@ -27989,6 +28740,19 @@ var LocalImageCache = exports.LocalImageCache = /*#__PURE__*/function () {
       return this._imageCache.get(ref) || null;
     }
   }, {
+    key: "set",
+    value: function set(name, ref, data) {
+      (0, _util.unreachable)("Abstract method `set` called.");
+    }
+  }]);
+}();
+var LocalImageCache = exports.LocalImageCache = /*#__PURE__*/function (_BaseLocalCache) {
+  function LocalImageCache() {
+    _classCallCheck(this, LocalImageCache);
+    return _callSuper(this, LocalImageCache, arguments);
+  }
+  _inherits(LocalImageCache, _BaseLocalCache);
+  return _createClass(LocalImageCache, [{
     key: "set",
     value: function set(name) {
       var ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
@@ -28010,7 +28774,97 @@ var LocalImageCache = exports.LocalImageCache = /*#__PURE__*/function () {
       this._imageMap.set(name, data);
     }
   }]);
-}();
+}(BaseLocalCache);
+var LocalColorSpaceCache = exports.LocalColorSpaceCache = /*#__PURE__*/function (_BaseLocalCache2) {
+  function LocalColorSpaceCache() {
+    _classCallCheck(this, LocalColorSpaceCache);
+    return _callSuper(this, LocalColorSpaceCache, arguments);
+  }
+  _inherits(LocalColorSpaceCache, _BaseLocalCache2);
+  return _createClass(LocalColorSpaceCache, [{
+    key: "set",
+    value: function set() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var data = arguments.length > 2 ? arguments[2] : undefined;
+      if (!name && !ref) {
+        throw new Error('LocalColorSpaceCache.set - expected "name" and/or "ref" argument.');
+      }
+      if (ref) {
+        if (this._imageCache.has(ref)) {
+          return;
+        }
+        if (name) {
+          this._nameRefMap.set(name, ref);
+        }
+        this._imageCache.put(ref, data);
+        return;
+      }
+      if (this._imageMap.has(name)) {
+        return;
+      }
+      this._imageMap.set(name, data);
+    }
+  }]);
+}(BaseLocalCache);
+var LocalFunctionCache = exports.LocalFunctionCache = /*#__PURE__*/function (_BaseLocalCache3) {
+  function LocalFunctionCache(options) {
+    _classCallCheck(this, LocalFunctionCache);
+    return _callSuper(this, LocalFunctionCache, [{
+      onlyRefs: true
+    }]);
+  }
+  _inherits(LocalFunctionCache, _BaseLocalCache3);
+  return _createClass(LocalFunctionCache, [{
+    key: "getByName",
+    value: function getByName(name) {
+      (0, _util.unreachable)("Should not call `getByName` method.");
+    }
+  }, {
+    key: "set",
+    value: function set() {
+      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var ref = arguments.length > 1 ? arguments[1] : undefined;
+      var data = arguments.length > 2 ? arguments[2] : undefined;
+      if (!ref) {
+        throw new Error('LocalFunctionCache.set - expected "ref" argument.');
+      }
+      if (this._imageCache.has(ref)) {
+        return;
+      }
+      this._imageCache.put(ref, data);
+    }
+  }]);
+}(BaseLocalCache);
+var LocalGStateCache = exports.LocalGStateCache = /*#__PURE__*/function (_BaseLocalCache4) {
+  function LocalGStateCache() {
+    _classCallCheck(this, LocalGStateCache);
+    return _callSuper(this, LocalGStateCache, arguments);
+  }
+  _inherits(LocalGStateCache, _BaseLocalCache4);
+  return _createClass(LocalGStateCache, [{
+    key: "set",
+    value: function set(name) {
+      var ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var data = arguments.length > 2 ? arguments[2] : undefined;
+      if (!name) {
+        throw new Error('LocalGStateCache.set - expected "name" argument.');
+      }
+      if (ref) {
+        if (this._imageCache.has(ref)) {
+          return;
+        }
+        this._nameRefMap.set(name, ref);
+        this._imageCache.put(ref, data);
+        return;
+      }
+      if (this._imageMap.has(name)) {
+        return;
+      }
+      this._imageMap.set(name, data);
+    }
+  }]);
+}(BaseLocalCache);
 var GlobalImageCache = exports.GlobalImageCache = /*#__PURE__*/function () {
   function GlobalImageCache() {
     _classCallCheck(this, GlobalImageCache);
@@ -28043,10 +28897,10 @@ var GlobalImageCache = exports.GlobalImageCache = /*#__PURE__*/function () {
   }, {
     key: "getData",
     value: function getData(ref, pageIndex) {
-      if (!this._refCache.has(ref)) {
+      var pageIndexSet = this._refCache.get(ref);
+      if (!pageIndexSet) {
         return null;
       }
-      var pageIndexSet = this._refCache.get(ref);
       if (pageIndexSet.size < GlobalImageCache.NUM_PAGES_THRESHOLD) {
         return null;
       }
@@ -28094,7 +28948,7 @@ var GlobalImageCache = exports.GlobalImageCache = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 316 */
+/* 320 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -28106,12 +28960,13 @@ Object.defineProperty(exports, "__esModule", {
 exports.MarkupAnnotation = exports.AnnotationFactory = exports.AnnotationBorderStyle = exports.Annotation = void 0;
 exports.getQuadPoints = getQuadPoints;
 var _util = __w_pdfjs_require__(2);
-var _obj = __w_pdfjs_require__(301);
-var _primitives = __w_pdfjs_require__(296);
-var _colorspace = __w_pdfjs_require__(314);
-var _core_utils = __w_pdfjs_require__(299);
-var _operator_list = __w_pdfjs_require__(317);
-var _stream = __w_pdfjs_require__(303);
+var _obj = __w_pdfjs_require__(305);
+var _primitives = __w_pdfjs_require__(300);
+var _colorspace = __w_pdfjs_require__(318);
+var _core_utils = __w_pdfjs_require__(303);
+var _operator_list = __w_pdfjs_require__(321);
+var _stream = __w_pdfjs_require__(307);
+var _writer = __w_pdfjs_require__(322);
 function _superPropGet(t, e, r, o) { var p = _get(_getPrototypeOf(1 & o ? t.prototype : t), e, r); return 2 & o ? function (t) { return p.apply(r, t); } : p; }
 function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
 function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));); return t; }
@@ -28123,6 +28978,9 @@ function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? O
 function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -28142,11 +29000,14 @@ var AnnotationFactory = exports.AnnotationFactory = /*#__PURE__*/function () {
   return _createClass(AnnotationFactory, null, [{
     key: "create",
     value: function create(xref, ref, pdfManager, idFactory) {
-      return pdfManager.ensure(this, "_create", [xref, ref, pdfManager, idFactory]);
+      var _this = this;
+      return pdfManager.ensureCatalog("acroForm").then(function (acroForm) {
+        return pdfManager.ensure(_this, "_create", [xref, ref, pdfManager, idFactory, acroForm]);
+      });
     }
   }, {
     key: "_create",
-    value: function _create(xref, ref, pdfManager, idFactory) {
+    value: function _create(xref, ref, pdfManager, idFactory, acroForm) {
       var dict = xref.fetchIfRef(ref);
       if (!(0, _primitives.isDict)(dict)) {
         return undefined;
@@ -28156,10 +29017,12 @@ var AnnotationFactory = exports.AnnotationFactory = /*#__PURE__*/function () {
       subtype = (0, _primitives.isName)(subtype) ? subtype.name : null;
       var parameters = {
         xref: xref,
+        ref: ref,
         dict: dict,
         subtype: subtype,
         id: id,
-        pdfManager: pdfManager
+        pdfManager: pdfManager,
+        acroForm: acroForm instanceof _primitives.Dict ? acroForm : _primitives.Dict.empty
       };
       switch (subtype) {
         case "Link":
@@ -28440,13 +29303,13 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
-      var _this = this;
+    value: function getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
       if (!this.appearance) {
         return Promise.resolve(new _operator_list.OperatorList());
       }
+      var appearance = this.appearance;
       var data = this.data;
-      var appearanceDict = this.appearance.dict;
+      var appearanceDict = appearance.dict;
       var resourcesPromise = this.loadResources(["ExtGState", "ColorSpace", "Pattern", "Shading", "XObject", "Font"]);
       var bbox = appearanceDict.getArray("BBox") || [0, 0, 1, 1];
       var matrix = appearanceDict.getArray("Matrix") || [1, 0, 0, 1, 0, 0];
@@ -28455,17 +29318,36 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
         var opList = new _operator_list.OperatorList();
         opList.addOp(_util.OPS.beginAnnotation, [data.rect, transform, matrix]);
         return evaluator.getOperatorList({
-          stream: _this.appearance,
+          stream: appearance,
           task: task,
           resources: resources,
           operatorList: opList
         }).then(function () {
           opList.addOp(_util.OPS.endAnnotation, []);
-          _this.appearance.reset();
+          appearance.reset();
           return opList;
         });
       });
     }
+  }, {
+    key: "save",
+    value: function () {
+      var _save = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(evaluator, task, annotationStorage) {
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", null);
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee);
+      }));
+      function save(_x, _x2, _x3) {
+        return _save.apply(this, arguments);
+      }
+      return save;
+    }()
   }]);
 }();
 var AnnotationBorderStyle = exports.AnnotationBorderStyle = /*#__PURE__*/function () {
@@ -28634,18 +29516,20 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     _this3 = _callSuper(this, WidgetAnnotation, [params]);
     var dict = params.dict;
     var data = _this3.data;
+    _this3.ref = params.ref;
     data.annotationType = _util.AnnotationType.WIDGET;
     data.fieldName = _this3._constructFieldName(dict);
-    data.fieldValue = (0, _core_utils.getInheritableProperty)({
+    var fieldValue = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "V",
       getArray: true
     });
+    data.fieldValue = _this3._decodeFormValue(fieldValue);
     data.alternativeText = (0, _util.stringToPDFString)(dict.get("TU") || "");
     data.defaultAppearance = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "DA"
-    }) || "";
+    }) || params.acroForm.get("DA") || "";
     var fieldType = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "FT"
@@ -28654,7 +29538,7 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     _this3.fieldResources = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "DR"
-    }) || _primitives.Dict.empty;
+    }) || params.acroForm.get("DR") || _primitives.Dict.empty;
     data.fieldFlags = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "Ff"
@@ -28713,27 +29597,304 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
       return fieldName.join(".");
     }
   }, {
+    key: "_decodeFormValue",
+    value: function _decodeFormValue(formValue) {
+      if (Array.isArray(formValue)) {
+        return formValue.filter(function (item) {
+          return (0, _util.isString)(item);
+        }).map(function (item) {
+          return (0, _util.stringToPDFString)(item);
+        });
+      } else if ((0, _primitives.isName)(formValue)) {
+        return (0, _util.stringToPDFString)(formValue.name);
+      } else if ((0, _util.isString)(formValue)) {
+        return (0, _util.stringToPDFString)(formValue);
+      }
+      return null;
+    }
+  }, {
     key: "hasFieldFlag",
     value: function hasFieldFlag(flag) {
       return !!(this.data.fieldFlags & flag);
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
-      if (renderForms && (this.data.fieldType !== 'Sig' || !forceRenderSigAnnot)) {
+    value: function getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+      var _this4 = this;
+      if (renderForms && (this.data.fieldType !== "Sig" || !forceRenderSigAnnot)) {
         return Promise.resolve(new _operator_list.OperatorList());
       }
-      return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, forceRenderSigAnnot]);
+      if (!this._hasText) {
+        return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot]);
+      }
+      return this._getAppearance(evaluator, task, annotationStorage).then(function (content) {
+        if (_this4.appearance && content === null) {
+          return _superPropGet(WidgetAnnotation, "getOperatorList", _this4, 3)([evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot]);
+        }
+        var operatorList = new _operator_list.OperatorList();
+        if (!_this4.data.defaultAppearance || content === null) {
+          return operatorList;
+        }
+        var matrix = [1, 0, 0, 1, 0, 0];
+        var bbox = [0, 0, _this4.data.rect[2] - _this4.data.rect[0], _this4.data.rect[3] - _this4.data.rect[1]];
+        var transform = getTransformMatrix(_this4.data.rect, bbox, matrix);
+        operatorList.addOp(_util.OPS.beginAnnotation, [_this4.data.rect, transform, matrix]);
+        var stream = new _stream.StringStream(content);
+        return evaluator.getOperatorList({
+          stream: stream,
+          task: task,
+          resources: _this4.fieldResources,
+          operatorList: operatorList
+        }).then(function () {
+          operatorList.addOp(_util.OPS.endAnnotation, []);
+          return operatorList;
+        });
+      });
+    }
+  }, {
+    key: "save",
+    value: function () {
+      var _save2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(evaluator, task, annotationStorage) {
+        var appearance, dict, bbox, newRef, AP, value, encrypt, originalTransform, newTransform, appearanceDict, bufferOriginal, bufferNew;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              if (!(this.data.fieldValue === annotationStorage[this.data.id])) {
+                _context2.next = 2;
+                break;
+              }
+              return _context2.abrupt("return", null);
+            case 2:
+              _context2.next = 4;
+              return this._getAppearance(evaluator, task, annotationStorage);
+            case 4:
+              appearance = _context2.sent;
+              if (!(appearance === null)) {
+                _context2.next = 7;
+                break;
+              }
+              return _context2.abrupt("return", null);
+            case 7:
+              dict = evaluator.xref.fetchIfRef(this.ref);
+              if ((0, _primitives.isDict)(dict)) {
+                _context2.next = 10;
+                break;
+              }
+              return _context2.abrupt("return", null);
+            case 10:
+              bbox = [0, 0, this.data.rect[2] - this.data.rect[0], this.data.rect[3] - this.data.rect[1]];
+              newRef = evaluator.xref.getNewRef();
+              AP = new _primitives.Dict(evaluator.xref);
+              AP.set("N", newRef);
+              value = annotationStorage[this.data.id];
+              encrypt = evaluator.xref.encrypt;
+              originalTransform = null;
+              newTransform = null;
+              if (encrypt) {
+                originalTransform = encrypt.createCipherTransform(this.ref.num, this.ref.gen);
+                newTransform = encrypt.createCipherTransform(newRef.num, newRef.gen);
+                appearance = newTransform.encryptString(appearance);
+              }
+              dict.set("V", value);
+              dict.set("AP", AP);
+              dict.set("M", "D:".concat((0, _util.getModificationDate)()));
+              appearanceDict = new _primitives.Dict(evaluator.xref);
+              appearanceDict.set("Length", appearance.length);
+              appearanceDict.set("Subtype", _primitives.Name.get("Form"));
+              appearanceDict.set("Resources", this.fieldResources);
+              appearanceDict.set("BBox", bbox);
+              bufferOriginal = ["".concat(this.ref.num, " ").concat(this.ref.gen, " obj\n")];
+              (0, _writer.writeDict)(dict, bufferOriginal, originalTransform);
+              bufferOriginal.push("\nendobj\n");
+              bufferNew = ["".concat(newRef.num, " ").concat(newRef.gen, " obj\n")];
+              (0, _writer.writeDict)(appearanceDict, bufferNew, newTransform);
+              bufferNew.push(" stream\n");
+              bufferNew.push(appearance);
+              bufferNew.push("\nendstream\nendobj\n");
+              return _context2.abrupt("return", [{
+                ref: this.ref,
+                data: bufferOriginal.join("")
+              }, {
+                ref: newRef,
+                data: bufferNew.join("")
+              }]);
+            case 36:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function save(_x4, _x5, _x6) {
+        return _save2.apply(this, arguments);
+      }
+      return save;
+    }()
+  }, {
+    key: "_getAppearance",
+    value: function () {
+      var _getAppearance2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(evaluator, task, annotationStorage) {
+        var isPassword, value, defaultPadding, hPadding, totalHeight, totalWidth, fontInfo, _fontInfo, font, fontName, fontSize, descent, vPadding, defaultAppearance, alignment, renderedText;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              isPassword = this.hasFieldFlag(_util.AnnotationFieldFlag.PASSWORD);
+              if (!(!annotationStorage || isPassword)) {
+                _context3.next = 3;
+                break;
+              }
+              return _context3.abrupt("return", null);
+            case 3:
+              value = annotationStorage[this.data.id];
+              if (!(value === "")) {
+                _context3.next = 6;
+                break;
+              }
+              return _context3.abrupt("return", "");
+            case 6:
+              defaultPadding = 2;
+              hPadding = defaultPadding;
+              totalHeight = this.data.rect[3] - this.data.rect[1];
+              totalWidth = this.data.rect[2] - this.data.rect[0];
+              _context3.next = 12;
+              return this._getFontData(evaluator, task);
+            case 12:
+              fontInfo = _context3.sent;
+              _fontInfo = _slicedToArray(fontInfo, 2), font = _fontInfo[0], fontName = _fontInfo[1];
+              fontSize = fontInfo[2];
+              fontSize = this._computeFontSize(font, fontName, fontSize, totalHeight);
+              descent = font.descent;
+              if (isNaN(descent)) {
+                descent = 0;
+              }
+              vPadding = defaultPadding + Math.abs(descent) * fontSize;
+              defaultAppearance = this.data.defaultAppearance;
+              alignment = this.data.textAlignment;
+              if (!this.data.comb) {
+                _context3.next = 23;
+                break;
+              }
+              return _context3.abrupt("return", this._getCombAppearance(defaultAppearance, value, totalWidth, hPadding, vPadding));
+            case 23:
+              if (!this.data.multiLine) {
+                _context3.next = 25;
+                break;
+              }
+              return _context3.abrupt("return", this._getMultilineAppearance(defaultAppearance, value, font, fontSize, totalWidth, totalHeight, alignment, hPadding, vPadding));
+            case 25:
+              if (!(alignment === 0 || alignment > 2)) {
+                _context3.next = 27;
+                break;
+              }
+              return _context3.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 ".concat(hPadding, " ").concat(vPadding, " Tm (").concat((0, _util.escapeString)(value), ") Tj") + " ET Q EMC");
+            case 27:
+              renderedText = this._renderText(value, font, fontSize, totalWidth, alignment, hPadding, vPadding);
+              return _context3.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 0 0 Tm ".concat(renderedText) + " ET Q EMC");
+            case 29:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function _getAppearance(_x7, _x8, _x9) {
+        return _getAppearance2.apply(this, arguments);
+      }
+      return _getAppearance;
+    }()
+  }, {
+    key: "_getFontData",
+    value: function () {
+      var _getFontData2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(evaluator, task) {
+        var operatorList, initialState;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              operatorList = new _operator_list.OperatorList();
+              initialState = {
+                fontSize: 0,
+                font: null,
+                fontName: null,
+                clone: function clone() {
+                  return this;
+                }
+              };
+              _context4.next = 4;
+              return evaluator.getOperatorList({
+                stream: new _stream.StringStream(this.data.defaultAppearance),
+                task: task,
+                resources: this.fieldResources,
+                operatorList: operatorList,
+                initialState: initialState
+              });
+            case 4:
+              return _context4.abrupt("return", [initialState.font, initialState.fontName, initialState.fontSize]);
+            case 5:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, this);
+      }));
+      function _getFontData(_x10, _x11) {
+        return _getFontData2.apply(this, arguments);
+      }
+      return _getFontData;
+    }()
+  }, {
+    key: "_computeFontSize",
+    value: function _computeFontSize(font, fontName, fontSize, height) {
+      if (fontSize === null || fontSize === 0) {
+        var em = font.charsToGlyphs("M", true)[0].width / 1000;
+        var capHeight = 0.7 * em;
+        fontSize = Math.max(1, Math.floor(height / (1.5 * capHeight)));
+        var fontRegex = new RegExp("/".concat(fontName, "\\s+[0-9.]+\\s+Tf"));
+        if (this.data.defaultAppearance.search(fontRegex) === -1) {
+          fontRegex = new RegExp("/".concat(fontName, "\\s+Tf"));
+        }
+        this.data.defaultAppearance = this.data.defaultAppearance.replace(fontRegex, "/".concat(fontName, " ").concat(fontSize, " Tf"));
+      }
+      return fontSize;
+    }
+  }, {
+    key: "_renderText",
+    value: function _renderText(text, font, fontSize, totalWidth, alignment, hPadding, vPadding) {
+      var glyphs = font.charsToGlyphs(text);
+      var scale = fontSize / 1000;
+      var width = 0;
+      var _iterator2 = _createForOfIteratorHelper(glyphs),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var glyph = _step2.value;
+          width += glyph.width * scale;
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+      var shift;
+      if (alignment === 1) {
+        shift = (totalWidth - width) / 2;
+      } else if (alignment === 2) {
+        shift = totalWidth - width - hPadding;
+      } else {
+        shift = hPadding;
+      }
+      shift = shift.toFixed(2);
+      vPadding = vPadding.toFixed(2);
+      return "".concat(shift, " ").concat(vPadding, " Td (").concat((0, _util.escapeString)(text), ") Tj");
     }
   }]);
 }(Annotation);
 var TextWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation) {
   function TextWidgetAnnotation(params) {
-    var _this4;
+    var _this5;
     _classCallCheck(this, TextWidgetAnnotation);
-    _this4 = _callSuper(this, TextWidgetAnnotation, [params]);
+    _this5 = _callSuper(this, TextWidgetAnnotation, [params]);
+    _this5._hasText = true;
     var dict = params.dict;
-    _this4.data.fieldValue = (0, _util.stringToPDFString)(_this4.data.fieldValue || "");
+    if (!(0, _util.isString)(_this5.data.fieldValue)) {
+      _this5.data.fieldValue = "";
+    }
     var alignment = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "Q"
@@ -28741,7 +29902,7 @@ var TextWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation) {
     if (!Number.isInteger(alignment) || alignment < 0 || alignment > 2) {
       alignment = null;
     }
-    _this4.data.textAlignment = alignment;
+    _this5.data.textAlignment = alignment;
     var maximumLength = (0, _core_utils.getInheritableProperty)({
       dict: dict,
       key: "MaxLen"
@@ -28749,74 +29910,336 @@ var TextWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation) {
     if (!Number.isInteger(maximumLength) || maximumLength < 0) {
       maximumLength = null;
     }
-    _this4.data.maxLen = maximumLength;
-    _this4.data.multiLine = _this4.hasFieldFlag(_util.AnnotationFieldFlag.MULTILINE);
-    _this4.data.comb = _this4.hasFieldFlag(_util.AnnotationFieldFlag.COMB) && !_this4.hasFieldFlag(_util.AnnotationFieldFlag.MULTILINE) && !_this4.hasFieldFlag(_util.AnnotationFieldFlag.PASSWORD) && !_this4.hasFieldFlag(_util.AnnotationFieldFlag.FILESELECT) && _this4.data.maxLen !== null;
-    return _this4;
+    _this5.data.maxLen = maximumLength;
+    _this5.data.multiLine = _this5.hasFieldFlag(_util.AnnotationFieldFlag.MULTILINE);
+    _this5.data.comb = _this5.hasFieldFlag(_util.AnnotationFieldFlag.COMB) && !_this5.hasFieldFlag(_util.AnnotationFieldFlag.MULTILINE) && !_this5.hasFieldFlag(_util.AnnotationFieldFlag.PASSWORD) && !_this5.hasFieldFlag(_util.AnnotationFieldFlag.FILESELECT) && _this5.data.maxLen !== null;
+    return _this5;
   }
   _inherits(TextWidgetAnnotation, _WidgetAnnotation);
   return _createClass(TextWidgetAnnotation, [{
-    key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, forceRenderSigAnnot) {
-      if (renderForms || this.appearance) {
-        return _superPropGet(TextWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, forceRenderSigAnnot]);
+    key: "_getCombAppearance",
+    value: function _getCombAppearance(defaultAppearance, text, width, hPadding, vPadding) {
+      var combWidth = (width / this.data.maxLen).toFixed(2);
+      var buf = [];
+      var _iterator3 = _createForOfIteratorHelper(text),
+        _step3;
+      try {
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var character = _step3.value;
+          buf.push("(".concat((0, _util.escapeString)(character), ") Tj"));
+        }
+      } catch (err) {
+        _iterator3.e(err);
+      } finally {
+        _iterator3.f();
       }
-      var operatorList = new _operator_list.OperatorList();
-      if (!this.data.defaultAppearance) {
-        return Promise.resolve(operatorList);
+      var renderedComb = buf.join(" ".concat(combWidth, " 0 Td "));
+      return "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 ".concat(hPadding, " ").concat(vPadding, " Tm ").concat(renderedComb) + " ET Q EMC";
+    }
+  }, {
+    key: "_getMultilineAppearance",
+    value: function _getMultilineAppearance(defaultAppearance, text, font, fontSize, width, height, alignment, hPadding, vPadding) {
+      var lines = text.split(/\r\n|\r|\n/);
+      var buf = [];
+      var totalWidth = width - 2 * hPadding;
+      var _iterator4 = _createForOfIteratorHelper(lines),
+        _step4;
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var line = _step4.value;
+          var chunks = this._splitLine(line, font, fontSize, totalWidth);
+          var _iterator5 = _createForOfIteratorHelper(chunks),
+            _step5;
+          try {
+            for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+              var chunk = _step5.value;
+              var padding = buf.length === 0 ? hPadding : 0;
+              buf.push(this._renderText(chunk, font, fontSize, width, alignment, padding, -fontSize));
+            }
+          } catch (err) {
+            _iterator5.e(err);
+          } finally {
+            _iterator5.f();
+          }
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
       }
-      var stream = new _stream.Stream((0, _util.stringToBytes)(this.data.defaultAppearance));
-      return evaluator.getOperatorList({
-        stream: stream,
-        task: task,
-        resources: this.fieldResources,
-        operatorList: operatorList
-      }).then(function () {
-        return operatorList;
-      });
+      var renderedText = buf.join("\n");
+      return "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 0 ".concat(height, " Tm ").concat(renderedText) + " ET Q EMC";
+    }
+  }, {
+    key: "_splitLine",
+    value: function _splitLine(line, font, fontSize, width) {
+      if (line.length <= 1) {
+        return [line];
+      }
+      var scale = fontSize / 1000;
+      var whitespace = font.charsToGlyphs(" ", true)[0].width * scale;
+      var chunks = [];
+      var lastSpacePos = -1,
+        startChunk = 0,
+        currentWidth = 0;
+      for (var i = 0, ii = line.length; i < ii; i++) {
+        var character = line.charAt(i);
+        if (character === " ") {
+          if (currentWidth + whitespace > width) {
+            chunks.push(line.substring(startChunk, i));
+            startChunk = i;
+            currentWidth = whitespace;
+            lastSpacePos = -1;
+          } else {
+            currentWidth += whitespace;
+            lastSpacePos = i;
+          }
+        } else {
+          var charWidth = font.charsToGlyphs(character, false)[0].width * scale;
+          if (currentWidth + charWidth > width) {
+            if (lastSpacePos !== -1) {
+              chunks.push(line.substring(startChunk, lastSpacePos + 1));
+              startChunk = i = lastSpacePos + 1;
+              lastSpacePos = -1;
+              currentWidth = 0;
+            } else {
+              chunks.push(line.substring(startChunk, i));
+              startChunk = i;
+              currentWidth = charWidth;
+            }
+          } else {
+            currentWidth += charWidth;
+          }
+        }
+      }
+      if (startChunk < line.length) {
+        chunks.push(line.substring(startChunk, line.length));
+      }
+      return chunks;
     }
   }]);
 }(WidgetAnnotation);
 var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   function ButtonWidgetAnnotation(params) {
-    var _this5;
+    var _this6;
     _classCallCheck(this, ButtonWidgetAnnotation);
-    _this5 = _callSuper(this, ButtonWidgetAnnotation, [params]);
-    _this5.data.checkBox = !_this5.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !_this5.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
-    _this5.data.radioButton = _this5.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !_this5.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
-    _this5.data.pushButton = _this5.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
-    if (_this5.data.checkBox) {
-      _this5._processCheckBox(params);
-    } else if (_this5.data.radioButton) {
-      _this5._processRadioButton(params);
-    } else if (_this5.data.pushButton) {
-      _this5._processPushButton(params);
+    _this6 = _callSuper(this, ButtonWidgetAnnotation, [params]);
+    _this6.checkedAppearance = null;
+    _this6.uncheckedAppearance = null;
+    _this6.data.checkBox = !_this6.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !_this6.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
+    _this6.data.radioButton = _this6.hasFieldFlag(_util.AnnotationFieldFlag.RADIO) && !_this6.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
+    _this6.data.pushButton = _this6.hasFieldFlag(_util.AnnotationFieldFlag.PUSHBUTTON);
+    if (_this6.data.checkBox) {
+      _this6._processCheckBox(params);
+    } else if (_this6.data.radioButton) {
+      _this6._processRadioButton(params);
+    } else if (_this6.data.pushButton) {
+      _this6._processPushButton(params);
     } else {
       (0, _util.warn)("Invalid field flags for button widget annotation");
     }
-    return _this5;
+    return _this6;
   }
   _inherits(ButtonWidgetAnnotation, _WidgetAnnotation2);
   return _createClass(ButtonWidgetAnnotation, [{
+    key: "getOperatorList",
+    value: function getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+      if (this.data.pushButton) {
+        return _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, false, annotationStorage]);
+      }
+      if (annotationStorage) {
+        var value = annotationStorage[this.data.id] || false;
+        var appearance;
+        if (value) {
+          appearance = this.checkedAppearance;
+        } else {
+          appearance = this.uncheckedAppearance;
+        }
+        if (appearance) {
+          var savedAppearance = this.appearance;
+          this.appearance = appearance;
+          var operatorList = _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]);
+          this.appearance = savedAppearance;
+          return operatorList;
+        }
+        return Promise.resolve(new _operator_list.OperatorList());
+      }
+      return _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]);
+    }
+  }, {
+    key: "save",
+    value: function () {
+      var _save3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(evaluator, task, annotationStorage) {
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              if (!this.data.checkBox) {
+                _context5.next = 2;
+                break;
+              }
+              return _context5.abrupt("return", this._saveCheckbox(evaluator, task, annotationStorage));
+            case 2:
+              if (!this.data.radioButton) {
+                _context5.next = 4;
+                break;
+              }
+              return _context5.abrupt("return", this._saveRadioButton(evaluator, task, annotationStorage));
+            case 4:
+              return _context5.abrupt("return", _superPropGet(ButtonWidgetAnnotation, "save", this, 3)([evaluator, task, annotationStorage]));
+            case 5:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5, this);
+      }));
+      function save(_x12, _x13, _x14) {
+        return _save3.apply(this, arguments);
+      }
+      return save;
+    }()
+  }, {
+    key: "_saveCheckbox",
+    value: function () {
+      var _saveCheckbox2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evaluator, task, annotationStorage) {
+        var defaultValue, value, dict, name, encrypt, originalTransform, buffer;
+        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
+            case 0:
+              defaultValue = this.data.fieldValue && this.data.fieldValue !== "Off";
+              value = annotationStorage[this.data.id];
+              if (!(defaultValue === value)) {
+                _context6.next = 4;
+                break;
+              }
+              return _context6.abrupt("return", null);
+            case 4:
+              dict = evaluator.xref.fetchIfRef(this.ref);
+              if ((0, _primitives.isDict)(dict)) {
+                _context6.next = 7;
+                break;
+              }
+              return _context6.abrupt("return", null);
+            case 7:
+              name = _primitives.Name.get(value ? this.data.exportValue : "Off");
+              dict.set("V", name);
+              dict.set("AS", name);
+              dict.set("M", "D:".concat((0, _util.getModificationDate)()));
+              encrypt = evaluator.xref.encrypt;
+              originalTransform = null;
+              if (encrypt) {
+                originalTransform = encrypt.createCipherTransform(this.ref.num, this.ref.gen);
+              }
+              buffer = ["".concat(this.ref.num, " ").concat(this.ref.gen, " obj\n")];
+              (0, _writer.writeDict)(dict, buffer, originalTransform);
+              buffer.push("\nendobj\n");
+              return _context6.abrupt("return", [{
+                ref: this.ref,
+                data: buffer.join("")
+              }]);
+            case 18:
+            case "end":
+              return _context6.stop();
+          }
+        }, _callee6, this);
+      }));
+      function _saveCheckbox(_x15, _x16, _x17) {
+        return _saveCheckbox2.apply(this, arguments);
+      }
+      return _saveCheckbox;
+    }()
+  }, {
+    key: "_saveRadioButton",
+    value: function () {
+      var _saveRadioButton2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(evaluator, task, annotationStorage) {
+        var defaultValue, value, dict, name, parentBuffer, encrypt, parent, parentTransform, originalTransform, buffer, newRefs;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              defaultValue = this.data.fieldValue === this.data.buttonValue;
+              value = annotationStorage[this.data.id];
+              if (!(defaultValue === value)) {
+                _context7.next = 4;
+                break;
+              }
+              return _context7.abrupt("return", null);
+            case 4:
+              dict = evaluator.xref.fetchIfRef(this.ref);
+              if ((0, _primitives.isDict)(dict)) {
+                _context7.next = 7;
+                break;
+              }
+              return _context7.abrupt("return", null);
+            case 7:
+              name = _primitives.Name.get(value ? this.data.buttonValue : "Off");
+              parentBuffer = null;
+              encrypt = evaluator.xref.encrypt;
+              if (value) {
+                if ((0, _primitives.isRef)(this.parent)) {
+                  parent = evaluator.xref.fetch(this.parent);
+                  parentTransform = null;
+                  if (encrypt) {
+                    parentTransform = encrypt.createCipherTransform(this.parent.num, this.parent.gen);
+                  }
+                  parent.set("V", name);
+                  parentBuffer = ["".concat(this.parent.num, " ").concat(this.parent.gen, " obj\n")];
+                  (0, _writer.writeDict)(parent, parentBuffer, parentTransform);
+                  parentBuffer.push("\nendobj\n");
+                } else if ((0, _primitives.isDict)(this.parent)) {
+                  this.parent.set("V", name);
+                }
+              }
+              dict.set("AS", name);
+              dict.set("M", "D:".concat((0, _util.getModificationDate)()));
+              originalTransform = null;
+              if (encrypt) {
+                originalTransform = encrypt.createCipherTransform(this.ref.num, this.ref.gen);
+              }
+              buffer = ["".concat(this.ref.num, " ").concat(this.ref.gen, " obj\n")];
+              (0, _writer.writeDict)(dict, buffer, originalTransform);
+              buffer.push("\nendobj\n");
+              newRefs = [{
+                ref: this.ref,
+                data: buffer.join("")
+              }];
+              if (parentBuffer !== null) {
+                newRefs.push({
+                  ref: this.parent,
+                  data: parentBuffer.join("")
+                });
+              }
+              return _context7.abrupt("return", newRefs);
+            case 21:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, this);
+      }));
+      function _saveRadioButton(_x18, _x19, _x20) {
+        return _saveRadioButton2.apply(this, arguments);
+      }
+      return _saveRadioButton;
+    }()
+  }, {
     key: "_processCheckBox",
     value: function _processCheckBox(params) {
-      if ((0, _primitives.isName)(this.data.fieldValue)) {
-        this.data.fieldValue = this.data.fieldValue.name;
-      }
       var customAppearance = params.dict.get("AP");
       if (!(0, _primitives.isDict)(customAppearance)) {
         return;
       }
-      var exportValueOptionsDict = customAppearance.get("D");
-      if (!(0, _primitives.isDict)(exportValueOptionsDict)) {
+      var normalAppearance = customAppearance.get("N");
+      if (!(0, _primitives.isDict)(normalAppearance)) {
         return;
       }
-      var exportValues = exportValueOptionsDict.getKeys();
-      var hasCorrectOptionCount = exportValues.length === 2;
-      if (!hasCorrectOptionCount) {
+      var exportValues = normalAppearance.getKeys();
+      if (!exportValues.includes("Off")) {
+        exportValues.push("Off");
+      }
+      if (exportValues.length !== 2) {
         return;
       }
       this.data.exportValue = exportValues[0] === "Off" ? exportValues[1] : exportValues[0];
+      this.checkedAppearance = normalAppearance.get(this.data.exportValue);
+      this.uncheckedAppearance = normalAppearance.get("Off") || null;
     }
   }, {
     key: "_processRadioButton",
@@ -28826,32 +30249,35 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
       if ((0, _primitives.isDict)(fieldParent) && fieldParent.has("V")) {
         var fieldParentValue = fieldParent.get("V");
         if ((0, _primitives.isName)(fieldParentValue)) {
-          this.data.fieldValue = fieldParentValue.name;
+          this.parent = params.dict.getRaw("Parent");
+          this.data.fieldValue = this._decodeFormValue(fieldParentValue);
         }
       }
       var appearanceStates = params.dict.get("AP");
       if (!(0, _primitives.isDict)(appearanceStates)) {
         return;
       }
-      var normalAppearanceState = appearanceStates.get("N");
-      if (!(0, _primitives.isDict)(normalAppearanceState)) {
+      var normalAppearance = appearanceStates.get("N");
+      if (!(0, _primitives.isDict)(normalAppearance)) {
         return;
       }
-      var _iterator2 = _createForOfIteratorHelper(normalAppearanceState.getKeys()),
-        _step2;
+      var _iterator6 = _createForOfIteratorHelper(normalAppearance.getKeys()),
+        _step6;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var key = _step2.value;
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var key = _step6.value;
           if (key !== "Off") {
             this.data.buttonValue = key;
             break;
           }
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator6.e(err);
       } finally {
-        _iterator2.f();
+        _iterator6.f();
       }
+      this.checkedAppearance = normalAppearance.get(this.data.buttonValue);
+      this.uncheckedAppearance = normalAppearance.get("Off") || null;
     }
   }, {
     key: "_processPushButton",
@@ -28870,10 +30296,10 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
 }(WidgetAnnotation);
 var ChoiceWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation3) {
   function ChoiceWidgetAnnotation(params) {
-    var _this6;
+    var _this7;
     _classCallCheck(this, ChoiceWidgetAnnotation);
-    _this6 = _callSuper(this, ChoiceWidgetAnnotation, [params]);
-    _this6.data.options = [];
+    _this7 = _callSuper(this, ChoiceWidgetAnnotation, [params]);
+    _this7.data.options = [];
     var options = (0, _core_utils.getInheritableProperty)({
       dict: params.dict,
       key: "Opt"
@@ -28883,309 +30309,312 @@ var ChoiceWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation3) {
       for (var i = 0, ii = options.length; i < ii; i++) {
         var option = xref.fetchIfRef(options[i]);
         var isOptionArray = Array.isArray(option);
-        _this6.data.options[i] = {
-          exportValue: isOptionArray ? xref.fetchIfRef(option[0]) : option,
-          displayValue: (0, _util.stringToPDFString)(isOptionArray ? xref.fetchIfRef(option[1]) : option)
+        _this7.data.options[i] = {
+          exportValue: _this7._decodeFormValue(isOptionArray ? xref.fetchIfRef(option[0]) : option),
+          displayValue: _this7._decodeFormValue(isOptionArray ? xref.fetchIfRef(option[1]) : option)
         };
       }
     }
-    if (!Array.isArray(_this6.data.fieldValue)) {
-      _this6.data.fieldValue = [_this6.data.fieldValue];
+    if ((0, _util.isString)(_this7.data.fieldValue)) {
+      _this7.data.fieldValue = [_this7.data.fieldValue];
+    } else if (!_this7.data.fieldValue) {
+      _this7.data.fieldValue = [];
     }
-    _this6.data.combo = _this6.hasFieldFlag(_util.AnnotationFieldFlag.COMBO);
-    _this6.data.multiSelect = _this6.hasFieldFlag(_util.AnnotationFieldFlag.MULTISELECT);
-    return _this6;
+    _this7.data.combo = _this7.hasFieldFlag(_util.AnnotationFieldFlag.COMBO);
+    _this7.data.multiSelect = _this7.hasFieldFlag(_util.AnnotationFieldFlag.MULTISELECT);
+    _this7._hasText = true;
+    return _this7;
   }
   _inherits(ChoiceWidgetAnnotation, _WidgetAnnotation3);
   return _createClass(ChoiceWidgetAnnotation);
 }(WidgetAnnotation);
 var TextAnnotation = /*#__PURE__*/function (_MarkupAnnotation) {
   function TextAnnotation(parameters) {
-    var _this7;
+    var _this8;
     _classCallCheck(this, TextAnnotation);
     var DEFAULT_ICON_SIZE = 22;
-    _this7 = _callSuper(this, TextAnnotation, [parameters]);
+    _this8 = _callSuper(this, TextAnnotation, [parameters]);
     var dict = parameters.dict;
-    _this7.data.annotationType = _util.AnnotationType.TEXT;
-    if (_this7.data.hasAppearance) {
-      _this7.data.name = "NoIcon";
+    _this8.data.annotationType = _util.AnnotationType.TEXT;
+    if (_this8.data.hasAppearance) {
+      _this8.data.name = "NoIcon";
     } else {
-      _this7.data.rect[1] = _this7.data.rect[3] - DEFAULT_ICON_SIZE;
-      _this7.data.rect[2] = _this7.data.rect[0] + DEFAULT_ICON_SIZE;
-      _this7.data.name = dict.has("Name") ? dict.get("Name").name : "Note";
+      _this8.data.rect[1] = _this8.data.rect[3] - DEFAULT_ICON_SIZE;
+      _this8.data.rect[2] = _this8.data.rect[0] + DEFAULT_ICON_SIZE;
+      _this8.data.name = dict.has("Name") ? dict.get("Name").name : "Note";
     }
     if (dict.has("State")) {
-      _this7.data.state = dict.get("State") || null;
-      _this7.data.stateModel = dict.get("StateModel") || null;
+      _this8.data.state = dict.get("State") || null;
+      _this8.data.stateModel = dict.get("StateModel") || null;
     } else {
-      _this7.data.state = null;
-      _this7.data.stateModel = null;
+      _this8.data.state = null;
+      _this8.data.stateModel = null;
     }
-    return _this7;
+    return _this8;
   }
   _inherits(TextAnnotation, _MarkupAnnotation);
   return _createClass(TextAnnotation);
 }(MarkupAnnotation);
 var LinkAnnotation = /*#__PURE__*/function (_Annotation3) {
   function LinkAnnotation(params) {
-    var _this8;
+    var _this9;
     _classCallCheck(this, LinkAnnotation);
-    _this8 = _callSuper(this, LinkAnnotation, [params]);
-    _this8.data.annotationType = _util.AnnotationType.LINK;
-    var quadPoints = getQuadPoints(params.dict, _this8.rectangle);
+    _this9 = _callSuper(this, LinkAnnotation, [params]);
+    _this9.data.annotationType = _util.AnnotationType.LINK;
+    var quadPoints = getQuadPoints(params.dict, _this9.rectangle);
     if (quadPoints) {
-      _this8.data.quadPoints = quadPoints;
+      _this9.data.quadPoints = quadPoints;
     }
     _obj.Catalog.parseDestDictionary({
       destDict: params.dict,
-      resultObj: _this8.data,
+      resultObj: _this9.data,
       docBaseUrl: params.pdfManager.docBaseUrl
     });
-    return _this8;
+    return _this9;
   }
   _inherits(LinkAnnotation, _Annotation3);
   return _createClass(LinkAnnotation);
 }(Annotation);
 var PopupAnnotation = /*#__PURE__*/function (_Annotation4) {
   function PopupAnnotation(parameters) {
-    var _this9;
+    var _this10;
     _classCallCheck(this, PopupAnnotation);
-    _this9 = _callSuper(this, PopupAnnotation, [parameters]);
-    _this9.data.annotationType = _util.AnnotationType.POPUP;
+    _this10 = _callSuper(this, PopupAnnotation, [parameters]);
+    _this10.data.annotationType = _util.AnnotationType.POPUP;
     var parentItem = parameters.dict.get("Parent");
     if (!parentItem) {
       (0, _util.warn)("Popup annotation has a missing or invalid parent annotation.");
-      return _possibleConstructorReturn(_this9);
+      return _possibleConstructorReturn(_this10);
     }
     var parentSubtype = parentItem.get("Subtype");
-    _this9.data.parentType = (0, _primitives.isName)(parentSubtype) ? parentSubtype.name : null;
+    _this10.data.parentType = (0, _primitives.isName)(parentSubtype) ? parentSubtype.name : null;
     var rawParent = parameters.dict.getRaw("Parent");
-    _this9.data.parentId = (0, _primitives.isRef)(rawParent) ? rawParent.toString() : null;
+    _this10.data.parentId = (0, _primitives.isRef)(rawParent) ? rawParent.toString() : null;
     var rt = parentItem.get("RT");
     if ((0, _primitives.isName)(rt, _util.AnnotationReplyType.GROUP)) {
       parentItem = parentItem.get("IRT");
     }
     if (!parentItem.has("M")) {
-      _this9.data.modificationDate = null;
+      _this10.data.modificationDate = null;
     } else {
-      _this9.setModificationDate(parentItem.get("M"));
-      _this9.data.modificationDate = _this9.modificationDate;
+      _this10.setModificationDate(parentItem.get("M"));
+      _this10.data.modificationDate = _this10.modificationDate;
     }
     if (!parentItem.has("C")) {
-      _this9.data.color = null;
+      _this10.data.color = null;
     } else {
-      _this9.setColor(parentItem.getArray("C"));
-      _this9.data.color = _this9.color;
+      _this10.setColor(parentItem.getArray("C"));
+      _this10.data.color = _this10.color;
     }
-    if (!_this9.viewable) {
+    if (!_this10.viewable) {
       var parentFlags = parentItem.get("F");
-      if (_this9._isViewable(parentFlags)) {
-        _this9.setFlags(parentFlags);
+      if (_this10._isViewable(parentFlags)) {
+        _this10.setFlags(parentFlags);
       }
     }
-    _this9.data.title = (0, _util.stringToPDFString)(parentItem.get("T") || "");
-    _this9.data.contents = (0, _util.stringToPDFString)(parentItem.get("Contents") || "");
-    return _this9;
+    _this10.data.title = (0, _util.stringToPDFString)(parentItem.get("T") || "");
+    _this10.data.contents = (0, _util.stringToPDFString)(parentItem.get("Contents") || "");
+    return _this10;
   }
   _inherits(PopupAnnotation, _Annotation4);
   return _createClass(PopupAnnotation);
 }(Annotation);
 var FreeTextAnnotation = /*#__PURE__*/function (_MarkupAnnotation2) {
   function FreeTextAnnotation(parameters) {
-    var _this10;
+    var _this11;
     _classCallCheck(this, FreeTextAnnotation);
-    _this10 = _callSuper(this, FreeTextAnnotation, [parameters]);
-    _this10.data.annotationType = _util.AnnotationType.FREETEXT;
-    return _this10;
+    _this11 = _callSuper(this, FreeTextAnnotation, [parameters]);
+    _this11.data.annotationType = _util.AnnotationType.FREETEXT;
+    return _this11;
   }
   _inherits(FreeTextAnnotation, _MarkupAnnotation2);
   return _createClass(FreeTextAnnotation);
 }(MarkupAnnotation);
 var LineAnnotation = /*#__PURE__*/function (_MarkupAnnotation3) {
   function LineAnnotation(parameters) {
-    var _this11;
+    var _this12;
     _classCallCheck(this, LineAnnotation);
-    _this11 = _callSuper(this, LineAnnotation, [parameters]);
-    _this11.data.annotationType = _util.AnnotationType.LINE;
-    _this11.data.lineCoordinates = _util.Util.normalizeRect(parameters.dict.getArray("L"));
-    return _this11;
+    _this12 = _callSuper(this, LineAnnotation, [parameters]);
+    _this12.data.annotationType = _util.AnnotationType.LINE;
+    _this12.data.lineCoordinates = _util.Util.normalizeRect(parameters.dict.getArray("L"));
+    return _this12;
   }
   _inherits(LineAnnotation, _MarkupAnnotation3);
   return _createClass(LineAnnotation);
 }(MarkupAnnotation);
 var SquareAnnotation = /*#__PURE__*/function (_MarkupAnnotation4) {
   function SquareAnnotation(parameters) {
-    var _this12;
+    var _this13;
     _classCallCheck(this, SquareAnnotation);
-    _this12 = _callSuper(this, SquareAnnotation, [parameters]);
-    _this12.data.annotationType = _util.AnnotationType.SQUARE;
-    return _this12;
+    _this13 = _callSuper(this, SquareAnnotation, [parameters]);
+    _this13.data.annotationType = _util.AnnotationType.SQUARE;
+    return _this13;
   }
   _inherits(SquareAnnotation, _MarkupAnnotation4);
   return _createClass(SquareAnnotation);
 }(MarkupAnnotation);
 var CircleAnnotation = /*#__PURE__*/function (_MarkupAnnotation5) {
   function CircleAnnotation(parameters) {
-    var _this13;
+    var _this14;
     _classCallCheck(this, CircleAnnotation);
-    _this13 = _callSuper(this, CircleAnnotation, [parameters]);
-    _this13.data.annotationType = _util.AnnotationType.CIRCLE;
-    return _this13;
+    _this14 = _callSuper(this, CircleAnnotation, [parameters]);
+    _this14.data.annotationType = _util.AnnotationType.CIRCLE;
+    return _this14;
   }
   _inherits(CircleAnnotation, _MarkupAnnotation5);
   return _createClass(CircleAnnotation);
 }(MarkupAnnotation);
 var PolylineAnnotation = /*#__PURE__*/function (_MarkupAnnotation6) {
   function PolylineAnnotation(parameters) {
-    var _this14;
+    var _this15;
     _classCallCheck(this, PolylineAnnotation);
-    _this14 = _callSuper(this, PolylineAnnotation, [parameters]);
-    _this14.data.annotationType = _util.AnnotationType.POLYLINE;
+    _this15 = _callSuper(this, PolylineAnnotation, [parameters]);
+    _this15.data.annotationType = _util.AnnotationType.POLYLINE;
     var rawVertices = parameters.dict.getArray("Vertices");
-    _this14.data.vertices = [];
+    _this15.data.vertices = [];
     for (var i = 0, ii = rawVertices.length; i < ii; i += 2) {
-      _this14.data.vertices.push({
+      _this15.data.vertices.push({
         x: rawVertices[i],
         y: rawVertices[i + 1]
       });
     }
-    return _this14;
+    return _this15;
   }
   _inherits(PolylineAnnotation, _MarkupAnnotation6);
   return _createClass(PolylineAnnotation);
 }(MarkupAnnotation);
 var PolygonAnnotation = /*#__PURE__*/function (_PolylineAnnotation) {
   function PolygonAnnotation(parameters) {
-    var _this15;
+    var _this16;
     _classCallCheck(this, PolygonAnnotation);
-    _this15 = _callSuper(this, PolygonAnnotation, [parameters]);
-    _this15.data.annotationType = _util.AnnotationType.POLYGON;
-    return _this15;
+    _this16 = _callSuper(this, PolygonAnnotation, [parameters]);
+    _this16.data.annotationType = _util.AnnotationType.POLYGON;
+    return _this16;
   }
   _inherits(PolygonAnnotation, _PolylineAnnotation);
   return _createClass(PolygonAnnotation);
 }(PolylineAnnotation);
 var CaretAnnotation = /*#__PURE__*/function (_MarkupAnnotation7) {
   function CaretAnnotation(parameters) {
-    var _this16;
+    var _this17;
     _classCallCheck(this, CaretAnnotation);
-    _this16 = _callSuper(this, CaretAnnotation, [parameters]);
-    _this16.data.annotationType = _util.AnnotationType.CARET;
-    return _this16;
+    _this17 = _callSuper(this, CaretAnnotation, [parameters]);
+    _this17.data.annotationType = _util.AnnotationType.CARET;
+    return _this17;
   }
   _inherits(CaretAnnotation, _MarkupAnnotation7);
   return _createClass(CaretAnnotation);
 }(MarkupAnnotation);
 var InkAnnotation = /*#__PURE__*/function (_MarkupAnnotation8) {
   function InkAnnotation(parameters) {
-    var _this17;
+    var _this18;
     _classCallCheck(this, InkAnnotation);
-    _this17 = _callSuper(this, InkAnnotation, [parameters]);
-    _this17.data.annotationType = _util.AnnotationType.INK;
+    _this18 = _callSuper(this, InkAnnotation, [parameters]);
+    _this18.data.annotationType = _util.AnnotationType.INK;
     var xref = parameters.xref;
     var originalInkLists = parameters.dict.getArray("InkList");
-    _this17.data.inkLists = [];
+    _this18.data.inkLists = [];
     for (var i = 0, ii = originalInkLists.length; i < ii; ++i) {
-      _this17.data.inkLists.push([]);
+      _this18.data.inkLists.push([]);
       for (var j = 0, jj = originalInkLists[i].length; j < jj; j += 2) {
-        _this17.data.inkLists[i].push({
+        _this18.data.inkLists[i].push({
           x: xref.fetchIfRef(originalInkLists[i][j]),
           y: xref.fetchIfRef(originalInkLists[i][j + 1])
         });
       }
     }
-    return _this17;
+    return _this18;
   }
   _inherits(InkAnnotation, _MarkupAnnotation8);
   return _createClass(InkAnnotation);
 }(MarkupAnnotation);
 var HighlightAnnotation = /*#__PURE__*/function (_MarkupAnnotation9) {
   function HighlightAnnotation(parameters) {
-    var _this18;
-    _classCallCheck(this, HighlightAnnotation);
-    _this18 = _callSuper(this, HighlightAnnotation, [parameters]);
-    _this18.data.annotationType = _util.AnnotationType.HIGHLIGHT;
-    var quadPoints = getQuadPoints(parameters.dict, _this18.rectangle);
-    if (quadPoints) {
-      _this18.data.quadPoints = quadPoints;
-    }
-    return _this18;
-  }
-  _inherits(HighlightAnnotation, _MarkupAnnotation9);
-  return _createClass(HighlightAnnotation);
-}(MarkupAnnotation);
-var UnderlineAnnotation = /*#__PURE__*/function (_MarkupAnnotation10) {
-  function UnderlineAnnotation(parameters) {
     var _this19;
-    _classCallCheck(this, UnderlineAnnotation);
-    _this19 = _callSuper(this, UnderlineAnnotation, [parameters]);
-    _this19.data.annotationType = _util.AnnotationType.UNDERLINE;
+    _classCallCheck(this, HighlightAnnotation);
+    _this19 = _callSuper(this, HighlightAnnotation, [parameters]);
+    _this19.data.annotationType = _util.AnnotationType.HIGHLIGHT;
     var quadPoints = getQuadPoints(parameters.dict, _this19.rectangle);
     if (quadPoints) {
       _this19.data.quadPoints = quadPoints;
     }
     return _this19;
   }
-  _inherits(UnderlineAnnotation, _MarkupAnnotation10);
-  return _createClass(UnderlineAnnotation);
+  _inherits(HighlightAnnotation, _MarkupAnnotation9);
+  return _createClass(HighlightAnnotation);
 }(MarkupAnnotation);
-var SquigglyAnnotation = /*#__PURE__*/function (_MarkupAnnotation11) {
-  function SquigglyAnnotation(parameters) {
+var UnderlineAnnotation = /*#__PURE__*/function (_MarkupAnnotation10) {
+  function UnderlineAnnotation(parameters) {
     var _this20;
-    _classCallCheck(this, SquigglyAnnotation);
-    _this20 = _callSuper(this, SquigglyAnnotation, [parameters]);
-    _this20.data.annotationType = _util.AnnotationType.SQUIGGLY;
+    _classCallCheck(this, UnderlineAnnotation);
+    _this20 = _callSuper(this, UnderlineAnnotation, [parameters]);
+    _this20.data.annotationType = _util.AnnotationType.UNDERLINE;
     var quadPoints = getQuadPoints(parameters.dict, _this20.rectangle);
     if (quadPoints) {
       _this20.data.quadPoints = quadPoints;
     }
     return _this20;
   }
-  _inherits(SquigglyAnnotation, _MarkupAnnotation11);
-  return _createClass(SquigglyAnnotation);
+  _inherits(UnderlineAnnotation, _MarkupAnnotation10);
+  return _createClass(UnderlineAnnotation);
 }(MarkupAnnotation);
-var StrikeOutAnnotation = /*#__PURE__*/function (_MarkupAnnotation12) {
-  function StrikeOutAnnotation(parameters) {
+var SquigglyAnnotation = /*#__PURE__*/function (_MarkupAnnotation11) {
+  function SquigglyAnnotation(parameters) {
     var _this21;
-    _classCallCheck(this, StrikeOutAnnotation);
-    _this21 = _callSuper(this, StrikeOutAnnotation, [parameters]);
-    _this21.data.annotationType = _util.AnnotationType.STRIKEOUT;
+    _classCallCheck(this, SquigglyAnnotation);
+    _this21 = _callSuper(this, SquigglyAnnotation, [parameters]);
+    _this21.data.annotationType = _util.AnnotationType.SQUIGGLY;
     var quadPoints = getQuadPoints(parameters.dict, _this21.rectangle);
     if (quadPoints) {
       _this21.data.quadPoints = quadPoints;
     }
     return _this21;
   }
+  _inherits(SquigglyAnnotation, _MarkupAnnotation11);
+  return _createClass(SquigglyAnnotation);
+}(MarkupAnnotation);
+var StrikeOutAnnotation = /*#__PURE__*/function (_MarkupAnnotation12) {
+  function StrikeOutAnnotation(parameters) {
+    var _this22;
+    _classCallCheck(this, StrikeOutAnnotation);
+    _this22 = _callSuper(this, StrikeOutAnnotation, [parameters]);
+    _this22.data.annotationType = _util.AnnotationType.STRIKEOUT;
+    var quadPoints = getQuadPoints(parameters.dict, _this22.rectangle);
+    if (quadPoints) {
+      _this22.data.quadPoints = quadPoints;
+    }
+    return _this22;
+  }
   _inherits(StrikeOutAnnotation, _MarkupAnnotation12);
   return _createClass(StrikeOutAnnotation);
 }(MarkupAnnotation);
 var StampAnnotation = /*#__PURE__*/function (_MarkupAnnotation13) {
   function StampAnnotation(parameters) {
-    var _this22;
+    var _this23;
     _classCallCheck(this, StampAnnotation);
-    _this22 = _callSuper(this, StampAnnotation, [parameters]);
-    _this22.data.annotationType = _util.AnnotationType.STAMP;
-    return _this22;
+    _this23 = _callSuper(this, StampAnnotation, [parameters]);
+    _this23.data.annotationType = _util.AnnotationType.STAMP;
+    return _this23;
   }
   _inherits(StampAnnotation, _MarkupAnnotation13);
   return _createClass(StampAnnotation);
 }(MarkupAnnotation);
 var FileAttachmentAnnotation = /*#__PURE__*/function (_MarkupAnnotation14) {
   function FileAttachmentAnnotation(parameters) {
-    var _this23;
+    var _this24;
     _classCallCheck(this, FileAttachmentAnnotation);
-    _this23 = _callSuper(this, FileAttachmentAnnotation, [parameters]);
+    _this24 = _callSuper(this, FileAttachmentAnnotation, [parameters]);
     var file = new _obj.FileSpec(parameters.dict.get("FS"), parameters.xref);
-    _this23.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
-    _this23.data.file = file.serializable;
-    return _this23;
+    _this24.data.annotationType = _util.AnnotationType.FILEATTACHMENT;
+    _this24.data.file = file.serializable;
+    return _this24;
   }
   _inherits(FileAttachmentAnnotation, _MarkupAnnotation14);
   return _createClass(FileAttachmentAnnotation);
 }(MarkupAnnotation);
 
 /***/ }),
-/* 317 */
+/* 321 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -29196,6 +30625,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.OperatorList = void 0;
 var _util = __w_pdfjs_require__(2);
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 var QueueOptimizer = function QueueOptimizerClosure() {
   function addState(parentState, pattern, checkFn, iterateFn, processFn) {
     var state = parentState;
@@ -29349,15 +30781,17 @@ var QueueOptimizer = function QueueOptimizerClosure() {
     var isSameImage = false;
     var iTransform, transformArgs;
     var firstPIMXOArg0 = argsArray[iFirstPIMXO][0];
-    if (argsArray[iFirstTransform][1] === 0 && argsArray[iFirstTransform][2] === 0) {
+    var firstTransformArg0 = argsArray[iFirstTransform][0],
+      firstTransformArg1 = argsArray[iFirstTransform][1],
+      firstTransformArg2 = argsArray[iFirstTransform][2],
+      firstTransformArg3 = argsArray[iFirstTransform][3];
+    if (firstTransformArg1 === firstTransformArg2) {
       isSameImage = true;
-      var firstTransformArg0 = argsArray[iFirstTransform][0];
-      var firstTransformArg3 = argsArray[iFirstTransform][3];
       iTransform = iFirstTransform + 4;
       var iPIMXO = iFirstPIMXO + 4;
       for (q = 1; q < count; q++, iTransform += 4, iPIMXO += 4) {
         transformArgs = argsArray[iTransform];
-        if (argsArray[iPIMXO][0] !== firstPIMXOArg0 || transformArgs[0] !== firstTransformArg0 || transformArgs[1] !== 0 || transformArgs[2] !== 0 || transformArgs[3] !== firstTransformArg3) {
+        if (argsArray[iPIMXO][0] !== firstPIMXOArg0 || transformArgs[0] !== firstTransformArg0 || transformArgs[1] !== firstTransformArg1 || transformArgs[2] !== firstTransformArg2 || transformArgs[3] !== firstTransformArg3) {
           if (q < MIN_IMAGES_IN_MASKS_BLOCK) {
             isSameImage = false;
           } else {
@@ -29377,7 +30811,7 @@ var QueueOptimizer = function QueueOptimizerClosure() {
         positions[(q << 1) + 1] = transformArgs[5];
       }
       fnArray.splice(iFirstSave, count * 4, _util.OPS.paintImageMaskXObjectRepeat);
-      argsArray.splice(iFirstSave, count * 4, [firstPIMXOArg0, firstTransformArg0, firstTransformArg3, positions]);
+      argsArray.splice(iFirstSave, count * 4, [firstPIMXOArg0, firstTransformArg0, firstTransformArg1, firstTransformArg2, firstTransformArg3, positions]);
     } else {
       count = Math.min(count, MAX_IMAGES_IN_MASKS_BLOCK);
       var images = [];
@@ -29613,7 +31047,7 @@ var NullOptimizer = function NullOptimizerClosure() {
 var OperatorList = exports.OperatorList = function OperatorListClosure() {
   var CHUNK_SIZE = 1000;
   var CHUNK_SIZE_ABOUT = CHUNK_SIZE - 5;
-  function OperatorList(intent, streamSink, pageIndex) {
+  function OperatorList(intent, streamSink) {
     this._streamSink = streamSink;
     this.fnArray = [];
     this.argsArray = [];
@@ -29622,10 +31056,8 @@ var OperatorList = exports.OperatorList = function OperatorListClosure() {
     } else {
       this.optimizer = new NullOptimizer(this);
     }
-    this.dependencies = Object.create(null);
+    this.dependencies = new Set();
     this._totalLength = 0;
-    this.pageIndex = pageIndex;
-    this.intent = intent;
     this.weight = 0;
     this._resolved = streamSink ? null : Promise.resolve();
   }
@@ -29651,15 +31083,24 @@ var OperatorList = exports.OperatorList = function OperatorListClosure() {
       }
     },
     addDependency: function addDependency(dependency) {
-      if (dependency in this.dependencies) {
+      if (this.dependencies.has(dependency)) {
         return;
       }
-      this.dependencies[dependency] = true;
+      this.dependencies.add(dependency);
       this.addOp(_util.OPS.dependency, [dependency]);
     },
     addDependencies: function addDependencies(dependencies) {
-      for (var key in dependencies) {
-        this.addDependency(key);
+      var _iterator = _createForOfIteratorHelper(dependencies),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var dependency = _step.value;
+          this.addDependency(dependency);
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
     },
     addOpList: function addOpList(opList) {
@@ -29667,7 +31108,18 @@ var OperatorList = exports.OperatorList = function OperatorListClosure() {
         (0, _util.warn)('addOpList - ignoring invalid "opList" parameter.');
         return;
       }
-      Object.assign(this.dependencies, opList.dependencies);
+      var _iterator2 = _createForOfIteratorHelper(opList.dependencies),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var dependency = _step2.value;
+          this.dependencies.add(dependency);
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
       for (var i = 0, ii = opList.length; i < ii; i++) {
         this.addOp(opList.fnArray[i], opList.argsArray[i]);
       }
@@ -29710,7 +31162,7 @@ var OperatorList = exports.OperatorList = function OperatorListClosure() {
         lastChunk: lastChunk,
         length: length
       }, 1, this._transfers);
-      this.dependencies = Object.create(null);
+      this.dependencies.clear();
       this.fnArray.length = 0;
       this.argsArray.length = 0;
       this.weight = 0;
@@ -29721,58 +31173,390 @@ var OperatorList = exports.OperatorList = function OperatorListClosure() {
 }();
 
 /***/ }),
-/* 318 */
+/* 322 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
 
 
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.incrementalUpdate = incrementalUpdate;
+exports.writeDict = writeDict;
+var _util = __w_pdfjs_require__(2);
+var _primitives = __w_pdfjs_require__(300);
+var _crypto = __w_pdfjs_require__(317);
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function writeDict(dict, buffer, transform) {
+  buffer.push("<<");
+  var _iterator = _createForOfIteratorHelper(dict.getKeys()),
+    _step;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var key = _step.value;
+      buffer.push(" /".concat(key, " "));
+      writeValue(dict.getRaw(key), buffer, transform);
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+  buffer.push(">>");
+}
+function writeStream(stream, buffer, transform) {
+  writeDict(stream.dict, buffer, transform);
+  buffer.push(" stream\n");
+  var string = (0, _util.bytesToString)(stream.getBytes());
+  if (transform !== null) {
+    string = transform.encryptString(string);
+  }
+  buffer.push(string);
+  buffer.push("\nendstream\n");
+}
+function writeArray(array, buffer, transform) {
+  buffer.push("[");
+  var first = true;
+  var _iterator2 = _createForOfIteratorHelper(array),
+    _step2;
+  try {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+      var val = _step2.value;
+      if (!first) {
+        buffer.push(" ");
+      } else {
+        first = false;
+      }
+      writeValue(val, buffer, transform);
+    }
+  } catch (err) {
+    _iterator2.e(err);
+  } finally {
+    _iterator2.f();
+  }
+  buffer.push("]");
+}
+function numberToString(value) {
+  if (Number.isInteger(value)) {
+    return value.toString();
+  }
+  var roundedValue = Math.round(value * 100);
+  if (roundedValue % 100 === 0) {
+    return (roundedValue / 100).toString();
+  }
+  if (roundedValue % 10 === 0) {
+    return value.toFixed(1);
+  }
+  return value.toFixed(2);
+}
+function writeValue(value, buffer, transform) {
+  if ((0, _primitives.isName)(value)) {
+    buffer.push("/".concat(value.name));
+  } else if ((0, _primitives.isRef)(value)) {
+    buffer.push("".concat(value.num, " ").concat(value.gen, " R"));
+  } else if (Array.isArray(value)) {
+    writeArray(value, buffer, transform);
+  } else if (typeof value === "string") {
+    if (transform !== null) {
+      value = transform.encryptString(value);
+    }
+    buffer.push("(".concat((0, _util.escapeString)(value), ")"));
+  } else if (typeof value === "number") {
+    buffer.push(numberToString(value));
+  } else if ((0, _primitives.isDict)(value)) {
+    writeDict(value, buffer, transform);
+  } else if ((0, _primitives.isStream)(value)) {
+    writeStream(value, buffer, transform);
+  }
+}
+function writeInt(number, size, offset, buffer) {
+  for (var i = size + offset - 1; i > offset - 1; i--) {
+    buffer[i] = number & 0xff;
+    number >>= 8;
+  }
+  return offset + size;
+}
+function writeString(string, offset, buffer) {
+  for (var i = 0, len = string.length; i < len; i++) {
+    buffer[offset + i] = string.charCodeAt(i) & 0xff;
+  }
+}
+function computeMD5(filesize, xrefInfo) {
+  var time = Math.floor(Date.now() / 1000);
+  var filename = xrefInfo.filename || "";
+  var md5Buffer = [time.toString(), filename, filesize.toString()];
+  var md5BufferLen = md5Buffer.reduce(function (a, str) {
+    return a + str.length;
+  }, 0);
+  for (var _i = 0, _Object$values = Object.values(xrefInfo.info); _i < _Object$values.length; _i++) {
+    var value = _Object$values[_i];
+    md5Buffer.push(value);
+    md5BufferLen += value.length;
+  }
+  var array = new Uint8Array(md5BufferLen);
+  var offset = 0;
+  for (var _i2 = 0, _md5Buffer = md5Buffer; _i2 < _md5Buffer.length; _i2++) {
+    var str = _md5Buffer[_i2];
+    writeString(str, offset, array);
+    offset += str.length;
+  }
+  return (0, _util.bytesToString)((0, _crypto.calculateMD5)(array));
+}
+function incrementalUpdate(originalData, xrefInfo, newRefs) {
+  var newXref = new _primitives.Dict(null);
+  var refForXrefTable = xrefInfo.newRef;
+  var buffer, baseOffset;
+  var lastByte = originalData[originalData.length - 1];
+  if (lastByte === 0x0a || lastByte === 0x0d) {
+    buffer = [];
+    baseOffset = originalData.length;
+  } else {
+    buffer = ["\n"];
+    baseOffset = originalData.length + 1;
+  }
+  newXref.set("Size", refForXrefTable.num + 1);
+  newXref.set("Prev", xrefInfo.startXRef);
+  newXref.set("Type", _primitives.Name.get("XRef"));
+  if (xrefInfo.rootRef !== null) {
+    newXref.set("Root", xrefInfo.rootRef);
+  }
+  if (xrefInfo.infoRef !== null) {
+    newXref.set("Info", xrefInfo.infoRef);
+  }
+  if (xrefInfo.encrypt !== null) {
+    newXref.set("Encrypt", xrefInfo.encrypt);
+  }
+  newRefs.push({
+    ref: refForXrefTable,
+    data: ""
+  });
+  newRefs = newRefs.sort(function (a, b) {
+    return a.ref.num - b.ref.num;
+  });
+  var xrefTableData = [[0, 1, 0xffff]];
+  var indexes = [0, 1];
+  var maxOffset = 0;
+  var _iterator3 = _createForOfIteratorHelper(newRefs),
+    _step3;
+  try {
+    for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+      var _step3$value = _step3.value,
+        ref = _step3$value.ref,
+        data = _step3$value.data;
+      maxOffset = Math.max(maxOffset, baseOffset);
+      xrefTableData.push([1, baseOffset, Math.min(ref.gen, 0xffff)]);
+      baseOffset += data.length;
+      indexes.push(ref.num);
+      indexes.push(1);
+      buffer.push(data);
+    }
+  } catch (err) {
+    _iterator3.e(err);
+  } finally {
+    _iterator3.f();
+  }
+  newXref.set("Index", indexes);
+  if (xrefInfo.fileIds.length !== 0) {
+    var md5 = computeMD5(baseOffset, xrefInfo);
+    newXref.set("ID", [xrefInfo.fileIds[0], md5]);
+  }
+  var offsetSize = Math.ceil(Math.log2(maxOffset) / 8);
+  var sizes = [1, offsetSize, 2];
+  var structSize = sizes[0] + sizes[1] + sizes[2];
+  var tableLength = structSize * xrefTableData.length;
+  newXref.set("W", sizes);
+  newXref.set("Length", tableLength);
+  buffer.push("".concat(refForXrefTable.num, " ").concat(refForXrefTable.gen, " obj\n"));
+  writeDict(newXref, buffer, null);
+  buffer.push(" stream\n");
+  var bufferLen = buffer.reduce(function (a, str) {
+    return a + str.length;
+  }, 0);
+  var footer = "\nendstream\nendobj\nstartxref\n".concat(baseOffset, "\n%%EOF\n");
+  var array = new Uint8Array(originalData.length + bufferLen + tableLength + footer.length);
+  array.set(originalData);
+  var offset = originalData.length;
+  var _iterator4 = _createForOfIteratorHelper(buffer),
+    _step4;
+  try {
+    for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+      var str = _step4.value;
+      writeString(str, offset, array);
+      offset += str.length;
+    }
+  } catch (err) {
+    _iterator4.e(err);
+  } finally {
+    _iterator4.f();
+  }
+  for (var _i3 = 0, _xrefTableData = xrefTableData; _i3 < _xrefTableData.length; _i3++) {
+    var _xrefTableData$_i = _slicedToArray(_xrefTableData[_i3], 3),
+      type = _xrefTableData$_i[0],
+      objOffset = _xrefTableData$_i[1],
+      gen = _xrefTableData$_i[2];
+    offset = writeInt(type, sizes[0], offset, array);
+    offset = writeInt(objOffset, sizes[1], offset, array);
+    offset = writeInt(gen, sizes[2], offset, array);
+  }
+  writeString(footer, offset, array);
+  return array;
+}
+
+/***/ }),
+/* 323 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.PartialEvaluator = void 0;
 var _util = __w_pdfjs_require__(2);
-var _cmap = __w_pdfjs_require__(319);
-var _primitives = __w_pdfjs_require__(296);
-var _fonts = __w_pdfjs_require__(320);
-var _encodings = __w_pdfjs_require__(323);
-var _core_utils = __w_pdfjs_require__(299);
-var _unicode = __w_pdfjs_require__(326);
-var _standard_fonts = __w_pdfjs_require__(325);
-var _pattern = __w_pdfjs_require__(329);
-var _parser = __w_pdfjs_require__(302);
-var _bidi = __w_pdfjs_require__(330);
-var _colorspace = __w_pdfjs_require__(314);
-var _stream = __w_pdfjs_require__(303);
-var _glyphlist = __w_pdfjs_require__(324);
-var _metrics = __w_pdfjs_require__(331);
-var _function = __w_pdfjs_require__(332);
-var _image_utils = __w_pdfjs_require__(315);
-var _murmurhash = __w_pdfjs_require__(334);
-var _operator_list = __w_pdfjs_require__(317);
-var _image = __w_pdfjs_require__(335);
+var _cmap = __w_pdfjs_require__(324);
+var _primitives = __w_pdfjs_require__(300);
+var _fonts = __w_pdfjs_require__(325);
+var _encodings = __w_pdfjs_require__(328);
+var _core_utils = __w_pdfjs_require__(303);
+var _unicode = __w_pdfjs_require__(331);
+var _standard_fonts = __w_pdfjs_require__(330);
+var _pattern = __w_pdfjs_require__(334);
+var _function = __w_pdfjs_require__(335);
+var _parser = __w_pdfjs_require__(306);
+var _image_utils = __w_pdfjs_require__(319);
+var _bidi = __w_pdfjs_require__(337);
+var _colorspace = __w_pdfjs_require__(318);
+var _stream = __w_pdfjs_require__(307);
+var _glyphlist = __w_pdfjs_require__(329);
+var _metrics = __w_pdfjs_require__(338);
+var _murmurhash = __w_pdfjs_require__(339);
+var _operator_list = __w_pdfjs_require__(321);
+var _image = __w_pdfjs_require__(340);
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosure() {
-  var DefaultPartialEvaluatorOptions = {
-    maxImageSize: -1,
-    disableFontFace: false,
-    ignoreErrors: false,
-    isEvalSupported: true,
-    fontExtraProperties: false
-  };
+var DefaultPartialEvaluatorOptions = Object.freeze({
+  maxImageSize: -1,
+  disableFontFace: false,
+  ignoreErrors: false,
+  isEvalSupported: true,
+  fontExtraProperties: false
+});
+var PatternType = {
+  TILING: 1,
+  SHADING: 2
+};
+var deferred = Promise.resolve();
+function normalizeBlendMode(value) {
+  var parsingArray = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  if (Array.isArray(value)) {
+    for (var i = 0, ii = value.length; i < ii; i++) {
+      var maybeBM = normalizeBlendMode(value[i], true);
+      if (maybeBM) {
+        return maybeBM;
+      }
+    }
+    (0, _util.warn)("Unsupported blend mode Array: ".concat(value));
+    return "source-over";
+  }
+  if (!(0, _primitives.isName)(value)) {
+    if (parsingArray) {
+      return null;
+    }
+    return "source-over";
+  }
+  switch (value.name) {
+    case "Normal":
+    case "Compatible":
+      return "source-over";
+    case "Multiply":
+      return "multiply";
+    case "Screen":
+      return "screen";
+    case "Overlay":
+      return "overlay";
+    case "Darken":
+      return "darken";
+    case "Lighten":
+      return "lighten";
+    case "ColorDodge":
+      return "color-dodge";
+    case "ColorBurn":
+      return "color-burn";
+    case "HardLight":
+      return "hard-light";
+    case "SoftLight":
+      return "soft-light";
+    case "Difference":
+      return "difference";
+    case "Exclusion":
+      return "exclusion";
+    case "Hue":
+      return "hue";
+    case "Saturation":
+      return "saturation";
+    case "Color":
+      return "color";
+    case "Luminosity":
+      return "luminosity";
+  }
+  if (parsingArray) {
+    return null;
+  }
+  (0, _util.warn)("Unsupported blend mode: ".concat(value.name));
+  return "source-over";
+}
+var TimeSlotManager = /*#__PURE__*/function () {
+  function TimeSlotManager() {
+    _classCallCheck(this, TimeSlotManager);
+    this.reset();
+  }
+  return _createClass(TimeSlotManager, [{
+    key: "check",
+    value: function check() {
+      if (++this.checked < TimeSlotManager.CHECK_TIME_EVERY) {
+        return false;
+      }
+      this.checked = 0;
+      return this.endTime <= Date.now();
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      this.endTime = Date.now() + TimeSlotManager.TIME_SLOT_DURATION_MS;
+      this.checked = 0;
+    }
+  }], [{
+    key: "TIME_SLOT_DURATION_MS",
+    get: function get() {
+      return (0, _util.shadow)(this, "TIME_SLOT_DURATION_MS", 20);
+    }
+  }, {
+    key: "CHECK_TIME_EVERY",
+    get: function get() {
+      return (0, _util.shadow)(this, "CHECK_TIME_EVERY", 100);
+    }
+  }]);
+}();
+var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
   function PartialEvaluator(_ref) {
-    var _this = this;
     var xref = _ref.xref,
       handler = _ref.handler,
       pageIndex = _ref.pageIndex,
@@ -29781,8 +31565,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       builtInCMapCache = _ref.builtInCMapCache,
       globalImageCache = _ref.globalImageCache,
       _ref$options = _ref.options,
-      options = _ref$options === void 0 ? null : _ref$options,
-      pdfFunctionFactory = _ref.pdfFunctionFactory;
+      options = _ref$options === void 0 ? null : _ref$options;
+    _classCallCheck(this, PartialEvaluator);
     this.xref = xref;
     this.handler = handler;
     this.pageIndex = pageIndex;
@@ -29791,30 +31575,173 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
     this.builtInCMapCache = builtInCMapCache;
     this.globalImageCache = globalImageCache;
     this.options = options || DefaultPartialEvaluatorOptions;
-    this.pdfFunctionFactory = pdfFunctionFactory;
     this.parsingType3Font = false;
-    this.fetchBuiltInCMap = /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(name) {
-        var readableStream, reader, data;
+    this._fetchBuiltInCMapBound = this.fetchBuiltInCMap.bind(this);
+  }
+  return _createClass(PartialEvaluator, [{
+    key: "_pdfFunctionFactory",
+    get: function get() {
+      var pdfFunctionFactory = new _function.PDFFunctionFactory({
+        xref: this.xref,
+        isEvalSupported: this.options.isEvalSupported
+      });
+      return (0, _util.shadow)(this, "_pdfFunctionFactory", pdfFunctionFactory);
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
+      var newOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DefaultPartialEvaluatorOptions;
+      var newEvaluator = Object.create(this);
+      newEvaluator.options = newOptions;
+      return newEvaluator;
+    }
+  }, {
+    key: "hasBlendModes",
+    value: function hasBlendModes(resources) {
+      if (!(resources instanceof _primitives.Dict)) {
+        return false;
+      }
+      var processed = new _primitives.RefSet();
+      if (resources.objId) {
+        processed.put(resources.objId);
+      }
+      var nodes = [resources],
+        xref = this.xref;
+      while (nodes.length) {
+        var node = nodes.shift();
+        var graphicStates = node.get("ExtGState");
+        if (graphicStates instanceof _primitives.Dict) {
+          var _iterator = _createForOfIteratorHelper(graphicStates.getRawValues()),
+            _step;
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var graphicState = _step.value;
+              if (graphicState instanceof _primitives.Ref) {
+                if (processed.has(graphicState)) {
+                  continue;
+                }
+                try {
+                  graphicState = xref.fetch(graphicState);
+                } catch (ex) {
+                  if (ex instanceof _core_utils.MissingDataException) {
+                    throw ex;
+                  }
+                  processed.put(graphicState);
+                  (0, _util.info)("hasBlendModes - ignoring ExtGState: \"".concat(ex, "\"."));
+                  continue;
+                }
+              }
+              if (!(graphicState instanceof _primitives.Dict)) {
+                continue;
+              }
+              if (graphicState.objId) {
+                processed.put(graphicState.objId);
+              }
+              var bm = graphicState.get("BM");
+              if (bm instanceof _primitives.Name) {
+                if (bm.name !== "Normal") {
+                  return true;
+                }
+                continue;
+              }
+              if (bm !== undefined && Array.isArray(bm)) {
+                var _iterator2 = _createForOfIteratorHelper(bm),
+                  _step2;
+                try {
+                  for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                    var element = _step2.value;
+                    if (element instanceof _primitives.Name && element.name !== "Normal") {
+                      return true;
+                    }
+                  }
+                } catch (err) {
+                  _iterator2.e(err);
+                } finally {
+                  _iterator2.f();
+                }
+              }
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+        }
+        var xObjects = node.get("XObject");
+        if (!(xObjects instanceof _primitives.Dict)) {
+          continue;
+        }
+        var _iterator3 = _createForOfIteratorHelper(xObjects.getRawValues()),
+          _step3;
+        try {
+          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+            var xObject = _step3.value;
+            if (xObject instanceof _primitives.Ref) {
+              if (processed.has(xObject)) {
+                continue;
+              }
+              try {
+                xObject = xref.fetch(xObject);
+              } catch (ex) {
+                if (ex instanceof _core_utils.MissingDataException) {
+                  throw ex;
+                }
+                processed.put(xObject);
+                (0, _util.info)("hasBlendModes - ignoring XObject: \"".concat(ex, "\"."));
+                continue;
+              }
+            }
+            if (!(0, _primitives.isStream)(xObject)) {
+              continue;
+            }
+            if (xObject.dict.objId) {
+              processed.put(xObject.dict.objId);
+            }
+            var xResources = xObject.dict.get("Resources");
+            if (!(xResources instanceof _primitives.Dict)) {
+              continue;
+            }
+            if (xResources.objId && processed.has(xResources.objId)) {
+              continue;
+            }
+            nodes.push(xResources);
+            if (xResources.objId) {
+              processed.put(xResources.objId);
+            }
+          }
+        } catch (err) {
+          _iterator3.e(err);
+        } finally {
+          _iterator3.f();
+        }
+      }
+      return false;
+    }
+  }, {
+    key: "fetchBuiltInCMap",
+    value: function () {
+      var _fetchBuiltInCMap = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(name) {
+        var cachedData, readableStream, reader, data;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
-              if (!_this.builtInCMapCache.has(name)) {
-                _context.next = 2;
+              cachedData = this.builtInCMapCache.get(name);
+              if (!cachedData) {
+                _context.next = 3;
                 break;
               }
-              return _context.abrupt("return", _this.builtInCMapCache.get(name));
-            case 2:
-              readableStream = _this.handler.sendWithStream("FetchBuiltInCMap", {
+              return _context.abrupt("return", cachedData);
+            case 3:
+              readableStream = this.handler.sendWithStream("FetchBuiltInCMap", {
                 name: name
               });
               reader = readableStream.getReader();
-              _context.next = 6;
+              _context.next = 7;
               return new Promise(function (resolve, reject) {
                 function pump() {
-                  reader.read().then(function (_ref3) {
-                    var value = _ref3.value,
-                      done = _ref3.done;
+                  reader.read().then(function (_ref2) {
+                    var value = _ref2.value,
+                      done = _ref2.done;
                     if (done) {
                       return;
                     }
@@ -29824,228 +31751,28 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 }
                 pump();
               });
-            case 6:
+            case 7:
               data = _context.sent;
               if (data.compressionType !== _util.CMapCompressionType.NONE) {
-                _this.builtInCMapCache.set(name, data);
+                this.builtInCMapCache.set(name, data);
               }
               return _context.abrupt("return", data);
-            case 9:
+            case 10:
             case "end":
               return _context.stop();
           }
-        }, _callee);
+        }, _callee, this);
       }));
-      return function (_x) {
-        return _ref2.apply(this, arguments);
-      };
-    }();
-  }
-  var TIME_SLOT_DURATION_MS = 20;
-  var CHECK_TIME_EVERY = 100;
-  function TimeSlotManager() {
-    this.reset();
-  }
-  TimeSlotManager.prototype = {
-    check: function TimeSlotManager_check() {
-      if (++this.checked < CHECK_TIME_EVERY) {
-        return false;
+      function fetchBuiltInCMap(_x) {
+        return _fetchBuiltInCMap.apply(this, arguments);
       }
-      this.checked = 0;
-      return this.endTime <= Date.now();
-    },
-    reset: function TimeSlotManager_reset() {
-      this.endTime = Date.now() + TIME_SLOT_DURATION_MS;
-      this.checked = 0;
-    }
-  };
-  function normalizeBlendMode(value) {
-    var parsingArray = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-    if (Array.isArray(value)) {
-      for (var i = 0, ii = value.length; i < ii; i++) {
-        var maybeBM = normalizeBlendMode(value[i], true);
-        if (maybeBM) {
-          return maybeBM;
-        }
-      }
-      (0, _util.warn)("Unsupported blend mode Array: ".concat(value));
-      return "source-over";
-    }
-    if (!(0, _primitives.isName)(value)) {
-      if (parsingArray) {
-        return null;
-      }
-      return "source-over";
-    }
-    switch (value.name) {
-      case "Normal":
-      case "Compatible":
-        return "source-over";
-      case "Multiply":
-        return "multiply";
-      case "Screen":
-        return "screen";
-      case "Overlay":
-        return "overlay";
-      case "Darken":
-        return "darken";
-      case "Lighten":
-        return "lighten";
-      case "ColorDodge":
-        return "color-dodge";
-      case "ColorBurn":
-        return "color-burn";
-      case "HardLight":
-        return "hard-light";
-      case "SoftLight":
-        return "soft-light";
-      case "Difference":
-        return "difference";
-      case "Exclusion":
-        return "exclusion";
-      case "Hue":
-        return "hue";
-      case "Saturation":
-        return "saturation";
-      case "Color":
-        return "color";
-      case "Luminosity":
-        return "luminosity";
-    }
-    if (parsingArray) {
-      return null;
-    }
-    (0, _util.warn)("Unsupported blend mode: ".concat(value.name));
-    return "source-over";
-  }
-  var deferred = Promise.resolve();
-  var TILING_PATTERN = 1,
-    SHADING_PATTERN = 2;
-  PartialEvaluator.prototype = {
-    clone: function clone() {
-      var newOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : DefaultPartialEvaluatorOptions;
-      var newEvaluator = Object.create(this);
-      newEvaluator.options = newOptions;
-      return newEvaluator;
-    },
-    hasBlendModes: function PartialEvaluator_hasBlendModes(resources) {
-      if (!(resources instanceof _primitives.Dict)) {
-        return false;
-      }
-      var processed = Object.create(null);
-      if (resources.objId) {
-        processed[resources.objId] = true;
-      }
-      var nodes = [resources],
-        xref = this.xref;
-      while (nodes.length) {
-        var node = nodes.shift();
-        var graphicStates = node.get("ExtGState");
-        if (graphicStates instanceof _primitives.Dict) {
-          var graphicStatesKeys = graphicStates.getKeys();
-          for (var i = 0, ii = graphicStatesKeys.length; i < ii; i++) {
-            var key = graphicStatesKeys[i];
-            var graphicState = graphicStates.getRaw(key);
-            if (graphicState instanceof _primitives.Ref) {
-              if (processed[graphicState.toString()]) {
-                continue;
-              }
-              try {
-                graphicState = xref.fetch(graphicState);
-              } catch (ex) {
-                if (ex instanceof _core_utils.MissingDataException) {
-                  throw ex;
-                }
-                if (this.options.ignoreErrors) {
-                  if (graphicState instanceof _primitives.Ref) {
-                    processed[graphicState.toString()] = true;
-                  }
-                  this.handler.send("UnsupportedFeature", {
-                    featureId: _util.UNSUPPORTED_FEATURES.errorExtGState
-                  });
-                  (0, _util.warn)("hasBlendModes - ignoring ExtGState: \"".concat(ex, "\"."));
-                  continue;
-                }
-                throw ex;
-              }
-            }
-            if (!(graphicState instanceof _primitives.Dict)) {
-              continue;
-            }
-            if (graphicState.objId) {
-              processed[graphicState.objId] = true;
-            }
-            var bm = graphicState.get("BM");
-            if (bm instanceof _primitives.Name) {
-              if (bm.name !== "Normal") {
-                return true;
-              }
-              continue;
-            }
-            if (bm !== undefined && Array.isArray(bm)) {
-              for (var j = 0, jj = bm.length; j < jj; j++) {
-                if (bm[j] instanceof _primitives.Name && bm[j].name !== "Normal") {
-                  return true;
-                }
-              }
-            }
-          }
-        }
-        var xObjects = node.get("XObject");
-        if (!(xObjects instanceof _primitives.Dict)) {
-          continue;
-        }
-        var xObjectsKeys = xObjects.getKeys();
-        for (var _i = 0, _ii = xObjectsKeys.length; _i < _ii; _i++) {
-          var _key = xObjectsKeys[_i];
-          var xObject = xObjects.getRaw(_key);
-          if (xObject instanceof _primitives.Ref) {
-            if (processed[xObject.toString()]) {
-              continue;
-            }
-            try {
-              xObject = xref.fetch(xObject);
-            } catch (ex) {
-              if (ex instanceof _core_utils.MissingDataException) {
-                throw ex;
-              }
-              if (this.options.ignoreErrors) {
-                if (xObject instanceof _primitives.Ref) {
-                  processed[xObject.toString()] = true;
-                }
-                this.handler.send("UnsupportedFeature", {
-                  featureId: _util.UNSUPPORTED_FEATURES.errorXObject
-                });
-                (0, _util.warn)("hasBlendModes - ignoring XObject: \"".concat(ex, "\"."));
-                continue;
-              }
-              throw ex;
-            }
-          }
-          if (!(0, _primitives.isStream)(xObject)) {
-            continue;
-          }
-          if (xObject.dict.objId) {
-            if (processed[xObject.dict.objId]) {
-              continue;
-            }
-            processed[xObject.dict.objId] = true;
-          }
-          var xResources = xObject.dict.get("Resources");
-          if (xResources instanceof _primitives.Dict && (!xResources.objId || !processed[xResources.objId])) {
-            nodes.push(xResources);
-            if (xResources.objId) {
-              processed[xResources.objId] = true;
-            }
-          }
-        }
-      }
-      return false;
-    },
-    buildFormXObject: function buildFormXObject(resources, xobj, smask, operatorList, task, initialState) {
-      var _this2 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var dict, matrix, bbox, group, groupOptions, groupSubtype, colorSpace;
+      return fetchBuiltInCMap;
+    }()
+  }, {
+    key: "buildFormXObject",
+    value: function () {
+      var _buildFormXObject = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(resources, xobj, smask, operatorList, task, initialState, localColorSpaceCache) {
+        var dict, matrix, bbox, optionalContent, group, groupOptions, groupSubtype, colorSpace, cs, cachedColorSpace;
         return _regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
@@ -30057,9 +31784,20 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               } else {
                 bbox = null;
               }
+              optionalContent = null;
+              if (!dict.has("OC")) {
+                _context2.next = 10;
+                break;
+              }
+              _context2.next = 8;
+              return this.parseMarkedContentProps(dict.get("OC"), resources);
+            case 8:
+              optionalContent = _context2.sent;
+              operatorList.addOp(_util.OPS.beginMarkedContentProps, ["OC", optionalContent]);
+            case 10:
               group = dict.get("Group");
               if (!group) {
-                _context2.next = 18;
+                _context2.next = 30;
                 break;
               }
               groupOptions = {
@@ -30072,31 +31810,42 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               groupSubtype = group.get("S");
               colorSpace = null;
               if (!(0, _primitives.isName)(groupSubtype, "Transparency")) {
-                _context2.next = 16;
+                _context2.next = 28;
                 break;
               }
               groupOptions.isolated = group.get("I") || false;
               groupOptions.knockout = group.get("K") || false;
               if (!group.has("CS")) {
-                _context2.next = 16;
+                _context2.next = 28;
                 break;
               }
-              _context2.next = 15;
-              return _this2.parseColorSpace({
-                cs: group.get("CS"),
-                resources: resources
+              cs = group.getRaw("CS");
+              cachedColorSpace = _colorspace.ColorSpace.getCached(cs, this.xref, localColorSpaceCache);
+              if (!cachedColorSpace) {
+                _context2.next = 25;
+                break;
+              }
+              colorSpace = cachedColorSpace;
+              _context2.next = 28;
+              break;
+            case 25:
+              _context2.next = 27;
+              return this.parseColorSpace({
+                cs: cs,
+                resources: resources,
+                localColorSpaceCache: localColorSpaceCache
               });
-            case 15:
+            case 27:
               colorSpace = _context2.sent;
-            case 16:
+            case 28:
               if (smask && smask.backdrop) {
                 colorSpace = colorSpace || _colorspace.ColorSpace.singletons.rgb;
                 smask.backdrop = colorSpace.getRgb(smask.backdrop, 0);
               }
               operatorList.addOp(_util.OPS.beginGroup, [groupOptions]);
-            case 18:
+            case 30:
               operatorList.addOp(_util.OPS.paintFormXObjectBegin, [matrix, bbox]);
-              return _context2.abrupt("return", _this2.getOperatorList({
+              return _context2.abrupt("return", this.getOperatorList({
                 stream: xobj,
                 task: task,
                 resources: dict.get("Resources") || resources,
@@ -30107,22 +31856,41 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 if (group) {
                   operatorList.addOp(_util.OPS.endGroup, [groupOptions]);
                 }
+                if (optionalContent) {
+                  operatorList.addOp(_util.OPS.endMarkedContent, []);
+                }
               }));
-            case 20:
+            case 32:
             case "end":
               return _context2.stop();
           }
-        }, _callee2);
-      }))();
-    },
-    buildPaintImageXObject: function buildPaintImageXObject(_ref4) {
-      var _this3 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-        var resources, image, _ref4$isInline, isInline, operatorList, cacheKey, localImageCache, dict, imageRef, w, h, maxImageSize, imageMask, imgData, args, width, height, bitStrideLength, imgArray, decode, softMask, mask, SMALL_IMAGE_DIMENSIONS, imageObj, objId, cacheGlobally, imgPromise;
+        }, _callee2, this);
+      }));
+      function buildFormXObject(_x2, _x3, _x4, _x5, _x6, _x7, _x8) {
+        return _buildFormXObject.apply(this, arguments);
+      }
+      return buildFormXObject;
+    }()
+  }, {
+    key: "_sendImgData",
+    value: function _sendImgData(objId, imgData) {
+      var cacheGlobally = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var transfers = imgData ? [imgData.data.buffer] : null;
+      if (this.parsingType3Font || cacheGlobally) {
+        return this.handler.send("commonobj", [objId, "Image", imgData], transfers);
+      }
+      return this.handler.send("obj", [objId, this.pageIndex, "Image", imgData], transfers);
+    }
+  }, {
+    key: "buildPaintImageXObject",
+    value: function () {
+      var _buildPaintImageXObject = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(_ref3) {
+        var _this = this;
+        var resources, image, _ref3$isInline, isInline, operatorList, cacheKey, localImageCache, localColorSpaceCache, dict, imageRef, w, h, maxImageSize, imageMask, imgData, args, width, height, bitStrideLength, imgArray, decode, softMask, mask, SMALL_IMAGE_DIMENSIONS, imageObj, objId, cacheGlobally;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
-              resources = _ref4.resources, image = _ref4.image, _ref4$isInline = _ref4.isInline, isInline = _ref4$isInline === void 0 ? false : _ref4$isInline, operatorList = _ref4.operatorList, cacheKey = _ref4.cacheKey, localImageCache = _ref4.localImageCache;
+              resources = _ref3.resources, image = _ref3.image, _ref3$isInline = _ref3.isInline, isInline = _ref3$isInline === void 0 ? false : _ref3$isInline, operatorList = _ref3.operatorList, cacheKey = _ref3.cacheKey, localImageCache = _ref3.localImageCache, localColorSpaceCache = _ref3.localColorSpaceCache;
               dict = image.dict;
               imageRef = dict.objId;
               w = dict.get("Width", "W");
@@ -30134,7 +31902,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               (0, _util.warn)("Image dimensions are missing, or not numbers.");
               return _context3.abrupt("return", undefined);
             case 8:
-              maxImageSize = _this3.options.maxImageSize;
+              maxImageSize = this.options.maxImageSize;
               if (!(maxImageSize !== -1 && w * h > maxImageSize)) {
                 _context3.next = 12;
                 break;
@@ -30178,61 +31946,42 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 break;
               }
               imageObj = new _image.PDFImage({
-                xref: _this3.xref,
+                xref: this.xref,
                 res: resources,
                 image: image,
                 isInline: isInline,
-                pdfFunctionFactory: _this3.pdfFunctionFactory
+                pdfFunctionFactory: this._pdfFunctionFactory,
+                localColorSpaceCache: localColorSpaceCache
               });
               imgData = imageObj.createImageData(true);
               operatorList.addOp(_util.OPS.paintInlineImageXObject, [imgData]);
               return _context3.abrupt("return", undefined);
             case 33:
-              objId = "img_".concat(_this3.idFactory.createObjId()), cacheGlobally = false;
-              if (_this3.parsingType3Font) {
-                objId = "".concat(_this3.idFactory.getDocId(), "_type3res_").concat(objId);
+              objId = "img_".concat(this.idFactory.createObjId()), cacheGlobally = false;
+              if (this.parsingType3Font) {
+                objId = "".concat(this.idFactory.getDocId(), "_type3_").concat(objId);
               } else if (imageRef) {
-                cacheGlobally = _this3.globalImageCache.shouldCache(imageRef, _this3.pageIndex);
+                cacheGlobally = this.globalImageCache.shouldCache(imageRef, this.pageIndex);
                 if (cacheGlobally) {
-                  objId = "".concat(_this3.idFactory.getDocId(), "_").concat(objId);
+                  objId = "".concat(this.idFactory.getDocId(), "_").concat(objId);
                 }
               }
               operatorList.addDependency(objId);
               args = [objId, w, h];
-              imgPromise = _image.PDFImage.buildImage({
-                xref: _this3.xref,
+              _image.PDFImage.buildImage({
+                xref: this.xref,
                 res: resources,
                 image: image,
                 isInline: isInline,
-                pdfFunctionFactory: _this3.pdfFunctionFactory
+                pdfFunctionFactory: this._pdfFunctionFactory,
+                localColorSpaceCache: localColorSpaceCache
               }).then(function (imageObj) {
                 imgData = imageObj.createImageData(false);
-                if (_this3.parsingType3Font) {
-                  return _this3.handler.sendWithPromise("commonobj", [objId, "FontType3Res", imgData], [imgData.data.buffer]);
-                } else if (cacheGlobally) {
-                  _this3.handler.send("commonobj", [objId, "Image", imgData], [imgData.data.buffer]);
-                  return undefined;
-                }
-                _this3.handler.send("obj", [objId, _this3.pageIndex, "Image", imgData], [imgData.data.buffer]);
-                return undefined;
+                return _this._sendImgData(objId, imgData, cacheGlobally);
               })["catch"](function (reason) {
-                (0, _util.warn)("Unable to decode image: " + reason);
-                if (_this3.parsingType3Font) {
-                  return _this3.handler.sendWithPromise("commonobj", [objId, "FontType3Res", null]);
-                } else if (cacheGlobally) {
-                  _this3.handler.send("commonobj", [objId, "Image", null]);
-                  return undefined;
-                }
-                _this3.handler.send("obj", [objId, _this3.pageIndex, "Image", null]);
-                return undefined;
+                (0, _util.warn)("Unable to decode image \"".concat(objId, "\": \"").concat(reason, "\"."));
+                return _this._sendImgData(objId, null, cacheGlobally);
               });
-              if (!_this3.parsingType3Font) {
-                _context3.next = 41;
-                break;
-              }
-              _context3.next = 41;
-              return imgPromise;
-            case 41:
               operatorList.addOp(_util.OPS.paintImageXObject, args);
               if (cacheKey) {
                 localImageCache.set(cacheKey, imageRef, {
@@ -30241,9 +31990,9 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 });
                 if (imageRef) {
                   (0, _util.assert)(!isInline, "Cannot cache an inline image globally.");
-                  _this3.globalImageCache.addPageIndex(imageRef, _this3.pageIndex);
+                  this.globalImageCache.addPageIndex(imageRef, this.pageIndex);
                   if (cacheGlobally) {
-                    _this3.globalImageCache.setData(imageRef, {
+                    this.globalImageCache.setData(imageRef, {
                       objId: objId,
                       fn: _util.OPS.paintImageXObject,
                       args: args
@@ -30252,14 +32001,20 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 }
               }
               return _context3.abrupt("return", undefined);
-            case 44:
+            case 41:
             case "end":
               return _context3.stop();
           }
-        }, _callee3);
-      }))();
-    },
-    handleSMask: function PartialEvaluator_handleSmask(smask, resources, operatorList, task, stateManager) {
+        }, _callee3, this);
+      }));
+      function buildPaintImageXObject(_x9) {
+        return _buildPaintImageXObject.apply(this, arguments);
+      }
+      return buildPaintImageXObject;
+    }()
+  }, {
+    key: "handleSMask",
+    value: function handleSMask(smask, resources, operatorList, task, stateManager, localColorSpaceCache) {
       var smaskContent = smask.get("G");
       var smaskOptions = {
         subtype: smask.get("S").name,
@@ -30267,7 +32022,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       };
       var transferObj = smask.get("TR");
       if ((0, _function.isPDFFunction)(transferObj)) {
-        var transferFn = this.pdfFunctionFactory.create(transferObj);
+        var transferFn = this._pdfFunctionFactory.create(transferObj);
         var transferMap = new Uint8Array(256);
         var tmp = new Float32Array(1);
         for (var i = 0; i < 256; i++) {
@@ -30277,13 +32032,68 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         smaskOptions.transferMap = transferMap;
       }
-      return this.buildFormXObject(resources, smaskContent, smaskOptions, operatorList, task, stateManager.state.clone());
-    },
-    handleTilingType: function handleTilingType(fn, args, resources, pattern, patternDict, operatorList, task) {
-      var _this4 = this;
+      return this.buildFormXObject(resources, smaskContent, smaskOptions, operatorList, task, stateManager.state.clone(), localColorSpaceCache);
+    }
+  }, {
+    key: "handleTransferFunction",
+    value: function handleTransferFunction(tr) {
+      var transferArray;
+      if (Array.isArray(tr)) {
+        transferArray = tr;
+      } else if ((0, _function.isPDFFunction)(tr)) {
+        transferArray = [tr];
+      } else {
+        return null;
+      }
+      var transferMaps = [];
+      var numFns = 0,
+        numEffectfulFns = 0;
+      var _iterator4 = _createForOfIteratorHelper(transferArray),
+        _step4;
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var entry = _step4.value;
+          var transferObj = this.xref.fetchIfRef(entry);
+          numFns++;
+          if ((0, _primitives.isName)(transferObj, "Identity")) {
+            transferMaps.push(null);
+            continue;
+          } else if (!(0, _function.isPDFFunction)(transferObj)) {
+            return null;
+          }
+          var transferFn = this._pdfFunctionFactory.create(transferObj);
+          var transferMap = new Uint8Array(256),
+            tmp = new Float32Array(1);
+          for (var j = 0; j < 256; j++) {
+            tmp[0] = j / 255;
+            transferFn(tmp, 0, tmp, 0);
+            transferMap[j] = tmp[0] * 255 | 0;
+          }
+          transferMaps.push(transferMap);
+          numEffectfulFns++;
+        }
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
+      }
+      if (!(numFns === 1 || numFns === 4)) {
+        return null;
+      }
+      if (numEffectfulFns === 0) {
+        return null;
+      }
+      return transferMaps;
+    }
+  }, {
+    key: "handleTilingType",
+    value: function handleTilingType(fn, args, resources, pattern, patternDict, operatorList, task) {
+      var _this2 = this;
       var tilingOpList = new _operator_list.OperatorList();
-      var resourcesArray = [patternDict.get("Resources"), resources];
-      var patternResources = _primitives.Dict.merge(this.xref, resourcesArray);
+      var patternResources = _primitives.Dict.merge({
+        xref: this.xref,
+        dictArray: [patternDict.get("Resources"), resources]
+      });
       return this.getOperatorList({
         stream: pattern,
         task: task,
@@ -30301,8 +32111,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         if (reason instanceof _util.AbortException) {
           return;
         }
-        if (_this4.options.ignoreErrors) {
-          _this4.handler.send("UnsupportedFeature", {
+        if (_this2.options.ignoreErrors) {
+          _this2.handler.send("UnsupportedFeature", {
             featureId: _util.UNSUPPORTED_FEATURES.errorTilingPattern
           });
           (0, _util.warn)("handleTilingType - ignoring pattern: \"".concat(reason, "\"."));
@@ -30310,38 +32120,47 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         throw reason;
       });
-    },
-    handleSetFont: function PartialEvaluator_handleSetFont(resources, fontArgs, fontRef, operatorList, task, state) {
-      var _this5 = this;
-      var fontName;
+    }
+  }, {
+    key: "handleSetFont",
+    value: function handleSetFont(resources, fontArgs, fontRef, operatorList, task, state) {
+      var _this3 = this;
+      var fontName,
+        fontSize = 0;
       if (fontArgs) {
         fontArgs = fontArgs.slice();
         fontName = fontArgs[0].name;
+        fontSize = fontArgs[1];
       }
       return this.loadFont(fontName, fontRef, resources).then(function (translated) {
         if (!translated.font.isType3Font) {
           return translated;
         }
-        return translated.loadType3Data(_this5, resources, operatorList, task).then(function () {
+        return translated.loadType3Data(_this3, resources, task).then(function () {
+          operatorList.addDependencies(translated.type3Dependencies);
           return translated;
         })["catch"](function (reason) {
-          _this5.handler.send("UnsupportedFeature", {
+          _this3.handler.send("UnsupportedFeature", {
             featureId: _util.UNSUPPORTED_FEATURES.errorFontLoadType3
           });
           return new TranslatedFont({
             loadedName: "g_font_error",
             font: new _fonts.ErrorFont("Type3 font load error: ".concat(reason)),
             dict: translated.font,
-            extraProperties: _this5.options.fontExtraProperties
+            extraProperties: _this3.options.fontExtraProperties
           });
         });
       }).then(function (translated) {
         state.font = translated.font;
-        translated.send(_this5.handler);
+        state.fontSize = fontSize;
+        state.fontName = fontName;
+        translated.send(_this3.handler);
         return translated.loadedName;
       });
-    },
-    handleText: function handleText(chars, state) {
+    }
+  }, {
+    key: "handleText",
+    value: function handleText(chars, state) {
       var font = state.font;
       var glyphs = font.charsToGlyphs(chars);
       if (font.data) {
@@ -30351,8 +32170,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
       }
       return glyphs;
-    },
-    ensureStateFont: function ensureStateFont(state) {
+    }
+  }, {
+    key: "ensureStateFont",
+    value: function ensureStateFont(state) {
       if (state.font) {
         return;
       }
@@ -30365,92 +32186,124 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         return;
       }
       throw reason;
-    },
-    setGState: function PartialEvaluator_setGState(resources, gState, operatorList, task, stateManager) {
-      var _this6 = this;
-      var gStateObj = [];
-      var gStateKeys = gState.getKeys();
-      var promise = Promise.resolve();
-      var _loop = function _loop() {
-        var key = gStateKeys[i];
-        var value = gState.get(key);
-        switch (key) {
-          case "Type":
-            break;
-          case "LW":
-          case "LC":
-          case "LJ":
-          case "ML":
-          case "D":
-          case "RI":
-          case "FL":
-          case "CA":
-          case "ca":
-            gStateObj.push([key, value]);
-            break;
-          case "Font":
-            promise = promise.then(function () {
-              return _this6.handleSetFont(resources, null, value[0], operatorList, task, stateManager.state).then(function (loadedName) {
-                operatorList.addDependency(loadedName);
-                gStateObj.push([key, [loadedName, value[1]]]);
+    }
+  }, {
+    key: "setGState",
+    value: function () {
+      var _setGState = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(_ref4) {
+        var _this4 = this;
+        var resources, gState, operatorList, cacheKey, task, stateManager, localGStateCache, localColorSpaceCache, gStateRef, isSimpleGState, gStateObj, gStateKeys, promise, _loop, i, ii;
+        return _regeneratorRuntime().wrap(function _callee4$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              resources = _ref4.resources, gState = _ref4.gState, operatorList = _ref4.operatorList, cacheKey = _ref4.cacheKey, task = _ref4.task, stateManager = _ref4.stateManager, localGStateCache = _ref4.localGStateCache, localColorSpaceCache = _ref4.localColorSpaceCache;
+              gStateRef = gState.objId;
+              isSimpleGState = true;
+              gStateObj = [];
+              gStateKeys = gState.getKeys();
+              promise = Promise.resolve();
+              _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
+                var key, value, transferMaps;
+                return _regeneratorRuntime().wrap(function _loop$(_context4) {
+                  while (1) switch (_context4.prev = _context4.next) {
+                    case 0:
+                      key = gStateKeys[i];
+                      value = gState.get(key);
+                      _context4.t0 = key;
+                      _context4.next = _context4.t0 === "Type" ? 5 : _context4.t0 === "LW" ? 6 : _context4.t0 === "LC" ? 6 : _context4.t0 === "LJ" ? 6 : _context4.t0 === "ML" ? 6 : _context4.t0 === "D" ? 6 : _context4.t0 === "RI" ? 6 : _context4.t0 === "FL" ? 6 : _context4.t0 === "CA" ? 6 : _context4.t0 === "ca" ? 6 : _context4.t0 === "Font" ? 8 : _context4.t0 === "BM" ? 11 : _context4.t0 === "SMask" ? 13 : _context4.t0 === "TR" ? 18 : _context4.t0 === "OP" ? 21 : _context4.t0 === "op" ? 21 : _context4.t0 === "OPM" ? 21 : _context4.t0 === "BG" ? 21 : _context4.t0 === "BG2" ? 21 : _context4.t0 === "UCR" ? 21 : _context4.t0 === "UCR2" ? 21 : _context4.t0 === "TR2" ? 21 : _context4.t0 === "HT" ? 21 : _context4.t0 === "SM" ? 21 : _context4.t0 === "SA" ? 21 : _context4.t0 === "AIS" ? 21 : _context4.t0 === "TK" ? 21 : 23;
+                      break;
+                    case 5:
+                      return _context4.abrupt("break", 25);
+                    case 6:
+                      gStateObj.push([key, value]);
+                      return _context4.abrupt("break", 25);
+                    case 8:
+                      isSimpleGState = false;
+                      promise = promise.then(function () {
+                        return _this4.handleSetFont(resources, null, value[0], operatorList, task, stateManager.state).then(function (loadedName) {
+                          operatorList.addDependency(loadedName);
+                          gStateObj.push([key, [loadedName, value[1]]]);
+                        });
+                      });
+                      return _context4.abrupt("break", 25);
+                    case 11:
+                      gStateObj.push([key, normalizeBlendMode(value)]);
+                      return _context4.abrupt("break", 25);
+                    case 13:
+                      if (!(0, _primitives.isName)(value, "None")) {
+                        _context4.next = 16;
+                        break;
+                      }
+                      gStateObj.push([key, false]);
+                      return _context4.abrupt("break", 25);
+                    case 16:
+                      if ((0, _primitives.isDict)(value)) {
+                        isSimpleGState = false;
+                        promise = promise.then(function () {
+                          return _this4.handleSMask(value, resources, operatorList, task, stateManager, localColorSpaceCache);
+                        });
+                        gStateObj.push([key, true]);
+                      } else {
+                        (0, _util.warn)("Unsupported SMask type");
+                      }
+                      return _context4.abrupt("break", 25);
+                    case 18:
+                      transferMaps = _this4.handleTransferFunction(value);
+                      gStateObj.push([key, transferMaps]);
+                      return _context4.abrupt("break", 25);
+                    case 21:
+                      (0, _util.info)("graphic state operator " + key);
+                      return _context4.abrupt("break", 25);
+                    case 23:
+                      (0, _util.info)("Unknown graphic state operator " + key);
+                      return _context4.abrupt("break", 25);
+                    case 25:
+                    case "end":
+                      return _context4.stop();
+                  }
+                }, _loop);
               });
-            });
-            break;
-          case "BM":
-            gStateObj.push([key, normalizeBlendMode(value)]);
-            break;
-          case "SMask":
-            if ((0, _primitives.isName)(value, "None")) {
-              gStateObj.push([key, false]);
+              i = 0, ii = gStateKeys.length;
+            case 8:
+              if (!(i < ii)) {
+                _context5.next = 13;
+                break;
+              }
+              return _context5.delegateYield(_loop(), "t0", 10);
+            case 10:
+              i++;
+              _context5.next = 8;
               break;
-            }
-            if ((0, _primitives.isDict)(value)) {
-              promise = promise.then(function () {
-                return _this6.handleSMask(value, resources, operatorList, task, stateManager);
-              });
-              gStateObj.push([key, true]);
-            } else {
-              (0, _util.warn)("Unsupported SMask type");
-            }
-            break;
-          case "OP":
-          case "op":
-          case "OPM":
-          case "BG":
-          case "BG2":
-          case "UCR":
-          case "UCR2":
-          case "TR":
-          case "TR2":
-          case "HT":
-          case "SM":
-          case "SA":
-          case "AIS":
-          case "TK":
-            (0, _util.info)("graphic state operator " + key);
-            break;
-          default:
-            (0, _util.info)("Unknown graphic state operator " + key);
-            break;
-        }
-      };
-      for (var i = 0, ii = gStateKeys.length; i < ii; i++) {
-        _loop();
+            case 13:
+              return _context5.abrupt("return", promise.then(function () {
+                if (gStateObj.length > 0) {
+                  operatorList.addOp(_util.OPS.setGState, [gStateObj]);
+                }
+                if (isSimpleGState) {
+                  localGStateCache.set(cacheKey, gStateRef, gStateObj);
+                }
+              }));
+            case 14:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee4);
+      }));
+      function setGState(_x10) {
+        return _setGState.apply(this, arguments);
       }
-      return promise.then(function () {
-        if (gStateObj.length > 0) {
-          operatorList.addOp(_util.OPS.setGState, [gStateObj]);
-        }
-      });
-    },
-    loadFont: function PartialEvaluator_loadFont(fontName, font, resources) {
-      var _this7 = this;
+      return setGState;
+    }()
+  }, {
+    key: "loadFont",
+    value: function loadFont(fontName, font, resources) {
+      var _this5 = this;
       var errorFont = function errorFont() {
         return Promise.resolve(new TranslatedFont({
           loadedName: "g_font_error",
           font: new _fonts.ErrorFont("Font \"".concat(fontName, "\" is not available.")),
           dict: font,
-          extraProperties: _this7.options.fontExtraProperties
+          extraProperties: _this5.options.fontExtraProperties
         }));
       };
       var fontRef,
@@ -30476,7 +32329,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           featureId: _util.UNSUPPORTED_FEATURES.errorFontMissing
         });
         (0, _util.warn)("".concat(partialMsg, " -- attempting to fallback to a default font."));
-        fontRef = PartialEvaluator.getFallbackFontDict();
+        fontRef = PartialEvaluator.fallbackFontDict;
       }
       if (this.fontCache.has(fontRef)) {
         return this.fontCache.get(fontRef);
@@ -30495,7 +32348,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       var fontRefIsRef = (0, _primitives.isRef)(fontRef),
         fontID;
       if (fontRefIsRef) {
-        fontID = fontRef.toString();
+        fontID = "f".concat(fontRef.toString());
       }
       if (hash && (0, _primitives.isDict)(descriptor)) {
         if (!descriptor.fontAliases) {
@@ -30510,7 +32363,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           }
         } else {
           fontAliases[hash] = {
-            fontID: _fonts.Font.getFontID()
+            fontID: this.idFactory.createFontId()
           };
         }
         if (fontRefIsRef) {
@@ -30522,12 +32375,12 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         this.fontCache.put(fontRef, fontCapability.promise);
       } else {
         if (!fontID) {
-          fontID = this.idFactory.createObjId();
+          fontID = this.idFactory.createFontId();
         }
         this.fontCache.put("id_".concat(fontID), fontCapability.promise);
       }
-      (0, _util.assert)(fontID, 'The "fontID" must be defined.');
-      font.loadedName = "".concat(this.idFactory.getDocId(), "_f").concat(fontID);
+      (0, _util.assert)(fontID && fontID.startsWith("f"), 'The "fontID" must be (correctly) defined.');
+      font.loadedName = "".concat(this.idFactory.getDocId(), "_").concat(fontID);
       font.translated = fontCapability.promise;
       var translatedPromise;
       try {
@@ -30544,10 +32397,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           loadedName: font.loadedName,
           font: translatedFont,
           dict: font,
-          extraProperties: _this7.options.fontExtraProperties
+          extraProperties: _this5.options.fontExtraProperties
         }));
       })["catch"](function (reason) {
-        _this7.handler.send("UnsupportedFeature", {
+        _this5.handler.send("UnsupportedFeature", {
           featureId: _util.UNSUPPORTED_FEATURES.errorFontTranslate
         });
         try {
@@ -30561,12 +32414,14 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           loadedName: font.loadedName,
           font: new _fonts.ErrorFont(reason instanceof Error ? reason.message : reason),
           dict: font,
-          extraProperties: _this7.options.fontExtraProperties
+          extraProperties: _this5.options.fontExtraProperties
         }));
       });
       return fontCapability.promise;
-    },
-    buildPath: function buildPath(operatorList, fn, args) {
+    }
+  }, {
+    key: "buildPath",
+    value: function buildPath(operatorList, fn, args) {
       var parsingText = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       var lastIndex = operatorList.length - 1;
       if (!args) {
@@ -30586,19 +32441,26 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         opArgs[0].push(fn);
         Array.prototype.push.apply(opArgs[1], args);
       }
-    },
-    parseColorSpace: function parseColorSpace(_ref5) {
-      var _this8 = this;
+    }
+  }, {
+    key: "parseColorSpace",
+    value: function parseColorSpace(_ref5) {
+      var _this6 = this;
       var cs = _ref5.cs,
-        resources = _ref5.resources;
-      return new Promise(function (resolve) {
-        resolve(_colorspace.ColorSpace.parse(cs, _this8.xref, resources, _this8.pdfFunctionFactory));
+        resources = _ref5.resources,
+        localColorSpaceCache = _ref5.localColorSpaceCache;
+      return _colorspace.ColorSpace.parseAsync({
+        cs: cs,
+        xref: this.xref,
+        resources: resources,
+        pdfFunctionFactory: this._pdfFunctionFactory,
+        localColorSpaceCache: localColorSpaceCache
       })["catch"](function (reason) {
         if (reason instanceof _util.AbortException) {
           return null;
         }
-        if (_this8.options.ignoreErrors) {
-          _this8.handler.send("UnsupportedFeature", {
+        if (_this6.options.ignoreErrors) {
+          _this6.handler.send("UnsupportedFeature", {
             featureId: _util.UNSUPPORTED_FEATURES.errorColorSpace
           });
           (0, _util.warn)("parseColorSpace - ignoring ColorSpace: \"".concat(reason, "\"."));
@@ -30606,50 +32468,143 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         throw reason;
       });
-    },
-    handleColorN: function handleColorN(operatorList, fn, args, cs, patterns, resources, task) {
-      var _this9 = this;
-      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+    }
+  }, {
+    key: "handleColorN",
+    value: function () {
+      var _handleColorN = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(operatorList, fn, args, cs, patterns, resources, task, localColorSpaceCache) {
         var patternName, pattern, dict, typeNum, color, shading, matrix;
-        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-          while (1) switch (_context4.prev = _context4.next) {
+        return _regeneratorRuntime().wrap(function _callee5$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
             case 0:
               patternName = args[args.length - 1];
               if (!((0, _primitives.isName)(patternName) && (pattern = patterns.get(patternName.name)))) {
-                _context4.next = 16;
+                _context6.next = 16;
                 break;
               }
               dict = (0, _primitives.isStream)(pattern) ? pattern.dict : pattern;
               typeNum = dict.get("PatternType");
-              if (!(typeNum === TILING_PATTERN)) {
-                _context4.next = 9;
+              if (!(typeNum === PatternType.TILING)) {
+                _context6.next = 9;
                 break;
               }
               color = cs.base ? cs.base.getRgb(args, 0) : null;
-              return _context4.abrupt("return", _this9.handleTilingType(fn, color, resources, pattern, dict, operatorList, task));
+              return _context6.abrupt("return", this.handleTilingType(fn, color, resources, pattern, dict, operatorList, task));
             case 9:
-              if (!(typeNum === SHADING_PATTERN)) {
-                _context4.next = 15;
+              if (!(typeNum === PatternType.SHADING)) {
+                _context6.next = 15;
                 break;
               }
               shading = dict.get("Shading");
               matrix = dict.getArray("Matrix");
-              pattern = _pattern.Pattern.parseShading(shading, matrix, _this9.xref, resources, _this9.handler, _this9.pdfFunctionFactory);
+              pattern = _pattern.Pattern.parseShading(shading, matrix, this.xref, resources, this.handler, this._pdfFunctionFactory, localColorSpaceCache);
               operatorList.addOp(fn, pattern.getIR());
-              return _context4.abrupt("return", undefined);
+              return _context6.abrupt("return", undefined);
             case 15:
               throw new _util.FormatError("Unknown PatternType: ".concat(typeNum));
             case 16:
               throw new _util.FormatError("Unknown PatternName: ".concat(patternName));
             case 17:
             case "end":
-              return _context4.stop();
+              return _context6.stop();
           }
-        }, _callee4);
-      }))();
-    },
-    getOperatorList: function getOperatorList(_ref6) {
-      var _this10 = this;
+        }, _callee5, this);
+      }));
+      function handleColorN(_x11, _x12, _x13, _x14, _x15, _x16, _x17, _x18) {
+        return _handleColorN.apply(this, arguments);
+      }
+      return handleColorN;
+    }()
+  }, {
+    key: "parseMarkedContentProps",
+    value: function () {
+      var _parseMarkedContentProps = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(contentProperties, resources) {
+        var optionalContent, properties, optionalContentType, optionalContentGroups, groupIds, expression;
+        return _regeneratorRuntime().wrap(function _callee6$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              if (!(0, _primitives.isName)(contentProperties)) {
+                _context7.next = 5;
+                break;
+              }
+              properties = resources.get("Properties");
+              optionalContent = properties.get(contentProperties.name);
+              _context7.next = 10;
+              break;
+            case 5:
+              if (!(0, _primitives.isDict)(contentProperties)) {
+                _context7.next = 9;
+                break;
+              }
+              optionalContent = contentProperties;
+              _context7.next = 10;
+              break;
+            case 9:
+              throw new _util.FormatError("Optional content properties malformed.");
+            case 10:
+              optionalContentType = optionalContent.get("Type").name;
+              if (!(optionalContentType === "OCG")) {
+                _context7.next = 15;
+                break;
+              }
+              return _context7.abrupt("return", {
+                type: optionalContentType,
+                id: optionalContent.objId
+              });
+            case 15:
+              if (!(optionalContentType === "OCMD")) {
+                _context7.next = 27;
+                break;
+              }
+              optionalContentGroups = optionalContent.get("OCGs");
+              if (!(Array.isArray(optionalContentGroups) || (0, _primitives.isDict)(optionalContentGroups))) {
+                _context7.next = 25;
+                break;
+              }
+              groupIds = [];
+              if (Array.isArray(optionalContentGroups)) {
+                optionalContent.get("OCGs").forEach(function (ocg) {
+                  groupIds.push(ocg.toString());
+                });
+              } else {
+                groupIds.push(optionalContentGroups.objId);
+              }
+              expression = null;
+              if (optionalContent.get("VE")) {
+                expression = true;
+              }
+              return _context7.abrupt("return", {
+                type: optionalContentType,
+                ids: groupIds,
+                policy: (0, _primitives.isName)(optionalContent.get("P")) ? optionalContent.get("P").name : null,
+                expression: expression
+              });
+            case 25:
+              if (!(0, _primitives.isRef)(optionalContentGroups)) {
+                _context7.next = 27;
+                break;
+              }
+              return _context7.abrupt("return", {
+                type: optionalContentType,
+                id: optionalContentGroups.toString()
+              });
+            case 27:
+              return _context7.abrupt("return", null);
+            case 28:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee6);
+      }));
+      function parseMarkedContentProps(_x19, _x20) {
+        return _parseMarkedContentProps.apply(this, arguments);
+      }
+      return parseMarkedContentProps;
+    }()
+  }, {
+    key: "getOperatorList",
+    value: function getOperatorList(_ref6) {
+      var _this7 = this;
       var stream = _ref6.stream,
         task = _ref6.task,
         resources = _ref6.resources,
@@ -30665,6 +32620,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       var xref = this.xref;
       var parsingText = false;
       var localImageCache = new _image_utils.LocalImageCache();
+      var localColorSpaceCache = new _image_utils.LocalColorSpaceCache();
+      var localGStateCache = new _image_utils.LocalGStateCache();
       var xobjs = resources.get("XObject") || _primitives.Dict.empty;
       var patterns = resources.get("Pattern") || _primitives.Dict.empty;
       var stateManager = new StateManager(initialState);
@@ -30691,7 +32648,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           operation = {},
           i,
           ii,
-          cs;
+          cs,
+          name;
         while (!(stop = timeSlotManager.check())) {
           operation.args = null;
           if (!preprocessor.read(operation)) {
@@ -30701,7 +32659,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           var fn = operation.fn;
           switch (fn | 0) {
             case _util.OPS.paintXObject:
-              var name = args[0].name;
+              name = args[0].name;
               if (name) {
                 var localImage = localImageCache.getByName(name);
                 if (localImage) {
@@ -30731,11 +32689,6 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                   }
                   xobj = xref.fetch(xobj);
                 }
-                if (!xobj) {
-                  operatorList.addOp(fn, args);
-                  resolveXObject();
-                  return;
-                }
                 if (!(0, _primitives.isStream)(xobj)) {
                   throw new _util.FormatError("XObject should be a stream");
                 }
@@ -30745,7 +32698,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 }
                 if (type.name === "Form") {
                   stateManager.save();
-                  self.buildFormXObject(resources, xobj, null, operatorList, task, stateManager.state.clone()).then(function () {
+                  self.buildFormXObject(resources, xobj, null, operatorList, task, stateManager.state.clone(), localColorSpaceCache).then(function () {
                     stateManager.restore();
                     resolveXObject();
                   }, rejectXObject);
@@ -30756,7 +32709,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                     image: xobj,
                     operatorList: operatorList,
                     cacheKey: name,
-                    localImageCache: localImageCache
+                    localImageCache: localImageCache,
+                    localColorSpaceCache: localColorSpaceCache
                   }).then(resolveXObject, rejectXObject);
                   return;
                 } else if (type.name === "PS") {
@@ -30808,7 +32762,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                 isInline: true,
                 operatorList: operatorList,
                 cacheKey: cacheKey,
-                localImageCache: localImageCache
+                localImageCache: localImageCache,
+                localColorSpaceCache: localColorSpaceCache
               }));
               return;
             case _util.OPS.showText:
@@ -30862,25 +32817,41 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               stateManager.state.textRenderingMode = args[0];
               break;
             case _util.OPS.setFillColorSpace:
-              next(self.parseColorSpace({
-                cs: args[0],
-                resources: resources
-              }).then(function (colorSpace) {
-                if (colorSpace) {
-                  stateManager.state.fillColorSpace = colorSpace;
+              {
+                var cachedColorSpace = _colorspace.ColorSpace.getCached(args[0], xref, localColorSpaceCache);
+                if (cachedColorSpace) {
+                  stateManager.state.fillColorSpace = cachedColorSpace;
+                  continue;
                 }
-              }));
-              return;
+                next(self.parseColorSpace({
+                  cs: args[0],
+                  resources: resources,
+                  localColorSpaceCache: localColorSpaceCache
+                }).then(function (colorSpace) {
+                  if (colorSpace) {
+                    stateManager.state.fillColorSpace = colorSpace;
+                  }
+                }));
+                return;
+              }
             case _util.OPS.setStrokeColorSpace:
-              next(self.parseColorSpace({
-                cs: args[0],
-                resources: resources
-              }).then(function (colorSpace) {
-                if (colorSpace) {
-                  stateManager.state.strokeColorSpace = colorSpace;
+              {
+                var _cachedColorSpace = _colorspace.ColorSpace.getCached(args[0], xref, localColorSpaceCache);
+                if (_cachedColorSpace) {
+                  stateManager.state.strokeColorSpace = _cachedColorSpace;
+                  continue;
                 }
-              }));
-              return;
+                next(self.parseColorSpace({
+                  cs: args[0],
+                  resources: resources,
+                  localColorSpaceCache: localColorSpaceCache
+                }).then(function (colorSpace) {
+                  if (colorSpace) {
+                    stateManager.state.strokeColorSpace = colorSpace;
+                  }
+                }));
+                return;
+              }
             case _util.OPS.setFillColor:
               cs = stateManager.state.fillColorSpace;
               args = cs.getRgb(args, 0);
@@ -30922,7 +32893,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
             case _util.OPS.setFillColorN:
               cs = stateManager.state.fillColorSpace;
               if (cs.name === "Pattern") {
-                next(self.handleColorN(operatorList, _util.OPS.setFillColorN, args, cs, patterns, resources, task));
+                next(self.handleColorN(operatorList, _util.OPS.setFillColorN, args, cs, patterns, resources, task, localColorSpaceCache));
                 return;
               }
               args = cs.getRgb(args, 0);
@@ -30931,7 +32902,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
             case _util.OPS.setStrokeColorN:
               cs = stateManager.state.strokeColorSpace;
               if (cs.name === "Pattern") {
-                next(self.handleColorN(operatorList, _util.OPS.setStrokeColorN, args, cs, patterns, resources, task));
+                next(self.handleColorN(operatorList, _util.OPS.setStrokeColorN, args, cs, patterns, resources, task, localColorSpaceCache));
                 return;
               }
               args = cs.getRgb(args, 0);
@@ -30946,19 +32917,58 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               if (!shading) {
                 throw new _util.FormatError("No shading object found");
               }
-              var shadingFill = _pattern.Pattern.parseShading(shading, null, xref, resources, self.handler, self.pdfFunctionFactory);
+              var shadingFill = _pattern.Pattern.parseShading(shading, null, xref, resources, self.handler, self._pdfFunctionFactory, localColorSpaceCache);
               var patternIR = shadingFill.getIR();
               args = [patternIR];
               fn = _util.OPS.shadingFill;
               break;
             case _util.OPS.setGState:
-              var dictName = args[0];
-              var extGState = resources.get("ExtGState");
-              if (!(0, _primitives.isDict)(extGState) || !extGState.has(dictName.name)) {
-                break;
+              name = args[0].name;
+              if (name) {
+                var localGStateObj = localGStateCache.getByName(name);
+                if (localGStateObj) {
+                  if (localGStateObj.length > 0) {
+                    operatorList.addOp(_util.OPS.setGState, [localGStateObj]);
+                  }
+                  args = null;
+                  continue;
+                }
               }
-              var gState = extGState.get(dictName.name);
-              next(self.setGState(resources, gState, operatorList, task, stateManager));
+              next(new Promise(function (resolveGState, rejectGState) {
+                if (!name) {
+                  throw new _util.FormatError("GState must be referred to by name.");
+                }
+                var extGState = resources.get("ExtGState");
+                if (!(extGState instanceof _primitives.Dict)) {
+                  throw new _util.FormatError("ExtGState should be a dictionary.");
+                }
+                var gState = extGState.get(name);
+                if (!(gState instanceof _primitives.Dict)) {
+                  throw new _util.FormatError("GState should be a dictionary.");
+                }
+                self.setGState({
+                  resources: resources,
+                  gState: gState,
+                  operatorList: operatorList,
+                  cacheKey: name,
+                  task: task,
+                  stateManager: stateManager,
+                  localGStateCache: localGStateCache,
+                  localColorSpaceCache: localColorSpaceCache
+                }).then(resolveGState, rejectGState);
+              })["catch"](function (reason) {
+                if (reason instanceof _util.AbortException) {
+                  return;
+                }
+                if (self.options.ignoreErrors) {
+                  self.handler.send("UnsupportedFeature", {
+                    featureId: _util.UNSUPPORTED_FEATURES.errorExtGState
+                  });
+                  (0, _util.warn)("getOperatorList - ignoring ExtGState: \"".concat(reason, "\"."));
+                  return;
+                }
+                throw reason;
+              }));
               return;
             case _util.OPS.moveTo:
             case _util.OPS.lineTo:
@@ -30971,12 +32981,36 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               continue;
             case _util.OPS.markPoint:
             case _util.OPS.markPointProps:
-            case _util.OPS.beginMarkedContent:
-            case _util.OPS.beginMarkedContentProps:
-            case _util.OPS.endMarkedContent:
             case _util.OPS.beginCompat:
             case _util.OPS.endCompat:
               continue;
+            case _util.OPS.beginMarkedContentProps:
+              if (!(0, _primitives.isName)(args[0])) {
+                (0, _util.warn)("Expected name for beginMarkedContentProps arg0=".concat(args[0]));
+                continue;
+              }
+              if (args[0].name === "OC") {
+                next(self.parseMarkedContentProps(args[1], resources).then(function (data) {
+                  operatorList.addOp(_util.OPS.beginMarkedContentProps, ["OC", data]);
+                })["catch"](function (reason) {
+                  if (reason instanceof _util.AbortException) {
+                    return;
+                  }
+                  if (self.options.ignoreErrors) {
+                    self.handler.send("UnsupportedFeature", {
+                      featureId: _util.UNSUPPORTED_FEATURES.errorMarkedContent
+                    });
+                    (0, _util.warn)("getOperatorList - ignoring beginMarkedContentProps: \"".concat(reason, "\"."));
+                    return;
+                  }
+                  throw reason;
+                }));
+                return;
+              }
+              args = [args[0].name];
+              break;
+            case _util.OPS.beginMarkedContent:
+            case _util.OPS.endMarkedContent:
             default:
               if (args !== null) {
                 for (i = 0, ii = args.length; i < ii; i++) {
@@ -31002,8 +33036,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         if (reason instanceof _util.AbortException) {
           return;
         }
-        if (_this10.options.ignoreErrors) {
-          _this10.handler.send("UnsupportedFeature", {
+        if (_this7.options.ignoreErrors) {
+          _this7.handler.send("UnsupportedFeature", {
             featureId: _util.UNSUPPORTED_FEATURES.errorOperatorList
           });
           (0, _util.warn)("getOperatorList - ignoring errors during \"".concat(task.name, "\" ") + "task: \"".concat(reason, "\"."));
@@ -31012,9 +33046,11 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         throw reason;
       });
-    },
-    getTextContent: function getTextContent(_ref7) {
-      var _this11 = this;
+    }
+  }, {
+    key: "getTextContent",
+    value: function getTextContent(_ref7) {
+      var _this8 = this;
       var stream = _ref7.stream,
         task = _ref7.task,
         resources = _ref7.resources,
@@ -31058,6 +33094,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       var xref = this.xref;
       var xobjs = null;
       var emptyXObjectCache = new _image_utils.LocalImageCache();
+      var emptyGStateCache = new _image_utils.LocalGStateCache();
       var preprocessor = new EvaluatorPreprocessor(stream, xref, stateManager);
       var textState;
       function ensureTextContentItem() {
@@ -31418,10 +33455,6 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
                   }
                   xobj = xref.fetch(xobj);
                 }
-                if (!xobj) {
-                  resolveXObject();
-                  return;
-                }
                 if (!(0, _primitives.isStream)(xobj)) {
                   throw new _util.FormatError("XObject should be a stream");
                 }
@@ -31481,24 +33514,43 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               }));
               return;
             case _util.OPS.setGState:
-              flushTextContentItem();
-              var dictName = args[0];
-              var extGState = resources.get("ExtGState");
-              if (!(0, _primitives.isDict)(extGState) || !(0, _primitives.isName)(dictName)) {
+              name = args[0].name;
+              if (name && emptyGStateCache.getByName(name)) {
                 break;
               }
-              var gState = extGState.get(dictName.name);
-              if (!(0, _primitives.isDict)(gState)) {
-                break;
-              }
-              var gStateFont = gState.get("Font");
-              if (gStateFont) {
+              next(new Promise(function (resolveGState, rejectGState) {
+                if (!name) {
+                  throw new _util.FormatError("GState must be referred to by name.");
+                }
+                var extGState = resources.get("ExtGState");
+                if (!(extGState instanceof _primitives.Dict)) {
+                  throw new _util.FormatError("ExtGState should be a dictionary.");
+                }
+                var gState = extGState.get(name);
+                if (!(gState instanceof _primitives.Dict)) {
+                  throw new _util.FormatError("GState should be a dictionary.");
+                }
+                var gStateFont = gState.get("Font");
+                if (!gStateFont) {
+                  emptyGStateCache.set(name, gState.objId, true);
+                  resolveGState();
+                  return;
+                }
+                flushTextContentItem();
                 textState.fontName = null;
                 textState.fontSize = gStateFont[1];
-                next(handleSetFont(null, gStateFont[0]));
-                return;
-              }
-              break;
+                handleSetFont(null, gStateFont[0]).then(resolveGState, rejectGState);
+              })["catch"](function (reason) {
+                if (reason instanceof _util.AbortException) {
+                  return;
+                }
+                if (self.options.ignoreErrors) {
+                  (0, _util.warn)("getTextContent - ignoring ExtGState: \"".concat(reason, "\"."));
+                  return;
+                }
+                throw reason;
+              }));
+              return;
           }
           if (textContent.items.length >= sink.desiredSize) {
             stop = true;
@@ -31516,7 +33568,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         if (reason instanceof _util.AbortException) {
           return;
         }
-        if (_this11.options.ignoreErrors) {
+        if (_this8.options.ignoreErrors) {
           (0, _util.warn)("getTextContent - ignoring errors during \"".concat(task.name, "\" ") + "task: \"".concat(reason, "\"."));
           flushTextContentItem();
           enqueueChunk();
@@ -31524,9 +33576,11 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         throw reason;
       });
-    },
-    extractDataStructures: function PartialEvaluator_extractDataStructures(dict, baseDict, properties) {
-      var _this12 = this;
+    }
+  }, {
+    key: "extractDataStructures",
+    value: function extractDataStructures(dict, baseDict, properties) {
+      var _this9 = this;
       var xref = this.xref;
       var cidToGidBytes;
       var toUnicode = dict.get("ToUnicode") || baseDict.get("ToUnicode");
@@ -31603,16 +33657,18 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       properties.dict = dict;
       return toUnicodePromise.then(function (readToUnicode) {
         properties.toUnicode = readToUnicode;
-        return _this12.buildToUnicode(properties);
+        return _this9.buildToUnicode(properties);
       }).then(function (builtToUnicode) {
         properties.toUnicode = builtToUnicode;
         if (cidToGidBytes) {
-          properties.cidToGidMap = _this12.readCidToGidMap(cidToGidBytes, builtToUnicode);
+          properties.cidToGidMap = _this9.readCidToGidMap(cidToGidBytes, builtToUnicode);
         }
         return properties;
       });
-    },
-    _buildSimpleFontToUnicode: function _buildSimpleFontToUnicode(properties) {
+    }
+  }, {
+    key: "_buildSimpleFontToUnicode",
+    value: function _buildSimpleFontToUnicode(properties) {
       var forceGlyphs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       (0, _util.assert)(!properties.composite, "Must be a simple font.");
       var toUnicode = [];
@@ -31679,8 +33735,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         toUnicode[_charcode] = String.fromCharCode(glyphsUnicodeMap[_glyphName]);
       }
       return new _fonts.ToUnicodeMap(toUnicode);
-    },
-    buildToUnicode: function buildToUnicode(properties) {
+    }
+  }, {
+    key: "buildToUnicode",
+    value: function buildToUnicode(properties) {
       properties.hasIncludedToUnicodeMap = !!properties.toUnicode && properties.toUnicode.length > 0;
       if (properties.hasIncludedToUnicodeMap) {
         if (!properties.composite && properties.hasEncoding) {
@@ -31697,7 +33755,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         var ucs2CMapName = _primitives.Name.get(registry + "-" + ordering + "-UCS2");
         return _cmap.CMapFactory.create({
           encoding: ucs2CMapName,
-          fetchBuiltInCMap: this.fetchBuiltInCMap,
+          fetchBuiltInCMap: this._fetchBuiltInCMapBound,
           useCMap: null
         }).then(function (ucs2CMap) {
           var cMap = properties.cMap;
@@ -31715,14 +33773,16 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         });
       }
       return Promise.resolve(new _fonts.IdentityToUnicodeMap(properties.firstChar, properties.lastChar));
-    },
-    readToUnicode: function PartialEvaluator_readToUnicode(toUnicode) {
-      var _this13 = this;
+    }
+  }, {
+    key: "readToUnicode",
+    value: function readToUnicode(toUnicode) {
+      var _this10 = this;
       var cmapObj = toUnicode;
       if ((0, _primitives.isName)(cmapObj)) {
         return _cmap.CMapFactory.create({
           encoding: cmapObj,
-          fetchBuiltInCMap: this.fetchBuiltInCMap,
+          fetchBuiltInCMap: this._fetchBuiltInCMapBound,
           useCMap: null
         }).then(function (cmap) {
           if (cmap instanceof _cmap.IdentityCMap) {
@@ -31733,7 +33793,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       } else if ((0, _primitives.isStream)(cmapObj)) {
         return _cmap.CMapFactory.create({
           encoding: cmapObj,
-          fetchBuiltInCMap: this.fetchBuiltInCMap,
+          fetchBuiltInCMap: this._fetchBuiltInCMapBound,
           useCMap: null
         }).then(function (cmap) {
           if (cmap instanceof _cmap.IdentityCMap) {
@@ -31759,8 +33819,8 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
           if (reason instanceof _util.AbortException) {
             return null;
           }
-          if (_this13.options.ignoreErrors) {
-            _this13.handler.send("UnsupportedFeature", {
+          if (_this10.options.ignoreErrors) {
+            _this10.handler.send("UnsupportedFeature", {
               featureId: _util.UNSUPPORTED_FEATURES.errorFontToUnicode
             });
             (0, _util.warn)("readToUnicode - ignoring ToUnicode data: \"".concat(reason, "\"."));
@@ -31770,8 +33830,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         });
       }
       return Promise.resolve(null);
-    },
-    readCidToGidMap: function readCidToGidMap(glyphsData, toUnicode) {
+    }
+  }, {
+    key: "readCidToGidMap",
+    value: function readCidToGidMap(glyphsData, toUnicode) {
       var result = [];
       for (var j = 0, jj = glyphsData.length; j < jj; j++) {
         var glyphID = glyphsData[j++] << 8 | glyphsData[j];
@@ -31782,8 +33844,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         result[code] = glyphID;
       }
       return result;
-    },
-    extractWidths: function PartialEvaluator_extractWidths(dict, descriptor, properties) {
+    }
+  }, {
+    key: "extractWidths",
+    value: function extractWidths(dict, descriptor, properties) {
       var xref = this.xref;
       var glyphsWidths = [];
       var defaultWidth = 0;
@@ -31871,12 +33935,16 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
       properties.widths = glyphsWidths;
       properties.defaultVMetrics = defaultVMetrics;
       properties.vmetrics = glyphsVMetrics;
-    },
-    isSerifFont: function PartialEvaluator_isSerifFont(baseFontName) {
+    }
+  }, {
+    key: "isSerifFont",
+    value: function isSerifFont(baseFontName) {
       var fontNameWoStyle = baseFontName.split("-")[0];
       return fontNameWoStyle in (0, _standard_fonts.getSerifFonts)() || fontNameWoStyle.search(/serif/gi) !== -1;
-    },
-    getBaseFontMetrics: function PartialEvaluator_getBaseFontMetrics(name) {
+    }
+  }, {
+    key: "getBaseFontMetrics",
+    value: function getBaseFontMetrics(name) {
       var defaultWidth = 0;
       var widths = [];
       var monospace = false;
@@ -31902,8 +33970,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         monospace: monospace,
         widths: widths
       };
-    },
-    buildCharCodeToWidth: function PartialEvaluator_bulildCharCodeToWidth(widthsByGlyphName, properties) {
+    }
+  }, {
+    key: "buildCharCodeToWidth",
+    value: function buildCharCodeToWidth(widthsByGlyphName, properties) {
       var widths = Object.create(null);
       var differences = properties.differences;
       var encoding = properties.defaultEncoding;
@@ -31918,8 +33988,10 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
       }
       return widths;
-    },
-    preEvaluateFont: function PartialEvaluator_preEvaluateFont(dict) {
+    }
+  }, {
+    key: "preEvaluateFont",
+    value: function preEvaluateFont(dict) {
       var baseDict = dict;
       var type = dict.get("Subtype");
       if (!(0, _primitives.isName)(type)) {
@@ -31948,26 +34020,33 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         } else if ((0, _primitives.isRef)(encoding)) {
           hash.update(encoding.toString());
         } else if ((0, _primitives.isDict)(encoding)) {
-          var keys = encoding.getKeys();
-          for (var i = 0, ii = keys.length; i < ii; i++) {
-            var entry = encoding.getRaw(keys[i]);
-            if ((0, _primitives.isName)(entry)) {
-              hash.update(entry.name);
-            } else if ((0, _primitives.isRef)(entry)) {
-              hash.update(entry.toString());
-            } else if (Array.isArray(entry)) {
-              var diffLength = entry.length,
-                diffBuf = new Array(diffLength);
-              for (var j = 0; j < diffLength; j++) {
-                var diffEntry = entry[j];
-                if ((0, _primitives.isName)(diffEntry)) {
-                  diffBuf[j] = diffEntry.name;
-                } else if ((0, _util.isNum)(diffEntry) || (0, _primitives.isRef)(diffEntry)) {
-                  diffBuf[j] = diffEntry.toString();
+          var _iterator5 = _createForOfIteratorHelper(encoding.getRawValues()),
+            _step5;
+          try {
+            for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+              var entry = _step5.value;
+              if ((0, _primitives.isName)(entry)) {
+                hash.update(entry.name);
+              } else if ((0, _primitives.isRef)(entry)) {
+                hash.update(entry.toString());
+              } else if (Array.isArray(entry)) {
+                var diffLength = entry.length,
+                  diffBuf = new Array(diffLength);
+                for (var j = 0; j < diffLength; j++) {
+                  var diffEntry = entry[j];
+                  if ((0, _primitives.isName)(diffEntry)) {
+                    diffBuf[j] = diffEntry.name;
+                  } else if ((0, _util.isNum)(diffEntry) || (0, _primitives.isRef)(diffEntry)) {
+                    diffBuf[j] = diffEntry.toString();
+                  }
                 }
+                hash.update(diffBuf.join());
               }
-              hash.update(diffBuf.join());
             }
+          } catch (err) {
+            _iterator5.e(err);
+          } finally {
+            _iterator5.f();
           }
         }
         var firstChar = dict.get("FirstChar") || 0;
@@ -31995,9 +34074,11 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         type: type.name,
         hash: hash ? hash.hexdigest() : ""
       };
-    },
-    translateFont: function PartialEvaluator_translateFont(preEvaluatedFont) {
-      var _this14 = this;
+    }
+  }, {
+    key: "translateFont",
+    value: function translateFont(preEvaluatedFont) {
+      var _this11 = this;
       var baseDict = preEvaluatedFont.baseDict;
       var dict = preEvaluatedFont.dict;
       var composite = preEvaluatedFont.composite;
@@ -32036,11 +34117,11 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
               var glyphWidths = [];
               var j = firstChar;
               for (var i = 0, ii = widths.length; i < ii; i++) {
-                glyphWidths[j++] = _this14.xref.fetchIfRef(widths[i]);
+                glyphWidths[j++] = _this11.xref.fetchIfRef(widths[i]);
               }
               newProperties.widths = glyphWidths;
             } else {
-              newProperties.widths = _this14.buildCharCodeToWidth(metrics.widths, newProperties);
+              newProperties.widths = _this11.buildCharCodeToWidth(metrics.widths, newProperties);
             }
             return new _fonts.Font(baseFontName, null, newProperties);
           });
@@ -32111,7 +34192,7 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         }
         cMapPromise = _cmap.CMapFactory.create({
           encoding: cidEncoding,
-          fetchBuiltInCMap: this.fetchBuiltInCMap,
+          fetchBuiltInCMap: this._fetchBuiltInCMapBound,
           useCMap: null
         }).then(function (cMap) {
           properties.cMap = cMap;
@@ -32121,52 +34202,52 @@ var PartialEvaluator = exports.PartialEvaluator = function PartialEvaluatorClosu
         cMapPromise = Promise.resolve(undefined);
       }
       return cMapPromise.then(function () {
-        return _this14.extractDataStructures(dict, baseDict, properties);
+        return _this11.extractDataStructures(dict, baseDict, properties);
       }).then(function (newProperties) {
-        _this14.extractWidths(dict, descriptor, newProperties);
+        _this11.extractWidths(dict, descriptor, newProperties);
         if (type === "Type3") {
           newProperties.isType3Font = true;
         }
         return new _fonts.Font(fontName.name, fontFile, newProperties);
       });
     }
-  };
-  PartialEvaluator.buildFontPaths = function (font, glyphs, handler) {
-    function buildPath(fontChar) {
-      if (font.renderer.hasBuiltPath(fontChar)) {
-        return;
-      }
-      handler.send("commonobj", ["".concat(font.loadedName, "_path_").concat(fontChar), "FontPath", font.renderer.getPathJs(fontChar)]);
-    }
-    var _iterator = _createForOfIteratorHelper(glyphs),
-      _step;
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var glyph = _step.value;
-        buildPath(glyph.fontChar);
-        var accent = glyph.accent;
-        if (accent && accent.fontChar) {
-          buildPath(accent.fontChar);
+  }], [{
+    key: "buildFontPaths",
+    value: function buildFontPaths(font, glyphs, handler) {
+      function buildPath(fontChar) {
+        if (font.renderer.hasBuiltPath(fontChar)) {
+          return;
         }
+        handler.send("commonobj", ["".concat(font.loadedName, "_path_").concat(fontChar), "FontPath", font.renderer.getPathJs(fontChar)]);
       }
-    } catch (err) {
-      _iterator.e(err);
-    } finally {
-      _iterator.f();
+      var _iterator6 = _createForOfIteratorHelper(glyphs),
+        _step6;
+      try {
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var glyph = _step6.value;
+          buildPath(glyph.fontChar);
+          var accent = glyph.accent;
+          if (accent && accent.fontChar) {
+            buildPath(accent.fontChar);
+          }
+        }
+      } catch (err) {
+        _iterator6.e(err);
+      } finally {
+        _iterator6.f();
+      }
     }
-  };
-  PartialEvaluator.getFallbackFontDict = function () {
-    if (this._fallbackFontDict) {
-      return this._fallbackFontDict;
+  }, {
+    key: "fallbackFontDict",
+    get: function get() {
+      var dict = new _primitives.Dict();
+      dict.set("BaseFont", _primitives.Name.get("PDFJS-FallbackFont"));
+      dict.set("Type", _primitives.Name.get("FallbackType"));
+      dict.set("Subtype", _primitives.Name.get("FallbackType"));
+      dict.set("Encoding", _primitives.Name.get("WinAnsiEncoding"));
+      return (0, _util.shadow)(this, "fallbackFontDict", dict);
     }
-    var dict = new _primitives.Dict();
-    dict.set("BaseFont", _primitives.Name.get("PDFJS-FallbackFont"));
-    dict.set("Type", _primitives.Name.get("FallbackType"));
-    dict.set("Subtype", _primitives.Name.get("FallbackType"));
-    dict.set("Encoding", _primitives.Name.get("WinAnsiEncoding"));
-    return this._fallbackFontDict = dict;
-  };
-  return PartialEvaluator;
+  }]);
 }();
 var TranslatedFont = /*#__PURE__*/function () {
   function TranslatedFont(_ref8) {
@@ -32181,6 +34262,7 @@ var TranslatedFont = /*#__PURE__*/function () {
     this.dict = dict;
     this._extraProperties = extraProperties;
     this.type3Loaded = null;
+    this.type3Dependencies = font.isType3Font ? new Set() : null;
     this.sent = false;
   }
   return _createClass(TranslatedFont, [{
@@ -32204,45 +34286,64 @@ var TranslatedFont = /*#__PURE__*/function () {
     }
   }, {
     key: "loadType3Data",
-    value: function loadType3Data(evaluator, resources, parentOperatorList, task) {
-      if (!this.font.isType3Font) {
-        throw new Error("Must be a Type3 font.");
-      }
+    value: function loadType3Data(evaluator, resources, task) {
       if (this.type3Loaded) {
         return this.type3Loaded;
+      }
+      if (!this.font.isType3Font) {
+        throw new Error("Must be a Type3 font.");
       }
       var type3Options = Object.create(evaluator.options);
       type3Options.ignoreErrors = false;
       var type3Evaluator = evaluator.clone(type3Options);
       type3Evaluator.parsingType3Font = true;
-      var translatedFont = this.font;
+      var translatedFont = this.font,
+        type3Dependencies = this.type3Dependencies;
       var loadCharProcsPromise = Promise.resolve();
       var charProcs = this.dict.get("CharProcs");
       var fontResources = this.dict.get("Resources") || resources;
-      var charProcKeys = charProcs.getKeys();
       var charProcOperatorList = Object.create(null);
-      var _loop2 = function _loop2() {
-        var key = charProcKeys[i];
-        loadCharProcsPromise = loadCharProcsPromise.then(function () {
-          var glyphStream = charProcs.get(key);
-          var operatorList = new _operator_list.OperatorList();
-          return type3Evaluator.getOperatorList({
-            stream: glyphStream,
-            task: task,
-            resources: fontResources,
-            operatorList: operatorList
-          }).then(function () {
-            charProcOperatorList[key] = operatorList.getIR();
-            parentOperatorList.addDependencies(operatorList.dependencies);
-          })["catch"](function (reason) {
-            (0, _util.warn)("Type3 font resource \"".concat(key, "\" is not available."));
-            var dummyOperatorList = new _operator_list.OperatorList();
-            charProcOperatorList[key] = dummyOperatorList.getIR();
+      var _iterator7 = _createForOfIteratorHelper(charProcs.getKeys()),
+        _step7;
+      try {
+        var _loop2 = function _loop2() {
+          var key = _step7.value;
+          loadCharProcsPromise = loadCharProcsPromise.then(function () {
+            var glyphStream = charProcs.get(key);
+            var operatorList = new _operator_list.OperatorList();
+            return type3Evaluator.getOperatorList({
+              stream: glyphStream,
+              task: task,
+              resources: fontResources,
+              operatorList: operatorList
+            }).then(function () {
+              charProcOperatorList[key] = operatorList.getIR();
+              var _iterator8 = _createForOfIteratorHelper(operatorList.dependencies),
+                _step8;
+              try {
+                for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+                  var dependency = _step8.value;
+                  type3Dependencies.add(dependency);
+                }
+              } catch (err) {
+                _iterator8.e(err);
+              } finally {
+                _iterator8.f();
+              }
+            })["catch"](function (reason) {
+              (0, _util.warn)("Type3 font resource \"".concat(key, "\" is not available."));
+              var dummyOperatorList = new _operator_list.OperatorList();
+              charProcOperatorList[key] = dummyOperatorList.getIR();
+            });
           });
-        });
-      };
-      for (var i = 0, n = charProcKeys.length; i < n; ++i) {
-        _loop2();
+        };
+        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+          _loop2();
+        }
+      } catch (err) {
+        _iterator7.e(err);
+      } finally {
+        _iterator7.f();
       }
       this.type3Loaded = loadCharProcsPromise.then(function () {
         translatedFont.charProcOperatorList = charProcOperatorList;
@@ -32251,31 +34352,37 @@ var TranslatedFont = /*#__PURE__*/function () {
     }
   }]);
 }();
-var StateManager = function StateManagerClosure() {
+var StateManager = /*#__PURE__*/function () {
   function StateManager(initialState) {
+    _classCallCheck(this, StateManager);
     this.state = initialState;
     this.stateStack = [];
   }
-  StateManager.prototype = {
-    save: function save() {
+  return _createClass(StateManager, [{
+    key: "save",
+    value: function save() {
       var old = this.state;
       this.stateStack.push(this.state);
       this.state = old.clone();
-    },
-    restore: function restore() {
+    }
+  }, {
+    key: "restore",
+    value: function restore() {
       var prev = this.stateStack.pop();
       if (prev) {
         this.state = prev;
       }
-    },
-    transform: function transform(args) {
+    }
+  }, {
+    key: "transform",
+    value: function transform(args) {
       this.state.ctm = _util.Util.transform(this.state.ctm, args);
     }
-  };
-  return StateManager;
+  }]);
 }();
-var TextState = function TextStateClosure() {
+var TextState = /*#__PURE__*/function () {
   function TextState() {
+    _classCallCheck(this, TextState);
     this.ctm = new Float32Array(_util.IDENTITY_MATRIX);
     this.fontName = null;
     this.fontSize = 0;
@@ -32289,8 +34396,9 @@ var TextState = function TextStateClosure() {
     this.textHScale = 1;
     this.textRise = 0;
   }
-  TextState.prototype = {
-    setTextMatrix: function TextState_setTextMatrix(a, b, c, d, e, f) {
+  return _createClass(TextState, [{
+    key: "setTextMatrix",
+    value: function setTextMatrix(a, b, c, d, e, f) {
       var m = this.textMatrix;
       m[0] = a;
       m[1] = b;
@@ -32298,8 +34406,10 @@ var TextState = function TextStateClosure() {
       m[3] = d;
       m[4] = e;
       m[5] = f;
-    },
-    setTextLineMatrix: function TextState_setTextMatrix(a, b, c, d, e, f) {
+    }
+  }, {
+    key: "setTextLineMatrix",
+    value: function setTextLineMatrix(a, b, c, d, e, f) {
       var m = this.textLineMatrix;
       m[0] = a;
       m[1] = b;
@@ -32307,18 +34417,24 @@ var TextState = function TextStateClosure() {
       m[3] = d;
       m[4] = e;
       m[5] = f;
-    },
-    translateTextMatrix: function TextState_translateTextMatrix(x, y) {
+    }
+  }, {
+    key: "translateTextMatrix",
+    value: function translateTextMatrix(x, y) {
       var m = this.textMatrix;
       m[4] = m[0] * x + m[2] * y + m[4];
       m[5] = m[1] * x + m[3] * y + m[5];
-    },
-    translateTextLineMatrix: function TextState_translateTextMatrix(x, y) {
+    }
+  }, {
+    key: "translateTextLineMatrix",
+    value: function translateTextLineMatrix(x, y) {
       var m = this.textLineMatrix;
       m[4] = m[0] * x + m[2] * y + m[4];
       m[5] = m[1] * x + m[3] * y + m[5];
-    },
-    calcTextLineMatrixAdvance: function TextState_calcTextLineMatrixAdvance(a, b, c, d, e, f) {
+    }
+  }, {
+    key: "calcTextLineMatrixAdvance",
+    value: function calcTextLineMatrixAdvance(a, b, c, d, e, f) {
       var font = this.font;
       if (!font) {
         return null;
@@ -32347,440 +34463,71 @@ var TextState = function TextStateClosure() {
         height: ty,
         value: font.vertical ? ty : tx
       };
-    },
-    calcRenderMatrix: function TextState_calcRendeMatrix(ctm) {
+    }
+  }, {
+    key: "calcRenderMatrix",
+    value: function calcRenderMatrix(ctm) {
       var tsm = [this.fontSize * this.textHScale, 0, 0, this.fontSize, 0, this.textRise];
       return _util.Util.transform(ctm, _util.Util.transform(this.textMatrix, tsm));
-    },
-    carriageReturn: function TextState_carriageReturn() {
+    }
+  }, {
+    key: "carriageReturn",
+    value: function carriageReturn() {
       this.translateTextLineMatrix(0, -this.leading);
       this.textMatrix = this.textLineMatrix.slice();
-    },
-    clone: function TextState_clone() {
+    }
+  }, {
+    key: "clone",
+    value: function clone() {
       var clone = Object.create(this);
       clone.textMatrix = this.textMatrix.slice();
       clone.textLineMatrix = this.textLineMatrix.slice();
       clone.fontMatrix = this.fontMatrix.slice();
       return clone;
     }
-  };
-  return TextState;
+  }]);
 }();
-var EvalState = function EvalStateClosure() {
+var EvalState = /*#__PURE__*/function () {
   function EvalState() {
+    _classCallCheck(this, EvalState);
     this.ctm = new Float32Array(_util.IDENTITY_MATRIX);
     this.font = null;
     this.textRenderingMode = _util.TextRenderingMode.FILL;
     this.fillColorSpace = _colorspace.ColorSpace.singletons.gray;
     this.strokeColorSpace = _colorspace.ColorSpace.singletons.gray;
   }
-  EvalState.prototype = {
-    clone: function CanvasExtraState_clone() {
+  return _createClass(EvalState, [{
+    key: "clone",
+    value: function clone() {
       return Object.create(this);
     }
-  };
-  return EvalState;
+  }]);
 }();
-var EvaluatorPreprocessor = function EvaluatorPreprocessorClosure() {
-  var getOPMap = (0, _core_utils.getLookupTableFactory)(function (t) {
-    t.w = {
-      id: _util.OPS.setLineWidth,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.J = {
-      id: _util.OPS.setLineCap,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.j = {
-      id: _util.OPS.setLineJoin,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.M = {
-      id: _util.OPS.setMiterLimit,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.d = {
-      id: _util.OPS.setDash,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.ri = {
-      id: _util.OPS.setRenderingIntent,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.i = {
-      id: _util.OPS.setFlatness,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.gs = {
-      id: _util.OPS.setGState,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.q = {
-      id: _util.OPS.save,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.Q = {
-      id: _util.OPS.restore,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.cm = {
-      id: _util.OPS.transform,
-      numArgs: 6,
-      variableArgs: false
-    };
-    t.m = {
-      id: _util.OPS.moveTo,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.l = {
-      id: _util.OPS.lineTo,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.c = {
-      id: _util.OPS.curveTo,
-      numArgs: 6,
-      variableArgs: false
-    };
-    t.v = {
-      id: _util.OPS.curveTo2,
-      numArgs: 4,
-      variableArgs: false
-    };
-    t.y = {
-      id: _util.OPS.curveTo3,
-      numArgs: 4,
-      variableArgs: false
-    };
-    t.h = {
-      id: _util.OPS.closePath,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.re = {
-      id: _util.OPS.rectangle,
-      numArgs: 4,
-      variableArgs: false
-    };
-    t.S = {
-      id: _util.OPS.stroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.s = {
-      id: _util.OPS.closeStroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.f = {
-      id: _util.OPS.fill,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.F = {
-      id: _util.OPS.fill,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t["f*"] = {
-      id: _util.OPS.eoFill,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.B = {
-      id: _util.OPS.fillStroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t["B*"] = {
-      id: _util.OPS.eoFillStroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.b = {
-      id: _util.OPS.closeFillStroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t["b*"] = {
-      id: _util.OPS.closeEOFillStroke,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.n = {
-      id: _util.OPS.endPath,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.W = {
-      id: _util.OPS.clip,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t["W*"] = {
-      id: _util.OPS.eoClip,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.BT = {
-      id: _util.OPS.beginText,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.ET = {
-      id: _util.OPS.endText,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.Tc = {
-      id: _util.OPS.setCharSpacing,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Tw = {
-      id: _util.OPS.setWordSpacing,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Tz = {
-      id: _util.OPS.setHScale,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.TL = {
-      id: _util.OPS.setLeading,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Tf = {
-      id: _util.OPS.setFont,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.Tr = {
-      id: _util.OPS.setTextRenderingMode,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Ts = {
-      id: _util.OPS.setTextRise,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Td = {
-      id: _util.OPS.moveText,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.TD = {
-      id: _util.OPS.setLeadingMoveText,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.Tm = {
-      id: _util.OPS.setTextMatrix,
-      numArgs: 6,
-      variableArgs: false
-    };
-    t["T*"] = {
-      id: _util.OPS.nextLine,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.Tj = {
-      id: _util.OPS.showText,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.TJ = {
-      id: _util.OPS.showSpacedText,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t["'"] = {
-      id: _util.OPS.nextLineShowText,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t['"'] = {
-      id: _util.OPS.nextLineSetSpacingShowText,
-      numArgs: 3,
-      variableArgs: false
-    };
-    t.d0 = {
-      id: _util.OPS.setCharWidth,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.d1 = {
-      id: _util.OPS.setCharWidthAndBounds,
-      numArgs: 6,
-      variableArgs: false
-    };
-    t.CS = {
-      id: _util.OPS.setStrokeColorSpace,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.cs = {
-      id: _util.OPS.setFillColorSpace,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.SC = {
-      id: _util.OPS.setStrokeColor,
-      numArgs: 4,
-      variableArgs: true
-    };
-    t.SCN = {
-      id: _util.OPS.setStrokeColorN,
-      numArgs: 33,
-      variableArgs: true
-    };
-    t.sc = {
-      id: _util.OPS.setFillColor,
-      numArgs: 4,
-      variableArgs: true
-    };
-    t.scn = {
-      id: _util.OPS.setFillColorN,
-      numArgs: 33,
-      variableArgs: true
-    };
-    t.G = {
-      id: _util.OPS.setStrokeGray,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.g = {
-      id: _util.OPS.setFillGray,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.RG = {
-      id: _util.OPS.setStrokeRGBColor,
-      numArgs: 3,
-      variableArgs: false
-    };
-    t.rg = {
-      id: _util.OPS.setFillRGBColor,
-      numArgs: 3,
-      variableArgs: false
-    };
-    t.K = {
-      id: _util.OPS.setStrokeCMYKColor,
-      numArgs: 4,
-      variableArgs: false
-    };
-    t.k = {
-      id: _util.OPS.setFillCMYKColor,
-      numArgs: 4,
-      variableArgs: false
-    };
-    t.sh = {
-      id: _util.OPS.shadingFill,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.BI = {
-      id: _util.OPS.beginInlineImage,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.ID = {
-      id: _util.OPS.beginImageData,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.EI = {
-      id: _util.OPS.endInlineImage,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.Do = {
-      id: _util.OPS.paintXObject,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.MP = {
-      id: _util.OPS.markPoint,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.DP = {
-      id: _util.OPS.markPointProps,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.BMC = {
-      id: _util.OPS.beginMarkedContent,
-      numArgs: 1,
-      variableArgs: false
-    };
-    t.BDC = {
-      id: _util.OPS.beginMarkedContentProps,
-      numArgs: 2,
-      variableArgs: false
-    };
-    t.EMC = {
-      id: _util.OPS.endMarkedContent,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.BX = {
-      id: _util.OPS.beginCompat,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.EX = {
-      id: _util.OPS.endCompat,
-      numArgs: 0,
-      variableArgs: false
-    };
-    t.BM = null;
-    t.BD = null;
-    t["true"] = null;
-    t.fa = null;
-    t.fal = null;
-    t.fals = null;
-    t["false"] = null;
-    t.nu = null;
-    t.nul = null;
-    t["null"] = null;
-  });
-  var MAX_INVALID_PATH_OPS = 20;
+var EvaluatorPreprocessor = /*#__PURE__*/function () {
   function EvaluatorPreprocessor(stream, xref, stateManager) {
-    this.opMap = getOPMap();
+    _classCallCheck(this, EvaluatorPreprocessor);
     this.parser = new _parser.Parser({
-      lexer: new _parser.Lexer(stream, this.opMap),
+      lexer: new _parser.Lexer(stream, EvaluatorPreprocessor.opMap),
       xref: xref
     });
     this.stateManager = stateManager;
     this.nonProcessedArgs = [];
     this._numInvalidPathOPS = 0;
   }
-  EvaluatorPreprocessor.prototype = {
-    get savedStatesDepth() {
+  return _createClass(EvaluatorPreprocessor, [{
+    key: "savedStatesDepth",
+    get: function get() {
       return this.stateManager.stateStack.length;
-    },
-    read: function EvaluatorPreprocessor_read(operation) {
+    }
+  }, {
+    key: "read",
+    value: function read(operation) {
       var args = operation.args;
       while (true) {
         var obj = this.parser.getObj();
         if (obj instanceof _primitives.Cmd) {
           var cmd = obj.cmd;
-          var opSpec = this.opMap[cmd];
+          var opSpec = EvaluatorPreprocessor.opMap[cmd];
           if (!opSpec) {
             (0, _util.warn)("Unknown command \"".concat(cmd, "\"."));
             continue;
@@ -32805,7 +34552,7 @@ var EvaluatorPreprocessor = function EvaluatorPreprocessorClosure() {
             }
             if (argsLength < numArgs) {
               var partialMsg = "command ".concat(cmd, ": expected ").concat(numArgs, " args, ") + "but received ".concat(argsLength, " args.");
-              if (fn >= _util.OPS.moveTo && fn <= _util.OPS.endPath && ++this._numInvalidPathOPS > MAX_INVALID_PATH_OPS) {
+              if (fn >= _util.OPS.moveTo && fn <= _util.OPS.endPath && ++this._numInvalidPathOPS > EvaluatorPreprocessor.MAX_INVALID_PATH_OPS) {
                 throw new _util.FormatError("Invalid ".concat(partialMsg));
               }
               (0, _util.warn)("Skipping ".concat(partialMsg));
@@ -32835,8 +34582,10 @@ var EvaluatorPreprocessor = function EvaluatorPreprocessorClosure() {
           }
         }
       }
-    },
-    preprocessCommand: function EvaluatorPreprocessor_preprocessCommand(fn, args) {
+    }
+  }, {
+    key: "preprocessCommand",
+    value: function preprocessCommand(fn, args) {
       switch (fn | 0) {
         case _util.OPS.save:
           this.stateManager.save();
@@ -32849,12 +34598,398 @@ var EvaluatorPreprocessor = function EvaluatorPreprocessorClosure() {
           break;
       }
     }
-  };
-  return EvaluatorPreprocessor;
+  }], [{
+    key: "opMap",
+    get: function get() {
+      var getOPMap = (0, _core_utils.getLookupTableFactory)(function (t) {
+        t.w = {
+          id: _util.OPS.setLineWidth,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.J = {
+          id: _util.OPS.setLineCap,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.j = {
+          id: _util.OPS.setLineJoin,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.M = {
+          id: _util.OPS.setMiterLimit,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.d = {
+          id: _util.OPS.setDash,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.ri = {
+          id: _util.OPS.setRenderingIntent,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.i = {
+          id: _util.OPS.setFlatness,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.gs = {
+          id: _util.OPS.setGState,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.q = {
+          id: _util.OPS.save,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.Q = {
+          id: _util.OPS.restore,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.cm = {
+          id: _util.OPS.transform,
+          numArgs: 6,
+          variableArgs: false
+        };
+        t.m = {
+          id: _util.OPS.moveTo,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.l = {
+          id: _util.OPS.lineTo,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.c = {
+          id: _util.OPS.curveTo,
+          numArgs: 6,
+          variableArgs: false
+        };
+        t.v = {
+          id: _util.OPS.curveTo2,
+          numArgs: 4,
+          variableArgs: false
+        };
+        t.y = {
+          id: _util.OPS.curveTo3,
+          numArgs: 4,
+          variableArgs: false
+        };
+        t.h = {
+          id: _util.OPS.closePath,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.re = {
+          id: _util.OPS.rectangle,
+          numArgs: 4,
+          variableArgs: false
+        };
+        t.S = {
+          id: _util.OPS.stroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.s = {
+          id: _util.OPS.closeStroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.f = {
+          id: _util.OPS.fill,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.F = {
+          id: _util.OPS.fill,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t["f*"] = {
+          id: _util.OPS.eoFill,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.B = {
+          id: _util.OPS.fillStroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t["B*"] = {
+          id: _util.OPS.eoFillStroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.b = {
+          id: _util.OPS.closeFillStroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t["b*"] = {
+          id: _util.OPS.closeEOFillStroke,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.n = {
+          id: _util.OPS.endPath,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.W = {
+          id: _util.OPS.clip,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t["W*"] = {
+          id: _util.OPS.eoClip,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.BT = {
+          id: _util.OPS.beginText,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.ET = {
+          id: _util.OPS.endText,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.Tc = {
+          id: _util.OPS.setCharSpacing,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Tw = {
+          id: _util.OPS.setWordSpacing,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Tz = {
+          id: _util.OPS.setHScale,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.TL = {
+          id: _util.OPS.setLeading,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Tf = {
+          id: _util.OPS.setFont,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.Tr = {
+          id: _util.OPS.setTextRenderingMode,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Ts = {
+          id: _util.OPS.setTextRise,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Td = {
+          id: _util.OPS.moveText,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.TD = {
+          id: _util.OPS.setLeadingMoveText,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.Tm = {
+          id: _util.OPS.setTextMatrix,
+          numArgs: 6,
+          variableArgs: false
+        };
+        t["T*"] = {
+          id: _util.OPS.nextLine,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.Tj = {
+          id: _util.OPS.showText,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.TJ = {
+          id: _util.OPS.showSpacedText,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t["'"] = {
+          id: _util.OPS.nextLineShowText,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t['"'] = {
+          id: _util.OPS.nextLineSetSpacingShowText,
+          numArgs: 3,
+          variableArgs: false
+        };
+        t.d0 = {
+          id: _util.OPS.setCharWidth,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.d1 = {
+          id: _util.OPS.setCharWidthAndBounds,
+          numArgs: 6,
+          variableArgs: false
+        };
+        t.CS = {
+          id: _util.OPS.setStrokeColorSpace,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.cs = {
+          id: _util.OPS.setFillColorSpace,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.SC = {
+          id: _util.OPS.setStrokeColor,
+          numArgs: 4,
+          variableArgs: true
+        };
+        t.SCN = {
+          id: _util.OPS.setStrokeColorN,
+          numArgs: 33,
+          variableArgs: true
+        };
+        t.sc = {
+          id: _util.OPS.setFillColor,
+          numArgs: 4,
+          variableArgs: true
+        };
+        t.scn = {
+          id: _util.OPS.setFillColorN,
+          numArgs: 33,
+          variableArgs: true
+        };
+        t.G = {
+          id: _util.OPS.setStrokeGray,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.g = {
+          id: _util.OPS.setFillGray,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.RG = {
+          id: _util.OPS.setStrokeRGBColor,
+          numArgs: 3,
+          variableArgs: false
+        };
+        t.rg = {
+          id: _util.OPS.setFillRGBColor,
+          numArgs: 3,
+          variableArgs: false
+        };
+        t.K = {
+          id: _util.OPS.setStrokeCMYKColor,
+          numArgs: 4,
+          variableArgs: false
+        };
+        t.k = {
+          id: _util.OPS.setFillCMYKColor,
+          numArgs: 4,
+          variableArgs: false
+        };
+        t.sh = {
+          id: _util.OPS.shadingFill,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.BI = {
+          id: _util.OPS.beginInlineImage,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.ID = {
+          id: _util.OPS.beginImageData,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.EI = {
+          id: _util.OPS.endInlineImage,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.Do = {
+          id: _util.OPS.paintXObject,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.MP = {
+          id: _util.OPS.markPoint,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.DP = {
+          id: _util.OPS.markPointProps,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.BMC = {
+          id: _util.OPS.beginMarkedContent,
+          numArgs: 1,
+          variableArgs: false
+        };
+        t.BDC = {
+          id: _util.OPS.beginMarkedContentProps,
+          numArgs: 2,
+          variableArgs: false
+        };
+        t.EMC = {
+          id: _util.OPS.endMarkedContent,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.BX = {
+          id: _util.OPS.beginCompat,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.EX = {
+          id: _util.OPS.endCompat,
+          numArgs: 0,
+          variableArgs: false
+        };
+        t.BM = null;
+        t.BD = null;
+        t["true"] = null;
+        t.fa = null;
+        t.fal = null;
+        t.fals = null;
+        t["false"] = null;
+        t.nu = null;
+        t.nul = null;
+        t["null"] = null;
+      });
+      return (0, _util.shadow)(this, "opMap", getOPMap());
+    }
+  }, {
+    key: "MAX_INVALID_PATH_OPS",
+    get: function get() {
+      return (0, _util.shadow)(this, "MAX_INVALID_PATH_OPS", 20);
+    }
+  }]);
 }();
 
 /***/ }),
-/* 319 */
+/* 324 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -32865,10 +35000,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.IdentityCMap = exports.CMapFactory = exports.CMap = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _parser = __w_pdfjs_require__(302);
-var _core_utils = __w_pdfjs_require__(299);
-var _stream = __w_pdfjs_require__(303);
+var _primitives = __w_pdfjs_require__(300);
+var _parser = __w_pdfjs_require__(306);
+var _core_utils = __w_pdfjs_require__(303);
+var _stream = __w_pdfjs_require__(307);
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
@@ -33654,7 +35789,7 @@ var CMapFactory = exports.CMapFactory = function CMapFactoryClosure() {
 }();
 
 /***/ }),
-/* 320 */
+/* 325 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -33666,16 +35801,16 @@ Object.defineProperty(exports, "__esModule", {
 exports.ToUnicodeMap = exports.SEAC_ANALYSIS_ENABLED = exports.IdentityToUnicodeMap = exports.FontFlags = exports.Font = exports.ErrorFont = void 0;
 exports.getFontType = getFontType;
 var _util = __w_pdfjs_require__(2);
-var _cff_parser = __w_pdfjs_require__(321);
-var _glyphlist = __w_pdfjs_require__(324);
-var _encodings = __w_pdfjs_require__(323);
-var _standard_fonts = __w_pdfjs_require__(325);
-var _unicode = __w_pdfjs_require__(326);
-var _core_utils = __w_pdfjs_require__(299);
-var _font_renderer = __w_pdfjs_require__(327);
-var _cmap = __w_pdfjs_require__(319);
-var _stream = __w_pdfjs_require__(303);
-var _type1_parser = __w_pdfjs_require__(328);
+var _cff_parser = __w_pdfjs_require__(326);
+var _glyphlist = __w_pdfjs_require__(329);
+var _encodings = __w_pdfjs_require__(328);
+var _standard_fonts = __w_pdfjs_require__(330);
+var _unicode = __w_pdfjs_require__(331);
+var _core_utils = __w_pdfjs_require__(303);
+var _font_renderer = __w_pdfjs_require__(332);
+var _cmap = __w_pdfjs_require__(324);
+var _stream = __w_pdfjs_require__(307);
+var _type1_parser = __w_pdfjs_require__(333);
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -34067,12 +36202,6 @@ var Font = exports.Font = function FontClosure() {
     this.toUnicode = properties.toUnicode;
     this.seacMap = properties.seacMap;
   }
-  Font.getFontID = function () {
-    var ID = 1;
-    return function Font_getFontID() {
-      return String(ID++);
-    };
-  }();
   function int16(b0, b1) {
     return (b0 << 8) + b1;
   }
@@ -34692,7 +36821,7 @@ var Font = exports.Font = function FontClosure() {
           if (potentialTable && potentialTable.platformId === platformId && potentialTable.encodingId === encodingId) {
             continue;
           }
-          if (platformId === 0 && encodingId === 0) {
+          if (platformId === 0 && (encodingId === 0 || encodingId === 1 || encodingId === 3)) {
             useTable = true;
           } else if (platformId === 1 && encodingId === 0) {
             useTable = true;
@@ -35012,23 +37141,33 @@ var Font = exports.Font = function FontClosure() {
         var oldGlyfData = glyf.data;
         var oldGlyfDataLength = oldGlyfData.length;
         var newGlyfData = new Uint8Array(oldGlyfDataLength);
-        var startOffset = itemDecode(locaData, 0);
-        var writeOffset = 0;
-        var missingGlyphs = Object.create(null);
-        itemEncode(locaData, 0, writeOffset);
         var i, j;
+        var locaEntries = [];
+        for (i = 0, j = 0; i < numGlyphs + 1; i++, j += itemSize) {
+          var offset = itemDecode(locaData, j);
+          if (offset > oldGlyfDataLength) {
+            offset = oldGlyfDataLength;
+          }
+          locaEntries.push({
+            index: i,
+            offset: offset,
+            endOffset: 0
+          });
+        }
+        locaEntries.sort(function (a, b) {
+          return a.offset - b.offset;
+        });
+        for (i = 0; i < numGlyphs; i++) {
+          locaEntries[i].endOffset = locaEntries[i + 1].offset;
+        }
+        locaEntries.sort(function (a, b) {
+          return a.index - b.index;
+        });
+        var missingGlyphs = Object.create(null);
+        var writeOffset = 0;
+        itemEncode(locaData, 0, writeOffset);
         for (i = 0, j = itemSize; i < numGlyphs; i++, j += itemSize) {
-          var endOffset = itemDecode(locaData, j);
-          if (endOffset === 0) {
-            endOffset = startOffset;
-          }
-          if (endOffset > oldGlyfDataLength && (oldGlyfDataLength + 3 & ~3) === endOffset) {
-            endOffset = oldGlyfDataLength;
-          }
-          if (endOffset > oldGlyfDataLength) {
-            startOffset = endOffset;
-          }
-          var glyphProfile = sanitizeGlyph(oldGlyfData, startOffset, endOffset, newGlyfData, writeOffset, hintsValid);
+          var glyphProfile = sanitizeGlyph(oldGlyfData, locaEntries[i].offset, locaEntries[i].endOffset, newGlyfData, writeOffset, hintsValid);
           var newLength = glyphProfile.length;
           if (newLength === 0) {
             missingGlyphs[i] = true;
@@ -35038,7 +37177,6 @@ var Font = exports.Font = function FontClosure() {
           }
           writeOffset += newLength;
           itemEncode(locaData, j, writeOffset);
-          startOffset = endOffset;
         }
         if (writeOffset === 0) {
           var simpleGlyph = new Uint8Array([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0]);
@@ -35563,11 +37701,11 @@ var Font = exports.Font = function FontClosure() {
         var cmapEncodingId = cmapTable.encodingId;
         var cmapMappings = cmapTable.mappings;
         var cmapMappingsLength = cmapMappings.length;
-        if (properties.hasEncoding && (cmapPlatformId === 3 && cmapEncodingId === 1 || cmapPlatformId === 1 && cmapEncodingId === 0) || cmapPlatformId === -1 && cmapEncodingId === -1 && !!(0, _encodings.getEncoding)(properties.baseEncodingName)) {
-          var baseEncoding = [];
-          if (properties.baseEncodingName === "MacRomanEncoding" || properties.baseEncodingName === "WinAnsiEncoding") {
-            baseEncoding = (0, _encodings.getEncoding)(properties.baseEncodingName);
-          }
+        var baseEncoding = [];
+        if (properties.hasEncoding && (properties.baseEncodingName === "MacRomanEncoding" || properties.baseEncodingName === "WinAnsiEncoding")) {
+          baseEncoding = (0, _encodings.getEncoding)(properties.baseEncodingName);
+        }
+        if (properties.hasEncoding && !this.isSymbolicFont && (cmapPlatformId === 3 && cmapEncodingId === 1 || cmapPlatformId === 1 && cmapEncodingId === 0)) {
           var glyphsUnicodeMap = (0, _glyphlist.getGlyphsUnicode)();
           for (var charCode = 0; charCode < 256; charCode++) {
             var glyphName, standardGlyphName;
@@ -35588,26 +37726,15 @@ var Font = exports.Font = function FontClosure() {
             } else if (cmapPlatformId === 1 && cmapEncodingId === 0) {
               unicodeOrCharCode = _encodings.MacRomanEncoding.indexOf(standardGlyphName);
             }
-            var found = false;
             for (var i = 0; i < cmapMappingsLength; ++i) {
               if (cmapMappings[i].charCode !== unicodeOrCharCode) {
                 continue;
               }
               charCodeToGlyphId[charCode] = cmapMappings[i].glyphId;
-              found = true;
               break;
             }
-            if (!found && properties.glyphNames) {
-              var glyphId = properties.glyphNames.indexOf(glyphName);
-              if (glyphId === -1 && standardGlyphName !== glyphName) {
-                glyphId = properties.glyphNames.indexOf(standardGlyphName);
-              }
-              if (glyphId > 0 && hasGlyph(glyphId)) {
-                charCodeToGlyphId[charCode] = glyphId;
-              }
-            }
           }
-        } else if (cmapPlatformId === 0 && cmapEncodingId === 0) {
+        } else if (cmapPlatformId === 0) {
           for (var _i = 0; _i < cmapMappingsLength; ++_i) {
             charCodeToGlyphId[cmapMappings[_i].charCode] = cmapMappings[_i].glyphId;
           }
@@ -35618,6 +37745,17 @@ var Font = exports.Font = function FontClosure() {
               _charCode4 &= 0xff;
             }
             charCodeToGlyphId[_charCode4] = cmapMappings[_i2].glyphId;
+          }
+        }
+        if (properties.glyphNames && baseEncoding.length) {
+          for (var _i3 = 0; _i3 < 256; ++_i3) {
+            if (charCodeToGlyphId[_i3] === undefined && baseEncoding[_i3]) {
+              glyphName = baseEncoding[_i3];
+              var glyphId = properties.glyphNames.indexOf(glyphName);
+              if (glyphId > 0 && hasGlyph(glyphId)) {
+                charCodeToGlyphId[_i3] = glyphId;
+              }
+            }
           }
         }
       }
@@ -35749,13 +37887,13 @@ var Font = exports.Font = function FontClosure() {
         var charstrings = font.charstrings;
         var cffWidths = font.cff ? font.cff.widths : null;
         var hmtx = "\x00\x00\x00\x00";
-        for (var _i3 = 1, _ii = numGlyphs; _i3 < _ii; _i3++) {
+        for (var _i4 = 1, _ii = numGlyphs; _i4 < _ii; _i4++) {
           var width = 0;
           if (charstrings) {
-            var charstring = charstrings[_i3 - 1];
+            var charstring = charstrings[_i4 - 1];
             width = "width" in charstring ? charstring.width : 0;
           } else if (cffWidths) {
-            width = Math.ceil(cffWidths[_i3] || 0);
+            width = Math.ceil(cffWidths[_i4] || 0);
           }
           hmtx += string16(width) + string16(0);
         }
@@ -36289,7 +38427,7 @@ var CFFFont = function CFFFontClosure() {
 }();
 
 /***/ }),
-/* 321 */
+/* 326 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -36300,8 +38438,21 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CFFTopDict = exports.CFFStrings = exports.CFFStandardStrings = exports.CFFPrivateDict = exports.CFFParser = exports.CFFIndex = exports.CFFHeader = exports.CFFFDSelect = exports.CFFCompiler = exports.CFFCharset = exports.CFF = void 0;
 var _util = __w_pdfjs_require__(2);
-var _charsets = __w_pdfjs_require__(322);
-var _encodings = __w_pdfjs_require__(323);
+var _charsets = __w_pdfjs_require__(327);
+var _encodings = __w_pdfjs_require__(328);
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var MAX_SUBR_NESTING = 10;
 var CFFStandardStrings = exports.CFFStandardStrings = [".notdef", "space", "exclam", "quotedbl", "numbersign", "dollar", "percent", "ampersand", "quoteright", "parenleft", "parenright", "asterisk", "plus", "comma", "hyphen", "period", "slash", "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "colon", "semicolon", "less", "equal", "greater", "question", "at", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "bracketleft", "backslash", "bracketright", "asciicircum", "underscore", "quoteleft", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "braceleft", "bar", "braceright", "asciitilde", "exclamdown", "cent", "sterling", "fraction", "yen", "florin", "section", "currency", "quotesingle", "quotedblleft", "guillemotleft", "guilsinglleft", "guilsinglright", "fi", "fl", "endash", "dagger", "daggerdbl", "periodcentered", "paragraph", "bullet", "quotesinglbase", "quotedblbase", "quotedblright", "guillemotright", "ellipsis", "perthousand", "questiondown", "grave", "acute", "circumflex", "tilde", "macron", "breve", "dotaccent", "dieresis", "ring", "cedilla", "hungarumlaut", "ogonek", "caron", "emdash", "AE", "ordfeminine", "Lslash", "Oslash", "OE", "ordmasculine", "ae", "dotlessi", "lslash", "oslash", "oe", "germandbls", "onesuperior", "logicalnot", "mu", "trademark", "Eth", "onehalf", "plusminus", "Thorn", "onequarter", "divide", "brokenbar", "degree", "thorn", "threequarters", "twosuperior", "registered", "minus", "eth", "multiply", "threesuperior", "copyright", "Aacute", "Acircumflex", "Adieresis", "Agrave", "Aring", "Atilde", "Ccedilla", "Eacute", "Ecircumflex", "Edieresis", "Egrave", "Iacute", "Icircumflex", "Idieresis", "Igrave", "Ntilde", "Oacute", "Ocircumflex", "Odieresis", "Ograve", "Otilde", "Scaron", "Uacute", "Ucircumflex", "Udieresis", "Ugrave", "Yacute", "Ydieresis", "Zcaron", "aacute", "acircumflex", "adieresis", "agrave", "aring", "atilde", "ccedilla", "eacute", "ecircumflex", "edieresis", "egrave", "iacute", "icircumflex", "idieresis", "igrave", "ntilde", "oacute", "ocircumflex", "odieresis", "ograve", "otilde", "scaron", "uacute", "ucircumflex", "udieresis", "ugrave", "yacute", "ydieresis", "zcaron", "exclamsmall", "Hungarumlautsmall", "dollaroldstyle", "dollarsuperior", "ampersandsmall", "Acutesmall", "parenleftsuperior", "parenrightsuperior", "twodotenleader", "onedotenleader", "zerooldstyle", "oneoldstyle", "twooldstyle", "threeoldstyle", "fouroldstyle", "fiveoldstyle", "sixoldstyle", "sevenoldstyle", "eightoldstyle", "nineoldstyle", "commasuperior", "threequartersemdash", "periodsuperior", "questionsmall", "asuperior", "bsuperior", "centsuperior", "dsuperior", "esuperior", "isuperior", "lsuperior", "msuperior", "nsuperior", "osuperior", "rsuperior", "ssuperior", "tsuperior", "ff", "ffi", "ffl", "parenleftinferior", "parenrightinferior", "Circumflexsmall", "hyphensuperior", "Gravesmall", "Asmall", "Bsmall", "Csmall", "Dsmall", "Esmall", "Fsmall", "Gsmall", "Hsmall", "Ismall", "Jsmall", "Ksmall", "Lsmall", "Msmall", "Nsmall", "Osmall", "Psmall", "Qsmall", "Rsmall", "Ssmall", "Tsmall", "Usmall", "Vsmall", "Wsmall", "Xsmall", "Ysmall", "Zsmall", "colonmonetary", "onefitted", "rupiah", "Tildesmall", "exclamdownsmall", "centoldstyle", "Lslashsmall", "Scaronsmall", "Zcaronsmall", "Dieresissmall", "Brevesmall", "Caronsmall", "Dotaccentsmall", "Macronsmall", "figuredash", "hypheninferior", "Ogoneksmall", "Ringsmall", "Cedillasmall", "questiondownsmall", "oneeighth", "threeeighths", "fiveeighths", "seveneighths", "onethird", "twothirds", "zerosuperior", "foursuperior", "fivesuperior", "sixsuperior", "sevensuperior", "eightsuperior", "ninesuperior", "zeroinferior", "oneinferior", "twoinferior", "threeinferior", "fourinferior", "fiveinferior", "sixinferior", "seveninferior", "eightinferior", "nineinferior", "centinferior", "dollarinferior", "periodinferior", "commainferior", "Agravesmall", "Aacutesmall", "Acircumflexsmall", "Atildesmall", "Adieresissmall", "Aringsmall", "AEsmall", "Ccedillasmall", "Egravesmall", "Eacutesmall", "Ecircumflexsmall", "Edieresissmall", "Igravesmall", "Iacutesmall", "Icircumflexsmall", "Idieresissmall", "Ethsmall", "Ntildesmall", "Ogravesmall", "Oacutesmall", "Ocircumflexsmall", "Otildesmall", "Odieresissmall", "OEsmall", "Oslashsmall", "Ugravesmall", "Uacutesmall", "Ucircumflexsmall", "Udieresissmall", "Yacutesmall", "Thornsmall", "Ydieresissmall", "001.000", "001.001", "001.002", "001.003", "Black", "Bold", "Book", "Light", "Medium", "Regular", "Roman", "Semibold"];
 var NUM_STANDARD_CFF_STRINGS = 391;
@@ -36515,603 +38666,634 @@ var CFFParser = exports.CFFParser = function CFFParserClosure() {
     min: 11,
     resetStack: true
   }];
-  function CFFParser(file, properties, seacAnalysisEnabled) {
-    this.bytes = file.getBytes();
-    this.properties = properties;
-    this.seacAnalysisEnabled = !!seacAnalysisEnabled;
-  }
-  CFFParser.prototype = {
-    parse: function CFFParser_parse() {
-      var properties = this.properties;
-      var cff = new CFF();
-      this.cff = cff;
-      var header = this.parseHeader();
-      var nameIndex = this.parseIndex(header.endPos);
-      var topDictIndex = this.parseIndex(nameIndex.endPos);
-      var stringIndex = this.parseIndex(topDictIndex.endPos);
-      var globalSubrIndex = this.parseIndex(stringIndex.endPos);
-      var topDictParsed = this.parseDict(topDictIndex.obj.get(0));
-      var topDict = this.createDict(CFFTopDict, topDictParsed, cff.strings);
-      cff.header = header.obj;
-      cff.names = this.parseNameIndex(nameIndex.obj);
-      cff.strings = this.parseStringIndex(stringIndex.obj);
-      cff.topDict = topDict;
-      cff.globalSubrIndex = globalSubrIndex.obj;
-      this.parsePrivateDict(cff.topDict);
-      cff.isCIDFont = topDict.hasName("ROS");
-      var charStringOffset = topDict.getByName("CharStrings");
-      var charStringIndex = this.parseIndex(charStringOffset).obj;
-      var fontMatrix = topDict.getByName("FontMatrix");
-      if (fontMatrix) {
-        properties.fontMatrix = fontMatrix;
-      }
-      var fontBBox = topDict.getByName("FontBBox");
-      if (fontBBox) {
-        properties.ascent = Math.max(fontBBox[3], fontBBox[1]);
-        properties.descent = Math.min(fontBBox[1], fontBBox[3]);
-        properties.ascentScaled = true;
-      }
-      var charset, encoding;
-      if (cff.isCIDFont) {
-        var fdArrayIndex = this.parseIndex(topDict.getByName("FDArray")).obj;
-        for (var i = 0, ii = fdArrayIndex.count; i < ii; ++i) {
-          var dictRaw = fdArrayIndex.get(i);
-          var fontDict = this.createDict(CFFTopDict, this.parseDict(dictRaw), cff.strings);
-          this.parsePrivateDict(fontDict);
-          cff.fdArray.push(fontDict);
+  var CFFParser = /*#__PURE__*/function () {
+    function CFFParser(file, properties, seacAnalysisEnabled) {
+      _classCallCheck(this, CFFParser);
+      this.bytes = file.getBytes();
+      this.properties = properties;
+      this.seacAnalysisEnabled = !!seacAnalysisEnabled;
+    }
+    return _createClass(CFFParser, [{
+      key: "parse",
+      value: function parse() {
+        var properties = this.properties;
+        var cff = new CFF();
+        this.cff = cff;
+        var header = this.parseHeader();
+        var nameIndex = this.parseIndex(header.endPos);
+        var topDictIndex = this.parseIndex(nameIndex.endPos);
+        var stringIndex = this.parseIndex(topDictIndex.endPos);
+        var globalSubrIndex = this.parseIndex(stringIndex.endPos);
+        var topDictParsed = this.parseDict(topDictIndex.obj.get(0));
+        var topDict = this.createDict(CFFTopDict, topDictParsed, cff.strings);
+        cff.header = header.obj;
+        cff.names = this.parseNameIndex(nameIndex.obj);
+        cff.strings = this.parseStringIndex(stringIndex.obj);
+        cff.topDict = topDict;
+        cff.globalSubrIndex = globalSubrIndex.obj;
+        this.parsePrivateDict(cff.topDict);
+        cff.isCIDFont = topDict.hasName("ROS");
+        var charStringOffset = topDict.getByName("CharStrings");
+        var charStringIndex = this.parseIndex(charStringOffset).obj;
+        var fontMatrix = topDict.getByName("FontMatrix");
+        if (fontMatrix) {
+          properties.fontMatrix = fontMatrix;
         }
-        encoding = null;
-        charset = this.parseCharsets(topDict.getByName("charset"), charStringIndex.count, cff.strings, true);
-        cff.fdSelect = this.parseFDSelect(topDict.getByName("FDSelect"), charStringIndex.count);
-      } else {
-        charset = this.parseCharsets(topDict.getByName("charset"), charStringIndex.count, cff.strings, false);
-        encoding = this.parseEncoding(topDict.getByName("Encoding"), properties, cff.strings, charset.charset);
-      }
-      cff.charset = charset;
-      cff.encoding = encoding;
-      var charStringsAndSeacs = this.parseCharStrings({
-        charStrings: charStringIndex,
-        localSubrIndex: topDict.privateDict.subrsIndex,
-        globalSubrIndex: globalSubrIndex.obj,
-        fdSelect: cff.fdSelect,
-        fdArray: cff.fdArray,
-        privateDict: topDict.privateDict
-      });
-      cff.charStrings = charStringsAndSeacs.charStrings;
-      cff.seacs = charStringsAndSeacs.seacs;
-      cff.widths = charStringsAndSeacs.widths;
-      return cff;
-    },
-    parseHeader: function CFFParser_parseHeader() {
-      var bytes = this.bytes;
-      var bytesLength = bytes.length;
-      var offset = 0;
-      while (offset < bytesLength && bytes[offset] !== 1) {
-        ++offset;
-      }
-      if (offset >= bytesLength) {
-        throw new _util.FormatError("Invalid CFF header");
-      }
-      if (offset !== 0) {
-        (0, _util.info)("cff data is shifted");
-        bytes = bytes.subarray(offset);
-        this.bytes = bytes;
-      }
-      var major = bytes[0];
-      var minor = bytes[1];
-      var hdrSize = bytes[2];
-      var offSize = bytes[3];
-      var header = new CFFHeader(major, minor, hdrSize, offSize);
-      return {
-        obj: header,
-        endPos: hdrSize
-      };
-    },
-    parseDict: function CFFParser_parseDict(dict) {
-      var pos = 0;
-      function parseOperand() {
-        var value = dict[pos++];
-        if (value === 30) {
-          return parseFloatOperand();
-        } else if (value === 28) {
-          value = dict[pos++];
-          value = (value << 24 | dict[pos++] << 16) >> 16;
-          return value;
-        } else if (value === 29) {
-          value = dict[pos++];
-          value = value << 8 | dict[pos++];
-          value = value << 8 | dict[pos++];
-          value = value << 8 | dict[pos++];
-          return value;
-        } else if (value >= 32 && value <= 246) {
-          return value - 139;
-        } else if (value >= 247 && value <= 250) {
-          return (value - 247) * 256 + dict[pos++] + 108;
-        } else if (value >= 251 && value <= 254) {
-          return -((value - 251) * 256) - dict[pos++] - 108;
+        var fontBBox = topDict.getByName("FontBBox");
+        if (fontBBox) {
+          properties.ascent = Math.max(fontBBox[3], fontBBox[1]);
+          properties.descent = Math.min(fontBBox[1], fontBBox[3]);
+          properties.ascentScaled = true;
         }
-        (0, _util.warn)('CFFParser_parseDict: "' + value + '" is a reserved command.');
-        return NaN;
-      }
-      function parseFloatOperand() {
-        var str = "";
-        var eof = 15;
-        var lookup = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "E", "E-", null, "-"];
-        var length = dict.length;
-        while (pos < length) {
-          var b = dict[pos++];
-          var b1 = b >> 4;
-          var b2 = b & 15;
-          if (b1 === eof) {
-            break;
+        var charset, encoding;
+        if (cff.isCIDFont) {
+          var fdArrayIndex = this.parseIndex(topDict.getByName("FDArray")).obj;
+          for (var i = 0, ii = fdArrayIndex.count; i < ii; ++i) {
+            var dictRaw = fdArrayIndex.get(i);
+            var fontDict = this.createDict(CFFTopDict, this.parseDict(dictRaw), cff.strings);
+            this.parsePrivateDict(fontDict);
+            cff.fdArray.push(fontDict);
           }
-          str += lookup[b1];
-          if (b2 === eof) {
-            break;
-          }
-          str += lookup[b2];
-        }
-        return parseFloat(str);
-      }
-      var operands = [];
-      var entries = [];
-      pos = 0;
-      var end = dict.length;
-      while (pos < end) {
-        var b = dict[pos];
-        if (b <= 21) {
-          if (b === 12) {
-            b = b << 8 | dict[++pos];
-          }
-          entries.push([b, operands]);
-          operands = [];
-          ++pos;
+          encoding = null;
+          charset = this.parseCharsets(topDict.getByName("charset"), charStringIndex.count, cff.strings, true);
+          cff.fdSelect = this.parseFDSelect(topDict.getByName("FDSelect"), charStringIndex.count);
         } else {
-          operands.push(parseOperand());
+          charset = this.parseCharsets(topDict.getByName("charset"), charStringIndex.count, cff.strings, false);
+          encoding = this.parseEncoding(topDict.getByName("Encoding"), properties, cff.strings, charset.charset);
         }
+        cff.charset = charset;
+        cff.encoding = encoding;
+        var charStringsAndSeacs = this.parseCharStrings({
+          charStrings: charStringIndex,
+          localSubrIndex: topDict.privateDict.subrsIndex,
+          globalSubrIndex: globalSubrIndex.obj,
+          fdSelect: cff.fdSelect,
+          fdArray: cff.fdArray,
+          privateDict: topDict.privateDict
+        });
+        cff.charStrings = charStringsAndSeacs.charStrings;
+        cff.seacs = charStringsAndSeacs.seacs;
+        cff.widths = charStringsAndSeacs.widths;
+        return cff;
       }
-      return entries;
-    },
-    parseIndex: function CFFParser_parseIndex(pos) {
-      var cffIndex = new CFFIndex();
-      var bytes = this.bytes;
-      var count = bytes[pos++] << 8 | bytes[pos++];
-      var offsets = [];
-      var end = pos;
-      var i, ii;
-      if (count !== 0) {
-        var offsetSize = bytes[pos++];
-        var startPos = pos + (count + 1) * offsetSize - 1;
-        for (i = 0, ii = count + 1; i < ii; ++i) {
-          var offset = 0;
-          for (var j = 0; j < offsetSize; ++j) {
-            offset <<= 8;
-            offset += bytes[pos++];
-          }
-          offsets.push(startPos + offset);
+    }, {
+      key: "parseHeader",
+      value: function parseHeader() {
+        var bytes = this.bytes;
+        var bytesLength = bytes.length;
+        var offset = 0;
+        while (offset < bytesLength && bytes[offset] !== 1) {
+          ++offset;
         }
-        end = offsets[count];
-      }
-      for (i = 0, ii = offsets.length - 1; i < ii; ++i) {
-        var offsetStart = offsets[i];
-        var offsetEnd = offsets[i + 1];
-        cffIndex.add(bytes.subarray(offsetStart, offsetEnd));
-      }
-      return {
-        obj: cffIndex,
-        endPos: end
-      };
-    },
-    parseNameIndex: function CFFParser_parseNameIndex(index) {
-      var names = [];
-      for (var i = 0, ii = index.count; i < ii; ++i) {
-        var name = index.get(i);
-        names.push((0, _util.bytesToString)(name));
-      }
-      return names;
-    },
-    parseStringIndex: function CFFParser_parseStringIndex(index) {
-      var strings = new CFFStrings();
-      for (var i = 0, ii = index.count; i < ii; ++i) {
-        var data = index.get(i);
-        strings.add((0, _util.bytesToString)(data));
-      }
-      return strings;
-    },
-    createDict: function CFFParser_createDict(Type, dict, strings) {
-      var cffDict = new Type(strings);
-      for (var i = 0, ii = dict.length; i < ii; ++i) {
-        var pair = dict[i];
-        var key = pair[0];
-        var value = pair[1];
-        cffDict.setByKey(key, value);
-      }
-      return cffDict;
-    },
-    parseCharString: function CFFParser_parseCharString(state, data, localSubrIndex, globalSubrIndex) {
-      if (!data || state.callDepth > MAX_SUBR_NESTING) {
-        return false;
-      }
-      var stackSize = state.stackSize;
-      var stack = state.stack;
-      var length = data.length;
-      for (var j = 0; j < length;) {
-        var value = data[j++];
-        var validationCommand = null;
-        if (value === 12) {
-          var q = data[j++];
-          if (q === 0) {
-            data[j - 2] = 139;
-            data[j - 1] = 22;
-            stackSize = 0;
-          } else {
-            validationCommand = CharstringValidationData12[q];
-          }
-        } else if (value === 28) {
-          stack[stackSize] = (data[j] << 24 | data[j + 1] << 16) >> 16;
-          j += 2;
-          stackSize++;
-        } else if (value === 14) {
-          if (stackSize >= 4) {
-            stackSize -= 4;
-            if (this.seacAnalysisEnabled) {
-              state.seac = stack.slice(stackSize, stackSize + 4);
-              return false;
-            }
-          }
-          validationCommand = CharstringValidationData[value];
-        } else if (value >= 32 && value <= 246) {
-          stack[stackSize] = value - 139;
-          stackSize++;
-        } else if (value >= 247 && value <= 254) {
-          stack[stackSize] = value < 251 ? (value - 247 << 8) + data[j] + 108 : -(value - 251 << 8) - data[j] - 108;
-          j++;
-          stackSize++;
-        } else if (value === 255) {
-          stack[stackSize] = (data[j] << 24 | data[j + 1] << 16 | data[j + 2] << 8 | data[j + 3]) / 65536;
-          j += 4;
-          stackSize++;
-        } else if (value === 19 || value === 20) {
-          state.hints += stackSize >> 1;
-          j += state.hints + 7 >> 3;
-          stackSize %= 2;
-          validationCommand = CharstringValidationData[value];
-        } else if (value === 10 || value === 29) {
-          var subrsIndex;
-          if (value === 10) {
-            subrsIndex = localSubrIndex;
-          } else {
-            subrsIndex = globalSubrIndex;
-          }
-          if (!subrsIndex) {
-            validationCommand = CharstringValidationData[value];
-            (0, _util.warn)("Missing subrsIndex for " + validationCommand.id);
-            return false;
-          }
-          var bias = 32768;
-          if (subrsIndex.count < 1240) {
-            bias = 107;
-          } else if (subrsIndex.count < 33900) {
-            bias = 1131;
-          }
-          var subrNumber = stack[--stackSize] + bias;
-          if (subrNumber < 0 || subrNumber >= subrsIndex.count || isNaN(subrNumber)) {
-            validationCommand = CharstringValidationData[value];
-            (0, _util.warn)("Out of bounds subrIndex for " + validationCommand.id);
-            return false;
-          }
-          state.stackSize = stackSize;
-          state.callDepth++;
-          var valid = this.parseCharString(state, subrsIndex.get(subrNumber), localSubrIndex, globalSubrIndex);
-          if (!valid) {
-            return false;
-          }
-          state.callDepth--;
-          stackSize = state.stackSize;
-          continue;
-        } else if (value === 11) {
-          state.stackSize = stackSize;
-          return true;
-        } else {
-          validationCommand = CharstringValidationData[value];
+        if (offset >= bytesLength) {
+          throw new _util.FormatError("Invalid CFF header");
         }
-        if (validationCommand) {
-          if (validationCommand.stem) {
-            state.hints += stackSize >> 1;
-            if (value === 3 || value === 23) {
-              state.hasVStems = true;
-            } else if (state.hasVStems && (value === 1 || value === 18)) {
-              (0, _util.warn)("CFF stem hints are in wrong order");
-              data[j - 1] = value === 1 ? 3 : 23;
-            }
-          }
-          if ("min" in validationCommand) {
-            if (!state.undefStack && stackSize < validationCommand.min) {
-              (0, _util.warn)("Not enough parameters for " + validationCommand.id + "; actual: " + stackSize + ", expected: " + validationCommand.min);
-              return false;
-            }
-          }
-          if (state.firstStackClearing && validationCommand.stackClearing) {
-            state.firstStackClearing = false;
-            stackSize -= validationCommand.min;
-            if (stackSize >= 2 && validationCommand.stem) {
-              stackSize %= 2;
-            } else if (stackSize > 1) {
-              (0, _util.warn)("Found too many parameters for stack-clearing command");
-            }
-            if (stackSize > 0 && stack[stackSize - 1] >= 0) {
-              state.width = stack[stackSize - 1];
-            }
-          }
-          if ("stackDelta" in validationCommand) {
-            if ("stackFn" in validationCommand) {
-              validationCommand.stackFn(stack, stackSize);
-            }
-            stackSize += validationCommand.stackDelta;
-          } else if (validationCommand.stackClearing) {
-            stackSize = 0;
-          } else if (validationCommand.resetStack) {
-            stackSize = 0;
-            state.undefStack = false;
-          } else if (validationCommand.undefStack) {
-            stackSize = 0;
-            state.undefStack = true;
-            state.firstStackClearing = false;
-          }
+        if (offset !== 0) {
+          (0, _util.info)("cff data is shifted");
+          bytes = bytes.subarray(offset);
+          this.bytes = bytes;
         }
-      }
-      state.stackSize = stackSize;
-      return true;
-    },
-    parseCharStrings: function parseCharStrings(_ref) {
-      var charStrings = _ref.charStrings,
-        localSubrIndex = _ref.localSubrIndex,
-        globalSubrIndex = _ref.globalSubrIndex,
-        fdSelect = _ref.fdSelect,
-        fdArray = _ref.fdArray,
-        privateDict = _ref.privateDict;
-      var seacs = [];
-      var widths = [];
-      var count = charStrings.count;
-      for (var i = 0; i < count; i++) {
-        var charstring = charStrings.get(i);
-        var state = {
-          callDepth: 0,
-          stackSize: 0,
-          stack: [],
-          undefStack: true,
-          hints: 0,
-          firstStackClearing: true,
-          seac: null,
-          width: null,
-          hasVStems: false
+        var major = bytes[0];
+        var minor = bytes[1];
+        var hdrSize = bytes[2];
+        var offSize = bytes[3];
+        var header = new CFFHeader(major, minor, hdrSize, offSize);
+        return {
+          obj: header,
+          endPos: hdrSize
         };
-        var valid = true;
-        var localSubrToUse = null;
-        var privateDictToUse = privateDict;
-        if (fdSelect && fdArray.length) {
-          var fdIndex = fdSelect.getFDIndex(i);
-          if (fdIndex === -1) {
-            (0, _util.warn)("Glyph index is not in fd select.");
-            valid = false;
+      }
+    }, {
+      key: "parseDict",
+      value: function parseDict(dict) {
+        var pos = 0;
+        function parseOperand() {
+          var value = dict[pos++];
+          if (value === 30) {
+            return parseFloatOperand();
+          } else if (value === 28) {
+            value = dict[pos++];
+            value = (value << 24 | dict[pos++] << 16) >> 16;
+            return value;
+          } else if (value === 29) {
+            value = dict[pos++];
+            value = value << 8 | dict[pos++];
+            value = value << 8 | dict[pos++];
+            value = value << 8 | dict[pos++];
+            return value;
+          } else if (value >= 32 && value <= 246) {
+            return value - 139;
+          } else if (value >= 247 && value <= 250) {
+            return (value - 247) * 256 + dict[pos++] + 108;
+          } else if (value >= 251 && value <= 254) {
+            return -((value - 251) * 256) - dict[pos++] - 108;
           }
-          if (fdIndex >= fdArray.length) {
-            (0, _util.warn)("Invalid fd index for glyph index.");
-            valid = false;
+          (0, _util.warn)('CFFParser_parseDict: "' + value + '" is a reserved command.');
+          return NaN;
+        }
+        function parseFloatOperand() {
+          var str = "";
+          var eof = 15;
+          var lookup = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "E", "E-", null, "-"];
+          var length = dict.length;
+          while (pos < length) {
+            var b = dict[pos++];
+            var b1 = b >> 4;
+            var b2 = b & 15;
+            if (b1 === eof) {
+              break;
+            }
+            str += lookup[b1];
+            if (b2 === eof) {
+              break;
+            }
+            str += lookup[b2];
+          }
+          return parseFloat(str);
+        }
+        var operands = [];
+        var entries = [];
+        pos = 0;
+        var end = dict.length;
+        while (pos < end) {
+          var b = dict[pos];
+          if (b <= 21) {
+            if (b === 12) {
+              b = b << 8 | dict[++pos];
+            }
+            entries.push([b, operands]);
+            operands = [];
+            ++pos;
+          } else {
+            operands.push(parseOperand());
+          }
+        }
+        return entries;
+      }
+    }, {
+      key: "parseIndex",
+      value: function parseIndex(pos) {
+        var cffIndex = new CFFIndex();
+        var bytes = this.bytes;
+        var count = bytes[pos++] << 8 | bytes[pos++];
+        var offsets = [];
+        var end = pos;
+        var i, ii;
+        if (count !== 0) {
+          var offsetSize = bytes[pos++];
+          var startPos = pos + (count + 1) * offsetSize - 1;
+          for (i = 0, ii = count + 1; i < ii; ++i) {
+            var offset = 0;
+            for (var j = 0; j < offsetSize; ++j) {
+              offset <<= 8;
+              offset += bytes[pos++];
+            }
+            offsets.push(startPos + offset);
+          }
+          end = offsets[count];
+        }
+        for (i = 0, ii = offsets.length - 1; i < ii; ++i) {
+          var offsetStart = offsets[i];
+          var offsetEnd = offsets[i + 1];
+          cffIndex.add(bytes.subarray(offsetStart, offsetEnd));
+        }
+        return {
+          obj: cffIndex,
+          endPos: end
+        };
+      }
+    }, {
+      key: "parseNameIndex",
+      value: function parseNameIndex(index) {
+        var names = [];
+        for (var i = 0, ii = index.count; i < ii; ++i) {
+          var name = index.get(i);
+          names.push((0, _util.bytesToString)(name));
+        }
+        return names;
+      }
+    }, {
+      key: "parseStringIndex",
+      value: function parseStringIndex(index) {
+        var strings = new CFFStrings();
+        for (var i = 0, ii = index.count; i < ii; ++i) {
+          var data = index.get(i);
+          strings.add((0, _util.bytesToString)(data));
+        }
+        return strings;
+      }
+    }, {
+      key: "createDict",
+      value: function createDict(Type, dict, strings) {
+        var cffDict = new Type(strings);
+        for (var i = 0, ii = dict.length; i < ii; ++i) {
+          var pair = dict[i];
+          var key = pair[0];
+          var value = pair[1];
+          cffDict.setByKey(key, value);
+        }
+        return cffDict;
+      }
+    }, {
+      key: "parseCharString",
+      value: function parseCharString(state, data, localSubrIndex, globalSubrIndex) {
+        if (!data || state.callDepth > MAX_SUBR_NESTING) {
+          return false;
+        }
+        var stackSize = state.stackSize;
+        var stack = state.stack;
+        var length = data.length;
+        for (var j = 0; j < length;) {
+          var value = data[j++];
+          var validationCommand = null;
+          if (value === 12) {
+            var q = data[j++];
+            if (q === 0) {
+              data[j - 2] = 139;
+              data[j - 1] = 22;
+              stackSize = 0;
+            } else {
+              validationCommand = CharstringValidationData12[q];
+            }
+          } else if (value === 28) {
+            stack[stackSize] = (data[j] << 24 | data[j + 1] << 16) >> 16;
+            j += 2;
+            stackSize++;
+          } else if (value === 14) {
+            if (stackSize >= 4) {
+              stackSize -= 4;
+              if (this.seacAnalysisEnabled) {
+                state.seac = stack.slice(stackSize, stackSize + 4);
+                return false;
+              }
+            }
+            validationCommand = CharstringValidationData[value];
+          } else if (value >= 32 && value <= 246) {
+            stack[stackSize] = value - 139;
+            stackSize++;
+          } else if (value >= 247 && value <= 254) {
+            stack[stackSize] = value < 251 ? (value - 247 << 8) + data[j] + 108 : -(value - 251 << 8) - data[j] - 108;
+            j++;
+            stackSize++;
+          } else if (value === 255) {
+            stack[stackSize] = (data[j] << 24 | data[j + 1] << 16 | data[j + 2] << 8 | data[j + 3]) / 65536;
+            j += 4;
+            stackSize++;
+          } else if (value === 19 || value === 20) {
+            state.hints += stackSize >> 1;
+            j += state.hints + 7 >> 3;
+            stackSize %= 2;
+            validationCommand = CharstringValidationData[value];
+          } else if (value === 10 || value === 29) {
+            var subrsIndex;
+            if (value === 10) {
+              subrsIndex = localSubrIndex;
+            } else {
+              subrsIndex = globalSubrIndex;
+            }
+            if (!subrsIndex) {
+              validationCommand = CharstringValidationData[value];
+              (0, _util.warn)("Missing subrsIndex for " + validationCommand.id);
+              return false;
+            }
+            var bias = 32768;
+            if (subrsIndex.count < 1240) {
+              bias = 107;
+            } else if (subrsIndex.count < 33900) {
+              bias = 1131;
+            }
+            var subrNumber = stack[--stackSize] + bias;
+            if (subrNumber < 0 || subrNumber >= subrsIndex.count || isNaN(subrNumber)) {
+              validationCommand = CharstringValidationData[value];
+              (0, _util.warn)("Out of bounds subrIndex for " + validationCommand.id);
+              return false;
+            }
+            state.stackSize = stackSize;
+            state.callDepth++;
+            var valid = this.parseCharString(state, subrsIndex.get(subrNumber), localSubrIndex, globalSubrIndex);
+            if (!valid) {
+              return false;
+            }
+            state.callDepth--;
+            stackSize = state.stackSize;
+            continue;
+          } else if (value === 11) {
+            state.stackSize = stackSize;
+            return true;
+          } else {
+            validationCommand = CharstringValidationData[value];
+          }
+          if (validationCommand) {
+            if (validationCommand.stem) {
+              state.hints += stackSize >> 1;
+              if (value === 3 || value === 23) {
+                state.hasVStems = true;
+              } else if (state.hasVStems && (value === 1 || value === 18)) {
+                (0, _util.warn)("CFF stem hints are in wrong order");
+                data[j - 1] = value === 1 ? 3 : 23;
+              }
+            }
+            if ("min" in validationCommand) {
+              if (!state.undefStack && stackSize < validationCommand.min) {
+                (0, _util.warn)("Not enough parameters for " + validationCommand.id + "; actual: " + stackSize + ", expected: " + validationCommand.min);
+                return false;
+              }
+            }
+            if (state.firstStackClearing && validationCommand.stackClearing) {
+              state.firstStackClearing = false;
+              stackSize -= validationCommand.min;
+              if (stackSize >= 2 && validationCommand.stem) {
+                stackSize %= 2;
+              } else if (stackSize > 1) {
+                (0, _util.warn)("Found too many parameters for stack-clearing command");
+              }
+              if (stackSize > 0 && stack[stackSize - 1] >= 0) {
+                state.width = stack[stackSize - 1];
+              }
+            }
+            if ("stackDelta" in validationCommand) {
+              if ("stackFn" in validationCommand) {
+                validationCommand.stackFn(stack, stackSize);
+              }
+              stackSize += validationCommand.stackDelta;
+            } else if (validationCommand.stackClearing) {
+              stackSize = 0;
+            } else if (validationCommand.resetStack) {
+              stackSize = 0;
+              state.undefStack = false;
+            } else if (validationCommand.undefStack) {
+              stackSize = 0;
+              state.undefStack = true;
+              state.firstStackClearing = false;
+            }
+          }
+        }
+        state.stackSize = stackSize;
+        return true;
+      }
+    }, {
+      key: "parseCharStrings",
+      value: function parseCharStrings(_ref) {
+        var charStrings = _ref.charStrings,
+          localSubrIndex = _ref.localSubrIndex,
+          globalSubrIndex = _ref.globalSubrIndex,
+          fdSelect = _ref.fdSelect,
+          fdArray = _ref.fdArray,
+          privateDict = _ref.privateDict;
+        var seacs = [];
+        var widths = [];
+        var count = charStrings.count;
+        for (var i = 0; i < count; i++) {
+          var charstring = charStrings.get(i);
+          var state = {
+            callDepth: 0,
+            stackSize: 0,
+            stack: [],
+            undefStack: true,
+            hints: 0,
+            firstStackClearing: true,
+            seac: null,
+            width: null,
+            hasVStems: false
+          };
+          var valid = true;
+          var localSubrToUse = null;
+          var privateDictToUse = privateDict;
+          if (fdSelect && fdArray.length) {
+            var fdIndex = fdSelect.getFDIndex(i);
+            if (fdIndex === -1) {
+              (0, _util.warn)("Glyph index is not in fd select.");
+              valid = false;
+            }
+            if (fdIndex >= fdArray.length) {
+              (0, _util.warn)("Invalid fd index for glyph index.");
+              valid = false;
+            }
+            if (valid) {
+              privateDictToUse = fdArray[fdIndex].privateDict;
+              localSubrToUse = privateDictToUse.subrsIndex;
+            }
+          } else if (localSubrIndex) {
+            localSubrToUse = localSubrIndex;
           }
           if (valid) {
-            privateDictToUse = fdArray[fdIndex].privateDict;
-            localSubrToUse = privateDictToUse.subrsIndex;
+            valid = this.parseCharString(state, charstring, localSubrToUse, globalSubrIndex);
           }
-        } else if (localSubrIndex) {
-          localSubrToUse = localSubrIndex;
-        }
-        if (valid) {
-          valid = this.parseCharString(state, charstring, localSubrToUse, globalSubrIndex);
-        }
-        if (state.width !== null) {
-          var nominalWidth = privateDictToUse.getByName("nominalWidthX");
-          widths[i] = nominalWidth + state.width;
-        } else {
-          var defaultWidth = privateDictToUse.getByName("defaultWidthX");
-          widths[i] = defaultWidth;
-        }
-        if (state.seac !== null) {
-          seacs[i] = state.seac;
-        }
-        if (!valid) {
-          charStrings.set(i, new Uint8Array([14]));
-        }
-      }
-      return {
-        charStrings: charStrings,
-        seacs: seacs,
-        widths: widths
-      };
-    },
-    emptyPrivateDictionary: function CFFParser_emptyPrivateDictionary(parentDict) {
-      var privateDict = this.createDict(CFFPrivateDict, [], parentDict.strings);
-      parentDict.setByKey(18, [0, 0]);
-      parentDict.privateDict = privateDict;
-    },
-    parsePrivateDict: function CFFParser_parsePrivateDict(parentDict) {
-      if (!parentDict.hasName("Private")) {
-        this.emptyPrivateDictionary(parentDict);
-        return;
-      }
-      var privateOffset = parentDict.getByName("Private");
-      if (!Array.isArray(privateOffset) || privateOffset.length !== 2) {
-        parentDict.removeByName("Private");
-        return;
-      }
-      var size = privateOffset[0];
-      var offset = privateOffset[1];
-      if (size === 0 || offset >= this.bytes.length) {
-        this.emptyPrivateDictionary(parentDict);
-        return;
-      }
-      var privateDictEnd = offset + size;
-      var dictData = this.bytes.subarray(offset, privateDictEnd);
-      var dict = this.parseDict(dictData);
-      var privateDict = this.createDict(CFFPrivateDict, dict, parentDict.strings);
-      parentDict.privateDict = privateDict;
-      if (!privateDict.getByName("Subrs")) {
-        return;
-      }
-      var subrsOffset = privateDict.getByName("Subrs");
-      var relativeOffset = offset + subrsOffset;
-      if (subrsOffset === 0 || relativeOffset >= this.bytes.length) {
-        this.emptyPrivateDictionary(parentDict);
-        return;
-      }
-      var subrsIndex = this.parseIndex(relativeOffset);
-      privateDict.subrsIndex = subrsIndex.obj;
-    },
-    parseCharsets: function CFFParser_parseCharsets(pos, length, strings, cid) {
-      if (pos === 0) {
-        return new CFFCharset(true, CFFCharsetPredefinedTypes.ISO_ADOBE, _charsets.ISOAdobeCharset);
-      } else if (pos === 1) {
-        return new CFFCharset(true, CFFCharsetPredefinedTypes.EXPERT, _charsets.ExpertCharset);
-      } else if (pos === 2) {
-        return new CFFCharset(true, CFFCharsetPredefinedTypes.EXPERT_SUBSET, _charsets.ExpertSubsetCharset);
-      }
-      var bytes = this.bytes;
-      var start = pos;
-      var format = bytes[pos++];
-      var charset = [cid ? 0 : ".notdef"];
-      var id, count, i;
-      length -= 1;
-      switch (format) {
-        case 0:
-          for (i = 0; i < length; i++) {
-            id = bytes[pos++] << 8 | bytes[pos++];
-            charset.push(cid ? id : strings.get(id));
+          if (state.width !== null) {
+            var nominalWidth = privateDictToUse.getByName("nominalWidthX");
+            widths[i] = nominalWidth + state.width;
+          } else {
+            var defaultWidth = privateDictToUse.getByName("defaultWidthX");
+            widths[i] = defaultWidth;
           }
-          break;
-        case 1:
-          while (charset.length <= length) {
-            id = bytes[pos++] << 8 | bytes[pos++];
-            count = bytes[pos++];
-            for (i = 0; i <= count; i++) {
-              charset.push(cid ? id++ : strings.get(id++));
-            }
+          if (state.seac !== null) {
+            seacs[i] = state.seac;
           }
-          break;
-        case 2:
-          while (charset.length <= length) {
-            id = bytes[pos++] << 8 | bytes[pos++];
-            count = bytes[pos++] << 8 | bytes[pos++];
-            for (i = 0; i <= count; i++) {
-              charset.push(cid ? id++ : strings.get(id++));
-            }
-          }
-          break;
-        default:
-          throw new _util.FormatError("Unknown charset format");
-      }
-      var end = pos;
-      var raw = bytes.subarray(start, end);
-      return new CFFCharset(false, format, charset, raw);
-    },
-    parseEncoding: function CFFParser_parseEncoding(pos, properties, strings, charset) {
-      var encoding = Object.create(null);
-      var bytes = this.bytes;
-      var predefined = false;
-      var format, i, ii;
-      var raw = null;
-      function readSupplement() {
-        var supplementsCount = bytes[pos++];
-        for (i = 0; i < supplementsCount; i++) {
-          var code = bytes[pos++];
-          var sid = (bytes[pos++] << 8) + (bytes[pos++] & 0xff);
-          encoding[code] = charset.indexOf(strings.get(sid));
-        }
-      }
-      if (pos === 0 || pos === 1) {
-        predefined = true;
-        format = pos;
-        var baseEncoding = pos ? _encodings.ExpertEncoding : _encodings.StandardEncoding;
-        for (i = 0, ii = charset.length; i < ii; i++) {
-          var index = baseEncoding.indexOf(charset[i]);
-          if (index !== -1) {
-            encoding[index] = i;
+          if (!valid) {
+            charStrings.set(i, new Uint8Array([14]));
           }
         }
-      } else {
-        var dataStart = pos;
-        format = bytes[pos++];
-        switch (format & 0x7f) {
+        return {
+          charStrings: charStrings,
+          seacs: seacs,
+          widths: widths
+        };
+      }
+    }, {
+      key: "emptyPrivateDictionary",
+      value: function emptyPrivateDictionary(parentDict) {
+        var privateDict = this.createDict(CFFPrivateDict, [], parentDict.strings);
+        parentDict.setByKey(18, [0, 0]);
+        parentDict.privateDict = privateDict;
+      }
+    }, {
+      key: "parsePrivateDict",
+      value: function parsePrivateDict(parentDict) {
+        if (!parentDict.hasName("Private")) {
+          this.emptyPrivateDictionary(parentDict);
+          return;
+        }
+        var privateOffset = parentDict.getByName("Private");
+        if (!Array.isArray(privateOffset) || privateOffset.length !== 2) {
+          parentDict.removeByName("Private");
+          return;
+        }
+        var size = privateOffset[0];
+        var offset = privateOffset[1];
+        if (size === 0 || offset >= this.bytes.length) {
+          this.emptyPrivateDictionary(parentDict);
+          return;
+        }
+        var privateDictEnd = offset + size;
+        var dictData = this.bytes.subarray(offset, privateDictEnd);
+        var dict = this.parseDict(dictData);
+        var privateDict = this.createDict(CFFPrivateDict, dict, parentDict.strings);
+        parentDict.privateDict = privateDict;
+        if (!privateDict.getByName("Subrs")) {
+          return;
+        }
+        var subrsOffset = privateDict.getByName("Subrs");
+        var relativeOffset = offset + subrsOffset;
+        if (subrsOffset === 0 || relativeOffset >= this.bytes.length) {
+          this.emptyPrivateDictionary(parentDict);
+          return;
+        }
+        var subrsIndex = this.parseIndex(relativeOffset);
+        privateDict.subrsIndex = subrsIndex.obj;
+      }
+    }, {
+      key: "parseCharsets",
+      value: function parseCharsets(pos, length, strings, cid) {
+        if (pos === 0) {
+          return new CFFCharset(true, CFFCharsetPredefinedTypes.ISO_ADOBE, _charsets.ISOAdobeCharset);
+        } else if (pos === 1) {
+          return new CFFCharset(true, CFFCharsetPredefinedTypes.EXPERT, _charsets.ExpertCharset);
+        } else if (pos === 2) {
+          return new CFFCharset(true, CFFCharsetPredefinedTypes.EXPERT_SUBSET, _charsets.ExpertSubsetCharset);
+        }
+        var bytes = this.bytes;
+        var start = pos;
+        var format = bytes[pos++];
+        var charset = [cid ? 0 : ".notdef"];
+        var id, count, i;
+        length -= 1;
+        switch (format) {
           case 0:
-            var glyphsCount = bytes[pos++];
-            for (i = 1; i <= glyphsCount; i++) {
-              encoding[bytes[pos++]] = i;
+            for (i = 0; i < length; i++) {
+              id = bytes[pos++] << 8 | bytes[pos++];
+              charset.push(cid ? id : strings.get(id));
             }
             break;
           case 1:
-            var rangesCount = bytes[pos++];
-            var gid = 1;
-            for (i = 0; i < rangesCount; i++) {
-              var start = bytes[pos++];
-              var left = bytes[pos++];
-              for (var j = start; j <= start + left; j++) {
-                encoding[j] = gid++;
+            while (charset.length <= length) {
+              id = bytes[pos++] << 8 | bytes[pos++];
+              count = bytes[pos++];
+              for (i = 0; i <= count; i++) {
+                charset.push(cid ? id++ : strings.get(id++));
+              }
+            }
+            break;
+          case 2:
+            while (charset.length <= length) {
+              id = bytes[pos++] << 8 | bytes[pos++];
+              count = bytes[pos++] << 8 | bytes[pos++];
+              for (i = 0; i <= count; i++) {
+                charset.push(cid ? id++ : strings.get(id++));
               }
             }
             break;
           default:
-            throw new _util.FormatError("Unknown encoding format: ".concat(format, " in CFF"));
+            throw new _util.FormatError("Unknown charset format");
         }
-        var dataEnd = pos;
-        if (format & 0x80) {
-          bytes[dataStart] &= 0x7f;
-          readSupplement();
-        }
-        raw = bytes.subarray(dataStart, dataEnd);
+        var end = pos;
+        var raw = bytes.subarray(start, end);
+        return new CFFCharset(false, format, charset, raw);
       }
-      format = format & 0x7f;
-      return new CFFEncoding(predefined, format, encoding, raw);
-    },
-    parseFDSelect: function CFFParser_parseFDSelect(pos, length) {
-      var bytes = this.bytes;
-      var format = bytes[pos++];
-      var fdSelect = [];
-      var i;
-      switch (format) {
-        case 0:
-          for (i = 0; i < length; ++i) {
-            var id = bytes[pos++];
-            fdSelect.push(id);
+    }, {
+      key: "parseEncoding",
+      value: function parseEncoding(pos, properties, strings, charset) {
+        var encoding = Object.create(null);
+        var bytes = this.bytes;
+        var predefined = false;
+        var format, i, ii;
+        var raw = null;
+        function readSupplement() {
+          var supplementsCount = bytes[pos++];
+          for (i = 0; i < supplementsCount; i++) {
+            var code = bytes[pos++];
+            var sid = (bytes[pos++] << 8) + (bytes[pos++] & 0xff);
+            encoding[code] = charset.indexOf(strings.get(sid));
           }
-          break;
-        case 3:
-          var rangesCount = bytes[pos++] << 8 | bytes[pos++];
-          for (i = 0; i < rangesCount; ++i) {
-            var first = bytes[pos++] << 8 | bytes[pos++];
-            if (i === 0 && first !== 0) {
-              (0, _util.warn)("parseFDSelect: The first range must have a first GID of 0" + " -- trying to recover.");
-              first = 0;
-            }
-            var fdIndex = bytes[pos++];
-            var next = bytes[pos] << 8 | bytes[pos + 1];
-            for (var j = first; j < next; ++j) {
-              fdSelect.push(fdIndex);
+        }
+        if (pos === 0 || pos === 1) {
+          predefined = true;
+          format = pos;
+          var baseEncoding = pos ? _encodings.ExpertEncoding : _encodings.StandardEncoding;
+          for (i = 0, ii = charset.length; i < ii; i++) {
+            var index = baseEncoding.indexOf(charset[i]);
+            if (index !== -1) {
+              encoding[index] = i;
             }
           }
-          pos += 2;
-          break;
-        default:
-          throw new _util.FormatError("parseFDSelect: Unknown format \"".concat(format, "\"."));
+        } else {
+          var dataStart = pos;
+          format = bytes[pos++];
+          switch (format & 0x7f) {
+            case 0:
+              var glyphsCount = bytes[pos++];
+              for (i = 1; i <= glyphsCount; i++) {
+                encoding[bytes[pos++]] = i;
+              }
+              break;
+            case 1:
+              var rangesCount = bytes[pos++];
+              var gid = 1;
+              for (i = 0; i < rangesCount; i++) {
+                var start = bytes[pos++];
+                var left = bytes[pos++];
+                for (var j = start; j <= start + left; j++) {
+                  encoding[j] = gid++;
+                }
+              }
+              break;
+            default:
+              throw new _util.FormatError("Unknown encoding format: ".concat(format, " in CFF"));
+          }
+          var dataEnd = pos;
+          if (format & 0x80) {
+            bytes[dataStart] &= 0x7f;
+            readSupplement();
+          }
+          raw = bytes.subarray(dataStart, dataEnd);
+        }
+        format = format & 0x7f;
+        return new CFFEncoding(predefined, format, encoding, raw);
       }
-      if (fdSelect.length !== length) {
-        throw new _util.FormatError("parseFDSelect: Invalid font data.");
+    }, {
+      key: "parseFDSelect",
+      value: function parseFDSelect(pos, length) {
+        var bytes = this.bytes;
+        var format = bytes[pos++];
+        var fdSelect = [];
+        var i;
+        switch (format) {
+          case 0:
+            for (i = 0; i < length; ++i) {
+              var id = bytes[pos++];
+              fdSelect.push(id);
+            }
+            break;
+          case 3:
+            var rangesCount = bytes[pos++] << 8 | bytes[pos++];
+            for (i = 0; i < rangesCount; ++i) {
+              var first = bytes[pos++] << 8 | bytes[pos++];
+              if (i === 0 && first !== 0) {
+                (0, _util.warn)("parseFDSelect: The first range must have a first GID of 0" + " -- trying to recover.");
+                first = 0;
+              }
+              var fdIndex = bytes[pos++];
+              var next = bytes[pos] << 8 | bytes[pos + 1];
+              for (var j = first; j < next; ++j) {
+                fdSelect.push(fdIndex);
+              }
+            }
+            pos += 2;
+            break;
+          default:
+            throw new _util.FormatError("parseFDSelect: Unknown format \"".concat(format, "\"."));
+        }
+        if (fdSelect.length !== length) {
+          throw new _util.FormatError("parseFDSelect: Invalid font data.");
+        }
+        return new CFFFDSelect(format, fdSelect);
       }
-      return new CFFFDSelect(format, fdSelect);
-    }
-  };
+    }]);
+  }();
   return CFFParser;
 }();
-var CFF = exports.CFF = function CFFClosure() {
+var CFF = exports.CFF = /*#__PURE__*/function () {
   function CFF() {
+    _classCallCheck(this, CFF);
     this.header = null;
     this.names = [];
     this.topDict = null;
@@ -37124,8 +39306,9 @@ var CFF = exports.CFF = function CFFClosure() {
     this.fdSelect = null;
     this.isCIDFont = false;
   }
-  CFF.prototype = {
-    duplicateFirstGlyph: function CFF_duplicateFirstGlyph() {
+  return _createClass(CFF, [{
+    key: "duplicateFirstGlyph",
+    value: function duplicateFirstGlyph() {
       if (this.charStrings.count >= 65535) {
         (0, _util.warn)("Not enough space in charstrings to duplicate first glyph.");
         return;
@@ -37135,32 +39318,33 @@ var CFF = exports.CFF = function CFFClosure() {
       if (this.isCIDFont) {
         this.fdSelect.fdSelect.push(this.fdSelect.fdSelect[0]);
       }
-    },
-    hasGlyphId: function CFF_hasGlyphID(id) {
+    }
+  }, {
+    key: "hasGlyphId",
+    value: function hasGlyphId(id) {
       if (id < 0 || id >= this.charStrings.count) {
         return false;
       }
       var glyph = this.charStrings.get(id);
       return glyph.length > 0;
     }
-  };
-  return CFF;
+  }]);
 }();
-var CFFHeader = exports.CFFHeader = function CFFHeaderClosure() {
-  function CFFHeader(major, minor, hdrSize, offSize) {
-    this.major = major;
-    this.minor = minor;
-    this.hdrSize = hdrSize;
-    this.offSize = offSize;
-  }
-  return CFFHeader;
-}();
-var CFFStrings = exports.CFFStrings = function CFFStringsClosure() {
+var CFFHeader = exports.CFFHeader = /*#__PURE__*/_createClass(function CFFHeader(major, minor, hdrSize, offSize) {
+  _classCallCheck(this, CFFHeader);
+  this.major = major;
+  this.minor = minor;
+  this.hdrSize = hdrSize;
+  this.offSize = offSize;
+});
+var CFFStrings = exports.CFFStrings = /*#__PURE__*/function () {
   function CFFStrings() {
+    _classCallCheck(this, CFFStrings);
     this.strings = [];
   }
-  CFFStrings.prototype = {
-    get: function CFFStrings_get(index) {
+  return _createClass(CFFStrings, [{
+    key: "get",
+    value: function get(index) {
       if (index >= 0 && index <= NUM_STANDARD_CFF_STRINGS - 1) {
         return CFFStandardStrings[index];
       }
@@ -37168,8 +39352,10 @@ var CFFStrings = exports.CFFStrings = function CFFStringsClosure() {
         return this.strings[index - NUM_STANDARD_CFF_STRINGS];
       }
       return CFFStandardStrings[0];
-    },
-    getSID: function CFFStrings_getSID(str) {
+    }
+  }, {
+    key: "getSID",
+    value: function getSID(str) {
       var index = CFFStandardStrings.indexOf(str);
       if (index !== -1) {
         return index;
@@ -37179,41 +39365,52 @@ var CFFStrings = exports.CFFStrings = function CFFStringsClosure() {
         return index + NUM_STANDARD_CFF_STRINGS;
       }
       return -1;
-    },
-    add: function CFFStrings_add(value) {
+    }
+  }, {
+    key: "add",
+    value: function add(value) {
       this.strings.push(value);
-    },
-    get count() {
+    }
+  }, {
+    key: "count",
+    get: function get() {
       return this.strings.length;
     }
-  };
-  return CFFStrings;
+  }]);
 }();
-var CFFIndex = exports.CFFIndex = function CFFIndexClosure() {
+var CFFIndex = exports.CFFIndex = /*#__PURE__*/function () {
   function CFFIndex() {
+    _classCallCheck(this, CFFIndex);
     this.objects = [];
     this.length = 0;
   }
-  CFFIndex.prototype = {
-    add: function CFFIndex_add(data) {
+  return _createClass(CFFIndex, [{
+    key: "add",
+    value: function add(data) {
       this.length += data.length;
       this.objects.push(data);
-    },
-    set: function CFFIndex_set(index, data) {
+    }
+  }, {
+    key: "set",
+    value: function set(index, data) {
       this.length += data.length - this.objects[index].length;
       this.objects[index] = data;
-    },
-    get: function CFFIndex_get(index) {
+    }
+  }, {
+    key: "get",
+    value: function get(index) {
       return this.objects[index];
-    },
-    get count() {
+    }
+  }, {
+    key: "count",
+    get: function get() {
       return this.objects.length;
     }
-  };
-  return CFFIndex;
+  }]);
 }();
-var CFFDict = function CFFDictClosure() {
+var CFFDict = /*#__PURE__*/function () {
   function CFFDict(tables, strings) {
+    _classCallCheck(this, CFFDict);
     this.keyToNameMap = tables.keyToNameMap;
     this.nameToKeyMap = tables.nameToKeyMap;
     this.defaults = tables.defaults;
@@ -37223,8 +39420,9 @@ var CFFDict = function CFFDictClosure() {
     this.strings = strings;
     this.values = Object.create(null);
   }
-  CFFDict.prototype = {
-    setByKey: function CFFDict_setByKey(key, value) {
+  return _createClass(CFFDict, [{
+    key: "setByKey",
+    value: function setByKey(key, value) {
       if (!(key in this.keyToNameMap)) {
         return false;
       }
@@ -37244,17 +39442,23 @@ var CFFDict = function CFFDictClosure() {
       }
       this.values[key] = value;
       return true;
-    },
-    setByName: function CFFDict_setByName(name, value) {
+    }
+  }, {
+    key: "setByName",
+    value: function setByName(name, value) {
       if (!(name in this.nameToKeyMap)) {
         throw new _util.FormatError("Invalid dictionary name \"".concat(name, "\""));
       }
       this.values[this.nameToKeyMap[name]] = value;
-    },
-    hasName: function CFFDict_hasName(name) {
+    }
+  }, {
+    key: "hasName",
+    value: function hasName(name) {
       return this.nameToKeyMap[name] in this.values;
-    },
-    getByName: function CFFDict_getByName(name) {
+    }
+  }, {
+    key: "getByName",
+    value: function getByName(name) {
       if (!(name in this.nameToKeyMap)) {
         throw new _util.FormatError("Invalid dictionary name ".concat(name, "\""));
       }
@@ -37263,58 +39467,73 @@ var CFFDict = function CFFDictClosure() {
         return this.defaults[key];
       }
       return this.values[key];
-    },
-    removeByName: function CFFDict_removeByName(name) {
+    }
+  }, {
+    key: "removeByName",
+    value: function removeByName(name) {
       delete this.values[this.nameToKeyMap[name]];
     }
-  };
-  CFFDict.createTables = function CFFDict_createTables(layout) {
-    var tables = {
-      keyToNameMap: {},
-      nameToKeyMap: {},
-      defaults: {},
-      types: {},
-      opcodes: {},
-      order: []
-    };
-    for (var i = 0, ii = layout.length; i < ii; ++i) {
-      var entry = layout[i];
-      var key = Array.isArray(entry[0]) ? (entry[0][0] << 8) + entry[0][1] : entry[0];
-      tables.keyToNameMap[key] = entry[1];
-      tables.nameToKeyMap[entry[1]] = key;
-      tables.types[key] = entry[2];
-      tables.defaults[key] = entry[3];
-      tables.opcodes[key] = Array.isArray(entry[0]) ? entry[0] : [entry[0]];
-      tables.order.push(key);
+  }], [{
+    key: "createTables",
+    value: function createTables(layout) {
+      var tables = {
+        keyToNameMap: {},
+        nameToKeyMap: {},
+        defaults: {},
+        types: {},
+        opcodes: {},
+        order: []
+      };
+      for (var i = 0, ii = layout.length; i < ii; ++i) {
+        var entry = layout[i];
+        var key = Array.isArray(entry[0]) ? (entry[0][0] << 8) + entry[0][1] : entry[0];
+        tables.keyToNameMap[key] = entry[1];
+        tables.nameToKeyMap[entry[1]] = key;
+        tables.types[key] = entry[2];
+        tables.defaults[key] = entry[3];
+        tables.opcodes[key] = Array.isArray(entry[0]) ? entry[0] : [entry[0]];
+        tables.order.push(key);
+      }
+      return tables;
     }
-    return tables;
-  };
-  return CFFDict;
+  }]);
 }();
 var CFFTopDict = exports.CFFTopDict = function CFFTopDictClosure() {
   var layout = [[[12, 30], "ROS", ["sid", "sid", "num"], null], [[12, 20], "SyntheticBase", "num", null], [0, "version", "sid", null], [1, "Notice", "sid", null], [[12, 0], "Copyright", "sid", null], [2, "FullName", "sid", null], [3, "FamilyName", "sid", null], [4, "Weight", "sid", null], [[12, 1], "isFixedPitch", "num", 0], [[12, 2], "ItalicAngle", "num", 0], [[12, 3], "UnderlinePosition", "num", -100], [[12, 4], "UnderlineThickness", "num", 50], [[12, 5], "PaintType", "num", 0], [[12, 6], "CharstringType", "num", 2], [[12, 7], "FontMatrix", ["num", "num", "num", "num", "num", "num"], [0.001, 0, 0, 0.001, 0, 0]], [13, "UniqueID", "num", null], [5, "FontBBox", ["num", "num", "num", "num"], [0, 0, 0, 0]], [[12, 8], "StrokeWidth", "num", 0], [14, "XUID", "array", null], [15, "charset", "offset", 0], [16, "Encoding", "offset", 0], [17, "CharStrings", "offset", 0], [18, "Private", ["offset", "offset"], null], [[12, 21], "PostScript", "sid", null], [[12, 22], "BaseFontName", "sid", null], [[12, 23], "BaseFontBlend", "delta", null], [[12, 31], "CIDFontVersion", "num", 0], [[12, 32], "CIDFontRevision", "num", 0], [[12, 33], "CIDFontType", "num", 0], [[12, 34], "CIDCount", "num", 8720], [[12, 35], "UIDBase", "num", null], [[12, 37], "FDSelect", "offset", null], [[12, 36], "FDArray", "offset", null], [[12, 38], "FontName", "sid", null]];
   var tables = null;
-  function CFFTopDict(strings) {
-    if (tables === null) {
-      tables = CFFDict.createTables(layout);
+  var CFFTopDict = /*#__PURE__*/function (_CFFDict) {
+    function CFFTopDict(strings) {
+      var _this;
+      _classCallCheck(this, CFFTopDict);
+      if (tables === null) {
+        tables = CFFDict.createTables(layout);
+      }
+      _this = _callSuper(this, CFFTopDict, [tables, strings]);
+      _this.privateDict = null;
+      return _this;
     }
-    CFFDict.call(this, tables, strings);
-    this.privateDict = null;
-  }
-  CFFTopDict.prototype = Object.create(CFFDict.prototype);
+    _inherits(CFFTopDict, _CFFDict);
+    return _createClass(CFFTopDict);
+  }(CFFDict);
   return CFFTopDict;
 }();
 var CFFPrivateDict = exports.CFFPrivateDict = function CFFPrivateDictClosure() {
   var layout = [[6, "BlueValues", "delta", null], [7, "OtherBlues", "delta", null], [8, "FamilyBlues", "delta", null], [9, "FamilyOtherBlues", "delta", null], [[12, 9], "BlueScale", "num", 0.039625], [[12, 10], "BlueShift", "num", 7], [[12, 11], "BlueFuzz", "num", 1], [10, "StdHW", "num", null], [11, "StdVW", "num", null], [[12, 12], "StemSnapH", "delta", null], [[12, 13], "StemSnapV", "delta", null], [[12, 14], "ForceBold", "num", 0], [[12, 17], "LanguageGroup", "num", 0], [[12, 18], "ExpansionFactor", "num", 0.06], [[12, 19], "initialRandomSeed", "num", 0], [20, "defaultWidthX", "num", 0], [21, "nominalWidthX", "num", 0], [19, "Subrs", "offset", null]];
   var tables = null;
-  function CFFPrivateDict(strings) {
-    if (tables === null) {
-      tables = CFFDict.createTables(layout);
+  var CFFPrivateDict = /*#__PURE__*/function (_CFFDict2) {
+    function CFFPrivateDict(strings) {
+      var _this2;
+      _classCallCheck(this, CFFPrivateDict);
+      if (tables === null) {
+        tables = CFFDict.createTables(layout);
+      }
+      _this2 = _callSuper(this, CFFPrivateDict, [tables, strings]);
+      _this2.subrsIndex = null;
+      return _this2;
     }
-    CFFDict.call(this, tables, strings);
-    this.subrsIndex = null;
-  }
-  CFFPrivateDict.prototype = Object.create(CFFDict.prototype);
+    _inherits(CFFPrivateDict, _CFFDict2);
+    return _createClass(CFFPrivateDict);
+  }(CFFDict);
   return CFFPrivateDict;
 }();
 var CFFCharsetPredefinedTypes = {
@@ -37322,59 +39541,64 @@ var CFFCharsetPredefinedTypes = {
   EXPERT: 1,
   EXPERT_SUBSET: 2
 };
-var CFFCharset = exports.CFFCharset = function CFFCharsetClosure() {
-  function CFFCharset(predefined, format, charset, raw) {
-    this.predefined = predefined;
-    this.format = format;
-    this.charset = charset;
-    this.raw = raw;
-  }
-  return CFFCharset;
-}();
-var CFFEncoding = function CFFEncodingClosure() {
-  function CFFEncoding(predefined, format, encoding, raw) {
-    this.predefined = predefined;
-    this.format = format;
-    this.encoding = encoding;
-    this.raw = raw;
-  }
-  return CFFEncoding;
-}();
-var CFFFDSelect = exports.CFFFDSelect = function CFFFDSelectClosure() {
+var CFFCharset = exports.CFFCharset = /*#__PURE__*/_createClass(function CFFCharset(predefined, format, charset, raw) {
+  _classCallCheck(this, CFFCharset);
+  this.predefined = predefined;
+  this.format = format;
+  this.charset = charset;
+  this.raw = raw;
+});
+var CFFEncoding = /*#__PURE__*/_createClass(function CFFEncoding(predefined, format, encoding, raw) {
+  _classCallCheck(this, CFFEncoding);
+  this.predefined = predefined;
+  this.format = format;
+  this.encoding = encoding;
+  this.raw = raw;
+});
+var CFFFDSelect = exports.CFFFDSelect = /*#__PURE__*/function () {
   function CFFFDSelect(format, fdSelect) {
+    _classCallCheck(this, CFFFDSelect);
     this.format = format;
     this.fdSelect = fdSelect;
   }
-  CFFFDSelect.prototype = {
-    getFDIndex: function CFFFDSelect_get(glyphIndex) {
+  return _createClass(CFFFDSelect, [{
+    key: "getFDIndex",
+    value: function getFDIndex(glyphIndex) {
       if (glyphIndex < 0 || glyphIndex >= this.fdSelect.length) {
         return -1;
       }
       return this.fdSelect[glyphIndex];
     }
-  };
-  return CFFFDSelect;
+  }]);
 }();
-var CFFOffsetTracker = function CFFOffsetTrackerClosure() {
+var CFFOffsetTracker = /*#__PURE__*/function () {
   function CFFOffsetTracker() {
+    _classCallCheck(this, CFFOffsetTracker);
     this.offsets = Object.create(null);
   }
-  CFFOffsetTracker.prototype = {
-    isTracking: function CFFOffsetTracker_isTracking(key) {
+  return _createClass(CFFOffsetTracker, [{
+    key: "isTracking",
+    value: function isTracking(key) {
       return key in this.offsets;
-    },
-    track: function CFFOffsetTracker_track(key, location) {
+    }
+  }, {
+    key: "track",
+    value: function track(key, location) {
       if (key in this.offsets) {
         throw new _util.FormatError("Already tracking location of ".concat(key));
       }
       this.offsets[key] = location;
-    },
-    offset: function CFFOffsetTracker_offset(value) {
+    }
+  }, {
+    key: "offset",
+    value: function offset(value) {
       for (var key in this.offsets) {
         this.offsets[key] += value;
       }
-    },
-    setEntryLocation: function CFFOffsetTracker_setEntryLocation(key, values, output) {
+    }
+  }, {
+    key: "setEntryLocation",
+    value: function setEntryLocation(key, values, output) {
       if (!(key in this.offsets)) {
         throw new _util.FormatError("Not tracking location of ".concat(key));
       }
@@ -37398,15 +39622,16 @@ var CFFOffsetTracker = function CFFOffsetTrackerClosure() {
         data[offset4] = value & 0xff;
       }
     }
-  };
-  return CFFOffsetTracker;
+  }]);
 }();
-var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
+var CFFCompiler = exports.CFFCompiler = /*#__PURE__*/function () {
   function CFFCompiler(cff) {
+    _classCallCheck(this, CFFCompiler);
     this.cff = cff;
   }
-  CFFCompiler.prototype = {
-    compile: function CFFCompiler_compile() {
+  return _createClass(CFFCompiler, [{
+    key: "compile",
+    value: function compile() {
       var cff = this.cff;
       var output = {
         data: [],
@@ -37470,16 +39695,20 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
       this.compilePrivateDicts([cff.topDict], [topDictTracker], output);
       output.add([0]);
       return output.data;
-    },
-    encodeNumber: function CFFCompiler_encodeNumber(value) {
-      if (parseFloat(value) === parseInt(value, 10) && !isNaN(value)) {
+    }
+  }, {
+    key: "encodeNumber",
+    value: function encodeNumber(value) {
+      if (Number.isInteger(value)) {
         return this.encodeInteger(value);
       }
       return this.encodeFloat(value);
-    },
-    encodeFloat: function CFFCompiler_encodeFloat(num) {
+    }
+  }, {
+    key: "encodeFloat",
+    value: function encodeFloat(num) {
       var value = num.toString();
-      var m = /\.(\d*?)(?:9{5,20}|0{5,20})\d{0,2}(?:e(.+)|$)/.exec(value);
+      var m = CFFCompiler.EncodeFloatRegExp.exec(value);
       if (m) {
         var epsilon = parseFloat("1e" + ((m[2] ? +m[2] : 0) + m[1].length));
         value = (Math.round(num * epsilon) / epsilon).toString();
@@ -37504,8 +39733,10 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         out.push(parseInt(nibbles.substring(i, i + 2), 16));
       }
       return out;
-    },
-    encodeInteger: function CFFCompiler_encodeInteger(value) {
+    }
+  }, {
+    key: "encodeInteger",
+    value: function encodeInteger(value) {
       var code;
       if (value >= -107 && value <= 107) {
         code = [value + 139];
@@ -37521,11 +39752,15 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         code = [0x1d, value >> 24 & 0xff, value >> 16 & 0xff, value >> 8 & 0xff, value & 0xff];
       }
       return code;
-    },
-    compileHeader: function CFFCompiler_compileHeader(header) {
+    }
+  }, {
+    key: "compileHeader",
+    value: function compileHeader(header) {
       return [header.major, header.minor, header.hdrSize, header.offSize];
-    },
-    compileNameIndex: function CFFCompiler_compileNameIndex(names) {
+    }
+  }, {
+    key: "compileNameIndex",
+    value: function compileNameIndex(names) {
       var nameIndex = new CFFIndex();
       for (var i = 0, ii = names.length; i < ii; ++i) {
         var name = names[i];
@@ -37545,8 +39780,10 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         nameIndex.add((0, _util.stringToBytes)(sanitizedName));
       }
       return this.compileIndex(nameIndex);
-    },
-    compileTopDicts: function CFFCompiler_compileTopDicts(dicts, length, removeCidKeys) {
+    }
+  }, {
+    key: "compileTopDicts",
+    value: function compileTopDicts(dicts, length, removeCidKeys) {
       var fontDictTrackers = [];
       var fdArrayIndex = new CFFIndex();
       for (var i = 0, ii = dicts.length; i < ii; ++i) {
@@ -37569,8 +39806,10 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         trackers: fontDictTrackers,
         output: fdArrayIndex
       };
-    },
-    compilePrivateDicts: function CFFCompiler_compilePrivateDicts(dicts, trackers, output) {
+    }
+  }, {
+    key: "compilePrivateDicts",
+    value: function compilePrivateDicts(dicts, trackers, output) {
       for (var i = 0, ii = dicts.length; i < ii; ++i) {
         var fontDict = dicts[i];
         var privateDict = fontDict.privateDict;
@@ -37592,8 +39831,10 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
           output.add(subrs);
         }
       }
-    },
-    compileDict: function CFFCompiler_compileDict(dict, offsetTracker) {
+    }
+  }, {
+    key: "compileDict",
+    value: function compileDict(dict, offsetTracker) {
       var out = [];
       var order = dict.order;
       for (var i = 0; i < order.length; ++i) {
@@ -37641,19 +39882,25 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         out = out.concat(dict.opcodes[key]);
       }
       return out;
-    },
-    compileStringIndex: function CFFCompiler_compileStringIndex(strings) {
+    }
+  }, {
+    key: "compileStringIndex",
+    value: function compileStringIndex(strings) {
       var stringIndex = new CFFIndex();
       for (var i = 0, ii = strings.length; i < ii; ++i) {
         stringIndex.add((0, _util.stringToBytes)(strings[i]));
       }
       return this.compileIndex(stringIndex);
-    },
-    compileGlobalSubrIndex: function CFFCompiler_compileGlobalSubrIndex() {
+    }
+  }, {
+    key: "compileGlobalSubrIndex",
+    value: function compileGlobalSubrIndex() {
       var globalSubrIndex = this.cff.globalSubrIndex;
       this.out.writeByteArray(this.compileIndex(globalSubrIndex));
-    },
-    compileCharStrings: function CFFCompiler_compileCharStrings(charStrings) {
+    }
+  }, {
+    key: "compileCharStrings",
+    value: function compileCharStrings(charStrings) {
       var charStringsIndex = new CFFIndex();
       for (var i = 0; i < charStrings.count; i++) {
         var glyph = charStrings.get(i);
@@ -37664,8 +39911,10 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         charStringsIndex.add(glyph);
       }
       return this.compileIndex(charStringsIndex);
-    },
-    compileCharset: function CFFCompiler_compileCharset(charset, numGlyphs, strings, isCIDFont) {
+    }
+  }, {
+    key: "compileCharset",
+    value: function compileCharset(charset, numGlyphs, strings, isCIDFont) {
       var out;
       var numGlyphsLessNotDef = numGlyphs - 1;
       if (isCIDFont) {
@@ -37695,11 +39944,15 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
         }
       }
       return this.compileTypedArray(out);
-    },
-    compileEncoding: function CFFCompiler_compileEncoding(encoding) {
+    }
+  }, {
+    key: "compileEncoding",
+    value: function compileEncoding(encoding) {
       return this.compileTypedArray(encoding.raw);
-    },
-    compileFDSelect: function CFFCompiler_compileFDSelect(fdSelect) {
+    }
+  }, {
+    key: "compileFDSelect",
+    value: function compileFDSelect(fdSelect) {
       var format = fdSelect.format;
       var out, i;
       switch (format) {
@@ -37729,16 +39982,20 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
           break;
       }
       return this.compileTypedArray(out);
-    },
-    compileTypedArray: function CFFCompiler_compileTypedArray(data) {
+    }
+  }, {
+    key: "compileTypedArray",
+    value: function compileTypedArray(data) {
       var out = [];
       for (var i = 0, ii = data.length; i < ii; ++i) {
         out[i] = data[i];
       }
       return out;
-    },
-    compileIndex: function CFFCompiler_compileIndex(index, trackers) {
-      trackers = trackers || [];
+    }
+  }, {
+    key: "compileIndex",
+    value: function compileIndex(index) {
+      var trackers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
       var objects = index.objects;
       var count = objects.length;
       if (count === 0) {
@@ -37786,12 +40043,16 @@ var CFFCompiler = exports.CFFCompiler = function CFFCompilerClosure() {
       }
       return data;
     }
-  };
-  return CFFCompiler;
+  }], [{
+    key: "EncodeFloatRegExp",
+    get: function get() {
+      return (0, _util.shadow)(this, "EncodeFloatRegExp", /\.(\d*?)(?:9{5,20}|0{5,20})\d{0,2}(?:e(.+)|$)/);
+    }
+  }]);
 }();
 
 /***/ }),
-/* 322 */
+/* 327 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -37806,7 +40067,7 @@ var ExpertCharset = exports.ExpertCharset = [".notdef", "space", "exclamsmall", 
 var ExpertSubsetCharset = exports.ExpertSubsetCharset = [".notdef", "space", "dollaroldstyle", "dollarsuperior", "parenleftsuperior", "parenrightsuperior", "twodotenleader", "onedotenleader", "comma", "hyphen", "period", "fraction", "zerooldstyle", "oneoldstyle", "twooldstyle", "threeoldstyle", "fouroldstyle", "fiveoldstyle", "sixoldstyle", "sevenoldstyle", "eightoldstyle", "nineoldstyle", "colon", "semicolon", "commasuperior", "threequartersemdash", "periodsuperior", "asuperior", "bsuperior", "centsuperior", "dsuperior", "esuperior", "isuperior", "lsuperior", "msuperior", "nsuperior", "osuperior", "rsuperior", "ssuperior", "tsuperior", "ff", "fi", "fl", "ffi", "ffl", "parenleftinferior", "parenrightinferior", "hyphensuperior", "colonmonetary", "onefitted", "rupiah", "centoldstyle", "figuredash", "hypheninferior", "onequarter", "onehalf", "threequarters", "oneeighth", "threeeighths", "fiveeighths", "seveneighths", "onethird", "twothirds", "zerosuperior", "onesuperior", "twosuperior", "threesuperior", "foursuperior", "fivesuperior", "sixsuperior", "sevensuperior", "eightsuperior", "ninesuperior", "zeroinferior", "oneinferior", "twoinferior", "threeinferior", "fourinferior", "fiveinferior", "sixinferior", "seveninferior", "eightinferior", "nineinferior", "centinferior", "dollarinferior", "periodinferior", "commainferior"];
 
 /***/ }),
-/* 323 */
+/* 328 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -37846,10 +40107,10 @@ function getEncoding(encodingName) {
 }
 
 /***/ }),
-/* 324 */
+/* 329 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
-var getLookupTableFactory = __w_pdfjs_require__(299).getLookupTableFactory;
+var getLookupTableFactory = __w_pdfjs_require__(303).getLookupTableFactory;
 var getGlyphsUnicode = getLookupTableFactory(function (t) {
  t.A = 0x0041;
  t.AE = 0x00c6;
@@ -42383,7 +44644,7 @@ exports.getGlyphsUnicode = getGlyphsUnicode;
 exports.getDingbatsGlyphsUnicode = getDingbatsGlyphsUnicode;
 
 /***/ }),
-/* 325 */
+/* 330 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -42393,7 +44654,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getSymbolsFonts = exports.getSupplementalGlyphMapForCalibri = exports.getSupplementalGlyphMapForArialBlack = exports.getStdFontMap = exports.getSerifFonts = exports.getNonStdFontMap = exports.getGlyphMapForStandardFonts = void 0;
-var _core_utils = __w_pdfjs_require__(299);
+var _core_utils = __w_pdfjs_require__(303);
 var getStdFontMap = exports.getStdFontMap = (0, _core_utils.getLookupTableFactory)(function (t) {
   t.ArialNarrow = "Helvetica";
   t["ArialNarrow-Bold"] = "Helvetica-Bold";
@@ -43118,10 +45379,10 @@ var getSupplementalGlyphMapForCalibri = exports.getSupplementalGlyphMapForCalibr
 });
 
 /***/ }),
-/* 326 */
+/* 331 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
-var getLookupTableFactory = __w_pdfjs_require__(299).getLookupTableFactory;
+var getLookupTableFactory = __w_pdfjs_require__(303).getLookupTableFactory;
 var getSpecialPUASymbols = getLookupTableFactory(function (t) {
  t[63721] = 0x00a9;
  t[63193] = 0x00a9;
@@ -45095,7 +47356,7 @@ exports.getNormalizedUnicodes = getNormalizedUnicodes;
 exports.getUnicodeForGlyph = getUnicodeForGlyph;
 
 /***/ }),
-/* 327 */
+/* 332 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -45106,10 +47367,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FontRendererFactory = void 0;
 var _util = __w_pdfjs_require__(2);
-var _cff_parser = __w_pdfjs_require__(321);
-var _glyphlist = __w_pdfjs_require__(324);
-var _encodings = __w_pdfjs_require__(323);
-var _stream = __w_pdfjs_require__(303);
+var _cff_parser = __w_pdfjs_require__(326);
+var _glyphlist = __w_pdfjs_require__(329);
+var _encodings = __w_pdfjs_require__(328);
+var _stream = __w_pdfjs_require__(307);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
@@ -45926,7 +48187,7 @@ var FontRendererFactory = exports.FontRendererFactory = function FontRendererFac
 }();
 
 /***/ }),
-/* 328 */
+/* 333 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -45936,9 +48197,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Type1Parser = void 0;
-var _encodings = __w_pdfjs_require__(323);
-var _core_utils = __w_pdfjs_require__(299);
-var _stream = __w_pdfjs_require__(303);
+var _encodings = __w_pdfjs_require__(328);
+var _core_utils = __w_pdfjs_require__(303);
+var _stream = __w_pdfjs_require__(307);
 var _util = __w_pdfjs_require__(2);
 var HINTING_ENABLED = false;
 var Type1CharString = function Type1CharStringClosure() {
@@ -46086,7 +48347,9 @@ var Type1CharString = function Type1CharStringClosure() {
               break;
             case (12 << 8) + 6:
               if (seacAnalysisEnabled) {
+                var asb = this.stack[this.stack.length - 5];
                 this.seac = this.stack.splice(-4, 4);
+                this.seac[0] += this.lsb - asb;
                 error = this.executeCommand(0, COMMAND_MAP.endchar);
               } else {
                 error = this.executeCommand(4, COMMAND_MAP.endchar);
@@ -46496,7 +48759,7 @@ var Type1Parser = exports.Type1Parser = function Type1ParserClosure() {
 }();
 
 /***/ }),
-/* 329 */
+/* 334 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -46508,9 +48771,9 @@ Object.defineProperty(exports, "__esModule", {
 exports.Pattern = void 0;
 exports.getTilingPatternIR = getTilingPatternIR;
 var _util = __w_pdfjs_require__(2);
-var _colorspace = __w_pdfjs_require__(314);
-var _primitives = __w_pdfjs_require__(296);
-var _core_utils = __w_pdfjs_require__(299);
+var _colorspace = __w_pdfjs_require__(318);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
 var ShadingType = {
   FUNCTION_BASED: 1,
   AXIAL: 2,
@@ -46529,19 +48792,19 @@ var Pattern = exports.Pattern = function PatternClosure() {
       (0, _util.unreachable)("Should not call Pattern.getStyle: ".concat(ctx));
     }
   };
-  Pattern.parseShading = function (shading, matrix, xref, res, handler, pdfFunctionFactory) {
+  Pattern.parseShading = function (shading, matrix, xref, res, handler, pdfFunctionFactory, localColorSpaceCache) {
     var dict = (0, _primitives.isStream)(shading) ? shading.dict : shading;
     var type = dict.get("ShadingType");
     try {
       switch (type) {
         case ShadingType.AXIAL:
         case ShadingType.RADIAL:
-          return new Shadings.RadialAxial(dict, matrix, xref, res, pdfFunctionFactory);
+          return new Shadings.RadialAxial(dict, matrix, xref, res, pdfFunctionFactory, localColorSpaceCache);
         case ShadingType.FREE_FORM_MESH:
         case ShadingType.LATTICE_FORM_MESH:
         case ShadingType.COONS_PATCH_MESH:
         case ShadingType.TENSOR_PATCH_MESH:
-          return new Shadings.Mesh(shading, matrix, xref, res, pdfFunctionFactory);
+          return new Shadings.Mesh(shading, matrix, xref, res, pdfFunctionFactory, localColorSpaceCache);
         default:
           throw new _util.FormatError("Unsupported ShadingType: " + type);
       }
@@ -46561,13 +48824,18 @@ var Pattern = exports.Pattern = function PatternClosure() {
 var Shadings = {};
 Shadings.SMALL_NUMBER = 1e-6;
 Shadings.RadialAxial = function RadialAxialClosure() {
-  function RadialAxial(dict, matrix, xref, res, pdfFunctionFactory) {
+  function RadialAxial(dict, matrix, xref, resources, pdfFunctionFactory, localColorSpaceCache) {
     this.matrix = matrix;
     this.coordsArr = dict.getArray("Coords");
     this.shadingType = dict.get("ShadingType");
     this.type = "Pattern";
-    var cs = dict.get("ColorSpace", "CS");
-    cs = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+    var cs = _colorspace.ColorSpace.parse({
+      cs: dict.getRaw("ColorSpace") || dict.getRaw("CS"),
+      xref: xref,
+      resources: resources,
+      pdfFunctionFactory: pdfFunctionFactory,
+      localColorSpaceCache: localColorSpaceCache
+    });
     this.cs = cs;
     var bbox = dict.getArray("BBox");
     if (Array.isArray(bbox) && bbox.length === 4) {
@@ -46603,7 +48871,7 @@ Shadings.RadialAxial = function RadialAxialClosure() {
     }
     this.extendStart = extendStart;
     this.extendEnd = extendEnd;
-    var fnObj = dict.get("Function");
+    var fnObj = dict.getRaw("Function");
     var fn = pdfFunctionFactory.createFromArray(fnObj);
     var NUMBER_OF_SAMPLES = 10;
     var step = (t1 - t0) / NUMBER_OF_SAMPLES;
@@ -47197,7 +49465,7 @@ Shadings.Mesh = function MeshClosure() {
       }
     }
   }
-  function Mesh(stream, matrix, xref, res, pdfFunctionFactory) {
+  function Mesh(stream, matrix, xref, resources, pdfFunctionFactory, localColorSpaceCache) {
     if (!(0, _primitives.isStream)(stream)) {
       throw new _util.FormatError("Mesh data is not a stream");
     }
@@ -47211,11 +49479,16 @@ Shadings.Mesh = function MeshClosure() {
     } else {
       this.bbox = null;
     }
-    var cs = dict.get("ColorSpace", "CS");
-    cs = _colorspace.ColorSpace.parse(cs, xref, res, pdfFunctionFactory);
+    var cs = _colorspace.ColorSpace.parse({
+      cs: dict.getRaw("ColorSpace") || dict.getRaw("CS"),
+      xref: xref,
+      resources: resources,
+      pdfFunctionFactory: pdfFunctionFactory,
+      localColorSpaceCache: localColorSpaceCache
+    });
     this.cs = cs;
     this.background = dict.has("Background") ? cs.getRgb(dict.get("Background"), 0) : null;
-    var fnObj = dict.get("Function");
+    var fnObj = dict.getRaw("Function");
     var fn = fnObj ? pdfFunctionFactory.createFromArray(fnObj) : null;
     this.coords = [];
     this.colors = [];
@@ -47295,7 +49568,1397 @@ function getTilingPatternIR(operatorList, dict, args) {
 }
 
 /***/ }),
-/* 330 */
+/* 335 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PostScriptEvaluator = exports.PostScriptCompiler = exports.PDFFunctionFactory = void 0;
+exports.isPDFFunction = isPDFFunction;
+var _primitives = __w_pdfjs_require__(300);
+var _util = __w_pdfjs_require__(2);
+var _ps_parser = __w_pdfjs_require__(336);
+var _image_utils = __w_pdfjs_require__(319);
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var PDFFunctionFactory = exports.PDFFunctionFactory = /*#__PURE__*/function () {
+  function PDFFunctionFactory(_ref) {
+    var xref = _ref.xref,
+      _ref$isEvalSupported = _ref.isEvalSupported,
+      isEvalSupported = _ref$isEvalSupported === void 0 ? true : _ref$isEvalSupported;
+    _classCallCheck(this, PDFFunctionFactory);
+    this.xref = xref;
+    this.isEvalSupported = isEvalSupported !== false;
+    this._localFunctionCache = null;
+  }
+  return _createClass(PDFFunctionFactory, [{
+    key: "create",
+    value: function create(fn) {
+      var cachedFunction = this.getCached(fn);
+      if (cachedFunction) {
+        return cachedFunction;
+      }
+      var parsedFunction = PDFFunction.parse({
+        xref: this.xref,
+        isEvalSupported: this.isEvalSupported,
+        fn: fn instanceof _primitives.Ref ? this.xref.fetch(fn) : fn
+      });
+      this._cache(fn, parsedFunction);
+      return parsedFunction;
+    }
+  }, {
+    key: "createFromArray",
+    value: function createFromArray(fnObj) {
+      var cachedFunction = this.getCached(fnObj);
+      if (cachedFunction) {
+        return cachedFunction;
+      }
+      var parsedFunction = PDFFunction.parseArray({
+        xref: this.xref,
+        isEvalSupported: this.isEvalSupported,
+        fnObj: fnObj instanceof _primitives.Ref ? this.xref.fetch(fnObj) : fnObj
+      });
+      this._cache(fnObj, parsedFunction);
+      return parsedFunction;
+    }
+  }, {
+    key: "getCached",
+    value: function getCached(cacheKey) {
+      var fnRef;
+      if (cacheKey instanceof _primitives.Ref) {
+        fnRef = cacheKey;
+      } else if (cacheKey instanceof _primitives.Dict) {
+        fnRef = cacheKey.objId;
+      } else if ((0, _primitives.isStream)(cacheKey)) {
+        fnRef = cacheKey.dict && cacheKey.dict.objId;
+      }
+      if (fnRef) {
+        if (!this._localFunctionCache) {
+          this._localFunctionCache = new _image_utils.LocalFunctionCache();
+        }
+        var localFunction = this._localFunctionCache.getByRef(fnRef);
+        if (localFunction) {
+          return localFunction;
+        }
+      }
+      return null;
+    }
+  }, {
+    key: "_cache",
+    value: function _cache(cacheKey, parsedFunction) {
+      if (!parsedFunction) {
+        throw new Error('PDFFunctionFactory._cache - expected "parsedFunction" argument.');
+      }
+      var fnRef;
+      if (cacheKey instanceof _primitives.Ref) {
+        fnRef = cacheKey;
+      } else if (cacheKey instanceof _primitives.Dict) {
+        fnRef = cacheKey.objId;
+      } else if ((0, _primitives.isStream)(cacheKey)) {
+        fnRef = cacheKey.dict && cacheKey.dict.objId;
+      }
+      if (fnRef) {
+        if (!this._localFunctionCache) {
+          this._localFunctionCache = new _image_utils.LocalFunctionCache();
+        }
+        this._localFunctionCache.set(null, fnRef, parsedFunction);
+      }
+    }
+  }]);
+}();
+function toNumberArray(arr) {
+  if (!Array.isArray(arr)) {
+    return null;
+  }
+  var length = arr.length;
+  for (var i = 0; i < length; i++) {
+    if (typeof arr[i] !== "number") {
+      var result = new Array(length);
+      for (var j = 0; j < length; j++) {
+        result[j] = +arr[j];
+      }
+      return result;
+    }
+  }
+  return arr;
+}
+var PDFFunction = function PDFFunctionClosure() {
+  var CONSTRUCT_SAMPLED = 0;
+  var CONSTRUCT_INTERPOLATED = 2;
+  var CONSTRUCT_STICHED = 3;
+  var CONSTRUCT_POSTSCRIPT = 4;
+  return {
+    getSampleArray: function getSampleArray(size, outputSize, bps, stream) {
+      var i, ii;
+      var length = 1;
+      for (i = 0, ii = size.length; i < ii; i++) {
+        length *= size[i];
+      }
+      length *= outputSize;
+      var array = new Array(length);
+      var codeSize = 0;
+      var codeBuf = 0;
+      var sampleMul = 1.0 / (Math.pow(2.0, bps) - 1);
+      var strBytes = stream.getBytes((length * bps + 7) / 8);
+      var strIdx = 0;
+      for (i = 0; i < length; i++) {
+        while (codeSize < bps) {
+          codeBuf <<= 8;
+          codeBuf |= strBytes[strIdx++];
+          codeSize += 8;
+        }
+        codeSize -= bps;
+        array[i] = (codeBuf >> codeSize) * sampleMul;
+        codeBuf &= (1 << codeSize) - 1;
+      }
+      return array;
+    },
+    getIR: function getIR(_ref2) {
+      var xref = _ref2.xref,
+        isEvalSupported = _ref2.isEvalSupported,
+        fn = _ref2.fn;
+      var dict = fn.dict;
+      if (!dict) {
+        dict = fn;
+      }
+      var types = [this.constructSampled, null, this.constructInterpolated, this.constructStiched, this.constructPostScript];
+      var typeNum = dict.get("FunctionType");
+      var typeFn = types[typeNum];
+      if (!typeFn) {
+        throw new _util.FormatError("Unknown type of function");
+      }
+      return typeFn.call(this, {
+        xref: xref,
+        isEvalSupported: isEvalSupported,
+        fn: fn,
+        dict: dict
+      });
+    },
+    fromIR: function fromIR(_ref3) {
+      var xref = _ref3.xref,
+        isEvalSupported = _ref3.isEvalSupported,
+        IR = _ref3.IR;
+      var type = IR[0];
+      switch (type) {
+        case CONSTRUCT_SAMPLED:
+          return this.constructSampledFromIR({
+            xref: xref,
+            isEvalSupported: isEvalSupported,
+            IR: IR
+          });
+        case CONSTRUCT_INTERPOLATED:
+          return this.constructInterpolatedFromIR({
+            xref: xref,
+            isEvalSupported: isEvalSupported,
+            IR: IR
+          });
+        case CONSTRUCT_STICHED:
+          return this.constructStichedFromIR({
+            xref: xref,
+            isEvalSupported: isEvalSupported,
+            IR: IR
+          });
+        default:
+          return this.constructPostScriptFromIR({
+            xref: xref,
+            isEvalSupported: isEvalSupported,
+            IR: IR
+          });
+      }
+    },
+    parse: function parse(_ref4) {
+      var xref = _ref4.xref,
+        isEvalSupported = _ref4.isEvalSupported,
+        fn = _ref4.fn;
+      var IR = this.getIR({
+        xref: xref,
+        isEvalSupported: isEvalSupported,
+        fn: fn
+      });
+      return this.fromIR({
+        xref: xref,
+        isEvalSupported: isEvalSupported,
+        IR: IR
+      });
+    },
+    parseArray: function parseArray(_ref5) {
+      var xref = _ref5.xref,
+        isEvalSupported = _ref5.isEvalSupported,
+        fnObj = _ref5.fnObj;
+      if (!Array.isArray(fnObj)) {
+        return this.parse({
+          xref: xref,
+          isEvalSupported: isEvalSupported,
+          fn: fnObj
+        });
+      }
+      var fnArray = [];
+      for (var j = 0, jj = fnObj.length; j < jj; j++) {
+        fnArray.push(this.parse({
+          xref: xref,
+          isEvalSupported: isEvalSupported,
+          fn: xref.fetchIfRef(fnObj[j])
+        }));
+      }
+      return function (src, srcOffset, dest, destOffset) {
+        for (var i = 0, ii = fnArray.length; i < ii; i++) {
+          fnArray[i](src, srcOffset, dest, destOffset + i);
+        }
+      };
+    },
+    constructSampled: function constructSampled(_ref6) {
+      var xref = _ref6.xref,
+        isEvalSupported = _ref6.isEvalSupported,
+        fn = _ref6.fn,
+        dict = _ref6.dict;
+      function toMultiArray(arr) {
+        var inputLength = arr.length;
+        var out = [];
+        var index = 0;
+        for (var i = 0; i < inputLength; i += 2) {
+          out[index] = [arr[i], arr[i + 1]];
+          ++index;
+        }
+        return out;
+      }
+      var domain = toNumberArray(dict.getArray("Domain"));
+      var range = toNumberArray(dict.getArray("Range"));
+      if (!domain || !range) {
+        throw new _util.FormatError("No domain or range");
+      }
+      var inputSize = domain.length / 2;
+      var outputSize = range.length / 2;
+      domain = toMultiArray(domain);
+      range = toMultiArray(range);
+      var size = toNumberArray(dict.getArray("Size"));
+      var bps = dict.get("BitsPerSample");
+      var order = dict.get("Order") || 1;
+      if (order !== 1) {
+        (0, _util.info)("No support for cubic spline interpolation: " + order);
+      }
+      var encode = toNumberArray(dict.getArray("Encode"));
+      if (!encode) {
+        encode = [];
+        for (var i = 0; i < inputSize; ++i) {
+          encode.push([0, size[i] - 1]);
+        }
+      } else {
+        encode = toMultiArray(encode);
+      }
+      var decode = toNumberArray(dict.getArray("Decode"));
+      if (!decode) {
+        decode = range;
+      } else {
+        decode = toMultiArray(decode);
+      }
+      var samples = this.getSampleArray(size, outputSize, bps, fn);
+      return [CONSTRUCT_SAMPLED, inputSize, domain, encode, decode, samples, size, outputSize, Math.pow(2, bps) - 1, range];
+    },
+    constructSampledFromIR: function constructSampledFromIR(_ref7) {
+      var xref = _ref7.xref,
+        isEvalSupported = _ref7.isEvalSupported,
+        IR = _ref7.IR;
+      function interpolate(x, xmin, xmax, ymin, ymax) {
+        return ymin + (x - xmin) * ((ymax - ymin) / (xmax - xmin));
+      }
+      return function constructSampledFromIRResult(src, srcOffset, dest, destOffset) {
+        var m = IR[1];
+        var domain = IR[2];
+        var encode = IR[3];
+        var decode = IR[4];
+        var samples = IR[5];
+        var size = IR[6];
+        var n = IR[7];
+        var range = IR[9];
+        var cubeVertices = 1 << m;
+        var cubeN = new Float64Array(cubeVertices);
+        var cubeVertex = new Uint32Array(cubeVertices);
+        var i, j;
+        for (j = 0; j < cubeVertices; j++) {
+          cubeN[j] = 1;
+        }
+        var k = n,
+          pos = 1;
+        for (i = 0; i < m; ++i) {
+          var domain_2i = domain[i][0];
+          var domain_2i_1 = domain[i][1];
+          var xi = Math.min(Math.max(src[srcOffset + i], domain_2i), domain_2i_1);
+          var e = interpolate(xi, domain_2i, domain_2i_1, encode[i][0], encode[i][1]);
+          var size_i = size[i];
+          e = Math.min(Math.max(e, 0), size_i - 1);
+          var e0 = e < size_i - 1 ? Math.floor(e) : e - 1;
+          var n0 = e0 + 1 - e;
+          var n1 = e - e0;
+          var offset0 = e0 * k;
+          var offset1 = offset0 + k;
+          for (j = 0; j < cubeVertices; j++) {
+            if (j & pos) {
+              cubeN[j] *= n1;
+              cubeVertex[j] += offset1;
+            } else {
+              cubeN[j] *= n0;
+              cubeVertex[j] += offset0;
+            }
+          }
+          k *= size_i;
+          pos <<= 1;
+        }
+        for (j = 0; j < n; ++j) {
+          var rj = 0;
+          for (i = 0; i < cubeVertices; i++) {
+            rj += samples[cubeVertex[i] + j] * cubeN[i];
+          }
+          rj = interpolate(rj, 0, 1, decode[j][0], decode[j][1]);
+          dest[destOffset + j] = Math.min(Math.max(rj, range[j][0]), range[j][1]);
+        }
+      };
+    },
+    constructInterpolated: function constructInterpolated(_ref8) {
+      var xref = _ref8.xref,
+        isEvalSupported = _ref8.isEvalSupported,
+        fn = _ref8.fn,
+        dict = _ref8.dict;
+      var c0 = toNumberArray(dict.getArray("C0")) || [0];
+      var c1 = toNumberArray(dict.getArray("C1")) || [1];
+      var n = dict.get("N");
+      var length = c0.length;
+      var diff = [];
+      for (var i = 0; i < length; ++i) {
+        diff.push(c1[i] - c0[i]);
+      }
+      return [CONSTRUCT_INTERPOLATED, c0, diff, n];
+    },
+    constructInterpolatedFromIR: function constructInterpolatedFromIR(_ref9) {
+      var xref = _ref9.xref,
+        isEvalSupported = _ref9.isEvalSupported,
+        IR = _ref9.IR;
+      var c0 = IR[1];
+      var diff = IR[2];
+      var n = IR[3];
+      var length = diff.length;
+      return function constructInterpolatedFromIRResult(src, srcOffset, dest, destOffset) {
+        var x = n === 1 ? src[srcOffset] : Math.pow(src[srcOffset], n);
+        for (var j = 0; j < length; ++j) {
+          dest[destOffset + j] = c0[j] + x * diff[j];
+        }
+      };
+    },
+    constructStiched: function constructStiched(_ref10) {
+      var xref = _ref10.xref,
+        isEvalSupported = _ref10.isEvalSupported,
+        fn = _ref10.fn,
+        dict = _ref10.dict;
+      var domain = toNumberArray(dict.getArray("Domain"));
+      if (!domain) {
+        throw new _util.FormatError("No domain");
+      }
+      var inputSize = domain.length / 2;
+      if (inputSize !== 1) {
+        throw new _util.FormatError("Bad domain for stiched function");
+      }
+      var fnRefs = dict.get("Functions");
+      var fns = [];
+      for (var i = 0, ii = fnRefs.length; i < ii; ++i) {
+        fns.push(this.parse({
+          xref: xref,
+          isEvalSupported: isEvalSupported,
+          fn: xref.fetchIfRef(fnRefs[i])
+        }));
+      }
+      var bounds = toNumberArray(dict.getArray("Bounds"));
+      var encode = toNumberArray(dict.getArray("Encode"));
+      return [CONSTRUCT_STICHED, domain, bounds, encode, fns];
+    },
+    constructStichedFromIR: function constructStichedFromIR(_ref11) {
+      var xref = _ref11.xref,
+        isEvalSupported = _ref11.isEvalSupported,
+        IR = _ref11.IR;
+      var domain = IR[1];
+      var bounds = IR[2];
+      var encode = IR[3];
+      var fns = IR[4];
+      var tmpBuf = new Float32Array(1);
+      return function constructStichedFromIRResult(src, srcOffset, dest, destOffset) {
+        var clip = function constructStichedFromIRClip(v, min, max) {
+          if (v > max) {
+            v = max;
+          } else if (v < min) {
+            v = min;
+          }
+          return v;
+        };
+        var v = clip(src[srcOffset], domain[0], domain[1]);
+        for (var i = 0, ii = bounds.length; i < ii; ++i) {
+          if (v < bounds[i]) {
+            break;
+          }
+        }
+        var dmin = domain[0];
+        if (i > 0) {
+          dmin = bounds[i - 1];
+        }
+        var dmax = domain[1];
+        if (i < bounds.length) {
+          dmax = bounds[i];
+        }
+        var rmin = encode[2 * i];
+        var rmax = encode[2 * i + 1];
+        tmpBuf[0] = dmin === dmax ? rmin : rmin + (v - dmin) * (rmax - rmin) / (dmax - dmin);
+        fns[i](tmpBuf, 0, dest, destOffset);
+      };
+    },
+    constructPostScript: function constructPostScript(_ref12) {
+      var xref = _ref12.xref,
+        isEvalSupported = _ref12.isEvalSupported,
+        fn = _ref12.fn,
+        dict = _ref12.dict;
+      var domain = toNumberArray(dict.getArray("Domain"));
+      var range = toNumberArray(dict.getArray("Range"));
+      if (!domain) {
+        throw new _util.FormatError("No domain.");
+      }
+      if (!range) {
+        throw new _util.FormatError("No range.");
+      }
+      var lexer = new _ps_parser.PostScriptLexer(fn);
+      var parser = new _ps_parser.PostScriptParser(lexer);
+      var code = parser.parse();
+      return [CONSTRUCT_POSTSCRIPT, domain, range, code];
+    },
+    constructPostScriptFromIR: function constructPostScriptFromIR(_ref13) {
+      var xref = _ref13.xref,
+        isEvalSupported = _ref13.isEvalSupported,
+        IR = _ref13.IR;
+      var domain = IR[1];
+      var range = IR[2];
+      var code = IR[3];
+      if (isEvalSupported && _util.IsEvalSupportedCached.value) {
+        var compiled = new PostScriptCompiler().compile(code, domain, range);
+        if (compiled) {
+          return new Function("src", "srcOffset", "dest", "destOffset", compiled);
+        }
+      }
+      (0, _util.info)("Unable to compile PS function");
+      var numOutputs = range.length >> 1;
+      var numInputs = domain.length >> 1;
+      var evaluator = new PostScriptEvaluator(code);
+      var cache = Object.create(null);
+      var MAX_CACHE_SIZE = 2048 * 4;
+      var cache_available = MAX_CACHE_SIZE;
+      var tmpBuf = new Float32Array(numInputs);
+      return function constructPostScriptFromIRResult(src, srcOffset, dest, destOffset) {
+        var i, value;
+        var key = "";
+        var input = tmpBuf;
+        for (i = 0; i < numInputs; i++) {
+          value = src[srcOffset + i];
+          input[i] = value;
+          key += value + "_";
+        }
+        var cachedValue = cache[key];
+        if (cachedValue !== undefined) {
+          dest.set(cachedValue, destOffset);
+          return;
+        }
+        var output = new Float32Array(numOutputs);
+        var stack = evaluator.execute(input);
+        var stackIndex = stack.length - numOutputs;
+        for (i = 0; i < numOutputs; i++) {
+          value = stack[stackIndex + i];
+          var bound = range[i * 2];
+          if (value < bound) {
+            value = bound;
+          } else {
+            bound = range[i * 2 + 1];
+            if (value > bound) {
+              value = bound;
+            }
+          }
+          output[i] = value;
+        }
+        if (cache_available > 0) {
+          cache_available--;
+          cache[key] = output;
+        }
+        dest.set(output, destOffset);
+      };
+    }
+  };
+}();
+function isPDFFunction(v) {
+  var fnDict;
+  if (_typeof(v) !== "object") {
+    return false;
+  } else if ((0, _primitives.isDict)(v)) {
+    fnDict = v;
+  } else if ((0, _primitives.isStream)(v)) {
+    fnDict = v.dict;
+  } else {
+    return false;
+  }
+  return fnDict.has("FunctionType");
+}
+var PostScriptStack = function PostScriptStackClosure() {
+  var MAX_STACK_SIZE = 100;
+  function PostScriptStack(initialStack) {
+    this.stack = !initialStack ? [] : Array.prototype.slice.call(initialStack, 0);
+  }
+  PostScriptStack.prototype = {
+    push: function PostScriptStack_push(value) {
+      if (this.stack.length >= MAX_STACK_SIZE) {
+        throw new Error("PostScript function stack overflow.");
+      }
+      this.stack.push(value);
+    },
+    pop: function PostScriptStack_pop() {
+      if (this.stack.length <= 0) {
+        throw new Error("PostScript function stack underflow.");
+      }
+      return this.stack.pop();
+    },
+    copy: function PostScriptStack_copy(n) {
+      if (this.stack.length + n >= MAX_STACK_SIZE) {
+        throw new Error("PostScript function stack overflow.");
+      }
+      var stack = this.stack;
+      for (var i = stack.length - n, j = n - 1; j >= 0; j--, i++) {
+        stack.push(stack[i]);
+      }
+    },
+    index: function PostScriptStack_index(n) {
+      this.push(this.stack[this.stack.length - n - 1]);
+    },
+    roll: function PostScriptStack_roll(n, p) {
+      var stack = this.stack;
+      var l = stack.length - n;
+      var r = stack.length - 1,
+        c = l + (p - Math.floor(p / n) * n),
+        i,
+        j,
+        t;
+      for (i = l, j = r; i < j; i++, j--) {
+        t = stack[i];
+        stack[i] = stack[j];
+        stack[j] = t;
+      }
+      for (i = l, j = c - 1; i < j; i++, j--) {
+        t = stack[i];
+        stack[i] = stack[j];
+        stack[j] = t;
+      }
+      for (i = c, j = r; i < j; i++, j--) {
+        t = stack[i];
+        stack[i] = stack[j];
+        stack[j] = t;
+      }
+    }
+  };
+  return PostScriptStack;
+}();
+var PostScriptEvaluator = exports.PostScriptEvaluator = function PostScriptEvaluatorClosure() {
+  function PostScriptEvaluator(operators) {
+    this.operators = operators;
+  }
+  PostScriptEvaluator.prototype = {
+    execute: function PostScriptEvaluator_execute(initialStack) {
+      var stack = new PostScriptStack(initialStack);
+      var counter = 0;
+      var operators = this.operators;
+      var length = operators.length;
+      var operator, a, b;
+      while (counter < length) {
+        operator = operators[counter++];
+        if (typeof operator === "number") {
+          stack.push(operator);
+          continue;
+        }
+        switch (operator) {
+          case "jz":
+            b = stack.pop();
+            a = stack.pop();
+            if (!a) {
+              counter = b;
+            }
+            break;
+          case "j":
+            a = stack.pop();
+            counter = a;
+            break;
+          case "abs":
+            a = stack.pop();
+            stack.push(Math.abs(a));
+            break;
+          case "add":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a + b);
+            break;
+          case "and":
+            b = stack.pop();
+            a = stack.pop();
+            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
+              stack.push(a && b);
+            } else {
+              stack.push(a & b);
+            }
+            break;
+          case "atan":
+            a = stack.pop();
+            stack.push(Math.atan(a));
+            break;
+          case "bitshift":
+            b = stack.pop();
+            a = stack.pop();
+            if (a > 0) {
+              stack.push(a << b);
+            } else {
+              stack.push(a >> b);
+            }
+            break;
+          case "ceiling":
+            a = stack.pop();
+            stack.push(Math.ceil(a));
+            break;
+          case "copy":
+            a = stack.pop();
+            stack.copy(a);
+            break;
+          case "cos":
+            a = stack.pop();
+            stack.push(Math.cos(a));
+            break;
+          case "cvi":
+            a = stack.pop() | 0;
+            stack.push(a);
+            break;
+          case "cvr":
+            break;
+          case "div":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a / b);
+            break;
+          case "dup":
+            stack.copy(1);
+            break;
+          case "eq":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a === b);
+            break;
+          case "exch":
+            stack.roll(2, 1);
+            break;
+          case "exp":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(Math.pow(a, b));
+            break;
+          case "false":
+            stack.push(false);
+            break;
+          case "floor":
+            a = stack.pop();
+            stack.push(Math.floor(a));
+            break;
+          case "ge":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a >= b);
+            break;
+          case "gt":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a > b);
+            break;
+          case "idiv":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a / b | 0);
+            break;
+          case "index":
+            a = stack.pop();
+            stack.index(a);
+            break;
+          case "le":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a <= b);
+            break;
+          case "ln":
+            a = stack.pop();
+            stack.push(Math.log(a));
+            break;
+          case "log":
+            a = stack.pop();
+            stack.push(Math.log(a) / Math.LN10);
+            break;
+          case "lt":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a < b);
+            break;
+          case "mod":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a % b);
+            break;
+          case "mul":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a * b);
+            break;
+          case "ne":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a !== b);
+            break;
+          case "neg":
+            a = stack.pop();
+            stack.push(-a);
+            break;
+          case "not":
+            a = stack.pop();
+            if ((0, _util.isBool)(a)) {
+              stack.push(!a);
+            } else {
+              stack.push(~a);
+            }
+            break;
+          case "or":
+            b = stack.pop();
+            a = stack.pop();
+            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
+              stack.push(a || b);
+            } else {
+              stack.push(a | b);
+            }
+            break;
+          case "pop":
+            stack.pop();
+            break;
+          case "roll":
+            b = stack.pop();
+            a = stack.pop();
+            stack.roll(a, b);
+            break;
+          case "round":
+            a = stack.pop();
+            stack.push(Math.round(a));
+            break;
+          case "sin":
+            a = stack.pop();
+            stack.push(Math.sin(a));
+            break;
+          case "sqrt":
+            a = stack.pop();
+            stack.push(Math.sqrt(a));
+            break;
+          case "sub":
+            b = stack.pop();
+            a = stack.pop();
+            stack.push(a - b);
+            break;
+          case "true":
+            stack.push(true);
+            break;
+          case "truncate":
+            a = stack.pop();
+            a = a < 0 ? Math.ceil(a) : Math.floor(a);
+            stack.push(a);
+            break;
+          case "xor":
+            b = stack.pop();
+            a = stack.pop();
+            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
+              stack.push(a !== b);
+            } else {
+              stack.push(a ^ b);
+            }
+            break;
+          default:
+            throw new _util.FormatError("Unknown operator ".concat(operator));
+        }
+      }
+      return stack.stack;
+    }
+  };
+  return PostScriptEvaluator;
+}();
+var PostScriptCompiler = exports.PostScriptCompiler = function PostScriptCompilerClosure() {
+  function AstNode(type) {
+    this.type = type;
+  }
+  AstNode.prototype.visit = function (visitor) {
+    (0, _util.unreachable)("abstract method");
+  };
+  function AstArgument(index, min, max) {
+    AstNode.call(this, "args");
+    this.index = index;
+    this.min = min;
+    this.max = max;
+  }
+  AstArgument.prototype = Object.create(AstNode.prototype);
+  AstArgument.prototype.visit = function (visitor) {
+    visitor.visitArgument(this);
+  };
+  function AstLiteral(number) {
+    AstNode.call(this, "literal");
+    this.number = number;
+    this.min = number;
+    this.max = number;
+  }
+  AstLiteral.prototype = Object.create(AstNode.prototype);
+  AstLiteral.prototype.visit = function (visitor) {
+    visitor.visitLiteral(this);
+  };
+  function AstBinaryOperation(op, arg1, arg2, min, max) {
+    AstNode.call(this, "binary");
+    this.op = op;
+    this.arg1 = arg1;
+    this.arg2 = arg2;
+    this.min = min;
+    this.max = max;
+  }
+  AstBinaryOperation.prototype = Object.create(AstNode.prototype);
+  AstBinaryOperation.prototype.visit = function (visitor) {
+    visitor.visitBinaryOperation(this);
+  };
+  function AstMin(arg, max) {
+    AstNode.call(this, "max");
+    this.arg = arg;
+    this.min = arg.min;
+    this.max = max;
+  }
+  AstMin.prototype = Object.create(AstNode.prototype);
+  AstMin.prototype.visit = function (visitor) {
+    visitor.visitMin(this);
+  };
+  function AstVariable(index, min, max) {
+    AstNode.call(this, "var");
+    this.index = index;
+    this.min = min;
+    this.max = max;
+  }
+  AstVariable.prototype = Object.create(AstNode.prototype);
+  AstVariable.prototype.visit = function (visitor) {
+    visitor.visitVariable(this);
+  };
+  function AstVariableDefinition(variable, arg) {
+    AstNode.call(this, "definition");
+    this.variable = variable;
+    this.arg = arg;
+  }
+  AstVariableDefinition.prototype = Object.create(AstNode.prototype);
+  AstVariableDefinition.prototype.visit = function (visitor) {
+    visitor.visitVariableDefinition(this);
+  };
+  function ExpressionBuilderVisitor() {
+    this.parts = [];
+  }
+  ExpressionBuilderVisitor.prototype = {
+    visitArgument: function visitArgument(arg) {
+      this.parts.push("Math.max(", arg.min, ", Math.min(", arg.max, ", src[srcOffset + ", arg.index, "]))");
+    },
+    visitVariable: function visitVariable(variable) {
+      this.parts.push("v", variable.index);
+    },
+    visitLiteral: function visitLiteral(literal) {
+      this.parts.push(literal.number);
+    },
+    visitBinaryOperation: function visitBinaryOperation(operation) {
+      this.parts.push("(");
+      operation.arg1.visit(this);
+      this.parts.push(" ", operation.op, " ");
+      operation.arg2.visit(this);
+      this.parts.push(")");
+    },
+    visitVariableDefinition: function visitVariableDefinition(definition) {
+      this.parts.push("var ");
+      definition.variable.visit(this);
+      this.parts.push(" = ");
+      definition.arg.visit(this);
+      this.parts.push(";");
+    },
+    visitMin: function visitMin(max) {
+      this.parts.push("Math.min(");
+      max.arg.visit(this);
+      this.parts.push(", ", max.max, ")");
+    },
+    toString: function toString() {
+      return this.parts.join("");
+    }
+  };
+  function buildAddOperation(num1, num2) {
+    if (num2.type === "literal" && num2.number === 0) {
+      return num1;
+    }
+    if (num1.type === "literal" && num1.number === 0) {
+      return num2;
+    }
+    if (num2.type === "literal" && num1.type === "literal") {
+      return new AstLiteral(num1.number + num2.number);
+    }
+    return new AstBinaryOperation("+", num1, num2, num1.min + num2.min, num1.max + num2.max);
+  }
+  function buildMulOperation(num1, num2) {
+    if (num2.type === "literal") {
+      if (num2.number === 0) {
+        return new AstLiteral(0);
+      } else if (num2.number === 1) {
+        return num1;
+      } else if (num1.type === "literal") {
+        return new AstLiteral(num1.number * num2.number);
+      }
+    }
+    if (num1.type === "literal") {
+      if (num1.number === 0) {
+        return new AstLiteral(0);
+      } else if (num1.number === 1) {
+        return num2;
+      }
+    }
+    var min = Math.min(num1.min * num2.min, num1.min * num2.max, num1.max * num2.min, num1.max * num2.max);
+    var max = Math.max(num1.min * num2.min, num1.min * num2.max, num1.max * num2.min, num1.max * num2.max);
+    return new AstBinaryOperation("*", num1, num2, min, max);
+  }
+  function buildSubOperation(num1, num2) {
+    if (num2.type === "literal") {
+      if (num2.number === 0) {
+        return num1;
+      } else if (num1.type === "literal") {
+        return new AstLiteral(num1.number - num2.number);
+      }
+    }
+    if (num2.type === "binary" && num2.op === "-" && num1.type === "literal" && num1.number === 1 && num2.arg1.type === "literal" && num2.arg1.number === 1) {
+      return num2.arg2;
+    }
+    return new AstBinaryOperation("-", num1, num2, num1.min - num2.max, num1.max - num2.min);
+  }
+  function buildMinOperation(num1, max) {
+    if (num1.min >= max) {
+      return new AstLiteral(max);
+    } else if (num1.max <= max) {
+      return num1;
+    }
+    return new AstMin(num1, max);
+  }
+  function PostScriptCompiler() {}
+  PostScriptCompiler.prototype = {
+    compile: function PostScriptCompiler_compile(code, domain, range) {
+      var stack = [];
+      var instructions = [];
+      var inputSize = domain.length >> 1,
+        outputSize = range.length >> 1;
+      var lastRegister = 0;
+      var n, j;
+      var num1, num2, ast1, ast2, tmpVar, item;
+      for (var i = 0; i < inputSize; i++) {
+        stack.push(new AstArgument(i, domain[i * 2], domain[i * 2 + 1]));
+      }
+      for (var _i = 0, ii = code.length; _i < ii; _i++) {
+        item = code[_i];
+        if (typeof item === "number") {
+          stack.push(new AstLiteral(item));
+          continue;
+        }
+        switch (item) {
+          case "add":
+            if (stack.length < 2) {
+              return null;
+            }
+            num2 = stack.pop();
+            num1 = stack.pop();
+            stack.push(buildAddOperation(num1, num2));
+            break;
+          case "cvr":
+            if (stack.length < 1) {
+              return null;
+            }
+            break;
+          case "mul":
+            if (stack.length < 2) {
+              return null;
+            }
+            num2 = stack.pop();
+            num1 = stack.pop();
+            stack.push(buildMulOperation(num1, num2));
+            break;
+          case "sub":
+            if (stack.length < 2) {
+              return null;
+            }
+            num2 = stack.pop();
+            num1 = stack.pop();
+            stack.push(buildSubOperation(num1, num2));
+            break;
+          case "exch":
+            if (stack.length < 2) {
+              return null;
+            }
+            ast1 = stack.pop();
+            ast2 = stack.pop();
+            stack.push(ast1, ast2);
+            break;
+          case "pop":
+            if (stack.length < 1) {
+              return null;
+            }
+            stack.pop();
+            break;
+          case "index":
+            if (stack.length < 1) {
+              return null;
+            }
+            num1 = stack.pop();
+            if (num1.type !== "literal") {
+              return null;
+            }
+            n = num1.number;
+            if (n < 0 || !Number.isInteger(n) || stack.length < n) {
+              return null;
+            }
+            ast1 = stack[stack.length - n - 1];
+            if (ast1.type === "literal" || ast1.type === "var") {
+              stack.push(ast1);
+              break;
+            }
+            tmpVar = new AstVariable(lastRegister++, ast1.min, ast1.max);
+            stack[stack.length - n - 1] = tmpVar;
+            stack.push(tmpVar);
+            instructions.push(new AstVariableDefinition(tmpVar, ast1));
+            break;
+          case "dup":
+            if (stack.length < 1) {
+              return null;
+            }
+            if (typeof code[_i + 1] === "number" && code[_i + 2] === "gt" && code[_i + 3] === _i + 7 && code[_i + 4] === "jz" && code[_i + 5] === "pop" && code[_i + 6] === code[_i + 1]) {
+              num1 = stack.pop();
+              stack.push(buildMinOperation(num1, code[_i + 1]));
+              _i += 6;
+              break;
+            }
+            ast1 = stack[stack.length - 1];
+            if (ast1.type === "literal" || ast1.type === "var") {
+              stack.push(ast1);
+              break;
+            }
+            tmpVar = new AstVariable(lastRegister++, ast1.min, ast1.max);
+            stack[stack.length - 1] = tmpVar;
+            stack.push(tmpVar);
+            instructions.push(new AstVariableDefinition(tmpVar, ast1));
+            break;
+          case "roll":
+            if (stack.length < 2) {
+              return null;
+            }
+            num2 = stack.pop();
+            num1 = stack.pop();
+            if (num2.type !== "literal" || num1.type !== "literal") {
+              return null;
+            }
+            j = num2.number;
+            n = num1.number;
+            if (n <= 0 || !Number.isInteger(n) || !Number.isInteger(j) || stack.length < n) {
+              return null;
+            }
+            j = (j % n + n) % n;
+            if (j === 0) {
+              break;
+            }
+            Array.prototype.push.apply(stack, stack.splice(stack.length - n, n - j));
+            break;
+          default:
+            return null;
+        }
+      }
+      if (stack.length !== outputSize) {
+        return null;
+      }
+      var result = [];
+      instructions.forEach(function (instruction) {
+        var statementBuilder = new ExpressionBuilderVisitor();
+        instruction.visit(statementBuilder);
+        result.push(statementBuilder.toString());
+      });
+      stack.forEach(function (expr, i) {
+        var statementBuilder = new ExpressionBuilderVisitor();
+        expr.visit(statementBuilder);
+        var min = range[i * 2],
+          max = range[i * 2 + 1];
+        var out = [statementBuilder.toString()];
+        if (min > expr.min) {
+          out.unshift("Math.max(", min, ", ");
+          out.push(")");
+        }
+        if (max < expr.max) {
+          out.unshift("Math.min(", max, ", ");
+          out.push(")");
+        }
+        out.unshift("dest[destOffset + ", i, "] = ");
+        out.push(";");
+        result.push(out.join(""));
+      });
+      return result.join("\n");
+    }
+  };
+  return PostScriptCompiler;
+}();
+
+/***/ }),
+/* 336 */
+/***/ (function(module, exports, __w_pdfjs_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PostScriptParser = exports.PostScriptLexer = void 0;
+var _util = __w_pdfjs_require__(2);
+var _primitives = __w_pdfjs_require__(300);
+var _core_utils = __w_pdfjs_require__(303);
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var PostScriptParser = exports.PostScriptParser = /*#__PURE__*/function () {
+  function PostScriptParser(lexer) {
+    _classCallCheck(this, PostScriptParser);
+    this.lexer = lexer;
+    this.operators = [];
+    this.token = null;
+    this.prev = null;
+  }
+  return _createClass(PostScriptParser, [{
+    key: "nextToken",
+    value: function nextToken() {
+      this.prev = this.token;
+      this.token = this.lexer.getToken();
+    }
+  }, {
+    key: "accept",
+    value: function accept(type) {
+      if (this.token.type === type) {
+        this.nextToken();
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: "expect",
+    value: function expect(type) {
+      if (this.accept(type)) {
+        return true;
+      }
+      throw new _util.FormatError("Unexpected symbol: found ".concat(this.token.type, " expected ").concat(type, "."));
+    }
+  }, {
+    key: "parse",
+    value: function parse() {
+      this.nextToken();
+      this.expect(PostScriptTokenTypes.LBRACE);
+      this.parseBlock();
+      this.expect(PostScriptTokenTypes.RBRACE);
+      return this.operators;
+    }
+  }, {
+    key: "parseBlock",
+    value: function parseBlock() {
+      while (true) {
+        if (this.accept(PostScriptTokenTypes.NUMBER)) {
+          this.operators.push(this.prev.value);
+        } else if (this.accept(PostScriptTokenTypes.OPERATOR)) {
+          this.operators.push(this.prev.value);
+        } else if (this.accept(PostScriptTokenTypes.LBRACE)) {
+          this.parseCondition();
+        } else {
+          return;
+        }
+      }
+    }
+  }, {
+    key: "parseCondition",
+    value: function parseCondition() {
+      var conditionLocation = this.operators.length;
+      this.operators.push(null, null);
+      this.parseBlock();
+      this.expect(PostScriptTokenTypes.RBRACE);
+      if (this.accept(PostScriptTokenTypes.IF)) {
+        this.operators[conditionLocation] = this.operators.length;
+        this.operators[conditionLocation + 1] = "jz";
+      } else if (this.accept(PostScriptTokenTypes.LBRACE)) {
+        var jumpLocation = this.operators.length;
+        this.operators.push(null, null);
+        var endOfTrue = this.operators.length;
+        this.parseBlock();
+        this.expect(PostScriptTokenTypes.RBRACE);
+        this.expect(PostScriptTokenTypes.IFELSE);
+        this.operators[jumpLocation] = this.operators.length;
+        this.operators[jumpLocation + 1] = "j";
+        this.operators[conditionLocation] = endOfTrue;
+        this.operators[conditionLocation + 1] = "jz";
+      } else {
+        throw new _util.FormatError("PS Function: error parsing conditional.");
+      }
+    }
+  }]);
+}();
+var PostScriptTokenTypes = {
+  LBRACE: 0,
+  RBRACE: 1,
+  NUMBER: 2,
+  OPERATOR: 3,
+  IF: 4,
+  IFELSE: 5
+};
+var PostScriptToken = function PostScriptTokenClosure() {
+  var opCache = Object.create(null);
+  var PostScriptToken = /*#__PURE__*/function () {
+    function PostScriptToken(type, value) {
+      _classCallCheck(this, PostScriptToken);
+      this.type = type;
+      this.value = value;
+    }
+    return _createClass(PostScriptToken, null, [{
+      key: "getOperator",
+      value: function getOperator(op) {
+        var opValue = opCache[op];
+        if (opValue) {
+          return opValue;
+        }
+        return opCache[op] = new PostScriptToken(PostScriptTokenTypes.OPERATOR, op);
+      }
+    }, {
+      key: "LBRACE",
+      get: function get() {
+        return (0, _util.shadow)(this, "LBRACE", new PostScriptToken(PostScriptTokenTypes.LBRACE, "{"));
+      }
+    }, {
+      key: "RBRACE",
+      get: function get() {
+        return (0, _util.shadow)(this, "RBRACE", new PostScriptToken(PostScriptTokenTypes.RBRACE, "}"));
+      }
+    }, {
+      key: "IF",
+      get: function get() {
+        return (0, _util.shadow)(this, "IF", new PostScriptToken(PostScriptTokenTypes.IF, "IF"));
+      }
+    }, {
+      key: "IFELSE",
+      get: function get() {
+        return (0, _util.shadow)(this, "IFELSE", new PostScriptToken(PostScriptTokenTypes.IFELSE, "IFELSE"));
+      }
+    }]);
+  }();
+  return PostScriptToken;
+}();
+var PostScriptLexer = exports.PostScriptLexer = /*#__PURE__*/function () {
+  function PostScriptLexer(stream) {
+    _classCallCheck(this, PostScriptLexer);
+    this.stream = stream;
+    this.nextChar();
+    this.strBuf = [];
+  }
+  return _createClass(PostScriptLexer, [{
+    key: "nextChar",
+    value: function nextChar() {
+      return this.currentChar = this.stream.getByte();
+    }
+  }, {
+    key: "getToken",
+    value: function getToken() {
+      var comment = false;
+      var ch = this.currentChar;
+      while (true) {
+        if (ch < 0) {
+          return _primitives.EOF;
+        }
+        if (comment) {
+          if (ch === 0x0a || ch === 0x0d) {
+            comment = false;
+          }
+        } else if (ch === 0x25) {
+          comment = true;
+        } else if (!(0, _core_utils.isWhiteSpace)(ch)) {
+          break;
+        }
+        ch = this.nextChar();
+      }
+      switch (ch | 0) {
+        case 0x30:
+        case 0x31:
+        case 0x32:
+        case 0x33:
+        case 0x34:
+        case 0x35:
+        case 0x36:
+        case 0x37:
+        case 0x38:
+        case 0x39:
+        case 0x2b:
+        case 0x2d:
+        case 0x2e:
+          return new PostScriptToken(PostScriptTokenTypes.NUMBER, this.getNumber());
+        case 0x7b:
+          this.nextChar();
+          return PostScriptToken.LBRACE;
+        case 0x7d:
+          this.nextChar();
+          return PostScriptToken.RBRACE;
+      }
+      var strBuf = this.strBuf;
+      strBuf.length = 0;
+      strBuf[0] = String.fromCharCode(ch);
+      while ((ch = this.nextChar()) >= 0 && (ch >= 0x41 && ch <= 0x5a || ch >= 0x61 && ch <= 0x7a)) {
+        strBuf.push(String.fromCharCode(ch));
+      }
+      var str = strBuf.join("");
+      switch (str.toLowerCase()) {
+        case "if":
+          return PostScriptToken.IF;
+        case "ifelse":
+          return PostScriptToken.IFELSE;
+        default:
+          return PostScriptToken.getOperator(str);
+      }
+    }
+  }, {
+    key: "getNumber",
+    value: function getNumber() {
+      var ch = this.currentChar;
+      var strBuf = this.strBuf;
+      strBuf.length = 0;
+      strBuf[0] = String.fromCharCode(ch);
+      while ((ch = this.nextChar()) >= 0) {
+        if (ch >= 0x30 && ch <= 0x39 || ch === 0x2d || ch === 0x2e) {
+          strBuf.push(String.fromCharCode(ch));
+        } else {
+          break;
+        }
+      }
+      var value = parseFloat(strBuf.join(""));
+      if (isNaN(value)) {
+        throw new _util.FormatError("Invalid floating point number: ".concat(value));
+      }
+      return value;
+    }
+  }]);
+}();
+
+/***/ }),
+/* 337 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -47544,7 +51207,7 @@ function bidi(str, startLevel, vertical) {
 }
 
 /***/ }),
-/* 331 */
+/* 338 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -47554,7 +51217,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getMetrics = void 0;
-var _core_utils = __w_pdfjs_require__(299);
+var _core_utils = __w_pdfjs_require__(303);
 var getMetrics = exports.getMetrics = (0, _core_utils.getLookupTableFactory)(function (t) {
   t.Courier = 600;
   t["Courier-Bold"] = 600;
@@ -50495,1340 +54158,7 @@ var getMetrics = exports.getMetrics = (0, _core_utils.getLookupTableFactory)(fun
 });
 
 /***/ }),
-/* 332 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.PostScriptEvaluator = exports.PostScriptCompiler = exports.PDFFunctionFactory = void 0;
-exports.isPDFFunction = isPDFFunction;
-var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _ps_parser = __w_pdfjs_require__(333);
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
-function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-var PDFFunctionFactory = exports.PDFFunctionFactory = /*#__PURE__*/function () {
-  function PDFFunctionFactory(_ref) {
-    var xref = _ref.xref,
-      _ref$isEvalSupported = _ref.isEvalSupported,
-      isEvalSupported = _ref$isEvalSupported === void 0 ? true : _ref$isEvalSupported;
-    _classCallCheck(this, PDFFunctionFactory);
-    this.xref = xref;
-    this.isEvalSupported = isEvalSupported !== false;
-  }
-  return _createClass(PDFFunctionFactory, [{
-    key: "create",
-    value: function create(fn) {
-      return PDFFunction.parse({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        fn: fn
-      });
-    }
-  }, {
-    key: "createFromArray",
-    value: function createFromArray(fnObj) {
-      return PDFFunction.parseArray({
-        xref: this.xref,
-        isEvalSupported: this.isEvalSupported,
-        fnObj: fnObj
-      });
-    }
-  }]);
-}();
-function toNumberArray(arr) {
-  if (!Array.isArray(arr)) {
-    return null;
-  }
-  var length = arr.length;
-  for (var i = 0; i < length; i++) {
-    if (typeof arr[i] !== "number") {
-      var result = new Array(length);
-      for (var j = 0; j < length; j++) {
-        result[j] = +arr[j];
-      }
-      return result;
-    }
-  }
-  return arr;
-}
-var PDFFunction = function PDFFunctionClosure() {
-  var CONSTRUCT_SAMPLED = 0;
-  var CONSTRUCT_INTERPOLATED = 2;
-  var CONSTRUCT_STICHED = 3;
-  var CONSTRUCT_POSTSCRIPT = 4;
-  return {
-    getSampleArray: function getSampleArray(size, outputSize, bps, stream) {
-      var i, ii;
-      var length = 1;
-      for (i = 0, ii = size.length; i < ii; i++) {
-        length *= size[i];
-      }
-      length *= outputSize;
-      var array = new Array(length);
-      var codeSize = 0;
-      var codeBuf = 0;
-      var sampleMul = 1.0 / (Math.pow(2.0, bps) - 1);
-      var strBytes = stream.getBytes((length * bps + 7) / 8);
-      var strIdx = 0;
-      for (i = 0; i < length; i++) {
-        while (codeSize < bps) {
-          codeBuf <<= 8;
-          codeBuf |= strBytes[strIdx++];
-          codeSize += 8;
-        }
-        codeSize -= bps;
-        array[i] = (codeBuf >> codeSize) * sampleMul;
-        codeBuf &= (1 << codeSize) - 1;
-      }
-      return array;
-    },
-    getIR: function getIR(_ref2) {
-      var xref = _ref2.xref,
-        isEvalSupported = _ref2.isEvalSupported,
-        fn = _ref2.fn;
-      var dict = fn.dict;
-      if (!dict) {
-        dict = fn;
-      }
-      var types = [this.constructSampled, null, this.constructInterpolated, this.constructStiched, this.constructPostScript];
-      var typeNum = dict.get("FunctionType");
-      var typeFn = types[typeNum];
-      if (!typeFn) {
-        throw new _util.FormatError("Unknown type of function");
-      }
-      return typeFn.call(this, {
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        fn: fn,
-        dict: dict
-      });
-    },
-    fromIR: function fromIR(_ref3) {
-      var xref = _ref3.xref,
-        isEvalSupported = _ref3.isEvalSupported,
-        IR = _ref3.IR;
-      var type = IR[0];
-      switch (type) {
-        case CONSTRUCT_SAMPLED:
-          return this.constructSampledFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
-        case CONSTRUCT_INTERPOLATED:
-          return this.constructInterpolatedFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
-        case CONSTRUCT_STICHED:
-          return this.constructStichedFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
-        default:
-          return this.constructPostScriptFromIR({
-            xref: xref,
-            isEvalSupported: isEvalSupported,
-            IR: IR
-          });
-      }
-    },
-    parse: function parse(_ref4) {
-      var xref = _ref4.xref,
-        isEvalSupported = _ref4.isEvalSupported,
-        fn = _ref4.fn;
-      var IR = this.getIR({
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        fn: fn
-      });
-      return this.fromIR({
-        xref: xref,
-        isEvalSupported: isEvalSupported,
-        IR: IR
-      });
-    },
-    parseArray: function parseArray(_ref5) {
-      var xref = _ref5.xref,
-        isEvalSupported = _ref5.isEvalSupported,
-        fnObj = _ref5.fnObj;
-      if (!Array.isArray(fnObj)) {
-        return this.parse({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: fnObj
-        });
-      }
-      var fnArray = [];
-      for (var j = 0, jj = fnObj.length; j < jj; j++) {
-        fnArray.push(this.parse({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: xref.fetchIfRef(fnObj[j])
-        }));
-      }
-      return function (src, srcOffset, dest, destOffset) {
-        for (var i = 0, ii = fnArray.length; i < ii; i++) {
-          fnArray[i](src, srcOffset, dest, destOffset + i);
-        }
-      };
-    },
-    constructSampled: function constructSampled(_ref6) {
-      var xref = _ref6.xref,
-        isEvalSupported = _ref6.isEvalSupported,
-        fn = _ref6.fn,
-        dict = _ref6.dict;
-      function toMultiArray(arr) {
-        var inputLength = arr.length;
-        var out = [];
-        var index = 0;
-        for (var i = 0; i < inputLength; i += 2) {
-          out[index] = [arr[i], arr[i + 1]];
-          ++index;
-        }
-        return out;
-      }
-      var domain = toNumberArray(dict.getArray("Domain"));
-      var range = toNumberArray(dict.getArray("Range"));
-      if (!domain || !range) {
-        throw new _util.FormatError("No domain or range");
-      }
-      var inputSize = domain.length / 2;
-      var outputSize = range.length / 2;
-      domain = toMultiArray(domain);
-      range = toMultiArray(range);
-      var size = toNumberArray(dict.getArray("Size"));
-      var bps = dict.get("BitsPerSample");
-      var order = dict.get("Order") || 1;
-      if (order !== 1) {
-        (0, _util.info)("No support for cubic spline interpolation: " + order);
-      }
-      var encode = toNumberArray(dict.getArray("Encode"));
-      if (!encode) {
-        encode = [];
-        for (var i = 0; i < inputSize; ++i) {
-          encode.push([0, size[i] - 1]);
-        }
-      } else {
-        encode = toMultiArray(encode);
-      }
-      var decode = toNumberArray(dict.getArray("Decode"));
-      if (!decode) {
-        decode = range;
-      } else {
-        decode = toMultiArray(decode);
-      }
-      var samples = this.getSampleArray(size, outputSize, bps, fn);
-      return [CONSTRUCT_SAMPLED, inputSize, domain, encode, decode, samples, size, outputSize, Math.pow(2, bps) - 1, range];
-    },
-    constructSampledFromIR: function constructSampledFromIR(_ref7) {
-      var xref = _ref7.xref,
-        isEvalSupported = _ref7.isEvalSupported,
-        IR = _ref7.IR;
-      function interpolate(x, xmin, xmax, ymin, ymax) {
-        return ymin + (x - xmin) * ((ymax - ymin) / (xmax - xmin));
-      }
-      return function constructSampledFromIRResult(src, srcOffset, dest, destOffset) {
-        var m = IR[1];
-        var domain = IR[2];
-        var encode = IR[3];
-        var decode = IR[4];
-        var samples = IR[5];
-        var size = IR[6];
-        var n = IR[7];
-        var range = IR[9];
-        var cubeVertices = 1 << m;
-        var cubeN = new Float64Array(cubeVertices);
-        var cubeVertex = new Uint32Array(cubeVertices);
-        var i, j;
-        for (j = 0; j < cubeVertices; j++) {
-          cubeN[j] = 1;
-        }
-        var k = n,
-          pos = 1;
-        for (i = 0; i < m; ++i) {
-          var domain_2i = domain[i][0];
-          var domain_2i_1 = domain[i][1];
-          var xi = Math.min(Math.max(src[srcOffset + i], domain_2i), domain_2i_1);
-          var e = interpolate(xi, domain_2i, domain_2i_1, encode[i][0], encode[i][1]);
-          var size_i = size[i];
-          e = Math.min(Math.max(e, 0), size_i - 1);
-          var e0 = e < size_i - 1 ? Math.floor(e) : e - 1;
-          var n0 = e0 + 1 - e;
-          var n1 = e - e0;
-          var offset0 = e0 * k;
-          var offset1 = offset0 + k;
-          for (j = 0; j < cubeVertices; j++) {
-            if (j & pos) {
-              cubeN[j] *= n1;
-              cubeVertex[j] += offset1;
-            } else {
-              cubeN[j] *= n0;
-              cubeVertex[j] += offset0;
-            }
-          }
-          k *= size_i;
-          pos <<= 1;
-        }
-        for (j = 0; j < n; ++j) {
-          var rj = 0;
-          for (i = 0; i < cubeVertices; i++) {
-            rj += samples[cubeVertex[i] + j] * cubeN[i];
-          }
-          rj = interpolate(rj, 0, 1, decode[j][0], decode[j][1]);
-          dest[destOffset + j] = Math.min(Math.max(rj, range[j][0]), range[j][1]);
-        }
-      };
-    },
-    constructInterpolated: function constructInterpolated(_ref8) {
-      var xref = _ref8.xref,
-        isEvalSupported = _ref8.isEvalSupported,
-        fn = _ref8.fn,
-        dict = _ref8.dict;
-      var c0 = toNumberArray(dict.getArray("C0")) || [0];
-      var c1 = toNumberArray(dict.getArray("C1")) || [1];
-      var n = dict.get("N");
-      var length = c0.length;
-      var diff = [];
-      for (var i = 0; i < length; ++i) {
-        diff.push(c1[i] - c0[i]);
-      }
-      return [CONSTRUCT_INTERPOLATED, c0, diff, n];
-    },
-    constructInterpolatedFromIR: function constructInterpolatedFromIR(_ref9) {
-      var xref = _ref9.xref,
-        isEvalSupported = _ref9.isEvalSupported,
-        IR = _ref9.IR;
-      var c0 = IR[1];
-      var diff = IR[2];
-      var n = IR[3];
-      var length = diff.length;
-      return function constructInterpolatedFromIRResult(src, srcOffset, dest, destOffset) {
-        var x = n === 1 ? src[srcOffset] : Math.pow(src[srcOffset], n);
-        for (var j = 0; j < length; ++j) {
-          dest[destOffset + j] = c0[j] + x * diff[j];
-        }
-      };
-    },
-    constructStiched: function constructStiched(_ref10) {
-      var xref = _ref10.xref,
-        isEvalSupported = _ref10.isEvalSupported,
-        fn = _ref10.fn,
-        dict = _ref10.dict;
-      var domain = toNumberArray(dict.getArray("Domain"));
-      if (!domain) {
-        throw new _util.FormatError("No domain");
-      }
-      var inputSize = domain.length / 2;
-      if (inputSize !== 1) {
-        throw new _util.FormatError("Bad domain for stiched function");
-      }
-      var fnRefs = dict.get("Functions");
-      var fns = [];
-      for (var i = 0, ii = fnRefs.length; i < ii; ++i) {
-        fns.push(this.parse({
-          xref: xref,
-          isEvalSupported: isEvalSupported,
-          fn: xref.fetchIfRef(fnRefs[i])
-        }));
-      }
-      var bounds = toNumberArray(dict.getArray("Bounds"));
-      var encode = toNumberArray(dict.getArray("Encode"));
-      return [CONSTRUCT_STICHED, domain, bounds, encode, fns];
-    },
-    constructStichedFromIR: function constructStichedFromIR(_ref11) {
-      var xref = _ref11.xref,
-        isEvalSupported = _ref11.isEvalSupported,
-        IR = _ref11.IR;
-      var domain = IR[1];
-      var bounds = IR[2];
-      var encode = IR[3];
-      var fns = IR[4];
-      var tmpBuf = new Float32Array(1);
-      return function constructStichedFromIRResult(src, srcOffset, dest, destOffset) {
-        var clip = function constructStichedFromIRClip(v, min, max) {
-          if (v > max) {
-            v = max;
-          } else if (v < min) {
-            v = min;
-          }
-          return v;
-        };
-        var v = clip(src[srcOffset], domain[0], domain[1]);
-        for (var i = 0, ii = bounds.length; i < ii; ++i) {
-          if (v < bounds[i]) {
-            break;
-          }
-        }
-        var dmin = domain[0];
-        if (i > 0) {
-          dmin = bounds[i - 1];
-        }
-        var dmax = domain[1];
-        if (i < bounds.length) {
-          dmax = bounds[i];
-        }
-        var rmin = encode[2 * i];
-        var rmax = encode[2 * i + 1];
-        tmpBuf[0] = dmin === dmax ? rmin : rmin + (v - dmin) * (rmax - rmin) / (dmax - dmin);
-        fns[i](tmpBuf, 0, dest, destOffset);
-      };
-    },
-    constructPostScript: function constructPostScript(_ref12) {
-      var xref = _ref12.xref,
-        isEvalSupported = _ref12.isEvalSupported,
-        fn = _ref12.fn,
-        dict = _ref12.dict;
-      var domain = toNumberArray(dict.getArray("Domain"));
-      var range = toNumberArray(dict.getArray("Range"));
-      if (!domain) {
-        throw new _util.FormatError("No domain.");
-      }
-      if (!range) {
-        throw new _util.FormatError("No range.");
-      }
-      var lexer = new _ps_parser.PostScriptLexer(fn);
-      var parser = new _ps_parser.PostScriptParser(lexer);
-      var code = parser.parse();
-      return [CONSTRUCT_POSTSCRIPT, domain, range, code];
-    },
-    constructPostScriptFromIR: function constructPostScriptFromIR(_ref13) {
-      var xref = _ref13.xref,
-        isEvalSupported = _ref13.isEvalSupported,
-        IR = _ref13.IR;
-      var domain = IR[1];
-      var range = IR[2];
-      var code = IR[3];
-      if (isEvalSupported && _util.IsEvalSupportedCached.value) {
-        var compiled = new PostScriptCompiler().compile(code, domain, range);
-        if (compiled) {
-          return new Function("src", "srcOffset", "dest", "destOffset", compiled);
-        }
-      }
-      (0, _util.info)("Unable to compile PS function");
-      var numOutputs = range.length >> 1;
-      var numInputs = domain.length >> 1;
-      var evaluator = new PostScriptEvaluator(code);
-      var cache = Object.create(null);
-      var MAX_CACHE_SIZE = 2048 * 4;
-      var cache_available = MAX_CACHE_SIZE;
-      var tmpBuf = new Float32Array(numInputs);
-      return function constructPostScriptFromIRResult(src, srcOffset, dest, destOffset) {
-        var i, value;
-        var key = "";
-        var input = tmpBuf;
-        for (i = 0; i < numInputs; i++) {
-          value = src[srcOffset + i];
-          input[i] = value;
-          key += value + "_";
-        }
-        var cachedValue = cache[key];
-        if (cachedValue !== undefined) {
-          dest.set(cachedValue, destOffset);
-          return;
-        }
-        var output = new Float32Array(numOutputs);
-        var stack = evaluator.execute(input);
-        var stackIndex = stack.length - numOutputs;
-        for (i = 0; i < numOutputs; i++) {
-          value = stack[stackIndex + i];
-          var bound = range[i * 2];
-          if (value < bound) {
-            value = bound;
-          } else {
-            bound = range[i * 2 + 1];
-            if (value > bound) {
-              value = bound;
-            }
-          }
-          output[i] = value;
-        }
-        if (cache_available > 0) {
-          cache_available--;
-          cache[key] = output;
-        }
-        dest.set(output, destOffset);
-      };
-    }
-  };
-}();
-function isPDFFunction(v) {
-  var fnDict;
-  if (_typeof(v) !== "object") {
-    return false;
-  } else if ((0, _primitives.isDict)(v)) {
-    fnDict = v;
-  } else if ((0, _primitives.isStream)(v)) {
-    fnDict = v.dict;
-  } else {
-    return false;
-  }
-  return fnDict.has("FunctionType");
-}
-var PostScriptStack = function PostScriptStackClosure() {
-  var MAX_STACK_SIZE = 100;
-  function PostScriptStack(initialStack) {
-    this.stack = !initialStack ? [] : Array.prototype.slice.call(initialStack, 0);
-  }
-  PostScriptStack.prototype = {
-    push: function PostScriptStack_push(value) {
-      if (this.stack.length >= MAX_STACK_SIZE) {
-        throw new Error("PostScript function stack overflow.");
-      }
-      this.stack.push(value);
-    },
-    pop: function PostScriptStack_pop() {
-      if (this.stack.length <= 0) {
-        throw new Error("PostScript function stack underflow.");
-      }
-      return this.stack.pop();
-    },
-    copy: function PostScriptStack_copy(n) {
-      if (this.stack.length + n >= MAX_STACK_SIZE) {
-        throw new Error("PostScript function stack overflow.");
-      }
-      var stack = this.stack;
-      for (var i = stack.length - n, j = n - 1; j >= 0; j--, i++) {
-        stack.push(stack[i]);
-      }
-    },
-    index: function PostScriptStack_index(n) {
-      this.push(this.stack[this.stack.length - n - 1]);
-    },
-    roll: function PostScriptStack_roll(n, p) {
-      var stack = this.stack;
-      var l = stack.length - n;
-      var r = stack.length - 1,
-        c = l + (p - Math.floor(p / n) * n),
-        i,
-        j,
-        t;
-      for (i = l, j = r; i < j; i++, j--) {
-        t = stack[i];
-        stack[i] = stack[j];
-        stack[j] = t;
-      }
-      for (i = l, j = c - 1; i < j; i++, j--) {
-        t = stack[i];
-        stack[i] = stack[j];
-        stack[j] = t;
-      }
-      for (i = c, j = r; i < j; i++, j--) {
-        t = stack[i];
-        stack[i] = stack[j];
-        stack[j] = t;
-      }
-    }
-  };
-  return PostScriptStack;
-}();
-var PostScriptEvaluator = exports.PostScriptEvaluator = function PostScriptEvaluatorClosure() {
-  function PostScriptEvaluator(operators) {
-    this.operators = operators;
-  }
-  PostScriptEvaluator.prototype = {
-    execute: function PostScriptEvaluator_execute(initialStack) {
-      var stack = new PostScriptStack(initialStack);
-      var counter = 0;
-      var operators = this.operators;
-      var length = operators.length;
-      var operator, a, b;
-      while (counter < length) {
-        operator = operators[counter++];
-        if (typeof operator === "number") {
-          stack.push(operator);
-          continue;
-        }
-        switch (operator) {
-          case "jz":
-            b = stack.pop();
-            a = stack.pop();
-            if (!a) {
-              counter = b;
-            }
-            break;
-          case "j":
-            a = stack.pop();
-            counter = a;
-            break;
-          case "abs":
-            a = stack.pop();
-            stack.push(Math.abs(a));
-            break;
-          case "add":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a + b);
-            break;
-          case "and":
-            b = stack.pop();
-            a = stack.pop();
-            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
-              stack.push(a && b);
-            } else {
-              stack.push(a & b);
-            }
-            break;
-          case "atan":
-            a = stack.pop();
-            stack.push(Math.atan(a));
-            break;
-          case "bitshift":
-            b = stack.pop();
-            a = stack.pop();
-            if (a > 0) {
-              stack.push(a << b);
-            } else {
-              stack.push(a >> b);
-            }
-            break;
-          case "ceiling":
-            a = stack.pop();
-            stack.push(Math.ceil(a));
-            break;
-          case "copy":
-            a = stack.pop();
-            stack.copy(a);
-            break;
-          case "cos":
-            a = stack.pop();
-            stack.push(Math.cos(a));
-            break;
-          case "cvi":
-            a = stack.pop() | 0;
-            stack.push(a);
-            break;
-          case "cvr":
-            break;
-          case "div":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a / b);
-            break;
-          case "dup":
-            stack.copy(1);
-            break;
-          case "eq":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a === b);
-            break;
-          case "exch":
-            stack.roll(2, 1);
-            break;
-          case "exp":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(Math.pow(a, b));
-            break;
-          case "false":
-            stack.push(false);
-            break;
-          case "floor":
-            a = stack.pop();
-            stack.push(Math.floor(a));
-            break;
-          case "ge":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a >= b);
-            break;
-          case "gt":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a > b);
-            break;
-          case "idiv":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a / b | 0);
-            break;
-          case "index":
-            a = stack.pop();
-            stack.index(a);
-            break;
-          case "le":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a <= b);
-            break;
-          case "ln":
-            a = stack.pop();
-            stack.push(Math.log(a));
-            break;
-          case "log":
-            a = stack.pop();
-            stack.push(Math.log(a) / Math.LN10);
-            break;
-          case "lt":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a < b);
-            break;
-          case "mod":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a % b);
-            break;
-          case "mul":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a * b);
-            break;
-          case "ne":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a !== b);
-            break;
-          case "neg":
-            a = stack.pop();
-            stack.push(-a);
-            break;
-          case "not":
-            a = stack.pop();
-            if ((0, _util.isBool)(a)) {
-              stack.push(!a);
-            } else {
-              stack.push(~a);
-            }
-            break;
-          case "or":
-            b = stack.pop();
-            a = stack.pop();
-            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
-              stack.push(a || b);
-            } else {
-              stack.push(a | b);
-            }
-            break;
-          case "pop":
-            stack.pop();
-            break;
-          case "roll":
-            b = stack.pop();
-            a = stack.pop();
-            stack.roll(a, b);
-            break;
-          case "round":
-            a = stack.pop();
-            stack.push(Math.round(a));
-            break;
-          case "sin":
-            a = stack.pop();
-            stack.push(Math.sin(a));
-            break;
-          case "sqrt":
-            a = stack.pop();
-            stack.push(Math.sqrt(a));
-            break;
-          case "sub":
-            b = stack.pop();
-            a = stack.pop();
-            stack.push(a - b);
-            break;
-          case "true":
-            stack.push(true);
-            break;
-          case "truncate":
-            a = stack.pop();
-            a = a < 0 ? Math.ceil(a) : Math.floor(a);
-            stack.push(a);
-            break;
-          case "xor":
-            b = stack.pop();
-            a = stack.pop();
-            if ((0, _util.isBool)(a) && (0, _util.isBool)(b)) {
-              stack.push(a !== b);
-            } else {
-              stack.push(a ^ b);
-            }
-            break;
-          default:
-            throw new _util.FormatError("Unknown operator ".concat(operator));
-        }
-      }
-      return stack.stack;
-    }
-  };
-  return PostScriptEvaluator;
-}();
-var PostScriptCompiler = exports.PostScriptCompiler = function PostScriptCompilerClosure() {
-  function AstNode(type) {
-    this.type = type;
-  }
-  AstNode.prototype.visit = function (visitor) {
-    (0, _util.unreachable)("abstract method");
-  };
-  function AstArgument(index, min, max) {
-    AstNode.call(this, "args");
-    this.index = index;
-    this.min = min;
-    this.max = max;
-  }
-  AstArgument.prototype = Object.create(AstNode.prototype);
-  AstArgument.prototype.visit = function (visitor) {
-    visitor.visitArgument(this);
-  };
-  function AstLiteral(number) {
-    AstNode.call(this, "literal");
-    this.number = number;
-    this.min = number;
-    this.max = number;
-  }
-  AstLiteral.prototype = Object.create(AstNode.prototype);
-  AstLiteral.prototype.visit = function (visitor) {
-    visitor.visitLiteral(this);
-  };
-  function AstBinaryOperation(op, arg1, arg2, min, max) {
-    AstNode.call(this, "binary");
-    this.op = op;
-    this.arg1 = arg1;
-    this.arg2 = arg2;
-    this.min = min;
-    this.max = max;
-  }
-  AstBinaryOperation.prototype = Object.create(AstNode.prototype);
-  AstBinaryOperation.prototype.visit = function (visitor) {
-    visitor.visitBinaryOperation(this);
-  };
-  function AstMin(arg, max) {
-    AstNode.call(this, "max");
-    this.arg = arg;
-    this.min = arg.min;
-    this.max = max;
-  }
-  AstMin.prototype = Object.create(AstNode.prototype);
-  AstMin.prototype.visit = function (visitor) {
-    visitor.visitMin(this);
-  };
-  function AstVariable(index, min, max) {
-    AstNode.call(this, "var");
-    this.index = index;
-    this.min = min;
-    this.max = max;
-  }
-  AstVariable.prototype = Object.create(AstNode.prototype);
-  AstVariable.prototype.visit = function (visitor) {
-    visitor.visitVariable(this);
-  };
-  function AstVariableDefinition(variable, arg) {
-    AstNode.call(this, "definition");
-    this.variable = variable;
-    this.arg = arg;
-  }
-  AstVariableDefinition.prototype = Object.create(AstNode.prototype);
-  AstVariableDefinition.prototype.visit = function (visitor) {
-    visitor.visitVariableDefinition(this);
-  };
-  function ExpressionBuilderVisitor() {
-    this.parts = [];
-  }
-  ExpressionBuilderVisitor.prototype = {
-    visitArgument: function visitArgument(arg) {
-      this.parts.push("Math.max(", arg.min, ", Math.min(", arg.max, ", src[srcOffset + ", arg.index, "]))");
-    },
-    visitVariable: function visitVariable(variable) {
-      this.parts.push("v", variable.index);
-    },
-    visitLiteral: function visitLiteral(literal) {
-      this.parts.push(literal.number);
-    },
-    visitBinaryOperation: function visitBinaryOperation(operation) {
-      this.parts.push("(");
-      operation.arg1.visit(this);
-      this.parts.push(" ", operation.op, " ");
-      operation.arg2.visit(this);
-      this.parts.push(")");
-    },
-    visitVariableDefinition: function visitVariableDefinition(definition) {
-      this.parts.push("var ");
-      definition.variable.visit(this);
-      this.parts.push(" = ");
-      definition.arg.visit(this);
-      this.parts.push(";");
-    },
-    visitMin: function visitMin(max) {
-      this.parts.push("Math.min(");
-      max.arg.visit(this);
-      this.parts.push(", ", max.max, ")");
-    },
-    toString: function toString() {
-      return this.parts.join("");
-    }
-  };
-  function buildAddOperation(num1, num2) {
-    if (num2.type === "literal" && num2.number === 0) {
-      return num1;
-    }
-    if (num1.type === "literal" && num1.number === 0) {
-      return num2;
-    }
-    if (num2.type === "literal" && num1.type === "literal") {
-      return new AstLiteral(num1.number + num2.number);
-    }
-    return new AstBinaryOperation("+", num1, num2, num1.min + num2.min, num1.max + num2.max);
-  }
-  function buildMulOperation(num1, num2) {
-    if (num2.type === "literal") {
-      if (num2.number === 0) {
-        return new AstLiteral(0);
-      } else if (num2.number === 1) {
-        return num1;
-      } else if (num1.type === "literal") {
-        return new AstLiteral(num1.number * num2.number);
-      }
-    }
-    if (num1.type === "literal") {
-      if (num1.number === 0) {
-        return new AstLiteral(0);
-      } else if (num1.number === 1) {
-        return num2;
-      }
-    }
-    var min = Math.min(num1.min * num2.min, num1.min * num2.max, num1.max * num2.min, num1.max * num2.max);
-    var max = Math.max(num1.min * num2.min, num1.min * num2.max, num1.max * num2.min, num1.max * num2.max);
-    return new AstBinaryOperation("*", num1, num2, min, max);
-  }
-  function buildSubOperation(num1, num2) {
-    if (num2.type === "literal") {
-      if (num2.number === 0) {
-        return num1;
-      } else if (num1.type === "literal") {
-        return new AstLiteral(num1.number - num2.number);
-      }
-    }
-    if (num2.type === "binary" && num2.op === "-" && num1.type === "literal" && num1.number === 1 && num2.arg1.type === "literal" && num2.arg1.number === 1) {
-      return num2.arg2;
-    }
-    return new AstBinaryOperation("-", num1, num2, num1.min - num2.max, num1.max - num2.min);
-  }
-  function buildMinOperation(num1, max) {
-    if (num1.min >= max) {
-      return new AstLiteral(max);
-    } else if (num1.max <= max) {
-      return num1;
-    }
-    return new AstMin(num1, max);
-  }
-  function PostScriptCompiler() {}
-  PostScriptCompiler.prototype = {
-    compile: function PostScriptCompiler_compile(code, domain, range) {
-      var stack = [];
-      var instructions = [];
-      var inputSize = domain.length >> 1,
-        outputSize = range.length >> 1;
-      var lastRegister = 0;
-      var n, j;
-      var num1, num2, ast1, ast2, tmpVar, item;
-      for (var i = 0; i < inputSize; i++) {
-        stack.push(new AstArgument(i, domain[i * 2], domain[i * 2 + 1]));
-      }
-      for (var _i = 0, ii = code.length; _i < ii; _i++) {
-        item = code[_i];
-        if (typeof item === "number") {
-          stack.push(new AstLiteral(item));
-          continue;
-        }
-        switch (item) {
-          case "add":
-            if (stack.length < 2) {
-              return null;
-            }
-            num2 = stack.pop();
-            num1 = stack.pop();
-            stack.push(buildAddOperation(num1, num2));
-            break;
-          case "cvr":
-            if (stack.length < 1) {
-              return null;
-            }
-            break;
-          case "mul":
-            if (stack.length < 2) {
-              return null;
-            }
-            num2 = stack.pop();
-            num1 = stack.pop();
-            stack.push(buildMulOperation(num1, num2));
-            break;
-          case "sub":
-            if (stack.length < 2) {
-              return null;
-            }
-            num2 = stack.pop();
-            num1 = stack.pop();
-            stack.push(buildSubOperation(num1, num2));
-            break;
-          case "exch":
-            if (stack.length < 2) {
-              return null;
-            }
-            ast1 = stack.pop();
-            ast2 = stack.pop();
-            stack.push(ast1, ast2);
-            break;
-          case "pop":
-            if (stack.length < 1) {
-              return null;
-            }
-            stack.pop();
-            break;
-          case "index":
-            if (stack.length < 1) {
-              return null;
-            }
-            num1 = stack.pop();
-            if (num1.type !== "literal") {
-              return null;
-            }
-            n = num1.number;
-            if (n < 0 || !Number.isInteger(n) || stack.length < n) {
-              return null;
-            }
-            ast1 = stack[stack.length - n - 1];
-            if (ast1.type === "literal" || ast1.type === "var") {
-              stack.push(ast1);
-              break;
-            }
-            tmpVar = new AstVariable(lastRegister++, ast1.min, ast1.max);
-            stack[stack.length - n - 1] = tmpVar;
-            stack.push(tmpVar);
-            instructions.push(new AstVariableDefinition(tmpVar, ast1));
-            break;
-          case "dup":
-            if (stack.length < 1) {
-              return null;
-            }
-            if (typeof code[_i + 1] === "number" && code[_i + 2] === "gt" && code[_i + 3] === _i + 7 && code[_i + 4] === "jz" && code[_i + 5] === "pop" && code[_i + 6] === code[_i + 1]) {
-              num1 = stack.pop();
-              stack.push(buildMinOperation(num1, code[_i + 1]));
-              _i += 6;
-              break;
-            }
-            ast1 = stack[stack.length - 1];
-            if (ast1.type === "literal" || ast1.type === "var") {
-              stack.push(ast1);
-              break;
-            }
-            tmpVar = new AstVariable(lastRegister++, ast1.min, ast1.max);
-            stack[stack.length - 1] = tmpVar;
-            stack.push(tmpVar);
-            instructions.push(new AstVariableDefinition(tmpVar, ast1));
-            break;
-          case "roll":
-            if (stack.length < 2) {
-              return null;
-            }
-            num2 = stack.pop();
-            num1 = stack.pop();
-            if (num2.type !== "literal" || num1.type !== "literal") {
-              return null;
-            }
-            j = num2.number;
-            n = num1.number;
-            if (n <= 0 || !Number.isInteger(n) || !Number.isInteger(j) || stack.length < n) {
-              return null;
-            }
-            j = (j % n + n) % n;
-            if (j === 0) {
-              break;
-            }
-            Array.prototype.push.apply(stack, stack.splice(stack.length - n, n - j));
-            break;
-          default:
-            return null;
-        }
-      }
-      if (stack.length !== outputSize) {
-        return null;
-      }
-      var result = [];
-      instructions.forEach(function (instruction) {
-        var statementBuilder = new ExpressionBuilderVisitor();
-        instruction.visit(statementBuilder);
-        result.push(statementBuilder.toString());
-      });
-      stack.forEach(function (expr, i) {
-        var statementBuilder = new ExpressionBuilderVisitor();
-        expr.visit(statementBuilder);
-        var min = range[i * 2],
-          max = range[i * 2 + 1];
-        var out = [statementBuilder.toString()];
-        if (min > expr.min) {
-          out.unshift("Math.max(", min, ", ");
-          out.push(")");
-        }
-        if (max < expr.max) {
-          out.unshift("Math.min(", max, ", ");
-          out.push(")");
-        }
-        out.unshift("dest[destOffset + ", i, "] = ");
-        out.push(";");
-        result.push(out.join(""));
-      });
-      return result.join("\n");
-    }
-  };
-  return PostScriptCompiler;
-}();
-
-/***/ }),
-/* 333 */
-/***/ (function(module, exports, __w_pdfjs_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.PostScriptParser = exports.PostScriptLexer = void 0;
-var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _core_utils = __w_pdfjs_require__(299);
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
-function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-var PostScriptParser = exports.PostScriptParser = /*#__PURE__*/function () {
-  function PostScriptParser(lexer) {
-    _classCallCheck(this, PostScriptParser);
-    this.lexer = lexer;
-    this.operators = [];
-    this.token = null;
-    this.prev = null;
-  }
-  return _createClass(PostScriptParser, [{
-    key: "nextToken",
-    value: function nextToken() {
-      this.prev = this.token;
-      this.token = this.lexer.getToken();
-    }
-  }, {
-    key: "accept",
-    value: function accept(type) {
-      if (this.token.type === type) {
-        this.nextToken();
-        return true;
-      }
-      return false;
-    }
-  }, {
-    key: "expect",
-    value: function expect(type) {
-      if (this.accept(type)) {
-        return true;
-      }
-      throw new _util.FormatError("Unexpected symbol: found ".concat(this.token.type, " expected ").concat(type, "."));
-    }
-  }, {
-    key: "parse",
-    value: function parse() {
-      this.nextToken();
-      this.expect(PostScriptTokenTypes.LBRACE);
-      this.parseBlock();
-      this.expect(PostScriptTokenTypes.RBRACE);
-      return this.operators;
-    }
-  }, {
-    key: "parseBlock",
-    value: function parseBlock() {
-      while (true) {
-        if (this.accept(PostScriptTokenTypes.NUMBER)) {
-          this.operators.push(this.prev.value);
-        } else if (this.accept(PostScriptTokenTypes.OPERATOR)) {
-          this.operators.push(this.prev.value);
-        } else if (this.accept(PostScriptTokenTypes.LBRACE)) {
-          this.parseCondition();
-        } else {
-          return;
-        }
-      }
-    }
-  }, {
-    key: "parseCondition",
-    value: function parseCondition() {
-      var conditionLocation = this.operators.length;
-      this.operators.push(null, null);
-      this.parseBlock();
-      this.expect(PostScriptTokenTypes.RBRACE);
-      if (this.accept(PostScriptTokenTypes.IF)) {
-        this.operators[conditionLocation] = this.operators.length;
-        this.operators[conditionLocation + 1] = "jz";
-      } else if (this.accept(PostScriptTokenTypes.LBRACE)) {
-        var jumpLocation = this.operators.length;
-        this.operators.push(null, null);
-        var endOfTrue = this.operators.length;
-        this.parseBlock();
-        this.expect(PostScriptTokenTypes.RBRACE);
-        this.expect(PostScriptTokenTypes.IFELSE);
-        this.operators[jumpLocation] = this.operators.length;
-        this.operators[jumpLocation + 1] = "j";
-        this.operators[conditionLocation] = endOfTrue;
-        this.operators[conditionLocation + 1] = "jz";
-      } else {
-        throw new _util.FormatError("PS Function: error parsing conditional.");
-      }
-    }
-  }]);
-}();
-var PostScriptTokenTypes = {
-  LBRACE: 0,
-  RBRACE: 1,
-  NUMBER: 2,
-  OPERATOR: 3,
-  IF: 4,
-  IFELSE: 5
-};
-var PostScriptToken = function PostScriptTokenClosure() {
-  var opCache = Object.create(null);
-  var PostScriptToken = /*#__PURE__*/function () {
-    function PostScriptToken(type, value) {
-      _classCallCheck(this, PostScriptToken);
-      this.type = type;
-      this.value = value;
-    }
-    return _createClass(PostScriptToken, null, [{
-      key: "getOperator",
-      value: function getOperator(op) {
-        var opValue = opCache[op];
-        if (opValue) {
-          return opValue;
-        }
-        return opCache[op] = new PostScriptToken(PostScriptTokenTypes.OPERATOR, op);
-      }
-    }, {
-      key: "LBRACE",
-      get: function get() {
-        return (0, _util.shadow)(this, "LBRACE", new PostScriptToken(PostScriptTokenTypes.LBRACE, "{"));
-      }
-    }, {
-      key: "RBRACE",
-      get: function get() {
-        return (0, _util.shadow)(this, "RBRACE", new PostScriptToken(PostScriptTokenTypes.RBRACE, "}"));
-      }
-    }, {
-      key: "IF",
-      get: function get() {
-        return (0, _util.shadow)(this, "IF", new PostScriptToken(PostScriptTokenTypes.IF, "IF"));
-      }
-    }, {
-      key: "IFELSE",
-      get: function get() {
-        return (0, _util.shadow)(this, "IFELSE", new PostScriptToken(PostScriptTokenTypes.IFELSE, "IFELSE"));
-      }
-    }]);
-  }();
-  return PostScriptToken;
-}();
-var PostScriptLexer = exports.PostScriptLexer = /*#__PURE__*/function () {
-  function PostScriptLexer(stream) {
-    _classCallCheck(this, PostScriptLexer);
-    this.stream = stream;
-    this.nextChar();
-    this.strBuf = [];
-  }
-  return _createClass(PostScriptLexer, [{
-    key: "nextChar",
-    value: function nextChar() {
-      return this.currentChar = this.stream.getByte();
-    }
-  }, {
-    key: "getToken",
-    value: function getToken() {
-      var comment = false;
-      var ch = this.currentChar;
-      while (true) {
-        if (ch < 0) {
-          return _primitives.EOF;
-        }
-        if (comment) {
-          if (ch === 0x0a || ch === 0x0d) {
-            comment = false;
-          }
-        } else if (ch === 0x25) {
-          comment = true;
-        } else if (!(0, _core_utils.isWhiteSpace)(ch)) {
-          break;
-        }
-        ch = this.nextChar();
-      }
-      switch (ch | 0) {
-        case 0x30:
-        case 0x31:
-        case 0x32:
-        case 0x33:
-        case 0x34:
-        case 0x35:
-        case 0x36:
-        case 0x37:
-        case 0x38:
-        case 0x39:
-        case 0x2b:
-        case 0x2d:
-        case 0x2e:
-          return new PostScriptToken(PostScriptTokenTypes.NUMBER, this.getNumber());
-        case 0x7b:
-          this.nextChar();
-          return PostScriptToken.LBRACE;
-        case 0x7d:
-          this.nextChar();
-          return PostScriptToken.RBRACE;
-      }
-      var strBuf = this.strBuf;
-      strBuf.length = 0;
-      strBuf[0] = String.fromCharCode(ch);
-      while ((ch = this.nextChar()) >= 0 && (ch >= 0x41 && ch <= 0x5a || ch >= 0x61 && ch <= 0x7a)) {
-        strBuf.push(String.fromCharCode(ch));
-      }
-      var str = strBuf.join("");
-      switch (str.toLowerCase()) {
-        case "if":
-          return PostScriptToken.IF;
-        case "ifelse":
-          return PostScriptToken.IFELSE;
-        default:
-          return PostScriptToken.getOperator(str);
-      }
-    }
-  }, {
-    key: "getNumber",
-    value: function getNumber() {
-      var ch = this.currentChar;
-      var strBuf = this.strBuf;
-      strBuf.length = 0;
-      strBuf[0] = String.fromCharCode(ch);
-      while ((ch = this.nextChar()) >= 0) {
-        if (ch >= 0x30 && ch <= 0x39 || ch === 0x2d || ch === 0x2e) {
-          strBuf.push(String.fromCharCode(ch));
-        } else {
-          break;
-        }
-      }
-      var value = parseFloat(strBuf.join(""));
-      if (isNaN(value)) {
-        throw new _util.FormatError("Invalid floating point number: ".concat(value));
-      }
-      return value;
-    }
-  }]);
-}();
-
-/***/ }),
-/* 334 */
+/* 339 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -51946,7 +54276,7 @@ var MurmurHash3_64 = exports.MurmurHash3_64 = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 335 */
+/* 340 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -51957,52 +54287,61 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.PDFImage = void 0;
 var _util = __w_pdfjs_require__(2);
-var _primitives = __w_pdfjs_require__(296);
-var _colorspace = __w_pdfjs_require__(314);
-var _stream = __w_pdfjs_require__(303);
-var _jpeg_stream = __w_pdfjs_require__(309);
-var _jpx = __w_pdfjs_require__(312);
-var PDFImage = exports.PDFImage = function PDFImageClosure() {
-  function decodeAndClamp(value, addend, coefficient, max) {
-    value = addend + value * coefficient;
-    if (value < 0) {
-      value = 0;
-    } else if (value > max) {
-      value = max;
-    }
-    return value;
+var _primitives = __w_pdfjs_require__(300);
+var _colorspace = __w_pdfjs_require__(318);
+var _stream = __w_pdfjs_require__(307);
+var _jpeg_stream = __w_pdfjs_require__(313);
+var _jpx = __w_pdfjs_require__(316);
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function decodeAndClamp(value, addend, coefficient, max) {
+  value = addend + value * coefficient;
+  if (value < 0) {
+    value = 0;
+  } else if (value > max) {
+    value = max;
   }
-  function resizeImageMask(src, bpc, w1, h1, w2, h2) {
-    var length = w2 * h2;
-    var dest;
-    if (bpc <= 8) {
-      dest = new Uint8Array(length);
-    } else if (bpc <= 16) {
-      dest = new Uint16Array(length);
-    } else {
-      dest = new Uint32Array(length);
-    }
-    var xRatio = w1 / w2;
-    var yRatio = h1 / h2;
-    var i,
-      j,
-      py,
-      newIndex = 0,
-      oldIndex;
-    var xScaled = new Uint16Array(w2);
-    var w1Scanline = w1;
-    for (i = 0; i < w2; i++) {
-      xScaled[i] = Math.floor(i * xRatio);
-    }
-    for (i = 0; i < h2; i++) {
-      py = Math.floor(i * yRatio) * w1Scanline;
-      for (j = 0; j < w2; j++) {
-        oldIndex = py + xScaled[j];
-        dest[newIndex++] = src[oldIndex];
-      }
-    }
-    return dest;
+  return value;
+}
+function resizeImageMask(src, bpc, w1, h1, w2, h2) {
+  var length = w2 * h2;
+  var dest;
+  if (bpc <= 8) {
+    dest = new Uint8Array(length);
+  } else if (bpc <= 16) {
+    dest = new Uint16Array(length);
+  } else {
+    dest = new Uint32Array(length);
   }
+  var xRatio = w1 / w2;
+  var yRatio = h1 / h2;
+  var i,
+    j,
+    py,
+    newIndex = 0,
+    oldIndex;
+  var xScaled = new Uint16Array(w2);
+  var w1Scanline = w1;
+  for (i = 0; i < w2; i++) {
+    xScaled[i] = Math.floor(i * xRatio);
+  }
+  for (i = 0; i < h2; i++) {
+    py = Math.floor(i * yRatio) * w1Scanline;
+    for (j = 0; j < w2; j++) {
+      oldIndex = py + xScaled[j];
+      dest[newIndex++] = src[oldIndex];
+    }
+  }
+  return dest;
+}
+var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
   function PDFImage(_ref) {
     var xref = _ref.xref,
       res = _ref.res,
@@ -52015,7 +54354,9 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
       mask = _ref$mask === void 0 ? null : _ref$mask,
       _ref$isMask = _ref.isMask,
       isMask = _ref$isMask === void 0 ? false : _ref$isMask,
-      pdfFunctionFactory = _ref.pdfFunctionFactory;
+      pdfFunctionFactory = _ref.pdfFunctionFactory,
+      localColorSpaceCache = _ref.localColorSpaceCache;
+    _classCallCheck(this, PDFImage);
     this.image = image;
     var dict = image.dict;
     var filter = dict.get("Filter");
@@ -52064,7 +54405,7 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
     }
     this.bpc = bitsPerComponent;
     if (!this.imageMask) {
-      var colorSpace = dict.get("ColorSpace", "CS");
+      var colorSpace = dict.getRaw("ColorSpace") || dict.getRaw("CS");
       if (!colorSpace) {
         (0, _util.info)("JPX images (which do not require color spaces)");
         switch (image.numComps) {
@@ -52081,8 +54422,13 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
             throw new Error("JPX images with ".concat(image.numComps, " ") + "color components not supported.");
         }
       }
-      var resources = isInline ? res : null;
-      this.colorSpace = _colorspace.ColorSpace.parse(colorSpace, xref, resources, pdfFunctionFactory);
+      this.colorSpace = _colorspace.ColorSpace.parse({
+        cs: colorSpace,
+        xref: xref,
+        resources: isInline ? res : null,
+        pdfFunctionFactory: pdfFunctionFactory,
+        localColorSpaceCache: localColorSpaceCache
+      });
       this.numComps = this.colorSpace.numComps;
     }
     this.decode = dict.getArray("Decode", "D");
@@ -52106,7 +54452,8 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
         res: res,
         image: smask,
         isInline: isInline,
-        pdfFunctionFactory: pdfFunctionFactory
+        pdfFunctionFactory: pdfFunctionFactory,
+        localColorSpaceCache: localColorSpaceCache
       });
     } else if (mask) {
       if ((0, _primitives.isStream)(mask)) {
@@ -52121,7 +54468,8 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
             image: mask,
             isInline: isInline,
             isMask: true,
-            pdfFunctionFactory: pdfFunctionFactory
+            pdfFunctionFactory: pdfFunctionFactory,
+            localColorSpaceCache: localColorSpaceCache
           });
         }
       } else {
@@ -52129,78 +54477,19 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
       }
     }
   }
-  PDFImage.buildImage = function (_ref2) {
-    var xref = _ref2.xref,
-      res = _ref2.res,
-      image = _ref2.image,
-      _ref2$isInline = _ref2.isInline,
-      isInline = _ref2$isInline === void 0 ? false : _ref2$isInline,
-      pdfFunctionFactory = _ref2.pdfFunctionFactory;
-    var imageData = image;
-    var smaskData = null;
-    var maskData = null;
-    var smask = image.dict.get("SMask");
-    var mask = image.dict.get("Mask");
-    if (smask) {
-      smaskData = smask;
-    } else if (mask) {
-      if ((0, _primitives.isStream)(mask) || Array.isArray(mask)) {
-        maskData = mask;
-      } else {
-        (0, _util.warn)("Unsupported mask format.");
-      }
-    }
-    return Promise.resolve(new PDFImage({
-      xref: xref,
-      res: res,
-      image: imageData,
-      isInline: isInline,
-      smask: smaskData,
-      mask: maskData,
-      pdfFunctionFactory: pdfFunctionFactory
-    }));
-  };
-  PDFImage.createMask = function (_ref3) {
-    var imgArray = _ref3.imgArray,
-      width = _ref3.width,
-      height = _ref3.height,
-      imageIsFromDecodeStream = _ref3.imageIsFromDecodeStream,
-      inverseDecode = _ref3.inverseDecode;
-    var computedLength = (width + 7 >> 3) * height;
-    var actualLength = imgArray.byteLength;
-    var haveFullData = computedLength === actualLength;
-    var data, i;
-    if (imageIsFromDecodeStream && (!inverseDecode || haveFullData)) {
-      data = imgArray;
-    } else if (!inverseDecode) {
-      data = new Uint8ClampedArray(actualLength);
-      data.set(imgArray);
-    } else {
-      data = new Uint8ClampedArray(computedLength);
-      data.set(imgArray);
-      for (i = actualLength; i < computedLength; i++) {
-        data[i] = 0xff;
-      }
-    }
-    if (inverseDecode) {
-      for (i = 0; i < actualLength; i++) {
-        data[i] ^= 0xff;
-      }
-    }
-    return {
-      data: data,
-      width: width,
-      height: height
-    };
-  };
-  PDFImage.prototype = {
-    get drawWidth() {
+  return _createClass(PDFImage, [{
+    key: "drawWidth",
+    get: function get() {
       return Math.max(this.width, this.smask && this.smask.width || 0, this.mask && this.mask.width || 0);
-    },
-    get drawHeight() {
+    }
+  }, {
+    key: "drawHeight",
+    get: function get() {
       return Math.max(this.height, this.smask && this.smask.height || 0, this.mask && this.mask.height || 0);
-    },
-    decodeBuffer: function decodeBuffer(buffer) {
+    }
+  }, {
+    key: "decodeBuffer",
+    value: function decodeBuffer(buffer) {
       var bpc = this.bpc;
       var numComps = this.numComps;
       var decodeAddends = this.decodeAddends;
@@ -52220,8 +54509,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
           index++;
         }
       }
-    },
-    getComponents: function getComponents(buffer) {
+    }
+  }, {
+    key: "getComponents",
+    value: function getComponents(buffer) {
       var bpc = this.bpc;
       if (bpc === 8) {
         return buffer;
@@ -52295,8 +54586,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
         }
       }
       return output;
-    },
-    fillOpacity: function fillOpacity(rgbaBuf, width, height, actualHeight, image) {
+    }
+  }, {
+    key: "fillOpacity",
+    value: function fillOpacity(rgbaBuf, width, height, actualHeight, image) {
       var smask = this.smask;
       var mask = this.mask;
       var alphaBuf, sw, sh, i, ii, j;
@@ -52350,8 +54643,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
           rgbaBuf[j] = 255;
         }
       }
-    },
-    undoPreblend: function undoPreblend(buffer, width, height) {
+    }
+  }, {
+    key: "undoPreblend",
+    value: function undoPreblend(buffer, width, height) {
       var matte = this.smask && this.smask.matte;
       if (!matte) {
         return;
@@ -52374,8 +54669,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
         buffer[i + 1] = (buffer[i + 1] - matteG) * k + matteG;
         buffer[i + 2] = (buffer[i + 2] - matteB) * k + matteB;
       }
-    },
-    createImageData: function createImageData() {
+    }
+  }, {
+    key: "createImageData",
+    value: function createImageData() {
       var forceRGBA = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
       var drawWidth = this.drawWidth;
       var drawHeight = this.drawHeight;
@@ -52454,8 +54751,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
         this.undoPreblend(imgData.data, drawWidth, actualHeight);
       }
       return imgData;
-    },
-    fillGrayBuffer: function fillGrayBuffer(buffer) {
+    }
+  }, {
+    key: "fillGrayBuffer",
+    value: function fillGrayBuffer(buffer) {
       var numComps = this.numComps;
       if (numComps !== 1) {
         throw new _util.FormatError("Reading gray scale from a color image: ".concat(numComps));
@@ -52488,8 +54787,10 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
       for (i = 0; i < length; ++i) {
         buffer[i] = scale * comps[i];
       }
-    },
-    getImageBytes: function getImageBytes(length, drawWidth, drawHeight) {
+    }
+  }, {
+    key: "getImageBytes",
+    value: function getImageBytes(length, drawWidth, drawHeight) {
       var forceRGB = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
       this.image.reset();
       this.image.drawWidth = drawWidth || this.width;
@@ -52497,12 +54798,90 @@ var PDFImage = exports.PDFImage = function PDFImageClosure() {
       this.image.forceRGB = !!forceRGB;
       return this.image.getBytes(length, true);
     }
-  };
-  return PDFImage;
+  }], [{
+    key: "buildImage",
+    value: function () {
+      var _buildImage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(_ref2) {
+        var xref, res, image, _ref2$isInline, isInline, pdfFunctionFactory, localColorSpaceCache, imageData, smaskData, maskData, smask, mask;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              xref = _ref2.xref, res = _ref2.res, image = _ref2.image, _ref2$isInline = _ref2.isInline, isInline = _ref2$isInline === void 0 ? false : _ref2$isInline, pdfFunctionFactory = _ref2.pdfFunctionFactory, localColorSpaceCache = _ref2.localColorSpaceCache;
+              imageData = image;
+              smaskData = null;
+              maskData = null;
+              smask = image.dict.get("SMask");
+              mask = image.dict.get("Mask");
+              if (smask) {
+                smaskData = smask;
+              } else if (mask) {
+                if ((0, _primitives.isStream)(mask) || Array.isArray(mask)) {
+                  maskData = mask;
+                } else {
+                  (0, _util.warn)("Unsupported mask format.");
+                }
+              }
+              return _context.abrupt("return", new PDFImage({
+                xref: xref,
+                res: res,
+                image: imageData,
+                isInline: isInline,
+                smask: smaskData,
+                mask: maskData,
+                pdfFunctionFactory: pdfFunctionFactory,
+                localColorSpaceCache: localColorSpaceCache
+              }));
+            case 8:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee);
+      }));
+      function buildImage(_x) {
+        return _buildImage.apply(this, arguments);
+      }
+      return buildImage;
+    }()
+  }, {
+    key: "createMask",
+    value: function createMask(_ref3) {
+      var imgArray = _ref3.imgArray,
+        width = _ref3.width,
+        height = _ref3.height,
+        imageIsFromDecodeStream = _ref3.imageIsFromDecodeStream,
+        inverseDecode = _ref3.inverseDecode;
+      var computedLength = (width + 7 >> 3) * height;
+      var actualLength = imgArray.byteLength;
+      var haveFullData = computedLength === actualLength;
+      var data, i;
+      if (imageIsFromDecodeStream && (!inverseDecode || haveFullData)) {
+        data = imgArray;
+      } else if (!inverseDecode) {
+        data = new Uint8ClampedArray(actualLength);
+        data.set(imgArray);
+      } else {
+        data = new Uint8ClampedArray(computedLength);
+        data.set(imgArray);
+        for (i = actualLength; i < computedLength; i++) {
+          data[i] = 0xff;
+        }
+      }
+      if (inverseDecode) {
+        for (i = 0; i < actualLength; i++) {
+          data[i] ^= 0xff;
+        }
+      }
+      return {
+        data: data,
+        width: width,
+        height: height
+      };
+    }
+  }]);
 }();
 
 /***/ }),
-/* 336 */
+/* 341 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";
@@ -52972,7 +55351,7 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 337 */
+/* 342 */
 /***/ (function(module, exports, __w_pdfjs_require__) {
 
 "use strict";

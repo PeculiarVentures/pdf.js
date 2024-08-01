@@ -160,8 +160,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(8);
 var _jpx = __w_pdfjs_require__(9);
-const pdfjsVersion = '2.5.34';
-const pdfjsBuild = '7c265f3ad';
+const pdfjsVersion = '2.6.383';
+const pdfjsBuild = '17cc73c6f';
 
 /***/ }),
 /* 1 */
@@ -181,12 +181,13 @@ exports.bytesToString = bytesToString;
 exports.createObjectURL = void 0;
 exports.createPromiseCapability = createPromiseCapability;
 exports.createValidAbsoluteUrl = createValidAbsoluteUrl;
+exports.escapeString = escapeString;
+exports.getModificationDate = getModificationDate;
 exports.getVerbosityLevel = getVerbosityLevel;
 exports.info = info;
 exports.isArrayBuffer = isArrayBuffer;
 exports.isArrayEqual = isArrayEqual;
 exports.isBool = isBool;
-exports.isEmptyObj = isEmptyObj;
 exports.isNum = isNum;
 exports.isSameOrigin = isSameOrigin;
 exports.isString = isString;
@@ -463,7 +464,8 @@ const UNSUPPORTED_FEATURES = exports.UNSUPPORTED_FEATURES = {
   errorOperatorList: "errorOperatorList",
   errorFontToUnicode: "errorFontToUnicode",
   errorFontLoadNative: "errorFontLoadNative",
-  errorFontGetPath: "errorFontGetPath"
+  errorFontGetPath: "errorFontGetPath",
+  errorMarkedContent: "errorMarkedContent"
 };
 const PasswordResponses = exports.PasswordResponses = {
   NEED_PASSWORD: 1,
@@ -783,17 +785,14 @@ function stringToPDFString(str) {
   }
   return strBuf.join("");
 }
+function escapeString(str) {
+  return str.replace(/([\(\)\\])/g, "\\$1");
+}
 function stringToUTF8String(str) {
   return decodeURIComponent(escape(str));
 }
 function utf8StringToString(str) {
   return unescape(encodeURIComponent(str));
-}
-function isEmptyObj(obj) {
-  for (const key in obj) {
-    return false;
-  }
-  return true;
 }
 function isBool(v) {
   return typeof v === "boolean";
@@ -814,6 +813,10 @@ function isArrayEqual(arr1, arr2) {
   return arr1.every(function (element, index) {
     return element === arr2[index];
   });
+}
+function getModificationDate(date = new Date(Date.now())) {
+  const buffer = [date.getUTCFullYear().toString(), (date.getUTCMonth() + 1).toString().padStart(2, "0"), (date.getUTCDate() + 1).toString().padStart(2, "0"), date.getUTCHours().toString().padStart(2, "0"), date.getUTCMinutes().toString().padStart(2, "0"), date.getUTCSeconds().toString().padStart(2, "0")];
+  return buffer.join("");
 }
 function createPromiseCapability() {
   const capability = Object.create(null);
@@ -880,7 +883,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.isNodeJS = void 0;
-const isNodeJS = exports.isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !process.versions.electron;
+const isNodeJS = exports.isNodeJS = typeof process === "object" && process + "" === "[object process]" && !process.versions.nw && !(process.versions.electron && process.type && process.type !== "browser");
 
 /***/ }),
 /* 4 */
@@ -3780,8 +3783,8 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
             }
           } else if (nextByte === 0xd9) {
             if (parseDNLMarker) {
-              const maybeScanLines = blockRow * 8;
-              if (maybeScanLines > 0 && maybeScanLines < frame.scanLines / 10) {
+              const maybeScanLines = blockRow * (frame.precision === 8 ? 8 : 0);
+              if (maybeScanLines > 0 && Math.round(frame.scanLines / maybeScanLines) >= 10) {
                 throw new DNLMarkerError("Found EOI marker (0xFFD9) while parsing scan data, " + "possibly caused by incorrect `scanLines` parameter", maybeScanLines);
               }
             }
@@ -4469,8 +4472,10 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
             var components = [],
               component;
             for (i = 0; i < selectorsCount; i++) {
-              var componentIndex = frame.componentIds[data[offset++]];
+              const index = data[offset++];
+              var componentIndex = frame.componentIds[index];
               component = frame.components[componentIndex];
+              component.index = index;
               var tableSpec = data[offset++];
               component.huffmanTableDC = huffmanTablesDC[tableSpec >> 4];
               component.huffmanTableAC = huffmanTablesAC[tableSpec & 15];
@@ -4531,6 +4536,7 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
           component.quantizationTable = quantizationTable;
         }
         this.components.push({
+          index: component.index,
           output: buildComponentData(frame, component),
           scaleX: component.h / frame.maxH,
           scaleY: component.v / frame.maxV,
@@ -4597,6 +4603,8 @@ var JpegImage = exports.JpegImage = function JpegImageClosure() {
       }
       if (this.numComponents === 3) {
         if (this._colorTransform === 0) {
+          return false;
+        } else if (this.components[0].index === 0x52 && this.components[1].index === 0x47 && this.components[2].index === 0x42) {
           return false;
         }
         return true;
