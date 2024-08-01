@@ -2,7 +2,7 @@
  * @licstart The following is the entire license notice for the
  * Javascript code in this page
  *
- * Copyright 2020 Mozilla Foundation
+ * Copyright 2021 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,9 @@ exports.arrayByteLength = arrayByteLength;
 exports.arraysToBytes = arraysToBytes;
 exports.assert = assert;
 exports.bytesToString = bytesToString;
-exports.createObjectURL = void 0;
+exports.createObjectURL = createObjectURL;
 exports.createPromiseCapability = createPromiseCapability;
 exports.createValidAbsoluteUrl = createValidAbsoluteUrl;
-exports.encodeToXmlString = encodeToXmlString;
 exports.escapeString = escapeString;
 exports.getModificationDate = getModificationDate;
 exports.getVerbosityLevel = getVerbosityLevel;
@@ -62,7 +61,7 @@ exports.isBool = isBool;
 exports.isNum = isNum;
 exports.isSameOrigin = isSameOrigin;
 exports.isString = isString;
-exports.objectFromEntries = objectFromEntries;
+exports.objectFromMap = objectFromMap;
 exports.objectSize = objectSize;
 exports.removeNullCharacters = removeNullCharacters;
 exports.setVerbosityLevel = setVerbosityLevel;
@@ -78,9 +77,14 @@ exports.warn = warn;
 __w_pdfjs_require__(2);
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -615,8 +619,23 @@ function string32(value) {
 function objectSize(obj) {
   return Object.keys(obj).length;
 }
-function objectFromEntries(iterable) {
-  return Object.assign(Object.create(null), Object.fromEntries(iterable));
+function objectFromMap(map) {
+  var obj = Object.create(null);
+  var _iterator = _createForOfIteratorHelper(map),
+    _step;
+  try {
+    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+      var _step$value = _slicedToArray(_step.value, 2),
+        key = _step$value[0],
+        value = _step$value[1];
+      obj[key] = value;
+    }
+  } catch (err) {
+    _iterator.e(err);
+  } finally {
+    _iterator.f();
+  }
+  return obj;
 }
 function isLittleEndian() {
   var buffer8 = new Uint8Array(4);
@@ -703,7 +722,7 @@ var Util = exports.Util = /*#__PURE__*/function () {
       var c = m[2] * transpose[0] + m[3] * transpose[2];
       var d = m[2] * transpose[1] + m[3] * transpose[3];
       var first = (a + d) / 2;
-      var second = Math.sqrt((a + d) * (a + d) - 4 * (a * d - c * b)) / 2;
+      var second = Math.sqrt(Math.pow(a + d, 2) - 4 * (a * d - c * b)) / 2;
       var sx = first + second || 1;
       var sy = first - second || 1;
       return [Math.sqrt(sx), Math.sqrt(sy)];
@@ -813,9 +832,12 @@ function isArrayEqual(arr1, arr2) {
   if (arr1.length !== arr2.length) {
     return false;
   }
-  return arr1.every(function (element, index) {
-    return element === arr2[index];
-  });
+  for (var i = 0, ii = arr1.length; i < ii; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 function getModificationDate() {
   var date = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new Date();
@@ -842,69 +864,27 @@ function createPromiseCapability() {
   });
   return capability;
 }
-var createObjectURL = exports.createObjectURL = function createObjectURLClosure() {
+function createObjectURL(data) {
+  var contentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+  var forceDataSchema = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  if (URL.createObjectURL && !forceDataSchema) {
+    return URL.createObjectURL(new Blob([data], {
+      type: contentType
+    }));
+  }
   var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-  return function createObjectURL(data, contentType) {
-    var forceDataSchema = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    if (!forceDataSchema && URL.createObjectURL) {
-      var blob = new Blob([data], {
-        type: contentType
-      });
-      return URL.createObjectURL(blob);
-    }
-    var buffer = "data:".concat(contentType, ";base64,");
-    for (var i = 0, ii = data.length; i < ii; i += 3) {
-      var b1 = data[i] & 0xff;
-      var b2 = data[i + 1] & 0xff;
-      var b3 = data[i + 2] & 0xff;
-      var d1 = b1 >> 2,
-        d2 = (b1 & 3) << 4 | b2 >> 4;
-      var d3 = i + 1 < ii ? (b2 & 0xf) << 2 | b3 >> 6 : 64;
-      var d4 = i + 2 < ii ? b3 & 0x3f : 64;
-      buffer += digits[d1] + digits[d2] + digits[d3] + digits[d4];
-    }
-    return buffer;
-  };
-}();
-var XMLEntities = {
-  0x3c: "&lt;",
-  0x3e: "&gt;",
-  0x26: "&amp;",
-  0x22: "&quot;",
-  0x27: "&apos;"
-};
-function encodeToXmlString(str) {
-  var buffer = [];
-  var start = 0;
-  for (var i = 0, ii = str.length; i < ii; i++) {
-    var _char2 = str.codePointAt(i);
-    if (0x20 <= _char2 && _char2 <= 0x7e) {
-      var entity = XMLEntities[_char2];
-      if (entity) {
-        if (start < i) {
-          buffer.push(str.substring(start, i));
-        }
-        buffer.push(entity);
-        start = i + 1;
-      }
-    } else {
-      if (start < i) {
-        buffer.push(str.substring(start, i));
-      }
-      buffer.push("&#x".concat(_char2.toString(16).toUpperCase(), ";"));
-      if (_char2 > 0xd7ff && (_char2 < 0xe000 || _char2 > 0xfffd)) {
-        i++;
-      }
-      start = i + 1;
-    }
+  var buffer = "data:".concat(contentType, ";base64,");
+  for (var i = 0, ii = data.length; i < ii; i += 3) {
+    var b1 = data[i] & 0xff;
+    var b2 = data[i + 1] & 0xff;
+    var b3 = data[i + 2] & 0xff;
+    var d1 = b1 >> 2,
+      d2 = (b1 & 3) << 4 | b2 >> 4;
+    var d3 = i + 1 < ii ? (b2 & 0xf) << 2 | b3 >> 6 : 64;
+    var d4 = i + 2 < ii ? b3 & 0x3f : 64;
+    buffer += digits[d1] + digits[d2] + digits[d3] + digits[d4];
   }
-  if (buffer.length === 0) {
-    return str;
-  }
-  if (start < str.length) {
-    buffer.push(str.substring(start, str.length));
-  }
-  return buffer.join("");
+  return buffer;
 }
 
 /***/ }),
@@ -942,7 +922,6 @@ if (typeof globalThis === "undefined" || !globalThis._pdfjsCompatibilityChecked)
     __w_pdfjs_require__(71);
   })();
   (function checkPromise() {})();
-  (function checkURL() {})();
   (function checkReadableStream() {})();
   (function checkStringPadStart() {
     if (String.prototype.padStart) {
@@ -4986,6 +4965,7 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.XRefParseException = exports.XRefEntryException = exports.MissingDataException = void 0;
 exports.collectActions = collectActions;
+exports.encodeToXmlString = encodeToXmlString;
 exports.escapePDFName = escapePDFName;
 exports.getArrayLookupTableFactory = getArrayLookupTableFactory;
 exports.getInheritableProperty = getInheritableProperty;
@@ -5075,10 +5055,12 @@ function getInheritableProperty(_ref) {
     getArray = _ref$getArray === void 0 ? false : _ref$getArray,
     _ref$stopWhenFound = _ref.stopWhenFound,
     stopWhenFound = _ref$stopWhenFound === void 0 ? true : _ref$stopWhenFound;
-  var LOOP_LIMIT = 100;
-  var loopCount = 0;
   var values;
-  while (dict) {
+  var visited = new _primitives.RefSet();
+  while (dict instanceof _primitives.Dict && !(dict.objId && visited.has(dict.objId))) {
+    if (dict.objId) {
+      visited.put(dict.objId);
+    }
     var value = getArray ? dict.getArray(key) : dict.get(key);
     if (value !== undefined) {
       if (stopWhenFound) {
@@ -5088,10 +5070,6 @@ function getInheritableProperty(_ref) {
         values = [];
       }
       values.push(value);
-    }
-    if (++loopCount > LOOP_LIMIT) {
-      (0, _util.warn)("getInheritableProperty: maximum loop count exceeded for \"".concat(key, "\""));
-      break;
     }
     dict = dict.get("Parent");
   }
@@ -5220,29 +5198,39 @@ function _collectJS(entry, xref, list, parents) {
 }
 function collectActions(xref, dict, eventType) {
   var actions = Object.create(null);
-  if (dict.has("AA")) {
-    var additionalActions = dict.get("AA");
-    var _iterator2 = _createForOfIteratorHelper(additionalActions.getKeys()),
-      _step2;
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var key = _step2.value;
-        var action = eventType[key];
-        if (!action) {
-          continue;
-        }
-        var actionDict = additionalActions.getRaw(key);
-        var parents = new _primitives.RefSet();
-        var list = [];
-        _collectJS(actionDict, xref, list, parents);
-        if (list.length > 0) {
-          actions[action] = list;
-        }
+  var additionalActionsDicts = getInheritableProperty({
+    dict: dict,
+    key: "AA",
+    stopWhenFound: false
+  });
+  if (additionalActionsDicts) {
+    for (var i = additionalActionsDicts.length - 1; i >= 0; i--) {
+      var additionalActions = additionalActionsDicts[i];
+      if (!(additionalActions instanceof _primitives.Dict)) {
+        continue;
       }
-    } catch (err) {
-      _iterator2.e(err);
-    } finally {
-      _iterator2.f();
+      var _iterator2 = _createForOfIteratorHelper(additionalActions.getKeys()),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var key = _step2.value;
+          var action = eventType[key];
+          if (!action) {
+            continue;
+          }
+          var actionDict = additionalActions.getRaw(key);
+          var parents = new _primitives.RefSet();
+          var list = [];
+          _collectJS(actionDict, xref, list, parents);
+          if (list.length > 0) {
+            actions[action] = list;
+          }
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
     }
   }
   if (dict.has("A")) {
@@ -5255,6 +5243,46 @@ function collectActions(xref, dict, eventType) {
     }
   }
   return (0, _util.objectSize)(actions) > 0 ? actions : null;
+}
+var XMLEntities = {
+  0x3c: "&lt;",
+  0x3e: "&gt;",
+  0x26: "&amp;",
+  0x22: "&quot;",
+  0x27: "&apos;"
+};
+function encodeToXmlString(str) {
+  var buffer = [];
+  var start = 0;
+  for (var i = 0, ii = str.length; i < ii; i++) {
+    var _char2 = str.codePointAt(i);
+    if (0x20 <= _char2 && _char2 <= 0x7e) {
+      var entity = XMLEntities[_char2];
+      if (entity) {
+        if (start < i) {
+          buffer.push(str.substring(start, i));
+        }
+        buffer.push(entity);
+        start = i + 1;
+      }
+    } else {
+      if (start < i) {
+        buffer.push(str.substring(start, i));
+      }
+      buffer.push("&#x".concat(_char2.toString(16).toUpperCase(), ";"));
+      if (_char2 > 0xd7ff && (_char2 < 0xe000 || _char2 > 0xfffd)) {
+        i++;
+      }
+      start = i + 1;
+    }
+  }
+  if (buffer.length === 0) {
+    return str;
+  }
+  if (start < str.length) {
+    buffer.push(str.substring(start, str.length));
+  }
+  return buffer.join("");
 }
 
 /***/ }),
@@ -9649,8 +9677,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(116);
 var _jpg = __w_pdfjs_require__(121);
 var _jpx = __w_pdfjs_require__(122);
-var pdfjsVersion = '2.7.39';
-var pdfjsBuild = '4dcdae2e5';
+var pdfjsVersion = '2.8.41';
+var pdfjsBuild = 'ad4f90dbf';
 })();
 
 /******/ 	return __webpack_exports__;

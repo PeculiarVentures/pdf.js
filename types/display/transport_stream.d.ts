@@ -3,6 +3,7 @@ export class PDFDataTransportStream implements IPDFStream {
     constructor(params: any, pdfDataRangeTransport: any);
     _queuedChunks: ArrayBuffer[];
     _progressiveDone: any;
+    _contentDispositionFilename: any;
     _pdfDataRangeTransport: any;
     _isStreamingSupported: boolean;
     _isRangeSupported: boolean;
@@ -20,7 +21,7 @@ export class PDFDataTransportStream implements IPDFStream {
 }
 /** @implements {IPDFStreamReader} */
 declare class PDFDataTransportStreamReader implements IPDFStreamReader {
-    constructor(stream: any, queuedChunks: any, progressiveDone?: boolean);
+    constructor(stream: any, queuedChunks: any, progressiveDone?: boolean, contentDispositionFilename?: null);
     _stream: any;
     _done: boolean;
     _filename: any;
