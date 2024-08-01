@@ -1184,13 +1184,9 @@ gulp.task("types", function (done) {
     "esModuleInterop",
     "forceConsistentCasingInFileNames",
     "emitDeclarationOnly",
+    "moduleResolution node",
   ].join(" --");
-  exec(`"node_modules/.bin/tsc" --${args} src/pdf.js`, (error, stdout, stderr) => {
-    console.log(error);
-    console.log(stdout.toString());
-    console.log(stderr.toString());
-    done(error, stdout, stderr);
-  });
+  exec(`"node_modules/.bin/tsc" --${args} src/pdf.js`, done);
 });
 
 function buildLib(defines, dir) {
