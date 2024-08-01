@@ -976,6 +976,8 @@ class PDFDocumentProxy {
  *   created from `PDFDocumentProxy.getOptionalContentConfig`. If `null`,
  *   the configuration will be fetched automatically with the default visibility
  *   states set.
+ * @property {boolean} [forceRenderSigAnnot] - Enforcing the rendering of
+ *   Sig annotation appearance.
  */
 
 /**
