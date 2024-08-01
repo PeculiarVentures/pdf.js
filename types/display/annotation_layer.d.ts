@@ -1,32 +1,44 @@
 export type AnnotationElementParameters = {
     data: Object;
     layer: HTMLDivElement;
-    page: any;
-    viewport: any;
-    linkService: any;
-    downloadManager: any;
-    annotationStorage?: AnnotationStorage;
+    page: PDFPage;
+    viewport: PageViewport;
+    linkService: IPDFLinkService;
+    downloadManager: DownloadManager;
+    annotationStorage?: AnnotationStorage | undefined;
     /**
      * - Path for image resources, mainly
      * for annotation icons. Include trailing slash.
      */
-    imageResourcesPath?: string;
+    imageResourcesPath?: string | undefined;
     renderInteractiveForms: boolean;
     svgFactory: Object;
+    enableScripting?: boolean | undefined;
+    hasJSActions?: boolean | undefined;
+    mouseState?: Object | undefined;
 };
 export type AnnotationLayerParameters = {
-    viewport: any;
+    viewport: PageViewport;
     div: HTMLDivElement;
     annotations: any[];
-    page: any;
-    linkService: any;
-    downloadManager: any;
+    page: PDFPage;
+    linkService: IPDFLinkService;
+    downloadManager: DownloadManager;
     /**
      * - Path for image resources, mainly
      * for annotation icons. Include trailing slash.
      */
-    imageResourcesPath?: string;
+    imageResourcesPath?: string | undefined;
     renderInteractiveForms: boolean;
+    /**
+     * - Enable embedded script execution.
+     */
+    enableScripting?: boolean | undefined;
+    /**
+     * - Some fields have JS actions.
+     * The default value is `false`.
+     */
+    hasJSActions?: boolean | undefined;
 };
 /**
  * @typedef {Object} AnnotationLayerParameters
@@ -39,6 +51,9 @@ export type AnnotationLayerParameters = {
  * @property {string} [imageResourcesPath] - Path for image resources, mainly
  *   for annotation icons. Include trailing slash.
  * @property {boolean} renderInteractiveForms
+ * @property {boolean} [enableScripting] - Enable embedded script execution.
+ * @property {boolean} [hasJSActions] - Some fields have JS actions.
+ *   The default value is `false`.
  */
 export class AnnotationLayer {
     /**
