@@ -74,6 +74,7 @@ class Page {
     ref,
     fontCache,
     builtInCMapCache,
+    globalImageCache,
     pdfFunctionFactory,
   }) {
     this.pdfManager = pdfManager;
@@ -83,6 +84,7 @@ class Page {
     this.ref = ref;
     this.fontCache = fontCache;
     this.builtInCMapCache = builtInCMapCache;
+    this.globalImageCache = globalImageCache;
     this.pdfFunctionFactory = pdfFunctionFactory;
     this.evaluatorOptions = pdfManager.evaluatorOptions;
     this.resourcesPromise = null;
@@ -216,8 +218,8 @@ class Page {
       // Fetching the individual streams from the array.
       const xref = this.xref;
       const streams = [];
-      for (const stream of content) {
-        streams.push(xref.fetchIfRef(stream));
+      for (const subStream of content) {
+        streams.push(xref.fetchIfRef(subStream));
       }
       stream = new StreamsSequenceStream(streams);
     } else if (isStream(content)) {
@@ -261,6 +263,7 @@ class Page {
       idFactory: this.idFactory,
       fontCache: this.fontCache,
       builtInCMapCache: this.builtInCMapCache,
+      globalImageCache: this.globalImageCache,
       options: this.evaluatorOptions,
       pdfFunctionFactory: this.pdfFunctionFactory,
     });
@@ -282,7 +285,7 @@ class Page {
           resources: this.resources,
           operatorList: opList,
         })
-        .then(function() {
+        .then(function () {
           return opList;
         });
     });
@@ -290,7 +293,7 @@ class Page {
     // Fetch the page's annotations and add their operator lists to the
     // page's operator list to render them.
     return Promise.all([pageListPromise, this._parsedAnnotations]).then(
-      function([pageOpList, annotations]) {
+      function ([pageOpList, annotations]) {
         if (annotations.length === 0) {
           pageOpList.flush(true);
           return { length: pageOpList.totalLength };
@@ -302,17 +305,25 @@ class Page {
         for (const annotation of annotations) {
           if (isAnnotationRenderable(annotation, intent)) {
             opListPromises.push(
-              annotation.getOperatorList(
-                partialEvaluator,
-                task,
-                renderInteractiveForms,
-                forceRenderSigAnnot
-              )
+              annotation
+                .getOperatorList(
+                  partialEvaluator,
+                  task,
+                  renderInteractiveForms,
+                  forceRenderSigAnnot
+                )
+                .catch(function(reason) {
+                  warn(
+                    "getOperatorList - ignoring annotation data during " +
+                      `"${task.name}" task: "${reason}".`
+                  );
+                  return null;
+                })
             );
           }
         }
 
-        return Promise.all(opListPromises).then(function(opLists) {
+        return Promise.all(opListPromises).then(function (opLists) {
           pageOpList.addOp(OPS.beginAnnotations, []);
           for (const opList of opLists) {
             pageOpList.addOpList(opList);
@@ -351,6 +362,7 @@ class Page {
         idFactory: this.idFactory,
         fontCache: this.fontCache,
         builtInCMapCache: this.builtInCMapCache,
+        globalImageCache: this.globalImageCache,
         options: this.evaluatorOptions,
         pdfFunctionFactory: this.pdfFunctionFactory,
       });
@@ -367,7 +379,7 @@ class Page {
   }
 
   getAnnotationsData(intent) {
-    return this._parsedAnnotations.then(function(annotations) {
+    return this._parsedAnnotations.then(function (annotations) {
       const annotationsData = [];
       for (let i = 0, ii = annotations.length; i < ii; i++) {
         if (!intent || isAnnotationRenderable(annotations[i], intent)) {
@@ -390,30 +402,24 @@ class Page {
     const parsedAnnotations = this.pdfManager
       .ensure(this, "annotations")
       .then(() => {
-        const annotationRefs = this.annotations;
         const annotationPromises = [];
-        for (let i = 0, ii = annotationRefs.length; i < ii; i++) {
+        for (const annotationRef of this.annotations) {
           annotationPromises.push(
             AnnotationFactory.create(
               this.xref,
-              annotationRefs[i],
+              annotationRef,
               this.pdfManager,
               this.idFactory
-            )
+            ).catch(function (reason) {
+              warn(`_parsedAnnotations: "${reason}".`);
+              return null;
+            })
           );
         }
 
-        return Promise.all(annotationPromises).then(
-          function(annotations) {
-            return annotations.filter(function isDefined(annotation) {
-              return !!annotation;
-            });
-          },
-          function(reason) {
-            warn(`_parsedAnnotations: "${reason}".`);
-            return [];
-          }
-        );
+        return Promise.all(annotationPromises).then(function (annotations) {
+          return annotations.filter(annotation => !!annotation);
+        });
       });
 
     return shadow(this, "_parsedAnnotations", parsedAnnotations);
@@ -726,10 +732,10 @@ class PDFDocument {
             continue;
           }
 
-          if (!docInfo["Custom"]) {
-            docInfo["Custom"] = Object.create(null);
+          if (!docInfo.Custom) {
+            docInfo.Custom = Object.create(null);
           }
-          docInfo["Custom"][key] = customValue;
+          docInfo.Custom[key] = customValue;
         }
       }
     }
@@ -764,7 +770,15 @@ class PDFDocument {
 
   _getLinearizationPage(pageIndex) {
     const { catalog, linearization } = this;
-    assert(linearization && linearization.pageFirst === pageIndex);
+    if (
+      typeof PDFJSDev === "undefined" ||
+      PDFJSDev.test("!PRODUCTION || TESTING")
+    ) {
+      assert(
+        linearization && linearization.pageFirst === pageIndex,
+        "_getLinearizationPage - invalid pageIndex argument."
+      );
+    }
 
     const ref = Ref.get(linearization.objectNumberFirst, 0);
     return this.xref
@@ -811,6 +825,7 @@ class PDFDocument {
         ref,
         fontCache: catalog.fontCache,
         builtInCMapCache: catalog.builtInCMapCache,
+        globalImageCache: catalog.globalImageCache,
         pdfFunctionFactory: this.pdfFunctionFactory,
       });
     }));
@@ -834,8 +849,10 @@ class PDFDocument {
     return this.catalog.fontFallback(id, handler);
   }
 
-  async cleanup() {
-    return this.catalog ? this.catalog.cleanup() : clearPrimitiveCaches();
+  async cleanup(manuallyTriggered = false) {
+    return this.catalog
+      ? this.catalog.cleanup(manuallyTriggered)
+      : clearPrimitiveCaches();
   }
 }
 

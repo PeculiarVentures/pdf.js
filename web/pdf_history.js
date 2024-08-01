@@ -14,7 +14,6 @@
  */
 
 import {
-  getGlobalEventBus,
   isValidRotation,
   parseQueryString,
   waitOnEventOrTimeout,
@@ -59,7 +58,7 @@ class PDFHistory {
    */
   constructor({ linkService, eventBus }) {
     this.linkService = linkService;
-    this.eventBus = eventBus || getGlobalEventBus();
+    this.eventBus = eventBus;
 
     this._initialized = false;
     this._fingerprint = "";
@@ -118,7 +117,9 @@ class PDFHistory {
     this._position = null;
 
     if (!this._isValidState(state, /* checkReload = */ true) || resetHistory) {
-      const { hash, page, rotation } = this._parseCurrentHash();
+      const { hash, page, rotation } = this._parseCurrentHash(
+        /* checkNameddest = */ true
+      );
 
       if (!hash || reInitialized || resetHistory) {
         // Ensure that the browser history is reset on PDF document load.
@@ -491,16 +492,20 @@ class PDFHistory {
   /**
    * @private
    */
-  _parseCurrentHash() {
+  _parseCurrentHash(checkNameddest = false) {
     const hash = unescape(getCurrentHash()).substring(1);
-    let page = parseQueryString(hash).page | 0;
+    const params = parseQueryString(hash);
+
+    const nameddest = params.nameddest || "";
+    let page = params.page | 0;
 
     if (
       !(
         Number.isInteger(page) &&
         page > 0 &&
         page <= this.linkService.pagesCount
-      )
+      ) ||
+      (checkNameddest && nameddest.length > 0)
     ) {
       page = null;
     }

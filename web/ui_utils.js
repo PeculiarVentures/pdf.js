@@ -164,7 +164,7 @@ function scrollIntoView(element, spot, skipOverflowHiddenElements = false) {
  * PDF.js friendly one: with scroll debounce and scroll direction.
  */
 function watchScroll(viewAreaElement, callback) {
-  const debounceScroll = function(evt) {
+  const debounceScroll = function (evt) {
     if (rAF) {
       return;
     }
@@ -229,7 +229,7 @@ function binarySearchFirstItem(items, condition) {
   let minIndex = 0;
   let maxIndex = items.length - 1;
 
-  if (items.length === 0 || !condition(items[maxIndex])) {
+  if (maxIndex < 0 || !condition(items[maxIndex])) {
     return items.length;
   }
   if (condition(items[minIndex])) {
@@ -564,7 +564,7 @@ function getVisibleElements(
     last = visible[visible.length - 1];
 
   if (sortByVisibility) {
-    visible.sort(function(a, b) {
+    visible.sort(function (a, b) {
       const pc = a.percent - b.percent;
       if (Math.abs(pc) > 0.001) {
         return -pc;
@@ -610,7 +610,7 @@ function getPDFFileNameFromURL(url, defaultFilename = "document.pdf") {
     return defaultFilename;
   }
   const reURI = /^(?:(?:[^:]+:)?\/\/[^\/]+)?([^?#]*)(\?[^#]*)?(#.*)?$/;
-  //            SCHEME        HOST         1.PATH  2.QUERY   3.REF
+  //              SCHEME        HOST         1.PATH  2.QUERY   3.REF
   // Pattern to get last matching NAME.pdf
   const reFilename = /[^\/?#=]+\.pdf\b(?!.*\.pdf\b)/i;
   const splitURI = reURI.exec(url);
@@ -705,7 +705,7 @@ const WaitOnType = {
  * @returns {Promise} A promise that is resolved with a {WaitOnType} value.
  */
 function waitOnEventOrTimeout({ target, name, delay = 0 }) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (
       typeof target !== "object" ||
       !(name && typeof name === "string") ||
@@ -742,7 +742,7 @@ function waitOnEventOrTimeout({ target, name, delay = 0 }) {
 /**
  * Promise that is resolved when DOM window becomes visible.
  */
-const animationStarted = new Promise(function(resolve) {
+const animationStarted = new Promise(function (resolve) {
   if (
     typeof PDFJSDev !== "undefined" &&
     PDFJSDev.test("LIB && TESTING") &&
@@ -760,6 +760,9 @@ const animationStarted = new Promise(function(resolve) {
  * NOTE: Only used to support various PDF viewer tests in `mozilla-central`.
  */
 function dispatchDOMEvent(eventName, args = null) {
+  if (typeof PDFJSDev !== "undefined" && !PDFJSDev.test("MOZCENTRAL")) {
+    throw new Error("Not implemented: dispatchDOMEvent");
+  }
   const details = Object.create(null);
   if (args && args.length > 0) {
     const obj = args[0];
@@ -784,19 +787,11 @@ function dispatchDOMEvent(eventName, args = null) {
  * and `off` methods. To raise an event, the `dispatch` method shall be used.
  */
 class EventBus {
-  constructor({ dispatchToDOM = false } = {}) {
+  constructor(options) {
     this._listeners = Object.create(null);
-    this._dispatchToDOM = dispatchToDOM === true;
 
-    if (
-      typeof PDFJSDev !== "undefined" &&
-      !PDFJSDev.test("MOZCENTRAL || TESTING") &&
-      dispatchToDOM
-    ) {
-      console.error(
-        "The `eventBusDispatchToDOM` option/preference is deprecated, " +
-          "add event listeners to the EventBus instance rather than the DOM."
-      );
+    if (typeof PDFJSDev === "undefined" || PDFJSDev.test("MOZCENTRAL")) {
+      this._isInAutomation = (options && options.isInAutomation) === true;
     }
   }
 
@@ -819,7 +814,10 @@ class EventBus {
   dispatch(eventName) {
     const eventListeners = this._listeners[eventName];
     if (!eventListeners || eventListeners.length === 0) {
-      if (this._dispatchToDOM) {
+      if (
+        (typeof PDFJSDev === "undefined" || PDFJSDev.test("MOZCENTRAL")) &&
+        this._isInAutomation
+      ) {
         const args = Array.prototype.slice.call(arguments, 1);
         dispatchDOMEvent(eventName, args);
       }
@@ -830,7 +828,7 @@ class EventBus {
     let externalListeners;
     // Making copy of the listeners array in case if it will be modified
     // during dispatch.
-    eventListeners.slice(0).forEach(function({ listener, external }) {
+    eventListeners.slice(0).forEach(function ({ listener, external }) {
       if (external) {
         if (!externalListeners) {
           externalListeners = [];
@@ -843,12 +841,15 @@ class EventBus {
     // Dispatch any "external" listeners *after* the internal ones, to give the
     // viewer components time to handle events and update their state first.
     if (externalListeners) {
-      externalListeners.forEach(function(listener) {
+      externalListeners.forEach(function (listener) {
         listener.apply(null, args);
       });
       externalListeners = null;
     }
-    if (this._dispatchToDOM) {
+    if (
+      (typeof PDFJSDev === "undefined" || PDFJSDev.test("MOZCENTRAL")) &&
+      this._isInAutomation
+    ) {
       dispatchDOMEvent(eventName, args);
     }
   }
@@ -882,17 +883,6 @@ class EventBus {
       }
     }
   }
-}
-
-let globalEventBus = null;
-function getGlobalEventBus(dispatchToDOM = false) {
-  console.error(
-    "getGlobalEventBus is deprecated, use a manually created EventBus instance instead."
-  );
-  if (!globalEventBus) {
-    globalEventBus = new EventBus({ dispatchToDOM });
-  }
-  return globalEventBus;
 }
 
 function clamp(v, min, max) {
@@ -1013,7 +1003,6 @@ export {
   SpreadMode,
   NullL10n,
   EventBus,
-  getGlobalEventBus,
   clamp,
   ProgressBar,
   getPDFFileNameFromURL,

@@ -12,9 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable no-unsanitized/method */
 
-import { assert, ImageKind, OPS } from "../shared/util.js";
+import { assert, ImageKind, OPS, warn } from "../shared/util.js";
 
 var QueueOptimizer = (function QueueOptimizerClosure() {
   function addState(parentState, pattern, checkFn, iterateFn, processFn) {
@@ -305,7 +304,7 @@ var QueueOptimizer = (function QueueOptimizerClosure() {
   addState(
     InitialState,
     [OPS.save, OPS.transform, OPS.paintImageXObject, OPS.restore],
-    function(context) {
+    function (context) {
       var argsArray = context.argsArray;
       var iFirstTransform = context.iCurr - 2;
       return (
@@ -352,7 +351,7 @@ var QueueOptimizer = (function QueueOptimizerClosure() {
       }
       throw new Error(`iterateImageGroup - invalid pos: ${pos}`);
     },
-    function(context, i) {
+    function (context, i) {
       var MIN_IMAGES_IN_BLOCK = 3;
       var MAX_IMAGES_IN_BLOCK = 1000;
 
@@ -437,7 +436,7 @@ var QueueOptimizer = (function QueueOptimizerClosure() {
       }
       throw new Error(`iterateShowTextGroup - invalid pos: ${pos}`);
     },
-    function(context, i) {
+    function (context, i) {
       var MIN_CHARS_IN_BLOCK = 3;
       var MAX_CHARS_IN_BLOCK = 1000;
 
@@ -491,6 +490,7 @@ var QueueOptimizer = (function QueueOptimizerClosure() {
     }
   );
 
+  // eslint-disable-next-line no-shadow
   function QueueOptimizer(queue) {
     this.queue = queue;
     this.state = null;
@@ -585,6 +585,7 @@ var QueueOptimizer = (function QueueOptimizerClosure() {
 })();
 
 var NullOptimizer = (function NullOptimizerClosure() {
+  // eslint-disable-next-line no-shadow
   function NullOptimizer(queue) {
     this.queue = queue;
   }
@@ -607,6 +608,7 @@ var OperatorList = (function OperatorListClosure() {
   var CHUNK_SIZE = 1000;
   var CHUNK_SIZE_ABOUT = CHUNK_SIZE - 5; // close to chunk size
 
+  // eslint-disable-next-line no-shadow
   function OperatorList(intent, streamSink, pageIndex) {
     this._streamSink = streamSink;
     this.fnArray = [];
@@ -672,6 +674,10 @@ var OperatorList = (function OperatorListClosure() {
     },
 
     addOpList(opList) {
+      if (!(opList instanceof OperatorList)) {
+        warn('addOpList - ignoring invalid "opList" parameter.');
+        return;
+      }
       Object.assign(this.dependencies, opList.dependencies);
       for (var i = 0, ii = opList.length; i < ii; i++) {
         this.addOp(opList.fnArray[i], opList.argsArray[i]);

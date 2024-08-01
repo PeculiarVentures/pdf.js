@@ -289,18 +289,18 @@ function traverseTree(ctx, node) {
   for (var i in node) {
     var child = node[i];
     if (typeof child === "object" && child !== null && child.type) {
-      var result = traverseTree(ctx, child);
+      const result = traverseTree(ctx, child);
       if (result !== child) {
         node[i] = result;
       }
     } else if (Array.isArray(child)) {
-      child.forEach(function(childItem, index) {
+      child.forEach(function (childItem, index) {
         if (
           typeof childItem === "object" &&
           childItem !== null &&
           childItem.type
         ) {
-          var result = traverseTree(ctx, childItem);
+          const result = traverseTree(ctx, childItem);
           if (result !== childItem) {
             child[index] = result;
           }
@@ -322,7 +322,7 @@ function preprocessPDFJSCode(ctx, code) {
     },
   };
   var parseOptions = {
-    ecmaVersion: 8,
+    ecmaVersion: 2020,
     locations: true,
     sourceFile: ctx.sourceFile,
     sourceType: "module",

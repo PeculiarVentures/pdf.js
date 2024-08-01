@@ -17,7 +17,6 @@ import {
   CSS_UNITS,
   DEFAULT_SCALE,
   DEFAULT_SCALE_VALUE,
-  getGlobalEventBus,
   getVisibleElements,
   isPortraitOrientation,
   isValidRotation,
@@ -83,7 +82,7 @@ const DEFAULT_CACHE_SIZE = 10;
 
 function PDFPageViewBuffer(size) {
   const data = [];
-  this.push = function(view) {
+  this.push = function (view) {
     const i = data.indexOf(view);
     if (i >= 0) {
       data.splice(i, 1);
@@ -100,14 +99,14 @@ function PDFPageViewBuffer(size) {
    * impact on the final size of the buffer; if pagesToKeep has length larger
    * than newSize, some of those pages will be destroyed anyway.
    */
-  this.resize = function(newSize, pagesToKeep) {
+  this.resize = function (newSize, pagesToKeep) {
     size = newSize;
     if (pagesToKeep) {
       const pageIdsToKeep = new Set();
       for (let i = 0, iMax = pagesToKeep.length; i < iMax; ++i) {
         pageIdsToKeep.add(pagesToKeep[i].id);
       }
-      moveToEndOfArray(data, function(page) {
+      moveToEndOfArray(data, function (page) {
         return pageIdsToKeep.has(page.id);
       });
     }
@@ -145,7 +144,7 @@ class BaseViewer {
 
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
-    this.eventBus = options.eventBus || getGlobalEventBus();
+    this.eventBus = options.eventBus;
     this.linkService = options.linkService || new SimpleLinkService();
     this.downloadManager = options.downloadManager || null;
     this.findController = options.findController || null;
@@ -203,7 +202,7 @@ class BaseViewer {
     }
     // Prevent printing errors when 'disableAutoFetch' is set, by ensuring
     // that *all* pages have in fact been completely loaded.
-    return this._pages.every(function(pageView) {
+    return this._pages.every(function (pageView) {
       return pageView && pageView.pdfPage;
     });
   }
@@ -391,9 +390,30 @@ class BaseViewer {
   /**
    * @private
    */
-  get _setDocumentViewerElement() {
+  get _viewerElement() {
     // In most viewers, e.g. `PDFViewer`, this should return `this.viewer`.
-    throw new Error("Not implemented: _setDocumentViewerElement");
+    throw new Error("Not implemented: _viewerElement");
+  }
+
+  /**
+   * @private
+   */
+  _onePageRenderedOrForceFetch() {
+    // Unless the viewer *and* its pages are visible, rendering won't start and
+    // `this._onePageRenderedCapability` thus won't be resolved.
+    // To ensure that automatic printing, on document load, still works even in
+    // those cases we force-allow fetching of all pages when:
+    //  - The viewer is hidden in the DOM, e.g. in a `display: none` <iframe>
+    //    element; fixes bug 1618621.
+    //  - The viewer is visible, but none of the pages are (e.g. if the
+    //    viewer is very small); fixes bug 1618955.
+    if (
+      !this.container.offsetParent ||
+      this._getVisiblePages().views.length === 0
+    ) {
+      return Promise.resolve();
+    }
+    return this._onePageRenderedCapability.promise;
   }
 
   /**
@@ -458,7 +478,7 @@ class BaseViewer {
 
         for (let pageNum = 1; pageNum <= pagesCount; ++pageNum) {
           const pageView = new PDFPageView({
-            container: this._setDocumentViewerElement,
+            container: this._viewerElement,
             eventBus: this.eventBus,
             id: pageNum,
             scale,
@@ -492,17 +512,14 @@ class BaseViewer {
         // Fetch all the pages since the viewport is needed before printing
         // starts to create the correct size canvas. Wait until one page is
         // rendered so we don't tie up too many resources early on.
-        this._onePageRenderedCapability.promise.then(() => {
+        this._onePageRenderedOrForceFetch().then(() => {
           if (this.findController) {
             this.findController.setDocument(pdfDocument); // Enable searching.
           }
 
           // In addition to 'disableAutoFetch' being set, also attempt to reduce
           // resource usage when loading *very* long/large documents.
-          if (
-            pdfDocument.loadingParams["disableAutoFetch"] ||
-            pagesCount > 7500
-          ) {
+          if (pdfDocument.loadingParams.disableAutoFetch || pagesCount > 7500) {
             // XXX: Printing is semi-broken with auto fetch disabled.
             this._pagesCapability.resolve();
             return;
@@ -1022,7 +1039,7 @@ class BaseViewer {
       );
       return false;
     }
-    return this._getVisiblePages().views.some(function(view) {
+    return this._getVisiblePages().views.some(function (view) {
       return view.id === pageNumber;
     });
   }
@@ -1175,7 +1192,7 @@ class BaseViewer {
    * @returns {Array} Array of objects with width/height/rotation fields.
    */
   getPagesOverview() {
-    const pagesOverview = this._pages.map(function(pageView) {
+    const pagesOverview = this._pages.map(function (pageView) {
       const viewport = pageView.pdfPage.getViewport({ scale: 1 });
       return {
         width: viewport.width,
@@ -1187,7 +1204,7 @@ class BaseViewer {
       return pagesOverview;
     }
     const isFirstPagePortrait = isPortraitOrientation(pagesOverview[0]);
-    return pagesOverview.map(function(size) {
+    return pagesOverview.map(function (size) {
       if (isFirstPagePortrait === isPortraitOrientation(size)) {
         return size;
       }

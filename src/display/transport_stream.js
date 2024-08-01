@@ -19,7 +19,10 @@ import { assert, createPromiseCapability } from "../shared/util.js";
 /** @implements {IPDFStream} */
 class PDFDataTransportStream {
   constructor(params, pdfDataRangeTransport) {
-    assert(pdfDataRangeTransport);
+    assert(
+      pdfDataRangeTransport,
+      'PDFDataTransportStream - missing required "pdfDataRangeTransport" argument.'
+    );
 
     this._queuedChunks = [];
     this._progressiveDone = params.progressiveDone || false;
@@ -66,14 +69,17 @@ class PDFDataTransportStream {
         this._queuedChunks.push(buffer);
       }
     } else {
-      const found = this._rangeReaders.some(function(rangeReader) {
+      const found = this._rangeReaders.some(function (rangeReader) {
         if (rangeReader._begin !== args.begin) {
           return false;
         }
         rangeReader._enqueue(buffer);
         return true;
       });
-      assert(found);
+      assert(
+        found,
+        "_onReceiveData - no `PDFDataTransportStreamRangeReader` instance found."
+      );
     }
   }
 
@@ -111,7 +117,10 @@ class PDFDataTransportStream {
   }
 
   getFullReader() {
-    assert(!this._fullRequestReader);
+    assert(
+      !this._fullRequestReader,
+      "PDFDataTransportStream.getFullReader can only be called once."
+    );
     const queuedChunks = this._queuedChunks;
     this._queuedChunks = null;
     return new PDFDataTransportStreamReader(
@@ -136,7 +145,7 @@ class PDFDataTransportStream {
       this._fullRequestReader.cancel(reason);
     }
     const readers = this._rangeReaders.slice(0);
-    readers.forEach(function(rangeReader) {
+    readers.forEach(function (rangeReader) {
       rangeReader.cancel(reason);
     });
     this._pdfDataRangeTransport.abort();
@@ -209,7 +218,7 @@ class PDFDataTransportStreamReader {
 
   cancel(reason) {
     this._done = true;
-    this._requests.forEach(function(requestCapability) {
+    this._requests.forEach(function (requestCapability) {
       requestCapability.resolve({ value: undefined, done: true });
     });
     this._requests = [];
@@ -245,7 +254,7 @@ class PDFDataTransportStreamRangeReader {
     } else {
       const requestsCapability = this._requests.shift();
       requestsCapability.resolve({ value: chunk, done: false });
-      this._requests.forEach(function(requestCapability) {
+      this._requests.forEach(function (requestCapability) {
         requestCapability.resolve({ value: undefined, done: true });
       });
       this._requests = [];
@@ -274,7 +283,7 @@ class PDFDataTransportStreamRangeReader {
 
   cancel(reason) {
     this._done = true;
-    this._requests.forEach(function(requestCapability) {
+    this._requests.forEach(function (requestCapability) {
       requestCapability.resolve({ value: undefined, done: true });
     });
     this._requests = [];

@@ -79,10 +79,11 @@ function initializePDFJS(callback) {
       "pdfjs-test/unit/ui_utils_spec.js",
       "pdfjs-test/unit/unicode_spec.js",
       "pdfjs-test/unit/util_spec.js",
-    ].map(function(moduleName) {
+    ].map(function (moduleName) {
+      // eslint-disable-next-line no-unsanitized/method
       return SystemJS.import(moduleName);
     })
-  ).then(function(modules) {
+  ).then(function (modules) {
     const displayApi = modules[0];
     const { GlobalWorkerOptions } = modules[1];
     const { PDFNetworkStream } = modules[2];
@@ -91,8 +92,7 @@ function initializePDFJS(callback) {
 
     if (isNodeJS) {
       throw new Error(
-        "The `gulp unittest` command cannot be used in " +
-          "Node.js environments."
+        "The `gulp unittest` command cannot be used in Node.js environments."
       );
     }
     // Set the network stream factory for unit-tests.
@@ -101,11 +101,11 @@ function initializePDFJS(callback) {
       "body" in Response.prototype &&
       typeof ReadableStream !== "undefined"
     ) {
-      displayApi.setPDFNetworkStreamFactory(function(params) {
+      displayApi.setPDFNetworkStreamFactory(function (params) {
         return new PDFFetchStream(params);
       });
     } else {
-      displayApi.setPDFNetworkStreamFactory(function(params) {
+      displayApi.setPDFNetworkStreamFactory(function (params) {
         return new PDFNetworkStream(params);
       });
     }
@@ -117,7 +117,7 @@ function initializePDFJS(callback) {
   });
 }
 
-(function() {
+(function () {
   window.jasmine = jasmineRequire.core(jasmineRequire);
 
   jasmineRequire.html(jasmine);
@@ -174,10 +174,7 @@ function initializePDFJS(callback) {
   env.addReporter(htmlReporter);
 
   if (queryString.getParam("browser")) {
-    var testReporter = new TestReporter(
-      queryString.getParam("browser"),
-      queryString.getParam("path")
-    );
+    var testReporter = new TestReporter(queryString.getParam("browser"));
     env.addReporter(testReporter);
   }
 
@@ -189,7 +186,7 @@ function initializePDFJS(callback) {
     },
   });
 
-  config.specFilter = function(spec) {
+  config.specFilter = function (spec) {
     return specFilter.matches(spec.getFullName());
   };
 
@@ -203,12 +200,12 @@ function initializePDFJS(callback) {
   // instance and then executing the loaded Jasmine environment.
   var currentWindowOnload = window.onload;
 
-  window.onload = function() {
+  window.onload = function () {
     if (currentWindowOnload) {
       currentWindowOnload();
     }
 
-    initializePDFJS(function() {
+    initializePDFJS(function () {
       htmlReporter.initialize();
       env.execute();
     });

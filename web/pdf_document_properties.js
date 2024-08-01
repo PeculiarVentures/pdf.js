@@ -72,25 +72,21 @@ class PDFDocumentProperties {
     this.l10n = l10n;
 
     this._reset();
+    // Bind the event listener for the Close button.
+    closeButton.addEventListener("click", this.close.bind(this));
 
-    if (closeButton) {
-      // Bind the event listener for the Close button.
-      closeButton.addEventListener("click", this.close.bind(this));
-    }
     this.overlayManager.register(
       this.overlayName,
       this.container,
       this.close.bind(this)
     );
 
-    if (eventBus) {
-      eventBus._on("pagechanging", evt => {
-        this._currentPageNumber = evt.pageNumber;
-      });
-      eventBus._on("rotationchanging", evt => {
-        this._pagesRotation = evt.pagesRotation;
-      });
-    }
+    eventBus._on("pagechanging", evt => {
+      this._currentPageNumber = evt.pageNumber;
+    });
+    eventBus._on("rotationchanging", evt => {
+      this._pagesRotation = evt.pagesRotation;
+    });
 
     this._isNonMetricLocale = true; // The default viewer locale is 'en-us'.
     l10n.getLanguage().then(locale => {
@@ -122,8 +118,8 @@ class PDFDocumentProperties {
       // just update the dialog immediately to avoid redundant lookups.
       if (
         this.fieldData &&
-        currentPageNumber === this.fieldData["_currentPageNumber"] &&
-        pagesRotation === this.fieldData["_pagesRotation"]
+        currentPageNumber === this.fieldData._currentPageNumber &&
+        pagesRotation === this.fieldData._pagesRotation
       ) {
         this._updateUI();
         return;
@@ -136,7 +132,7 @@ class PDFDocumentProperties {
           return Promise.all([
             info,
             metadata,
-            contentDispositionFilename || getPDFFileNameFromURL(this.url || ""),
+            contentDispositionFilename || getPDFFileNameFromURL(this.url),
             this._parseFileSize(this.maybeFileSize),
             this._parseDate(info.CreationDate),
             this._parseDate(info.ModDate),
@@ -190,11 +186,11 @@ class PDFDocumentProperties {
           return this._parseFileSize(length);
         })
         .then(fileSize => {
-          if (fileSize === this.fieldData["fileSize"]) {
+          if (fileSize === this.fieldData.fileSize) {
             return; // The fileSize has already been correctly set.
           }
           const data = Object.assign(Object.create(null), this.fieldData);
-          data["fileSize"] = fileSize;
+          data.fileSize = fileSize;
 
           freezeFieldData(data);
           this._updateUI();

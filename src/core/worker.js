@@ -38,6 +38,7 @@ import { PDFWorkerStream } from "./worker_stream.js";
 import { XRefParseException } from "./core_utils.js";
 
 var WorkerTask = (function WorkerTaskClosure() {
+  // eslint-disable-next-line no-shadow
   function WorkerTask(name) {
     this.name = name;
     this.terminated = false;
@@ -135,6 +136,23 @@ var WorkerMessageHandler = {
             "; thus breaking e.g. `for...in` iteration of `Array`s."
         );
       }
+
+      // Ensure that (primarily) Node.js users won't accidentally attempt to use
+      // a non-translated/non-polyfilled build of the library, since that would
+      // quickly fail anyway because of missing functionality (such as e.g.
+      // `ReadableStream` and `Promise.allSettled`).
+      if (
+        (typeof PDFJSDev === "undefined" || PDFJSDev.test("SKIP_BABEL")) &&
+        (typeof ReadableStream === "undefined" ||
+          typeof Promise.allSettled === "undefined")
+      ) {
+        throw new Error(
+          "The browser/environment lacks native support for critical " +
+            "functionality used by the PDF.js library (e.g. " +
+            "`ReadableStream` and/or `Promise.allSettled`); " +
+            "please use an ES5-compatible build instead."
+        );
+      }
     }
 
     var docId = docParams.docId;
@@ -182,19 +200,19 @@ var WorkerMessageHandler = {
 
     function getPdfManager(data, evaluatorOptions) {
       var pdfManagerCapability = createPromiseCapability();
-      var pdfManager;
+      let newPdfManager;
 
       var source = data.source;
       if (source.data) {
         try {
-          pdfManager = new LocalPdfManager(
+          newPdfManager = new LocalPdfManager(
             docId,
             source.data,
             source.password,
             evaluatorOptions,
             docBaseUrl
           );
-          pdfManagerCapability.resolve(pdfManager);
+          pdfManagerCapability.resolve(newPdfManager);
         } catch (ex) {
           pdfManagerCapability.reject(ex);
         }
@@ -212,7 +230,7 @@ var WorkerMessageHandler = {
 
       var fullRequest = pdfStream.getFullReader();
       fullRequest.headersReady
-        .then(function() {
+        .then(function () {
           if (!fullRequest.isRangeSupported) {
             return;
           }
@@ -220,7 +238,7 @@ var WorkerMessageHandler = {
           // We don't need auto-fetch when streaming is enabled.
           var disableAutoFetch =
             source.disableAutoFetch || fullRequest.isStreamingSupported;
-          pdfManager = new NetworkPdfManager(
+          newPdfManager = new NetworkPdfManager(
             docId,
             pdfStream,
             {
@@ -233,58 +251,56 @@ var WorkerMessageHandler = {
             evaluatorOptions,
             docBaseUrl
           );
-          // There may be a chance that `pdfManager` is not initialized
-          // for first few runs of `readchunk` block of code. Be sure
-          // to send all cached chunks, if any, to chunked_stream via
-          // pdf_manager.
+          // There may be a chance that `newPdfManager` is not initialized for
+          // the first few runs of `readchunk` block of code. Be sure to send
+          // all cached chunks, if any, to chunked_stream via pdf_manager.
           for (let i = 0; i < cachedChunks.length; i++) {
-            pdfManager.sendProgressiveData(cachedChunks[i]);
+            newPdfManager.sendProgressiveData(cachedChunks[i]);
           }
 
           cachedChunks = [];
-          pdfManagerCapability.resolve(pdfManager);
+          pdfManagerCapability.resolve(newPdfManager);
           cancelXHRs = null;
         })
-        .catch(function(reason) {
+        .catch(function (reason) {
           pdfManagerCapability.reject(reason);
           cancelXHRs = null;
         });
 
       var loaded = 0;
-      var flushChunks = function() {
+      var flushChunks = function () {
         var pdfFile = arraysToBytes(cachedChunks);
         if (source.length && pdfFile.length !== source.length) {
           warn("reported HTTP length is different from actual");
         }
         // the data is array, instantiating directly from it
         try {
-          pdfManager = new LocalPdfManager(
+          newPdfManager = new LocalPdfManager(
             docId,
             pdfFile,
             source.password,
             evaluatorOptions,
             docBaseUrl
           );
-          pdfManagerCapability.resolve(pdfManager);
+          pdfManagerCapability.resolve(newPdfManager);
         } catch (ex) {
           pdfManagerCapability.reject(ex);
         }
         cachedChunks = [];
       };
-      var readPromise = new Promise(function(resolve, reject) {
-        var readChunk = function(chunk) {
+      var readPromise = new Promise(function (resolve, reject) {
+        var readChunk = function ({ value, done }) {
           try {
             ensureNotTerminated();
-            if (chunk.done) {
-              if (!pdfManager) {
+            if (done) {
+              if (!newPdfManager) {
                 flushChunks();
               }
               cancelXHRs = null;
               return;
             }
 
-            var data = chunk.value;
-            loaded += arrayByteLength(data);
+            loaded += arrayByteLength(value);
             if (!fullRequest.isStreamingSupported) {
               handler.send("DocProgress", {
                 loaded,
@@ -292,10 +308,10 @@ var WorkerMessageHandler = {
               });
             }
 
-            if (pdfManager) {
-              pdfManager.sendProgressiveData(data);
+            if (newPdfManager) {
+              newPdfManager.sendProgressiveData(value);
             } else {
-              cachedChunks.push(data);
+              cachedChunks.push(value);
             }
 
             fullRequest.read().then(readChunk, reject);
@@ -305,12 +321,12 @@ var WorkerMessageHandler = {
         };
         fullRequest.read().then(readChunk, reject);
       });
-      readPromise.catch(function(e) {
+      readPromise.catch(function (e) {
         pdfManagerCapability.reject(e);
         cancelXHRs = null;
       });
 
-      cancelXHRs = function(reason) {
+      cancelXHRs = function (reason) {
         pdfStream.cancelAllRequests(reason);
       };
 
@@ -332,12 +348,12 @@ var WorkerMessageHandler = {
 
           handler
             .sendWithPromise("PasswordRequest", ex)
-            .then(function(data) {
+            .then(function ({ password }) {
               finishWorkerTask(task);
-              pdfManager.updatePassword(data.password);
+              pdfManager.updatePassword(password);
               pdfManagerReady();
             })
-            .catch(function() {
+            .catch(function () {
               finishWorkerTask(task);
               handler.send("DocException", ex);
             });
@@ -370,7 +386,7 @@ var WorkerMessageHandler = {
               return;
             }
             pdfManager.requestLoadedStream();
-            pdfManager.onLoadedStream().then(function() {
+            pdfManager.onLoadedStream().then(function () {
               ensureNotTerminated();
 
               loadDocument(true).then(onSuccess, onFailure);
@@ -383,16 +399,15 @@ var WorkerMessageHandler = {
       ensureNotTerminated();
 
       var evaluatorOptions = {
-        forceDataSchema: data.disableCreateObjectURL,
         maxImageSize: data.maxImageSize,
         disableFontFace: data.disableFontFace,
-        nativeImageDecoderSupport: data.nativeImageDecoderSupport,
         ignoreErrors: data.ignoreErrors,
         isEvalSupported: data.isEvalSupported,
+        fontExtraProperties: data.fontExtraProperties,
       };
 
       getPdfManager(data, evaluatorOptions)
-        .then(function(newPdfManager) {
+        .then(function (newPdfManager) {
           if (terminated) {
             // We were in a process of setting up the manager, but it got
             // terminated in the middle.
@@ -403,7 +418,7 @@ var WorkerMessageHandler = {
           }
           pdfManager = newPdfManager;
 
-          pdfManager.onLoadedStream().then(function(stream) {
+          pdfManager.onLoadedStream().then(function (stream) {
             handler.send("DataLoaded", { length: stream.bytes.byteLength });
           });
         })
@@ -411,13 +426,13 @@ var WorkerMessageHandler = {
     }
 
     handler.on("GetPage", function wphSetupGetPage(data) {
-      return pdfManager.getPage(data.pageIndex).then(function(page) {
+      return pdfManager.getPage(data.pageIndex).then(function (page) {
         return Promise.all([
           pdfManager.ensure(page, "rotate"),
           pdfManager.ensure(page, "ref"),
           pdfManager.ensure(page, "userUnit"),
           pdfManager.ensure(page, "view"),
-        ]).then(function([rotate, ref, userUnit, view]) {
+        ]).then(function ([rotate, ref, userUnit, view]) {
           return {
             rotate,
             ref,
@@ -454,11 +469,11 @@ var WorkerMessageHandler = {
       return pdfManager.ensureCatalog("pageMode");
     });
 
-    handler.on("GetViewerPreferences", function(data) {
+    handler.on("GetViewerPreferences", function (data) {
       return pdfManager.ensureCatalog("viewerPreferences");
     });
 
-    handler.on("GetOpenAction", function(data) {
+    handler.on("GetOpenAction", function (data) {
       return pdfManager.ensureCatalog("openAction");
     });
 
@@ -474,7 +489,7 @@ var WorkerMessageHandler = {
       return pdfManager.ensureCatalog("documentOutline");
     });
 
-    handler.on("GetPermissions", function(data) {
+    handler.on("GetPermissions", function (data) {
       return pdfManager.ensureCatalog("permissions");
     });
 
@@ -487,7 +502,7 @@ var WorkerMessageHandler = {
 
     handler.on("GetData", function wphSetupGetData(data) {
       pdfManager.requestLoadedStream();
-      return pdfManager.onLoadedStream().then(function(stream) {
+      return pdfManager.onLoadedStream().then(function (stream) {
         return stream.bytes;
       });
     });
@@ -496,8 +511,8 @@ var WorkerMessageHandler = {
       return pdfManager.pdfDocument.xref.stats;
     });
 
-    handler.on("GetAnnotations", function({ pageIndex, intent }) {
-      return pdfManager.getPage(pageIndex).then(function(page) {
+    handler.on("GetAnnotations", function ({ pageIndex, intent }) {
+      return pdfManager.getPage(pageIndex).then(function (page) {
         return page.getAnnotationsData(intent);
       });
     });
@@ -506,7 +521,7 @@ var WorkerMessageHandler = {
       "GetOperatorList",
       function wphSetupRenderPage(data, sink) {
         var pageIndex = data.pageIndex;
-        pdfManager.getPage(pageIndex).then(function(page) {
+        pdfManager.getPage(pageIndex).then(function (page) {
           var task = new WorkerTask(`GetOperatorList: page ${pageIndex}`);
           startWorkerTask(task);
 
@@ -524,7 +539,7 @@ var WorkerMessageHandler = {
               forceRenderSigAnnot: data.forceRenderSigAnnot,
             })
             .then(
-              function(operatorListInfo) {
+              function (operatorListInfo) {
                 finishWorkerTask(task);
 
                 if (start) {
@@ -535,7 +550,7 @@ var WorkerMessageHandler = {
                 }
                 sink.close();
               },
-              function(reason) {
+              function (reason) {
                 finishWorkerTask(task);
                 if (task.terminated) {
                   return; // ignoring errors from the terminated thread
@@ -543,7 +558,7 @@ var WorkerMessageHandler = {
                 // For compatibility with older behavior, generating unknown
                 // unsupported feature notification on errors.
                 handler.send("UnsupportedFeature", {
-                  featureId: UNSUPPORTED_FEATURES.unknown,
+                  featureId: UNSUPPORTED_FEATURES.errorOperatorList,
                 });
 
                 sink.error(reason);
@@ -560,10 +575,10 @@ var WorkerMessageHandler = {
 
     handler.on("GetTextContent", function wphExtractText(data, sink) {
       var pageIndex = data.pageIndex;
-      sink.onPull = function(desiredSize) {};
-      sink.onCancel = function(reason) {};
+      sink.onPull = function (desiredSize) {};
+      sink.onCancel = function (reason) {};
 
-      pdfManager.getPage(pageIndex).then(function(page) {
+      pdfManager.getPage(pageIndex).then(function (page) {
         var task = new WorkerTask("GetTextContent: page " + pageIndex);
         startWorkerTask(task);
 
@@ -579,7 +594,7 @@ var WorkerMessageHandler = {
             combineTextItems: data.combineTextItems,
           })
           .then(
-            function() {
+            function () {
               finishWorkerTask(task);
 
               if (start) {
@@ -590,7 +605,7 @@ var WorkerMessageHandler = {
               }
               sink.close();
             },
-            function(reason) {
+            function (reason) {
               finishWorkerTask(task);
               if (task.terminated) {
                 return; // ignoring errors from the terminated thread
@@ -604,12 +619,12 @@ var WorkerMessageHandler = {
       });
     });
 
-    handler.on("FontFallback", function(data) {
+    handler.on("FontFallback", function (data) {
       return pdfManager.fontFallback(data.id, handler);
     });
 
     handler.on("Cleanup", function wphCleanup(data) {
-      return pdfManager.cleanup();
+      return pdfManager.cleanup(/* manuallyTriggered = */ true);
     });
 
     handler.on("Terminate", function wphTerminate(data) {
@@ -630,12 +645,12 @@ var WorkerMessageHandler = {
         cancelXHRs(new AbortException("Worker was terminated."));
       }
 
-      WorkerTasks.forEach(function(task) {
+      WorkerTasks.forEach(function (task) {
         waitOn.push(task.finished);
         task.terminate();
       });
 
-      return Promise.all(waitOn).then(function() {
+      return Promise.all(waitOn).then(function () {
         // Notice that even if we destroying handler, resolved response promise
         // must be sent back.
         handler.destroy();
@@ -662,7 +677,7 @@ function isMessagePort(maybePort) {
   );
 }
 
-// Worker thread (and not node.js)?
+// Worker thread (and not Node.js)?
 if (
   typeof window === "undefined" &&
   !isNodeJS &&

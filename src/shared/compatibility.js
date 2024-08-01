@@ -14,11 +14,11 @@
  */
 /* eslint no-var: error */
 
-// Skip compatibility checks for modern builds (unless we're running the
-// unit-tests in Node.js/Travis) and if we already ran the module.
+import { isNodeJS } from "./is_node.js";
+
+// Skip compatibility checks for modern builds and if we already ran the module.
 if (
-  (typeof PDFJSDev === "undefined" ||
-    PDFJSDev.test("!SKIP_BABEL || (LIB && TESTING)")) &&
+  (typeof PDFJSDev === "undefined" || !PDFJSDev.test("SKIP_BABEL")) &&
   (typeof globalThis === "undefined" || !globalThis._pdfjsCompatibilityChecked)
 ) {
   // Provides support for globalThis in legacy browsers.
@@ -28,8 +28,6 @@ if (
     globalThis = require("core-js/es/global-this");
   }
   globalThis._pdfjsCompatibilityChecked = true;
-
-  const { isNodeJS } = require("./is_node.js");
 
   const hasDOM = typeof window === "object" && typeof document === "object";
   const userAgent =
@@ -41,7 +39,7 @@ if (
     if (globalThis.btoa || !isNodeJS) {
       return;
     }
-    globalThis.btoa = function(chars) {
+    globalThis.btoa = function (chars) {
       // eslint-disable-next-line no-undef
       return Buffer.from(chars, "binary").toString("base64");
     };
@@ -52,7 +50,7 @@ if (
     if (globalThis.atob || !isNodeJS) {
       return;
     }
-    globalThis.atob = function(input) {
+    globalThis.atob = function (input) {
       // eslint-disable-next-line no-undef
       return Buffer.from(input, "base64").toString("binary");
     };
@@ -67,7 +65,7 @@ if (
     if (typeof Element.prototype.remove !== "undefined") {
       return;
     }
-    Element.prototype.remove = function() {
+    Element.prototype.remove = function () {
       if (this.parentNode) {
         // eslint-disable-next-line mozilla/avoid-removeChild
         this.parentNode.removeChild(this);
@@ -94,12 +92,12 @@ if (
     const OriginalDOMTokenListAdd = DOMTokenList.prototype.add;
     const OriginalDOMTokenListRemove = DOMTokenList.prototype.remove;
 
-    DOMTokenList.prototype.add = function(...tokens) {
+    DOMTokenList.prototype.add = function (...tokens) {
       for (const token of tokens) {
         OriginalDOMTokenListAdd.call(this, token);
       }
     };
-    DOMTokenList.prototype.remove = function(...tokens) {
+    DOMTokenList.prototype.remove = function (...tokens) {
       for (const token of tokens) {
         OriginalDOMTokenListRemove.call(this, token);
       }
@@ -118,7 +116,7 @@ if (
       return;
     }
 
-    DOMTokenList.prototype.toggle = function(token) {
+    DOMTokenList.prototype.toggle = function (token) {
       const force =
         arguments.length > 1 ? !!arguments[1] : !this.contains(token);
       return this[force ? "add" : "remove"](token), force;
@@ -135,11 +133,11 @@ if (
     const OriginalPushState = window.history.pushState;
     const OriginalReplaceState = window.history.replaceState;
 
-    window.history.pushState = function(state, title, url) {
+    window.history.pushState = function (state, title, url) {
       const args = url === undefined ? [state, title] : [state, title, url];
       OriginalPushState.apply(this, args);
     };
-    window.history.replaceState = function(state, title, url) {
+    window.history.replaceState = function (state, title, url) {
       const args = url === undefined ? [state, title] : [state, title, url];
       OriginalReplaceState.apply(this, args);
     };
@@ -226,6 +224,15 @@ if (
     Number.isInteger = require("core-js/es/number/is-integer.js");
   })();
 
+  // Provides support for TypedArray.prototype.slice in legacy browsers.
+  // Support: IE
+  (function checkTypedArraySlice() {
+    if (Uint8Array.prototype.slice) {
+      return;
+    }
+    require("core-js/es/typed-array/slice");
+  })();
+
   // Support: IE, Safari<11, Chrome<63
   (function checkPromise() {
     if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("IMAGE_DECODERS")) {
@@ -241,14 +248,17 @@ if (
 
   // Support: IE
   (function checkURL() {
-    if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("IMAGE_DECODERS")) {
-      // The current image decoders don't use the `URL` constructor, so it
-      // doesn't need to be polyfilled for the IMAGE_DECODERS build target.
+    if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")) {
+      // Prevent "require is not a function" errors in development mode,
+      // since the `URL` constructor should be available in modern browers.
       return;
-    }
-    if (typeof PDFJSDev !== "undefined" && !PDFJSDev.test("GENERIC")) {
+    } else if (!PDFJSDev.test("GENERIC")) {
       // The `URL` constructor is assumed to be available in the extension
       // builds.
+      return;
+    } else if (PDFJSDev.test("IMAGE_DECODERS")) {
+      // The current image decoders don't use the `URL` constructor, so it
+      // doesn't need to be polyfilled for the IMAGE_DECODERS build target.
       return;
     }
     globalThis.URL = require("core-js/web/url.js");

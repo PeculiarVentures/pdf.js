@@ -24,10 +24,10 @@ var ttxResourcesHome = path.join(__dirname, "..", "ttx");
 
 var nextTTXTaskId = Date.now();
 
-function runTtx(ttxResourcesHome, fontPath, registerOnCancel, callback) {
-  fs.realpath(ttxResourcesHome, function(err, ttxResourcesHome) {
-    var fontToolsHome = path.join(ttxResourcesHome, "fonttools-code");
-    fs.realpath(fontPath, function(err, fontPath) {
+function runTtx(ttxResourcesHomePath, fontPath, registerOnCancel, callback) {
+  fs.realpath(ttxResourcesHomePath, function (error, realTtxResourcesHomePath) {
+    var fontToolsHome = path.join(realTtxResourcesHomePath, "fonttools-code");
+    fs.realpath(fontPath, function (errorFontPath, realFontPath) {
       var ttxPath = path.join("Tools", "ttx");
       if (!fs.existsSync(path.join(fontToolsHome, ttxPath))) {
         callback("TTX was not found, please checkout PDF.js submodules");
@@ -38,22 +38,22 @@ function runTtx(ttxResourcesHome, fontPath, registerOnCancel, callback) {
         PYTHONDONTWRITEBYTECODE: true,
       };
       var ttxStdioMode = "ignore";
-      var ttx = spawn("python", [ttxPath, fontPath], {
+      var ttx = spawn("python", [ttxPath, realFontPath], {
         cwd: fontToolsHome,
         stdio: ttxStdioMode,
         env: ttxEnv,
       });
       var ttxRunError;
-      registerOnCancel(function(reason) {
+      registerOnCancel(function (reason) {
         ttxRunError = reason;
         callback(reason);
         ttx.kill();
       });
-      ttx.on("error", function(err) {
-        ttxRunError = err;
+      ttx.on("error", function (errorTtx) {
+        ttxRunError = errorTtx;
         callback("Unable to execute ttx");
       });
-      ttx.on("close", function(code) {
+      ttx.on("close", function (code) {
         if (ttxRunError) {
           return;
         }
@@ -74,7 +74,7 @@ exports.translateFont = function translateFont(
   var resultPath = path.join(ttxResourcesHome, taskId + ".ttx");
 
   fs.writeFileSync(fontPath, buffer);
-  runTtx(ttxResourcesHome, fontPath, registerOnCancel, function(err) {
+  runTtx(ttxResourcesHome, fontPath, registerOnCancel, function (err) {
     fs.unlinkSync(fontPath);
     if (err) {
       console.error(err);

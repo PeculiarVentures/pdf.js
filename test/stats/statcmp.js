@@ -37,16 +37,16 @@ function parseOptions() {
 function group(stats, groupBy) {
   var vals = [];
   for (var i = 0; i < stats.length; i++) {
-    var stat = stats[i];
+    var curStat = stats[i];
     var keyArr = [];
     for (var j = 0; j < groupBy.length; j++) {
-      keyArr.push(stat[groupBy[j]]);
+      keyArr.push(curStat[groupBy[j]]);
     }
     var key = keyArr.join(",");
     if (vals[key] === undefined) {
       vals[key] = [];
     }
-    vals[key].push(stat["time"]);
+    vals[key].push(curStat.time);
   }
   return vals;
 }
@@ -57,21 +57,21 @@ function group(stats, groupBy) {
  */
 function flatten(stats) {
   var rows = [];
-  stats.forEach(function(stat) {
-    stat["stats"].forEach(function(s) {
+  stats.forEach(function (curStat) {
+    curStat.stats.forEach(function (s) {
       rows.push({
-        browser: stat["browser"],
-        page: stat["page"],
-        pdf: stat["pdf"],
-        round: stat["round"],
-        stat: s["name"],
-        time: s["end"] - s["start"],
+        browser: curStat.browser,
+        page: curStat.page,
+        pdf: curStat.pdf,
+        round: curStat.round,
+        stat: s.name,
+        time: s.end - s.start,
       });
     });
   });
   // Use only overall results if not grouped by 'stat'
   if (!options.groupBy.includes("stat")) {
-    rows = rows.filter(function(s) {
+    rows = rows.filter(function (s) {
       return s.stat === "Overall";
     });
   }
@@ -138,7 +138,7 @@ function stat(baseline, current) {
     row,
     rows = [];
   // collect rows and measure column widths
-  var width = labels.map(function(s) {
+  var width = labels.map(function (s) {
     return s.length;
   });
   rows.push(labels);
@@ -172,7 +172,7 @@ function stat(baseline, current) {
   }
 
   // add horizontal line
-  var hline = width.map(function(w) {
+  var hline = width.map(function (w) {
     return new Array(w + 1).join("-");
   });
   rows.splice(1, 0, hline);

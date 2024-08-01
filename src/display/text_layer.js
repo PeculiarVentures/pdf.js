@@ -113,7 +113,22 @@ var renderTextLayer = (function renderTextLayerClosure() {
     // We don't bother scaling single-char text divs, because it has very
     // little effect on text highlighting. This makes scrolling on docs with
     // lots of such divs a lot faster.
+    let shouldScaleText = false;
     if (geom.str.length > 1) {
+      shouldScaleText = true;
+    } else if (geom.transform[0] !== geom.transform[3]) {
+      const absScaleX = Math.abs(geom.transform[0]),
+        absScaleY = Math.abs(geom.transform[3]);
+      // When the horizontal/vertical scaling differs significantly, also scale
+      // even single-char text to improve highlighting (fixes issue11713.pdf).
+      if (
+        absScaleX !== absScaleY &&
+        Math.max(absScaleX, absScaleY) / Math.min(absScaleX, absScaleY) > 1.5
+      ) {
+        shouldScaleText = true;
+      }
+    }
+    if (shouldScaleText) {
       if (style.vertical) {
         textDivProperties.canvasWidth = geom.height * task._viewport.scale;
       } else {
@@ -182,6 +197,17 @@ var renderTextLayer = (function renderTextLayerClosure() {
     capability.resolve();
   }
 
+  function findPositiveMin(ts, offset, count) {
+    let result = 0;
+    for (let i = 0; i < count; i++) {
+      const t = ts[offset++];
+      if (t > 0) {
+        result = result ? Math.min(t, result) : t;
+      }
+    }
+    return result;
+  }
+
   function expand(task) {
     var bounds = task._bounds;
     var viewport = task._viewport;
@@ -208,38 +234,28 @@ var renderTextLayer = (function renderTextLayerClosure() {
       // Finding intersections with expanded box.
       var points = [[0, 0], [0, b.size[1]], [b.size[0], 0], b.size];
       var ts = new Float64Array(64);
-      points.forEach(function(p, i) {
+      points.forEach(function (p, j) {
         var t = Util.applyTransform(p, m);
-        ts[i + 0] = c && (e.left - t[0]) / c;
-        ts[i + 4] = s && (e.top - t[1]) / s;
-        ts[i + 8] = c && (e.right - t[0]) / c;
-        ts[i + 12] = s && (e.bottom - t[1]) / s;
+        ts[j + 0] = c && (e.left - t[0]) / c;
+        ts[j + 4] = s && (e.top - t[1]) / s;
+        ts[j + 8] = c && (e.right - t[0]) / c;
+        ts[j + 12] = s && (e.bottom - t[1]) / s;
 
-        ts[i + 16] = s && (e.left - t[0]) / -s;
-        ts[i + 20] = c && (e.top - t[1]) / c;
-        ts[i + 24] = s && (e.right - t[0]) / -s;
-        ts[i + 28] = c && (e.bottom - t[1]) / c;
+        ts[j + 16] = s && (e.left - t[0]) / -s;
+        ts[j + 20] = c && (e.top - t[1]) / c;
+        ts[j + 24] = s && (e.right - t[0]) / -s;
+        ts[j + 28] = c && (e.bottom - t[1]) / c;
 
-        ts[i + 32] = c && (e.left - t[0]) / -c;
-        ts[i + 36] = s && (e.top - t[1]) / -s;
-        ts[i + 40] = c && (e.right - t[0]) / -c;
-        ts[i + 44] = s && (e.bottom - t[1]) / -s;
+        ts[j + 32] = c && (e.left - t[0]) / -c;
+        ts[j + 36] = s && (e.top - t[1]) / -s;
+        ts[j + 40] = c && (e.right - t[0]) / -c;
+        ts[j + 44] = s && (e.bottom - t[1]) / -s;
 
-        ts[i + 48] = s && (e.left - t[0]) / s;
-        ts[i + 52] = c && (e.top - t[1]) / -c;
-        ts[i + 56] = s && (e.right - t[0]) / s;
-        ts[i + 60] = c && (e.bottom - t[1]) / -c;
+        ts[j + 48] = s && (e.left - t[0]) / s;
+        ts[j + 52] = c && (e.top - t[1]) / -c;
+        ts[j + 56] = s && (e.right - t[0]) / s;
+        ts[j + 60] = c && (e.bottom - t[1]) / -c;
       });
-      var findPositiveMin = function(ts, offset, count) {
-        var result = 0;
-        for (var i = 0; i < count; i++) {
-          var t = ts[offset++];
-          if (t > 0) {
-            result = result ? Math.min(t, result) : t;
-          }
-        }
-        return result;
-      };
       // Not based on math, but to simplify calculations, using cos and sin
       // absolute values to not exceed the box (it can but insignificantly).
       var boxScale = 1 + Math.min(Math.abs(c), Math.abs(s));
@@ -252,7 +268,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
   }
 
   function expandBounds(width, height, boxes) {
-    var bounds = boxes.map(function(box, i) {
+    var bounds = boxes.map(function (box, i) {
       return {
         x1: box.left,
         y1: box.top,
@@ -265,7 +281,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
     });
     expandBoundsLTR(width, bounds);
     var expanded = new Array(boxes.length);
-    bounds.forEach(function(b) {
+    bounds.forEach(function (b) {
       var i = b.index;
       expanded[i] = {
         left: b.x1New,
@@ -277,7 +293,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
 
     // Rotating on 90 degrees and extending extended boxes. Reusing the bounds
     // array and objects.
-    boxes.map(function(box, i) {
+    boxes.map(function (box, i) {
       var e = expanded[i],
         b = bounds[i];
       b.x1 = box.top;
@@ -290,7 +306,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
     });
     expandBoundsLTR(height, bounds);
 
-    bounds.forEach(function(b) {
+    bounds.forEach(function (b) {
       var i = b.index;
       expanded[i].top = b.x1New;
       expanded[i].bottom = b.x2New;
@@ -300,7 +316,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
 
   function expandBoundsLTR(width, bounds) {
     // Sorting by x1 coordinate and walk by the bounds in the same order.
-    bounds.sort(function(a, b) {
+    bounds.sort(function (a, b) {
       return a.x1 - b.x1 || a.index - b.index;
     });
 
@@ -322,7 +338,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
       },
     ];
 
-    bounds.forEach(function(boundary) {
+    bounds.forEach(function (boundary) {
       // Searching for the affected part of horizon.
       // TODO red-black tree or simple binary search
       var i = 0;
@@ -464,7 +480,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
     });
 
     // Set new x2 for all unset boundaries.
-    horizon.forEach(function(horizonPart) {
+    horizon.forEach(function (horizonPart) {
       var affectedBoundary = horizonPart.boundary;
       if (affectedBoundary.x2New === undefined) {
         affectedBoundary.x2New = Math.max(width, affectedBoundary.x2);
@@ -718,6 +734,7 @@ var renderTextLayer = (function renderTextLayerClosure() {
    * @param {TextLayerRenderParameters} renderParameters
    * @returns {TextLayerRenderTask}
    */
+  // eslint-disable-next-line no-shadow
   function renderTextLayer(renderParameters) {
     var task = new TextLayerRenderTask({
       textContent: renderParameters.textContent,

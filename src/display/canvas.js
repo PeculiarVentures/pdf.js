@@ -168,6 +168,7 @@ function addContextCurrentTransform(ctx) {
 }
 
 var CachedCanvases = (function CachedCanvasesClosure() {
+  // eslint-disable-next-line no-shadow
   function CachedCanvases(canvasFactory) {
     this.canvasFactory = canvasFactory;
     this.cache = Object.create(null);
@@ -361,17 +362,17 @@ function compileType3Glyph(imgData) {
     --i;
   }
 
-  var drawOutline = function(c) {
+  var drawOutline = function (c) {
     c.save();
     // the path shall be painted in [0..1]x[0..1] space
     c.scale(1 / width, -1 / height);
     c.translate(0, -height);
     c.beginPath();
-    for (var i = 0, ii = outlines.length; i < ii; i++) {
-      var o = outlines[i];
+    for (let k = 0, kk = outlines.length; k < kk; k++) {
+      var o = outlines[k];
       c.moveTo(o[0], o[1]);
-      for (var j = 2, jj = o.length; j < jj; j += 2) {
-        c.lineTo(o[j], o[j + 1]);
+      for (let l = 2, ll = o.length; l < ll; l += 2) {
+        c.lineTo(o[l], o[l + 1]);
       }
     }
     c.fill();
@@ -383,6 +384,7 @@ function compileType3Glyph(imgData) {
 }
 
 var CanvasExtraState = (function CanvasExtraStateClosure() {
+  // eslint-disable-next-line no-shadow
   function CanvasExtraState() {
     // Are soft masks and alpha values shapes or opacities?
     this.alphaIsShape = false;
@@ -435,6 +437,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
   // Defines the number of steps before checking the execution time
   var EXECUTION_STEPS = 10;
 
+  // eslint-disable-next-line no-shadow
   function CanvasGraphics(
     canvasCtx,
     commonObjs,
@@ -1495,7 +1498,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       var isAddToPathSet = !!(
         textRenderingMode & TextRenderingMode.ADD_TO_PATH_FLAG
       );
-      const patternFill = current.patternFill && font.data;
+      const patternFill = current.patternFill && !font.missingFile;
 
       var addToPath;
       if (font.disableFontFace || isAddToPathSet || patternFill) {
@@ -2110,46 +2113,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       this.restore();
     },
 
-    paintJpegXObject: function CanvasGraphics_paintJpegXObject(objId, w, h) {
-      const domImage = this.processingType3
-        ? this.commonObjs.get(objId)
-        : this.objs.get(objId);
-      if (!domImage) {
-        warn("Dependent image isn't ready yet");
-        return;
-      }
-
-      this.save();
-
-      var ctx = this.ctx;
-      // scale the image to the unit square
-      ctx.scale(1 / w, -1 / h);
-
-      ctx.drawImage(
-        domImage,
-        0,
-        0,
-        domImage.width,
-        domImage.height,
-        0,
-        -h,
-        w,
-        h
-      );
-      if (this.imageLayer) {
-        var currentTransform = ctx.mozCurrentTransformInverse;
-        var position = this.getCanvasPosition(0, 0);
-        this.imageLayer.appendImage({
-          objId,
-          left: position[0],
-          top: position[1],
-          width: w / currentTransform[0],
-          height: h / currentTransform[3],
-        });
-      }
-      this.restore();
-    },
-
     paintImageMaskXObject: function CanvasGraphics_paintImageMaskXObject(img) {
       var ctx = this.ctx;
       var width = img.width,
@@ -2274,7 +2237,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
     },
 
     paintImageXObject: function CanvasGraphics_paintImageXObject(objId) {
-      const imgData = this.processingType3
+      const imgData = objId.startsWith("g_")
         ? this.commonObjs.get(objId)
         : this.objs.get(objId);
       if (!imgData) {
@@ -2291,7 +2254,7 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       scaleY,
       positions
     ) {
-      const imgData = this.processingType3
+      const imgData = objId.startsWith("g_")
         ? this.commonObjs.get(objId)
         : this.objs.get(objId);
       if (!imgData) {
@@ -2350,9 +2313,9 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       var paintWidth = width,
         paintHeight = height;
       var tmpCanvasId = "prescale1";
-      // Vertial or horizontal scaling shall not be more than 2 to not loose the
+      // Vertical or horizontal scaling shall not be more than 2 to not lose the
       // pixels during drawImage operation, painting on the temporary canvas(es)
-      // that are twice smaller in size
+      // that are twice smaller in size.
       while (
         (widthScale > 2 && paintWidth > 1) ||
         (heightScale > 2 && paintHeight > 1)

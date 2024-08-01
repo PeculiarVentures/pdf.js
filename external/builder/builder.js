@@ -34,10 +34,7 @@ var fs = require("fs"),
  */
 function preprocess(inFilename, outFilename, defines) {
   // TODO make this really read line by line.
-  var lines = fs
-    .readFileSync(inFilename)
-    .toString()
-    .split("\n");
+  var lines = fs.readFileSync(inFilename).toString().split("\n");
   var totalLines = lines.length;
   var out = "";
   var i = 0;
@@ -50,7 +47,7 @@ function preprocess(inFilename, outFilename, defines) {
   var writeLine =
     typeof outFilename === "function"
       ? outFilename
-      : function(line) {
+      : function (line) {
           out += line + "\n";
         };
   function evaluateCondition(code) {
@@ -95,7 +92,7 @@ function preprocess(inFilename, outFilename, defines) {
     }
   }
   function expand(line) {
-    line = line.replace(/__[\w]+__/g, function(variable) {
+    line = line.replace(/__[\w]+__/g, function (variable) {
       variable = variable.substring(2, variable.length - 2);
       if (variable in defines) {
         return defines[variable];
@@ -122,7 +119,7 @@ function preprocess(inFilename, outFilename, defines) {
   var stack = [];
   var control = /^(?:\/\/|<!--)\s*#(if|elif|else|endif|expand|include|error)\b(?:\s+(.*?)(?:-->)?$)?/;
   var lineNumber = 0;
-  var loc = function() {
+  var loc = function () {
     return fs.realpathSync(inFilename) + ":" + lineNumber;
   };
   while ((line = readLine()) !== null) {
@@ -199,23 +196,13 @@ function preprocess(inFilename, outFilename, defines) {
 }
 exports.preprocess = preprocess;
 
-var deprecatedInMozcentral = new RegExp(
-  "(^|\\W)(" + ["-moz-box-sizing", "-moz-grab", "-moz-grabbing"].join("|") + ")"
-);
-
 function preprocessCSS(mode, source, destination) {
-  function hasPrefixedFirefox(line) {
+  function hasPrefixedMozcentral(line) {
     return /(^|\W)-(ms|o|webkit)-\w/.test(line);
   }
 
-  function hasPrefixedMozcentral(line) {
-    return (
-      /(^|\W)-(ms|o|webkit)-\w/.test(line) || deprecatedInMozcentral.test(line)
-    );
-  }
-
   function expandImports(content, baseUrl) {
-    return content.replace(/^\s*@import\s+url\(([^\)]+)\);\s*$/gm, function(
+    return content.replace(/^\s*@import\s+url\(([^\)]+)\);\s*$/gm, function (
       all,
       url
     ) {
@@ -278,11 +265,8 @@ function preprocessCSS(mode, source, destination) {
 
   var content = fs.readFileSync(source, "utf8").toString();
   content = expandImports(content, source);
-  if (mode === "mozcentral" || mode === "firefox") {
-    content = removePrefixed(
-      content,
-      mode === "mozcentral" ? hasPrefixedMozcentral : hasPrefixedFirefox
-    );
+  if (mode === "mozcentral") {
+    content = removePrefixed(content, hasPrefixedMozcentral);
   }
   fs.writeFileSync(destination, content);
 }

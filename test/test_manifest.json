@@ -726,6 +726,12 @@
        "annotations": true,
        "about": "Annotation with Rect array containing indirect objects."
     },
+    {  "id": "issue11922",
+       "file": "pdfs/issue11922_reduced.pdf",
+       "md5": "711bb4b4bf92d967644b4f88d11a93db",
+       "rounds": 1,
+       "type": "load"
+    },
     {  "id": "file_url_link",
        "file": "pdfs/file_url_link.pdf",
        "md5": "b0253c96c38d43bc49259bbf36db938a",
@@ -902,6 +908,12 @@
        "md5": "bb26f68493e33af17b256a6ffe777a24",
        "rounds": 1,
        "link": false,
+       "type": "eq"
+    },
+    {  "id": "issue11740",
+       "file": "pdfs/issue11740_reduced.pdf",
+       "md5": "f3f2957f171af52229c6e749e8a5572b",
+       "rounds": 1,
        "type": "eq"
     },
     {  "id": "issue10491",
@@ -1101,6 +1113,12 @@
        "link": false,
        "type": "text"
     },
+    {  "id": "issue11713",
+       "file": "pdfs/issue11713.pdf",
+       "md5": "bafe5801234feeb95969da106f2ce6d8",
+       "rounds": 1,
+       "type": "text"
+    },
     {  "id": "bug1250079",
        "file": "pdfs/bug1250079.pdf",
        "md5": "a1dd21a70ae7097d96273e85a80b26ef",
@@ -1120,6 +1138,15 @@
        "md5": "163ee8727c77f27ee651eec777bb20a9",
        "rounds": 1,
        "link": true,
+       "type": "eq"
+    },
+    {  "id": "issue11871",
+       "file": "pdfs/issue11871.pdf",
+       "md5": "9c533eacd0ca892df4191360848668a2",
+       "rounds": 1,
+       "link": true,
+       "firstPage": 2,
+       "lastPage": 2,
        "type": "eq"
     },
     {  "id": "bug1252420",
@@ -1610,8 +1637,7 @@
        "link": true,
        "firstPage": 2,
        "lastPage": 2,
-       "type": "eq",
-       "nativeImageDecoderSupport": "none"
+       "type": "eq"
     },
     {  "id": "issue10529",
        "file": "pdfs/issue10529.pdf",
@@ -2456,6 +2482,14 @@
       "link": true,
       "type": "eq"
     },
+    {  "id": "issue11794",
+       "file": "pdfs/issue11794.pdf",
+       "md5": "00d17b10a5fd7c06cddd7a0d2066ecdd",
+       "rounds": 1,
+       "link": true,
+       "lastPage": 1,
+       "type": "eq"
+    },
     {
       "id": "bug852992",
       "file": "pdfs/bug852992_reduced.pdf",
@@ -3097,6 +3131,12 @@
        "type": "text",
        "about": "Invisible (and broken) TrueType font used for text-selection."
     },
+    {  "id": "issue11768",
+       "file": "pdfs/issue11768_reduced.pdf",
+       "md5": "0cafde97d78bb6883531a325a996a5ef",
+       "rounds": 1,
+       "type": "eq"
+    },
     {  "id": "issue1912",
       "file": "pdfs/issue1912.pdf",
       "md5": "15305b7c2cba971e7423de3f6ad38fef",
@@ -3336,6 +3376,12 @@
     {  "id": "issue10519",
        "file": "pdfs/issue10519_reduced.pdf",
        "md5": "8a2dae43c0ef47b0734bedaaa24f8c09",
+       "rounds": 1,
+       "type": "eq"
+    },
+    {  "id": "issue11718",
+       "file": "pdfs/issue11718_reduced.pdf",
+       "md5": "a0deea064b4171bb8ea9f6e8a523e594",
        "rounds": 1,
        "type": "eq"
     },
@@ -4134,22 +4180,12 @@
        "link": true,
        "type": "eq"
     },
-    {  "id": "issue4926-built-in-jpg",
-       "file": "pdfs/issue4926.pdf",
-       "md5": "ed881c8ea2f9bc4be94ecb7f2b2c149b",
-       "rounds": 1,
-       "link": true,
-       "lastPage": 1,
-       "type": "eq",
-       "nativeImageDecoderSupport": "none"
-    },
     {  "id": "decodeACSuccessive",
        "file": "pdfs/decodeACSuccessive.pdf",
        "md5": "7749c032624fe27ab8e8d7d5e9a4a93f",
        "rounds": 1,
        "link": false,
-       "type": "eq",
-       "nativeImageDecoderSupport": "none"
+       "type": "eq"
     },
     {  "id": "issue5592",
        "file": "pdfs/issue5592.pdf",
