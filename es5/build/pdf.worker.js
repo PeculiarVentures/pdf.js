@@ -133,8 +133,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", {
   }
 });
 var _worker = __w_pdfjs_require__(1);
-var pdfjsVersion = '2.6.383';
-var pdfjsBuild = '17cc73c6f';
+var pdfjsVersion = '2.6.384';
+var pdfjsBuild = '38c2bc8bc';
 
 /***/ }),
 /* 1 */
@@ -243,7 +243,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.6.383';
+      var workerVersion = '2.6.384';
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
       }

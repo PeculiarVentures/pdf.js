@@ -326,8 +326,8 @@ var _api_compatibility = __w_pdfjs_require__(304);
 var _worker_options = __w_pdfjs_require__(307);
 var _text_layer = __w_pdfjs_require__(315);
 var _svg = __w_pdfjs_require__(316);
-var pdfjsVersion = '2.6.383';
-var pdfjsBuild = '17cc73c6f';
+var pdfjsVersion = '2.6.384';
+var pdfjsBuild = '38c2bc8bc';
 {
   var _require = __w_pdfjs_require__(4),
     isNodeJS = _require.isNodeJS;
@@ -14002,7 +14002,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId: docId,
-    apiVersion: '2.6.383',
+    apiVersion: '2.6.384',
     source: {
       data: source.data,
       url: source.url,
@@ -15968,8 +15968,8 @@ var InternalRenderTask = function InternalRenderTaskClosure() {
   }();
   return InternalRenderTask;
 }();
-var version = exports.version = '2.6.383';
-var build = exports.build = '17cc73c6f';
+var version = exports.version = '2.6.384';
+var build = exports.build = '38c2bc8bc';
 
 /***/ }),
 /* 301 */

@@ -400,6 +400,11 @@ export type RenderParameters = {
      * states set.
      */
     optionalContentConfigPromise?: Promise<OptionalContentConfig>;
+    /**
+     * - Enforcing the rendering of
+     * Sig annotation appearance.
+     */
+    forceRenderSigAnnot?: boolean;
 };
 /**
  * PDF page operator list.
@@ -875,6 +880,8 @@ export class PDFDocumentProxy {
  *   created from `PDFDocumentProxy.getOptionalContentConfig`. If `null`,
  *   the configuration will be fetched automatically with the default visibility
  *   states set.
+ * @property {boolean} [forceRenderSigAnnot] - Enforcing the rendering of
+ *   Sig annotation appearance.
  */
 /**
  * PDF page operator list.

@@ -160,8 +160,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(246);
 var _jpg = __w_pdfjs_require__(250);
 var _jpx = __w_pdfjs_require__(251);
-var pdfjsVersion = '2.6.383';
-var pdfjsBuild = '17cc73c6f';
+var pdfjsVersion = '2.6.384';
+var pdfjsBuild = '38c2bc8bc';
 
 /***/ }),
 /* 1 */
