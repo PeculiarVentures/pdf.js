@@ -57,7 +57,6 @@ import { MessageHandler } from "../shared/message_handler.js";
 import { Metadata } from "./metadata.js";
 import { OptionalContentConfig } from "./optional_content_config.js";
 import { PDFDataTransportStream } from "./transport_stream.js";
-import { WebGLContext } from "./webgl.js";
 
 const DEFAULT_RANGE_CHUNK_SIZE = 65536; // 2^16 = 65536
 const RENDERING_CANCELLED_TIMEOUT = 100; // ms
@@ -675,7 +674,7 @@ class PDFDocumentProxy {
    * @type {AnnotationStorage} Storage for annotation data in forms.
    */
   get annotationStorage() {
-    return shadow(this, "annotationStorage", new AnnotationStorage());
+    return this._transport.annotationStorage;
   }
 
   /**
@@ -709,11 +708,15 @@ class PDFDocumentProxy {
   }
 
   /**
-   * @param {{num: number, gen: number}} ref - The page reference. Must have
-   *   the `num` and `gen` properties.
-   * @returns {Promise<{num: number, gen: number}>} A promise that is resolved
-   *   with the page index (starting from zero) that is associated with the
-   *   reference.
+   * @typedef {Object} RefProxy
+   * @property {number} num
+   * @property {number} gen
+   */
+
+  /**
+   * @param {RefProxy} ref - The page reference.
+   * @returns {Promise<number>} A promise that is resolved with the page index,
+   *   starting from zero, that is associated with the reference.
    */
   getPageIndex(ref) {
     return this._transport.getPageIndex(ref);
@@ -731,8 +734,9 @@ class PDFDocumentProxy {
 
   /**
    * @param {string} id - The named destination to get.
-   * @returns {Promise<Array<any>>} A promise that is resolved with all
-   *   information of the given named destination.
+   * @returns {Promise<Array<any> | null>} A promise that is resolved with all
+   *   information of the given named destination, or `null` when the named
+   *   destination is not present in the PDF file.
    */
   getDestination(id) {
     return this._transport.getDestination(id);
@@ -954,13 +958,26 @@ class PDFDocumentProxy {
   }
 
   /**
-   * @param {AnnotationStorage} annotationStorage - Storage for annotation
-   *   data in forms.
    * @returns {Promise<Uint8Array>} A promise that is resolved with a
    *   {Uint8Array} containing the full data of the saved document.
    */
-  saveDocument(annotationStorage) {
-    return this._transport.saveDocument(annotationStorage);
+  saveDocument() {
+    if (
+      (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) &&
+      arguments.length > 0
+    ) {
+      deprecated("saveDocument no longer accepts any options.");
+    }
+    if (
+      (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) &&
+      this._transport.annotationStorage.size <= 0
+    ) {
+      deprecated(
+        "saveDocument called while `annotationStorage` is empty, " +
+          "please use the getData-method instead."
+      );
+    }
+    return this._transport.saveDocument();
   }
 
   /**
@@ -1013,13 +1030,17 @@ class PDFDocumentProxy {
  *   whitespace with standard spaces (0x20). The default value is `false`.
  * @property {boolean} disableCombineTextItems - Do not attempt to combine
  *   same line {@link TextItem}'s. The default value is `false`.
+ * @property {boolean} [includeMarkedContent] - When true include marked
+ *   content items in the items array of TextContent. The default is `false`.
  */
 
 /**
  * Page text content.
  *
  * @typedef {Object} TextContent
- * @property {Array<TextItem>} items - Array of {@link TextItem} objects.
+ * @property {Array<TextItem | TextMarkedContent>} items - Array of
+ *   {@link TextItem} and {@link TextMarkedContent} objects. TextMarkedContent
+ *   items are included when includeMarkedContent is true.
  * @property {Object<string, TextStyle>} styles - {@link TextStyle} objects,
  *   indexed by font name.
  */
@@ -1034,6 +1055,17 @@ class PDFDocumentProxy {
  * @property {number} width - Width in device space.
  * @property {number} height - Height in device space.
  * @property {string} fontName - Font name used by PDF.js for converted font.
+ *
+ */
+
+/**
+ * Page text marked content part.
+ *
+ * @typedef {Object} TextMarkedContent
+ * @property {string} type - Either 'beginMarkedContent',
+ *   'beginMarkedContentProps', or 'endMarkedContent'.
+ * @property {string} id - The marked content identifier. Only used for type
+ *   'beginMarkedContentProps'.
  */
 
 /**
@@ -1064,11 +1096,9 @@ class PDFDocumentProxy {
  *   the `PDFPageProxy.getViewport` method.
  * @property {string} [intent] - Rendering intent, can be 'display' or 'print'.
  *   The default value is 'display'.
- * @property {boolean} [enableWebGL] - Enables WebGL accelerated rendering for
- *   some operations. The default value is `false`.
  * @property {boolean} [renderInteractiveForms] - Whether or not interactive
  *   form elements are rendered in the display layer. If so, we do not render
- *   them on the canvas as well.
+ *   them on the canvas as well. The default value is `false`.
  * @property {Array<any>} [transform] - Additional transform, applied just
  *   before viewport transform.
  * @property {Object} [imageLayer] - An object that has `beginLayout`,
@@ -1080,8 +1110,9 @@ class PDFDocumentProxy {
  *   <color> value, a `CanvasGradient` object (a linear or radial gradient) or
  *   a `CanvasPattern` object (a repetitive image). The default value is
  *   'rgb(255,255,255)'.
- * @property {AnnotationStorage} [annotationStorage] - Storage for annotation
- *   data in forms.
+ * @property {boolean} [includeAnnotationStorage] - Render stored interactive
+ *   form element data, from the {@link AnnotationStorage}-instance, onto the
+ *   canvas itself; useful e.g. for printing. The default value is `false`.
  * @property {Promise<OptionalContentConfig>} [optionalContentConfigPromise] -
  *   A promise that should resolve with an {@link OptionalContentConfig}
  *   created from `PDFDocumentProxy.getOptionalContentConfig`. If `null`,
@@ -1089,6 +1120,25 @@ class PDFDocumentProxy {
  *   states set.
  * @property {boolean} [forceRenderSigAnnot] - Enforcing the rendering of
  *   Sig annotation appearance.
+ */
+
+/**
+ * Structure tree node. The root node will have a role "Root".
+ *
+ * @typedef {Object} StructTreeNode
+ * @property {Array<StructTreeNode | StructTreeContent>} children - Array of
+ *   {@link StructTreeNode} and {@link StructTreeContent} objects.
+ * @property {string} role - element's role, already mapped if a role map exists
+ * in the PDF.
+ */
+
+/**
+ * Structure tree content.
+ *
+ * @typedef {Object} StructTreeContent
+ * @property {string} type - either "content" for page and stream structure
+ *   elements or "object" for object references.
+ * @property {string} id - unique id that will map to the text layer.
  */
 
 /**
@@ -1226,16 +1276,25 @@ class PDFPageProxy {
     canvasContext,
     viewport,
     intent = "display",
-    enableWebGL = false,
     renderInteractiveForms = false,
     transform = null,
     imageLayer = null,
     canvasFactory = null,
     background = null,
-    annotationStorage = null,
+    includeAnnotationStorage = false,
     optionalContentConfigPromise = null,
     forceRenderSigAnnot = false,
   }) {
+    if (
+      (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) &&
+      arguments[0]?.annotationStorage !== undefined
+    ) {
+      deprecated(
+        "render no longer accepts an `annotationStorage` option, " +
+          "please use the `includeAnnotationStorage`-boolean instead."
+      );
+      includeAnnotationStorage ||= !!arguments[0].annotationStorage;
+    }
     if (this._stats) {
       this._stats.time("Overall");
     }
@@ -1264,9 +1323,9 @@ class PDFPageProxy {
     const canvasFactoryInstance =
       canvasFactory ||
       new DefaultCanvasFactory({ ownerDocument: this._ownerDocument });
-    const webGLContext = new WebGLContext({
-      enable: enableWebGL,
-    });
+    const annotationStorage = includeAnnotationStorage
+      ? this._transport.annotationStorage.serializable
+      : null;
 
     // If there's no displayReadyCapability yet, then the operatorList
     // was never requested before. Make the request and create the promise.
@@ -1285,7 +1344,7 @@ class PDFPageProxy {
         pageIndex: this._pageIndex,
         intent: renderingIntent,
         renderInteractiveForms: renderInteractiveForms === true,
-        annotationStorage: annotationStorage?.serializable || null,
+        annotationStorage,
         forceRenderSigAnnot: forceRenderSigAnnot === true,
       });
     }
@@ -1331,7 +1390,6 @@ class PDFPageProxy {
       operatorList: intentState.operatorList,
       pageIndex: this._pageIndex,
       canvasFactory: canvasFactoryInstance,
-      webGLContext,
       useRequestAnimationFrame: renderingIntent !== "print",
       pdfBug: this._pdfBug,
     });
@@ -1412,6 +1470,7 @@ class PDFPageProxy {
   streamTextContent({
     normalizeWhitespace = false,
     disableCombineTextItems = false,
+    includeMarkedContent = false,
   } = {}) {
     const TEXT_CONTENT_CHUNK_SIZE = 100;
 
@@ -1421,6 +1480,7 @@ class PDFPageProxy {
         pageIndex: this._pageIndex,
         normalizeWhitespace: normalizeWhitespace === true,
         combineTextItems: disableCombineTextItems !== true,
+        includeMarkedContent: includeMarkedContent === true,
       },
       {
         highWaterMark: TEXT_CONTENT_CHUNK_SIZE,
@@ -1462,6 +1522,17 @@ class PDFPageProxy {
   }
 
   /**
+   * @returns {Promise<StructTreeNode>} A promise that is resolved with a
+   *   {@link StructTreeNode} object that represents the page's structure tree,
+   *   or `null` when no structure tree is present for the current page.
+   */
+  getStructTree() {
+    return (this._structTreePromise ||= this._transport.getStructTree(
+      this._pageIndex
+    ));
+  }
+
+  /**
    * Destroys the page object.
    * @private
    */
@@ -1490,6 +1561,7 @@ class PDFPageProxy {
     this._annotationsPromise = null;
     this._jsActionsPromise = null;
     this._xfaPromise = null;
+    this._structTreePromise = null;
     this.pendingCleanup = false;
     return Promise.all(waitOn);
   }
@@ -1525,6 +1597,7 @@ class PDFPageProxy {
     this._annotationsPromise = null;
     this._jsActionsPromise = null;
     this._xfaPromise = null;
+    this._structTreePromise = null;
     if (resetStats && this._stats) {
       this._stats = new StatTimer();
     }
@@ -1735,7 +1808,10 @@ class LoopbackPort {
         }
         return result;
       }
-      result = Array.isArray(value) ? [] : {};
+      if (value instanceof URL) {
+        throw new Error(`LoopbackPort.postMessage - cannot clone: ${value}`);
+      }
+      result = Array.isArray(value) ? [] : Object.create(null);
       cloned.set(value, result); // Adding to cache now for cyclic references.
       // Cloning all value and object properties, however ignoring properties
       // defined via getter.
@@ -2216,8 +2292,8 @@ class WorkerTransport {
     this.setupMessageHandler();
   }
 
-  get loadingTaskSettled() {
-    return this.loadingTask._capability.settled;
+  get annotationStorage() {
+    return shadow(this, "annotationStorage", new AnnotationStorage());
   }
 
   destroy() {
@@ -2237,28 +2313,21 @@ class WorkerTransport {
     const waitOn = [];
     // We need to wait for all renderings to be completed, e.g.
     // timeout/rAF can take a long time.
-    this.pageCache.forEach(function (page) {
+    for (const page of this.pageCache) {
       if (page) {
         waitOn.push(page._destroy());
       }
-    });
+    }
     this.pageCache.length = 0;
     this.pagePromises.length = 0;
+    // Allow `AnnotationStorage`-related clean-up when destroying the document.
+    if (this.hasOwnProperty("annotationStorage")) {
+      this.annotationStorage.resetModified();
+    }
     // We also need to wait for the worker to finish its long running tasks.
     const terminated = this.messageHandler.sendWithPromise("Terminate", null);
     waitOn.push(terminated);
-    // Allow `AnnotationStorage`-related clean-up when destroying the document.
-    if (this.loadingTaskSettled) {
-      const annotationStorageResetModified = this.loadingTask.promise
-        .then(pdfDocument => {
-          // Avoid initializing the `annotationStorage` if it doesn't exist.
-          if (pdfDocument.hasOwnProperty("annotationStorage")) {
-            pdfDocument.annotationStorage.resetModified();
-          }
-        })
-        .catch(() => {});
-      waitOn.push(annotationStorageResetModified);
-    }
+
     Promise.all(waitOn).then(() => {
       this.commonObjs.clear();
       this.fontLoader.clear();
@@ -2693,17 +2762,15 @@ class WorkerTransport {
     });
   }
 
-  saveDocument(annotationStorage) {
+  saveDocument() {
     return this.messageHandler
       .sendWithPromise("SaveDocument", {
         numPages: this._numPages,
-        annotationStorage: annotationStorage?.serializable || null,
+        annotationStorage: this.annotationStorage.serializable,
         filename: this._fullReader?.filename ?? null,
       })
       .finally(() => {
-        if (annotationStorage) {
-          annotationStorage.resetModified();
-        }
+        this.annotationStorage.resetModified();
       });
   }
 
@@ -2775,6 +2842,12 @@ class WorkerTransport {
 
   getPageXfa(pageIndex) {
     return this.messageHandler.sendWithPromise("GetPageXfa", {
+      pageIndex,
+    });
+  }
+
+  getStructTree(pageIndex) {
+    return this.messageHandler.sendWithPromise("GetStructTree", {
       pageIndex,
     });
   }
@@ -2973,7 +3046,6 @@ const InternalRenderTask = (function InternalRenderTaskClosure() {
       operatorList,
       pageIndex,
       canvasFactory,
-      webGLContext,
       useRequestAnimationFrame = false,
       pdfBug = false,
     }) {
@@ -2985,7 +3057,6 @@ const InternalRenderTask = (function InternalRenderTaskClosure() {
       this.operatorList = operatorList;
       this._pageIndex = pageIndex;
       this.canvasFactory = canvasFactory;
-      this.webGLContext = webGLContext;
       this._pdfBug = pdfBug;
 
       this.running = false;
@@ -3031,20 +3102,14 @@ const InternalRenderTask = (function InternalRenderTaskClosure() {
         this.stepper.init(this.operatorList);
         this.stepper.nextBreakPoint = this.stepper.getNextBreakPoint();
       }
-      const {
-        canvasContext,
-        viewport,
-        transform,
-        imageLayer,
-        background,
-      } = this.params;
+      const { canvasContext, viewport, transform, imageLayer, background } =
+        this.params;
 
       this.gfx = new CanvasGraphics(
         canvasContext,
         this.commonObjs,
         this.objs,
         this.canvasFactory,
-        this.webGLContext,
         imageLayer,
         optionalContentConfig
       );

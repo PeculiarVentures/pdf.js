@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable no-var */
 
 import {
   AbortException,
@@ -69,7 +68,7 @@ class WorkerTask {
 
 class WorkerMessageHandler {
   static setup(handler, port) {
-    var testMessageProcessed = false;
+    let testMessageProcessed = false;
     handler.on("test", function wphSetupTest(data) {
       if (testMessageProcessed) {
         return; // we already processed 'test' message once
@@ -100,10 +99,10 @@ class WorkerMessageHandler {
   static createDocumentHandler(docParams, port) {
     // This context is actually holds references on pdfManager and handler,
     // until the latter is destroyed.
-    var pdfManager;
-    var terminated = false;
-    var cancelXHRs = null;
-    var WorkerTasks = [];
+    let pdfManager;
+    let terminated = false;
+    let cancelXHRs = null;
+    const WorkerTasks = [];
     const verbosity = getVerbosityLevel();
 
     const apiVersion = docParams.apiVersion;
@@ -152,10 +151,10 @@ class WorkerMessageHandler {
       }
     }
 
-    var docId = docParams.docId;
-    var docBaseUrl = docParams.docBaseUrl;
-    var workerHandlerName = docParams.docId + "_worker";
-    var handler = new MessageHandler(workerHandlerName, docId, port);
+    const docId = docParams.docId;
+    const docBaseUrl = docParams.docBaseUrl;
+    const workerHandlerName = docParams.docId + "_worker";
+    let handler = new MessageHandler(workerHandlerName, docId, port);
 
     // Ensure that postMessage transfers are always correctly enabled/disabled,
     // to prevent "DataCloneError" in browsers without transfers support.
@@ -173,7 +172,7 @@ class WorkerMessageHandler {
 
     function finishWorkerTask(task) {
       task.finish();
-      var i = WorkerTasks.indexOf(task);
+      const i = WorkerTasks.indexOf(task);
       WorkerTasks.splice(i, 1);
     }
 
@@ -193,14 +192,25 @@ class WorkerMessageHandler {
         pdfManager.ensureDoc("fingerprint"),
         pdfManager.ensureDoc("isPureXfa"),
       ]);
+
+      if (isPureXfa) {
+        const task = new WorkerTask("loadXfaFonts");
+        startWorkerTask(task);
+        await pdfManager
+          .loadXfaFonts(handler, task)
+          .catch(reason => {
+            // Ignore errors, to allow the document to load.
+          })
+          .then(() => finishWorkerTask(task));
+      }
       return { numPages, fingerprint, isPureXfa };
     }
 
     function getPdfManager(data, evaluatorOptions, enableXfa) {
-      var pdfManagerCapability = createPromiseCapability();
+      const pdfManagerCapability = createPromiseCapability();
       let newPdfManager;
 
-      var source = data.source;
+      const source = data.source;
       if (source.data) {
         try {
           newPdfManager = new LocalPdfManager(
@@ -218,7 +228,7 @@ class WorkerMessageHandler {
         return pdfManagerCapability.promise;
       }
 
-      var pdfStream,
+      let pdfStream,
         cachedChunks = [];
       try {
         pdfStream = new PDFWorkerStream(handler);
@@ -227,7 +237,7 @@ class WorkerMessageHandler {
         return pdfManagerCapability.promise;
       }
 
-      var fullRequest = pdfStream.getFullReader();
+      const fullRequest = pdfStream.getFullReader();
       fullRequest.headersReady
         .then(function () {
           if (!fullRequest.isRangeSupported) {
@@ -235,7 +245,7 @@ class WorkerMessageHandler {
           }
 
           // We don't need auto-fetch when streaming is enabled.
-          var disableAutoFetch =
+          const disableAutoFetch =
             source.disableAutoFetch || fullRequest.isStreamingSupported;
           newPdfManager = new NetworkPdfManager(
             docId,
@@ -267,9 +277,9 @@ class WorkerMessageHandler {
           cancelXHRs = null;
         });
 
-      var loaded = 0;
-      var flushChunks = function () {
-        var pdfFile = arraysToBytes(cachedChunks);
+      let loaded = 0;
+      const flushChunks = function () {
+        const pdfFile = arraysToBytes(cachedChunks);
         if (source.length && pdfFile.length !== source.length) {
           warn("reported HTTP length is different from actual");
         }
@@ -289,8 +299,8 @@ class WorkerMessageHandler {
         }
         cachedChunks = [];
       };
-      var readPromise = new Promise(function (resolve, reject) {
-        var readChunk = function ({ value, done }) {
+      const readPromise = new Promise(function (resolve, reject) {
+        const readChunk = function ({ value, done }) {
           try {
             ensureNotTerminated();
             if (done) {
@@ -344,7 +354,7 @@ class WorkerMessageHandler {
         ensureNotTerminated();
 
         if (ex instanceof PasswordException) {
-          var task = new WorkerTask(`PasswordException: response ${ex.code}`);
+          const task = new WorkerTask(`PasswordException: response ${ex.code}`);
           startWorkerTask(task);
 
           handler
@@ -395,7 +405,7 @@ class WorkerMessageHandler {
 
       ensureNotTerminated();
 
-      var evaluatorOptions = {
+      const evaluatorOptions = {
         maxImageSize: data.maxImageSize,
         disableFontFace: data.disableFontFace,
         ignoreErrors: data.ignoreErrors,
@@ -487,7 +497,7 @@ class WorkerMessageHandler {
 
     handler.on("GetPageJSActions", function ({ pageIndex }) {
       return pdfManager.getPage(pageIndex).then(function (page) {
-        return page.jsActions;
+        return pdfManager.ensure(page, "jsActions");
       });
     });
 
@@ -495,10 +505,6 @@ class WorkerMessageHandler {
       return pdfManager.getPage(pageIndex).then(function (page) {
         return pdfManager.ensure(page, "xfaData");
       });
-    });
-
-    handler.on("GetIsPureXfa", function wphSetupGetIsPureXfa(data) {
-      return pdfManager.ensureDoc("isPureXfa");
     });
 
     handler.on("GetOutline", function wphSetupGetOutline(data) {
@@ -626,11 +632,11 @@ class WorkerMessageHandler {
 
             newXrefInfo = {
               rootRef: xref.trailer.getRaw("Root") || null,
-              encrypt: xref.trailer.getRaw("Encrypt") || null,
+              encryptRef: xref.trailer.getRaw("Encrypt") || null,
               newRef: xref.getNewRef(),
               infoRef: xref.trailer.getRaw("Info") || null,
               info: infoObj,
-              fileIds: xref.trailer.getRaw("ID") || null,
+              fileIds: xref.trailer.get("ID") || null,
               startXRef,
               filename,
             };
@@ -649,9 +655,9 @@ class WorkerMessageHandler {
     );
 
     handler.on("GetOperatorList", function wphSetupRenderPage(data, sink) {
-      var pageIndex = data.pageIndex;
+      const pageIndex = data.pageIndex;
       pdfManager.getPage(pageIndex).then(function (page) {
-        var task = new WorkerTask(`GetOperatorList: page ${pageIndex}`);
+        const task = new WorkerTask(`GetOperatorList: page ${pageIndex}`);
         startWorkerTask(task);
 
         // NOTE: Keep this condition in sync with the `info` helper function.
@@ -701,12 +707,12 @@ class WorkerMessageHandler {
     });
 
     handler.on("GetTextContent", function wphExtractText(data, sink) {
-      var pageIndex = data.pageIndex;
+      const pageIndex = data.pageIndex;
       sink.onPull = function (desiredSize) {};
       sink.onCancel = function (reason) {};
 
       pdfManager.getPage(pageIndex).then(function (page) {
-        var task = new WorkerTask("GetTextContent: page " + pageIndex);
+        const task = new WorkerTask("GetTextContent: page " + pageIndex);
         startWorkerTask(task);
 
         // NOTE: Keep this condition in sync with the `info` helper function.
@@ -718,6 +724,7 @@ class WorkerMessageHandler {
             task,
             sink,
             normalizeWhitespace: data.normalizeWhitespace,
+            includeMarkedContent: data.includeMarkedContent,
             combineTextItems: data.combineTextItems,
           })
           .then(
@@ -743,6 +750,12 @@ class WorkerMessageHandler {
               //       "Uncaught exception: ..." messages in the console)?
             }
           );
+      });
+    });
+
+    handler.on("GetStructTree", function wphGetStructTree(data) {
+      return pdfManager.getPage(data.pageIndex).then(function (page) {
+        return pdfManager.ensure(page, "getStructTree");
       });
     });
 
@@ -772,10 +785,10 @@ class WorkerMessageHandler {
         cancelXHRs(new AbortException("Worker was terminated."));
       }
 
-      WorkerTasks.forEach(function (task) {
+      for (const task of WorkerTasks) {
         waitOn.push(task.finished);
         task.terminate();
-      });
+      }
 
       return Promise.all(waitOn).then(function () {
         // Notice that even if we destroying handler, resolved response promise
@@ -793,7 +806,7 @@ class WorkerMessageHandler {
   }
 
   static initializeFromPort(port) {
-    var handler = new MessageHandler("worker", "main", port);
+    const handler = new MessageHandler("worker", "main", port);
     WorkerMessageHandler.setup(handler, port);
     handler.send("ready", null);
   }
