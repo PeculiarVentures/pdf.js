@@ -943,7 +943,14 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
 
         // Falling back to a default font to avoid completely broken rendering,
         // but note that there're no guarantees that things will look "correct".
-        fontRef = PartialEvaluator.getFallbackFontDict();
+        // PV Patch, use instance cache scope instead of class static property
+        // so correctly works in fake worker.
+        if (this._fallbackFontDict) {
+          fontRef = this._fallbackFontDict;
+        } else {
+          fontRef = PartialEvaluator.getFallbackFontDict();
+          this._fallbackFontDict = fontRef;
+        }
       }
 
       if (this.fontCache.has(fontRef)) {
@@ -3242,9 +3249,11 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
   // TODO: Change this to a `static` getter, using shadowing, once
   //       `PartialEvaluator` is converted to a proper class.
   PartialEvaluator.getFallbackFontDict = function () {
-    if (this._fallbackFontDict) {
-      return this._fallbackFontDict;
-    }
+    // PV Patch, use instance cache scope instead of class static property
+    // so correctly works in fake worker.
+    // if (this._fallbackFontDict) {
+    //   return this._fallbackFontDict;
+    // }
     const dict = new Dict();
     dict.set("BaseFont", Name.get("PDFJS-FallbackFont"));
     dict.set("Type", Name.get("FallbackType"));
