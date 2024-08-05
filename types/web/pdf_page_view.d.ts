@@ -1,0 +1,175 @@
+export type PDFPageViewOptions = {
+    /**
+     * - The viewer element.
+     */
+    container: HTMLDivElement;
+    /**
+     * - The application event bus.
+     */
+    eventBus: EventBus;
+    /**
+     * - The page unique ID (normally its number).
+     */
+    id: number;
+    /**
+     * - The page scale display.
+     */
+    scale: number;
+    /**
+     * - The page viewport.
+     */
+    defaultViewport: PageViewport;
+    /**
+     * -
+     * A promise that is resolved with an {@link OptionalContentConfig } instance.
+     * The default value is `null`.
+     */
+    optionalContentConfigPromise?: Promise<OptionalContentConfig> | undefined;
+    /**
+     * - The rendering queue object.
+     */
+    renderingQueue: PDFRenderingQueue;
+    textLayerFactory: IPDFTextLayerFactory;
+    /**
+     * - Controls if the text layer used for
+     * selection and searching is created, and if the improved text selection
+     * behaviour is enabled. The constants from {TextLayerMode} should be used.
+     * The default value is `TextLayerMode.ENABLE`.
+     */
+    textLayerMode?: number | undefined;
+    annotationLayerFactory: IPDFAnnotationLayerFactory;
+    xfaLayerFactory: IPDFXfaLayerFactory;
+    structTreeLayerFactory: IPDFStructTreeLayerFactory;
+    /**
+     * - Path for image resources, mainly
+     * for annotation icons. Include trailing slash.
+     */
+    imageResourcesPath?: string | undefined;
+    /**
+     * - Turns on rendering of
+     * interactive form elements. The default value is `true`.
+     */
+    renderInteractiveForms: boolean;
+    /**
+     * - 'canvas' or 'svg'. The default is 'canvas'.
+     */
+    renderer: string;
+    /**
+     * - Enables CSS only zooming. The default
+     * value is `false`.
+     */
+    useOnlyCssZoom?: boolean | undefined;
+    /**
+     * - The maximum supported canvas size in
+     * total pixels, i.e. width * height. Use -1 for no limit. The default value
+     * is 4096 * 4096 (16 mega-pixels).
+     */
+    maxCanvasPixels?: number | undefined;
+    /**
+     * - Localization service.
+     */
+    l10n: IL10n;
+};
+/**
+ * @implements {IRenderableView}
+ */
+export class PDFPageView implements IRenderableView {
+    /**
+     * @param {PDFPageViewOptions} options
+     */
+    constructor(options: PDFPageViewOptions);
+    id: number;
+    renderingId: string;
+    pdfPage: any;
+    pageLabel: string | null;
+    rotation: number;
+    scale: number;
+    viewport: PageViewport;
+    pdfPageRotate: any;
+    _optionalContentConfigPromise: Promise<OptionalContentConfig> | null;
+    hasRestrictedScaling: boolean;
+    textLayerMode: number | undefined;
+    imageResourcesPath: string;
+    renderInteractiveForms: boolean;
+    useOnlyCssZoom: boolean;
+    maxCanvasPixels: any;
+    eventBus: EventBus;
+    renderingQueue: PDFRenderingQueue;
+    textLayerFactory: IPDFTextLayerFactory;
+    annotationLayerFactory: IPDFAnnotationLayerFactory;
+    xfaLayerFactory: IPDFXfaLayerFactory;
+    structTreeLayerFactory: IPDFStructTreeLayerFactory;
+    renderer: string;
+    l10n: any;
+    paintTask: {
+        promise: any;
+        onRenderContinue(cont: any): void;
+        cancel(): void;
+    } | null;
+    paintedViewportMap: WeakMap<object, any>;
+    renderingState: number;
+    resume: (() => void) | null;
+    _renderError: any;
+    annotationLayer: any;
+    textLayer: any;
+    zoomLayer: ParentNode | null;
+    xfaLayer: any;
+    structTreeLayer: any;
+    div: HTMLDivElement;
+    setPdfPage(pdfPage: any): void;
+    destroy(): void;
+    /**
+     * @private
+     */
+    private _renderAnnotationLayer;
+    /**
+     * @private
+     */
+    private _renderXfaLayer;
+    /**
+     * @private
+     */
+    private _resetZoomLayer;
+    reset({ keepZoomLayer, keepAnnotationLayer, keepXfaLayer, }?: {
+        keepZoomLayer?: boolean | undefined;
+        keepAnnotationLayer?: boolean | undefined;
+        keepXfaLayer?: boolean | undefined;
+    }): void;
+    loadingIconDiv: HTMLDivElement | undefined;
+    update(scale: any, rotation: any, optionalContentConfigPromise?: null): void;
+    /**
+     * PLEASE NOTE: Most likely you want to use the `this.reset()` method,
+     *              rather than calling this one directly.
+     */
+    cancelRendering({ keepAnnotationLayer, keepXfaLayer }?: {
+        keepAnnotationLayer?: boolean | undefined;
+        keepXfaLayer?: boolean | undefined;
+    }): void;
+    _onTextLayerRendered: any;
+    cssTransform({ target, redrawAnnotationLayer, redrawXfaLayer, }: {
+        target: any;
+        redrawAnnotationLayer?: boolean | undefined;
+        redrawXfaLayer?: boolean | undefined;
+    }): void;
+    get width(): any;
+    get height(): any;
+    getPagePoint(x: any, y: any): any;
+    draw(): any;
+    paintOnCanvas(canvasWrapper: any): {
+        promise: any;
+        onRenderContinue(cont: any): void;
+        cancel(): void;
+    };
+    canvas: HTMLCanvasElement | undefined;
+    outputScale: Object | undefined;
+    paintOnSvg(wrapper: any): {
+        promise: any;
+        onRenderContinue(cont: any): void;
+        cancel(): void;
+    };
+    svg: any;
+    /**
+     * @param {string|null} label
+     */
+    setPageLabel(label: string | null): void;
+}
