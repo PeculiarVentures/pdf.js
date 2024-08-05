@@ -720,7 +720,7 @@ class Annotation {
     });
   }
 
-  getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+  getOperatorList(evaluator, task, renderForms, annotationStorage) {
     if (!this.appearance) {
       return Promise.resolve(new OperatorList());
     }
@@ -1337,14 +1337,10 @@ class WidgetAnnotation extends Annotation {
     task,
     renderForms,
     annotationStorage,
-    forceRenderSigAnnot
   ) {
     // Do not render form elements on the canvas when interactive forms are
     // enabled. The display layer is responsible for rendering them instead.
-    if (
-      renderForms &&
-      (!(this instanceof SignatureWidgetAnnotation)) || !forceRenderSigAnnot
-    ) {
+    if (renderForms && !(this instanceof SignatureWidgetAnnotation)) {
       return Promise.resolve(new OperatorList());
     }
 
@@ -1354,7 +1350,6 @@ class WidgetAnnotation extends Annotation {
         task,
         renderForms,
         annotationStorage,
-        forceRenderSigAnnot
       );
     }
 
@@ -1366,7 +1361,6 @@ class WidgetAnnotation extends Annotation {
             task,
             renderForms,
             annotationStorage,
-            forceRenderSigAnnot
           );
         }
 
@@ -1956,7 +1950,7 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
     }
   }
 
-  async getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+  async getOperatorList(evaluator, task, renderForms, annotationStorage) {
     if (this.data.pushButton) {
       return super.getOperatorList(
         evaluator,

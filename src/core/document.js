@@ -327,7 +327,6 @@ class Page {
     intent,
     cacheKey,
     annotationStorage = null,
-    forceRenderSigAnnot,
   }) {
     const contentStreamPromise = this.getContentStream(handler);
     const resourcesPromise = this.loadResources([
@@ -409,7 +408,6 @@ class Page {
                   task,
                   renderForms,
                   annotationStorage,
-                  forceRenderSigAnnot
                 )
                 .catch(function (reason) {
                   warn(

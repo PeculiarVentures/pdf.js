@@ -703,7 +703,6 @@ class WorkerMessageHandler {
             intent: data.intent,
             cacheKey: data.cacheKey,
             annotationStorage: data.annotationStorage,
-            forceRenderSigAnnot: data.forceRenderSigAnnot,
           })
           .then(
             function (operatorListInfo) {

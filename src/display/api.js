@@ -1161,8 +1161,6 @@ class PDFDocumentProxy {
  *   created from `PDFDocumentProxy.getOptionalContentConfig`. If `null`,
  *   the configuration will be fetched automatically with the default visibility
  *   states set.
- * @property {boolean} [forceRenderSigAnnot] - Enforcing the rendering of
- *   Sig annotation appearance.
  */
 
 /**
@@ -1376,7 +1374,6 @@ class PDFPageProxy {
     canvasFactory = null,
     background = null,
     optionalContentConfigPromise = null,
-    forceRenderSigAnnot = false,
   }) {
     if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("GENERIC")) {
       if (arguments[0]?.renderInteractiveForms !== undefined) {
@@ -1453,8 +1450,6 @@ class PDFPageProxy {
       if (this._stats) {
         this._stats.time("Page Request");
       }
-
-      intentArgs.forceRenderSigAnnot = forceRenderSigAnnot === true;
 
       this._pumpOperatorList(intentArgs);
     }
@@ -2014,9 +2009,7 @@ class LoopbackPort {
  */
 
 const PDFWorkerUtil = {
-  // PV patch: allow to disabled worker via options
-  isWorkerDisabled: !!GlobalWorkerOptions.isWorkerDisabled,
-  // end PV patch
+  isWorkerDisabled: false,
   fallbackWorkerSrc: null,
   fakeWorkerId: 0,
 };
@@ -2123,6 +2116,10 @@ class PDFWorker {
   }
 
   _initialize() {
+    // PV patch: allow to disabled worker via options
+    PDFWorkerUtil.isWorkerDisabled = !!GlobalWorkerOptions.isWorkerDisabled;
+    // end PV patch
+
     // If worker support isn't disabled explicit and the browser has worker
     // support, create a new web worker and test if it/the browser fulfills
     // all requirements to run parts of pdf.js in a web worker.
