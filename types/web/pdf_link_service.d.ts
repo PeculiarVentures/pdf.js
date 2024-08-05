@@ -1,4 +1,3 @@
-export type IPDFLinkService = import("./interfaces").IPDFLinkService;
 export type PDFLinkServiceOptions = {
     /**
      * - The application event bus.
@@ -94,13 +93,6 @@ export class PDFLinkService implements IPDFLinkService {
      */
     goToPage(val: number | string): void;
     /**
-     * Wrapper around the `addLinkAttributes`-function in the API.
-     * @param {HTMLAnchorElement} link
-     * @param {string} url
-     * @param {boolean} [newWindow]
-     */
-    addLinkAttributes(link: HTMLAnchorElement, url: string, newWindow?: boolean | undefined): void;
-    /**
      * @param {string|Array} dest - The PDF destination object.
      * @returns {string} The hyperlink to the PDF object.
      */
@@ -142,7 +134,10 @@ export class PDFLinkService implements IPDFLinkService {
  * @implements {IPDFLinkService}
  */
 export class SimpleLinkService implements IPDFLinkService {
+    externalLinkTarget: any;
+    externalLinkRel: any;
     externalLinkEnabled: boolean;
+    _ignoreDestinationZoom: boolean;
     /**
      * @type {number}
      */
@@ -171,12 +166,6 @@ export class SimpleLinkService implements IPDFLinkService {
      * @param {number|string} val - The page number, or page label.
      */
     goToPage(val: number | string): void;
-    /**
-     * @param {HTMLAnchorElement} link
-     * @param {string} url
-     * @param {boolean} [newWindow]
-     */
-    addLinkAttributes(link: HTMLAnchorElement, url: string, newWindow?: boolean | undefined): void;
     /**
      * @param dest - The PDF destination object.
      * @returns {string} The hyperlink to the PDF object.

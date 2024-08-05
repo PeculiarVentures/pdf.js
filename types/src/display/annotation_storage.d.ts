@@ -3,7 +3,6 @@
  */
 export class AnnotationStorage {
     _storage: Map<any, any>;
-    _timeStamp: number;
     _modified: boolean;
     onSetModified: any;
     onResetModified: any;
@@ -38,9 +37,4 @@ export class AnnotationStorage {
      * @ignore
      */
     get serializable(): Map<any, any> | null;
-    /**
-     * PLEASE NOTE: Only intended for usage within the API itself.
-     * @ignore
-     */
-    get lastModified(): string;
 }

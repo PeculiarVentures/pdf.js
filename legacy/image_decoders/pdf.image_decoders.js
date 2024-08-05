@@ -42,7 +42,7 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.IsLittleEndianCached = exports.IsEvalSupportedCached = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
+exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.IsLittleEndianCached = exports.IsEvalSupportedCached = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
 exports.arrayByteLength = arrayByteLength;
 exports.arraysToBytes = arraysToBytes;
 exports.assert = assert;
@@ -101,21 +101,6 @@ function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new T
 function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
 var IDENTITY_MATRIX = exports.IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 var FONT_IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = [0.001, 0, 0, 0.001, 0, 0];
-var RenderingIntentFlag = exports.RenderingIntentFlag = {
-  ANY: 0x01,
-  DISPLAY: 0x02,
-  PRINT: 0x04,
-  ANNOTATIONS_FORMS: 0x10,
-  ANNOTATIONS_STORAGE: 0x20,
-  ANNOTATIONS_DISABLE: 0x40,
-  OPLIST: 0x100
-};
-var AnnotationMode = exports.AnnotationMode = {
-  DISABLE: 0,
-  ENABLE: 1,
-  ENABLE_FORMS: 2,
-  ENABLE_STORAGE: 3
-};
 var PermissionFlag = exports.PermissionFlag = {
   PRINT: 0x04,
   MODIFY_CONTENTS: 0x08,
@@ -407,8 +392,7 @@ var UNSUPPORTED_FEATURES = exports.UNSUPPORTED_FEATURES = {
   errorFontLoadNative: "errorFontLoadNative",
   errorFontBuildPath: "errorFontBuildPath",
   errorFontGetPath: "errorFontGetPath",
-  errorMarkedContent: "errorMarkedContent",
-  errorContentSubStream: "errorContentSubStream"
+  errorMarkedContent: "errorMarkedContent"
 };
 var PasswordResponses = exports.PasswordResponses = {
   NEED_PASSWORD: 1,
@@ -469,26 +453,11 @@ function _isValidProtocol(url) {
       return false;
   }
 }
-function createValidAbsoluteUrl(url) {
-  var baseUrl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+function createValidAbsoluteUrl(url, baseUrl) {
   if (!url) {
     return null;
   }
   try {
-    if (options && typeof url === "string") {
-      if (options.addDefaultProtocol && url.startsWith("www.")) {
-        var dots = url.match(/\./g);
-        if (dots && dots.length >= 2) {
-          url = "http://".concat(url);
-        }
-      }
-      if (options.tryConvertEncoding) {
-        try {
-          url = stringToUTF8String(url);
-        } catch (ex) {}
-      }
-    }
     var absoluteUrl = baseUrl ? new URL(url, baseUrl) : new URL(url);
     if (_isValidProtocol(absoluteUrl)) {
       return absoluteUrl;
@@ -506,12 +475,12 @@ function shadow(obj, prop, value) {
   return value;
 }
 var BaseException = exports.BaseException = function BaseExceptionClosure() {
-  function BaseException(message, name) {
+  function BaseException(message) {
     if (this.constructor === BaseException) {
       unreachable("Cannot initialize BaseException.");
     }
     this.message = message;
-    this.name = name;
+    this.name = this.constructor.name;
   }
   BaseException.prototype = new Error();
   BaseException.constructor = BaseException;
@@ -521,7 +490,7 @@ var PasswordException = exports.PasswordException = /*#__PURE__*/function (_Base
   function PasswordException(msg, code) {
     var _this;
     _classCallCheck(this, PasswordException);
-    _this = _callSuper(this, PasswordException, [msg, "PasswordException"]);
+    _this = _callSuper(this, PasswordException, [msg]);
     _this.code = code;
     return _this;
   }
@@ -532,7 +501,7 @@ var UnknownErrorException = exports.UnknownErrorException = /*#__PURE__*/functio
   function UnknownErrorException(msg, details) {
     var _this2;
     _classCallCheck(this, UnknownErrorException);
-    _this2 = _callSuper(this, UnknownErrorException, [msg, "UnknownErrorException"]);
+    _this2 = _callSuper(this, UnknownErrorException, [msg]);
     _this2.details = details;
     return _this2;
   }
@@ -540,17 +509,17 @@ var UnknownErrorException = exports.UnknownErrorException = /*#__PURE__*/functio
   return _createClass(UnknownErrorException);
 }(BaseException);
 var InvalidPDFException = exports.InvalidPDFException = /*#__PURE__*/function (_BaseException3) {
-  function InvalidPDFException(msg) {
+  function InvalidPDFException() {
     _classCallCheck(this, InvalidPDFException);
-    return _callSuper(this, InvalidPDFException, [msg, "InvalidPDFException"]);
+    return _callSuper(this, InvalidPDFException, arguments);
   }
   _inherits(InvalidPDFException, _BaseException3);
   return _createClass(InvalidPDFException);
 }(BaseException);
 var MissingPDFException = exports.MissingPDFException = /*#__PURE__*/function (_BaseException4) {
-  function MissingPDFException(msg) {
+  function MissingPDFException() {
     _classCallCheck(this, MissingPDFException);
-    return _callSuper(this, MissingPDFException, [msg, "MissingPDFException"]);
+    return _callSuper(this, MissingPDFException, arguments);
   }
   _inherits(MissingPDFException, _BaseException4);
   return _createClass(MissingPDFException);
@@ -559,7 +528,7 @@ var UnexpectedResponseException = exports.UnexpectedResponseException = /*#__PUR
   function UnexpectedResponseException(msg, status) {
     var _this3;
     _classCallCheck(this, UnexpectedResponseException);
-    _this3 = _callSuper(this, UnexpectedResponseException, [msg, "UnexpectedResponseException"]);
+    _this3 = _callSuper(this, UnexpectedResponseException, [msg]);
     _this3.status = status;
     return _this3;
   }
@@ -567,17 +536,17 @@ var UnexpectedResponseException = exports.UnexpectedResponseException = /*#__PUR
   return _createClass(UnexpectedResponseException);
 }(BaseException);
 var FormatError = exports.FormatError = /*#__PURE__*/function (_BaseException6) {
-  function FormatError(msg) {
+  function FormatError() {
     _classCallCheck(this, FormatError);
-    return _callSuper(this, FormatError, [msg, "FormatError"]);
+    return _callSuper(this, FormatError, arguments);
   }
   _inherits(FormatError, _BaseException6);
   return _createClass(FormatError);
 }(BaseException);
 var AbortException = exports.AbortException = /*#__PURE__*/function (_BaseException7) {
-  function AbortException(msg) {
+  function AbortException() {
     _classCallCheck(this, AbortException);
-    return _callSuper(this, AbortException, [msg, "AbortException"]);
+    return _callSuper(this, AbortException, arguments);
   }
   _inherits(AbortException, _BaseException7);
   return _createClass(AbortException);
@@ -3328,7 +3297,7 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 var Jbig2Error = /*#__PURE__*/function (_BaseException) {
   function Jbig2Error(msg) {
     _classCallCheck(this, Jbig2Error);
-    return _callSuper(this, Jbig2Error, ["JBIG2 error: ".concat(msg), "Jbig2Error"]);
+    return _callSuper(this, Jbig2Error, ["JBIG2 error: ".concat(msg)]);
   }
   _inherits(Jbig2Error, _BaseException);
   return _createClass(Jbig2Error);
@@ -5201,7 +5170,6 @@ exports.parseXFAPath = parseXFAPath;
 exports.readInt8 = readInt8;
 exports.readUint16 = readUint16;
 exports.readUint32 = readUint32;
-exports.recoverJsURL = recoverJsURL;
 exports.toRomanNumerals = toRomanNumerals;
 exports.validateCSSFont = validateCSSFont;
 var _util = __w_pdfjs_require__(1);
@@ -5251,7 +5219,7 @@ var MissingDataException = exports.MissingDataException = /*#__PURE__*/function 
   function MissingDataException(begin, end) {
     var _this;
     _classCallCheck(this, MissingDataException);
-    _this = _callSuper(this, MissingDataException, ["Missing data [".concat(begin, ", ").concat(end, ")"), "MissingDataException"]);
+    _this = _callSuper(this, MissingDataException, ["Missing data [".concat(begin, ", ").concat(end, ")")]);
     _this.begin = begin;
     _this.end = end;
     return _this;
@@ -5260,25 +5228,25 @@ var MissingDataException = exports.MissingDataException = /*#__PURE__*/function 
   return _createClass(MissingDataException);
 }(_util.BaseException);
 var ParserEOFException = exports.ParserEOFException = /*#__PURE__*/function (_BaseException2) {
-  function ParserEOFException(msg) {
+  function ParserEOFException() {
     _classCallCheck(this, ParserEOFException);
-    return _callSuper(this, ParserEOFException, [msg, "ParserEOFException"]);
+    return _callSuper(this, ParserEOFException, arguments);
   }
   _inherits(ParserEOFException, _BaseException2);
   return _createClass(ParserEOFException);
 }(_util.BaseException);
 var XRefEntryException = exports.XRefEntryException = /*#__PURE__*/function (_BaseException3) {
-  function XRefEntryException(msg) {
+  function XRefEntryException() {
     _classCallCheck(this, XRefEntryException);
-    return _callSuper(this, XRefEntryException, [msg, "XRefEntryException"]);
+    return _callSuper(this, XRefEntryException, arguments);
   }
   _inherits(XRefEntryException, _BaseException3);
   return _createClass(XRefEntryException);
 }(_util.BaseException);
 var XRefParseException = exports.XRefParseException = /*#__PURE__*/function (_BaseException4) {
-  function XRefParseException(msg) {
+  function XRefParseException() {
     _classCallCheck(this, XRefParseException);
-    return _callSuper(this, XRefParseException, [msg, "XRefParseException"]);
+    return _callSuper(this, XRefParseException, arguments);
   }
   _inherits(XRefParseException, _BaseException4);
   return _createClass(XRefParseException);
@@ -5349,7 +5317,7 @@ function isWhiteSpace(ch) {
   return ch === 0x20 || ch === 0x09 || ch === 0x0d || ch === 0x0a;
 }
 function parseXFAPath(path) {
-  var positionPattern = /(.+)\[(\d+)\]$/;
+  var positionPattern = /(.+)\[([0-9]+)\]$/;
   return path.split(".").map(function (component) {
     var m = component.match(positionPattern);
     if (m) {
@@ -5542,7 +5510,7 @@ function validateCSSFont(cssFontInfo) {
     try {
       for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
         var ident = _step3.value;
-        if (/^(\d|(-(\d|-)))/.test(ident) || !/^[\w-\\]+$/.test(ident)) {
+        if (/^([0-9]|(-([0-9]|-)))/.test(ident) || !/^[a-zA-Z0-9\-_\\]+$/.test(ident)) {
           (0, _util.warn)("XFA - FontFamily contains some invalid <custom-ident>: ".concat(fontFamily, "."));
           return false;
         }
@@ -5559,23 +5527,6 @@ function validateCSSFont(cssFontInfo) {
   cssFontInfo.italicAngle = isNaN(angle) || angle < -90 || angle > 90 ? DEFAULT_CSS_FONT_OBLIQUE : italicAngle.toString();
   return true;
 }
-function recoverJsURL(str) {
-  var URL_OPEN_METHODS = ["app.launchURL", "window.open", "xfa.host.gotoURL"];
-  var regex = new RegExp("^\\s*(" + URL_OPEN_METHODS.join("|").split(".").join("\\.") + ")\\((?:'|\")([^'\"]*)(?:'|\")(?:,\\s*(\\w+)\\)|\\))", "i");
-  var jsUrl = regex.exec(str);
-  if (jsUrl && jsUrl[2]) {
-    var url = jsUrl[2];
-    var newWindow = false;
-    if (jsUrl[3] === "true" && jsUrl[1] === "app.launchURL") {
-      newWindow = true;
-    }
-    return {
-      url: url,
-      newWindow: newWindow
-    };
-  }
-  return null;
-}
 
 /***/ }),
 /* 105 */
@@ -5590,6 +5541,7 @@ exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF 
 exports.clearPrimitiveCaches = clearPrimitiveCaches;
 exports.isCmd = isCmd;
 exports.isDict = isDict;
+exports.isEOF = isEOF;
 exports.isName = isName;
 exports.isRef = isRef;
 exports.isRefsEqual = isRefsEqual;
@@ -5612,7 +5564,7 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-var EOF = exports.EOF = Symbol("EOF");
+var EOF = exports.EOF = {};
 var Name = exports.Name = function NameClosure() {
   var nameCache = Object.create(null);
   var Name = /*#__PURE__*/function () {
@@ -5817,7 +5769,7 @@ var Dict = exports.Dict = /*#__PURE__*/function () {
             if (property === undefined) {
               property = [];
               properties.set(key, property);
-            } else if (!mergeSubDicts || !(value instanceof Dict)) {
+            } else if (!mergeSubDicts) {
               continue;
             }
             property.push(value);
@@ -5845,6 +5797,9 @@ var Dict = exports.Dict = /*#__PURE__*/function () {
           try {
             for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
               var _dict = _step3.value;
+              if (!(_dict instanceof Dict)) {
+                continue;
+              }
               for (var _i2 = 0, _Object$entries2 = Object.entries(_dict._map); _i2 < _Object$entries2.length; _i2++) {
                 var _Object$entries2$_i = _slicedToArray(_Object$entries2[_i2], 2),
                   _key = _Object$entries2$_i[0],
@@ -6002,6 +5957,9 @@ var RefSetCache = exports.RefSetCache = /*#__PURE__*/function () {
     }
   }]);
 }();
+function isEOF(v) {
+  return v === EOF;
+}
 function isName(v, name) {
   return v instanceof Name && (name === undefined || v.name === name);
 }
@@ -7081,7 +7039,7 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 var JpegError = /*#__PURE__*/function (_BaseException) {
   function JpegError(msg) {
     _classCallCheck(this, JpegError);
-    return _callSuper(this, JpegError, ["JPEG error: ".concat(msg), "JpegError"]);
+    return _callSuper(this, JpegError, ["JPEG error: ".concat(msg)]);
   }
   _inherits(JpegError, _BaseException);
   return _createClass(JpegError);
@@ -7090,7 +7048,7 @@ var DNLMarkerError = /*#__PURE__*/function (_BaseException2) {
   function DNLMarkerError(message, scanLines) {
     var _this;
     _classCallCheck(this, DNLMarkerError);
-    _this = _callSuper(this, DNLMarkerError, [message, "DNLMarkerError"]);
+    _this = _callSuper(this, DNLMarkerError, [message]);
     _this.scanLines = scanLines;
     return _this;
   }
@@ -7098,9 +7056,9 @@ var DNLMarkerError = /*#__PURE__*/function (_BaseException2) {
   return _createClass(DNLMarkerError);
 }(_util.BaseException);
 var EOIMarkerError = /*#__PURE__*/function (_BaseException3) {
-  function EOIMarkerError(msg) {
+  function EOIMarkerError() {
     _classCallCheck(this, EOIMarkerError);
-    return _callSuper(this, EOIMarkerError, [msg, "EOIMarkerError"]);
+    return _callSuper(this, EOIMarkerError, arguments);
   }
   _inherits(EOIMarkerError, _BaseException3);
   return _createClass(EOIMarkerError);
@@ -8166,7 +8124,7 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 var JpxError = /*#__PURE__*/function (_BaseException) {
   function JpxError(msg) {
     _classCallCheck(this, JpxError);
-    return _callSuper(this, JpxError, ["JPX error: ".concat(msg), "JpxError"]);
+    return _callSuper(this, JpxError, ["JPX error: ".concat(msg)]);
   }
   _inherits(JpxError, _BaseException);
   return _createClass(JpxError);
@@ -9178,11 +9136,6 @@ function parseTilePackets(context, data, offset, dataLength) {
           zeroBitPlanesTree = new TagTree(width, height);
           precinct.inclusionTree = inclusionTree;
           precinct.zeroBitPlanesTree = zeroBitPlanesTree;
-          for (var l = 0; l < layerNumber; l++) {
-            if (readBits(1) !== 0) {
-              throw new JpxError("Invalid tag tree");
-            }
-          }
         }
         if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {
           while (true) {
@@ -10227,8 +10180,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(103);
 var _jpg = __w_pdfjs_require__(109);
 var _jpx = __w_pdfjs_require__(110);
-var pdfjsVersion = '2.11.384';
-var pdfjsBuild = '492c83bb7';
+var pdfjsVersion = '2.10.422';
+var pdfjsBuild = '02e26dfe9';
 })();
 
 /******/ 	return __webpack_exports__;

@@ -1,4 +1,3 @@
-export type IPDFAnnotationLayerFactory = import("./interfaces").IPDFAnnotationLayerFactory;
 export type AnnotationLayerBuilderOptions = {
     pageDiv: HTMLDivElement;
     pdfPage: PDFPage;
@@ -8,7 +7,7 @@ export type AnnotationLayerBuilderOptions = {
      * for annotation icons. Include trailing slash.
      */
     imageResourcesPath?: string | undefined;
-    renderForms: boolean;
+    renderInteractiveForms: boolean;
     linkService: IPDFLinkService;
     downloadManager: DownloadManager;
     /**
@@ -17,9 +16,6 @@ export type AnnotationLayerBuilderOptions = {
     l10n: IL10n;
     enableScripting?: boolean | undefined;
     hasJSActionsPromise?: Promise<boolean> | undefined;
-    fieldObjectsPromise?: Promise<{
-        [x: string]: Object[];
-    } | null> | undefined;
     mouseState?: Object | undefined;
 };
 /**
@@ -29,34 +25,29 @@ export type AnnotationLayerBuilderOptions = {
  * @property {AnnotationStorage} [annotationStorage]
  * @property {string} [imageResourcesPath] - Path for image resources, mainly
  *   for annotation icons. Include trailing slash.
- * @property {boolean} renderForms
+ * @property {boolean} renderInteractiveForms
  * @property {IPDFLinkService} linkService
  * @property {DownloadManager} downloadManager
  * @property {IL10n} l10n - Localization service.
  * @property {boolean} [enableScripting]
  * @property {Promise<boolean>} [hasJSActionsPromise]
- * @property {Promise<Object<string, Array<Object>> | null>}
- *   [fieldObjectsPromise]
  * @property {Object} [mouseState]
  */
 export class AnnotationLayerBuilder {
     /**
      * @param {AnnotationLayerBuilderOptions} options
      */
-    constructor({ pageDiv, pdfPage, linkService, downloadManager, annotationStorage, imageResourcesPath, renderForms, l10n, enableScripting, hasJSActionsPromise, fieldObjectsPromise, mouseState, }: AnnotationLayerBuilderOptions);
+    constructor({ pageDiv, pdfPage, linkService, downloadManager, annotationStorage, imageResourcesPath, renderInteractiveForms, l10n, enableScripting, hasJSActionsPromise, mouseState, }: AnnotationLayerBuilderOptions);
     pageDiv: HTMLDivElement;
     pdfPage: PDFPage;
     linkService: IPDFLinkService;
     downloadManager: DownloadManager;
     imageResourcesPath: string;
-    renderForms: boolean;
+    renderInteractiveForms: boolean;
     l10n: IL10n;
     annotationStorage: any;
     enableScripting: boolean;
     _hasJSActionsPromise: Promise<boolean>;
-    _fieldObjectsPromise: Promise<{
-        [x: string]: Object[];
-    } | null>;
     _mouseState: Object;
     div: HTMLDivElement | null;
     _cancelled: boolean;
@@ -80,16 +71,12 @@ export class DefaultAnnotationLayerFactory implements IPDFAnnotationLayerFactory
      * @param {AnnotationStorage} [annotationStorage]
      * @param {string} [imageResourcesPath] - Path for image resources, mainly
      *   for annotation icons. Include trailing slash.
-     * @param {boolean} renderForms
+     * @param {boolean} renderInteractiveForms
      * @param {IL10n} l10n
      * @param {boolean} [enableScripting]
      * @param {Promise<boolean>} [hasJSActionsPromise]
      * @param {Object} [mouseState]
-     * @param {Promise<Object<string, Array<Object>> | null>}
-     *   [fieldObjectsPromise]
      * @returns {AnnotationLayerBuilder}
      */
-    createAnnotationLayerBuilder(pageDiv: HTMLDivElement, pdfPage: PDFPage, annotationStorage?: any, imageResourcesPath?: string | undefined, renderForms?: boolean, l10n?: IL10n, enableScripting?: boolean | undefined, hasJSActionsPromise?: Promise<boolean> | undefined, mouseState?: Object | undefined, fieldObjectsPromise?: Promise<{
-        [x: string]: Object[];
-    } | null> | undefined): AnnotationLayerBuilder;
+    createAnnotationLayerBuilder(pageDiv: HTMLDivElement, pdfPage: PDFPage, annotationStorage?: any, imageResourcesPath?: string | undefined, renderInteractiveForms?: boolean, l10n?: IL10n, enableScripting?: boolean | undefined, hasJSActionsPromise?: Promise<boolean> | undefined, mouseState?: Object | undefined): AnnotationLayerBuilder;
 }

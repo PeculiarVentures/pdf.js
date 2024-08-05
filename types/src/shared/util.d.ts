@@ -25,7 +25,6 @@ declare const AbortException_base: any;
  */
 export class AbortException extends AbortException_base {
     [x: string]: any;
-    constructor(msg: any);
 }
 export namespace AnnotationActionEventType {
     const E: string;
@@ -87,12 +86,6 @@ export namespace AnnotationFlag {
 export namespace AnnotationMarkedState {
     const MARKED: string;
     const UNMARKED: string;
-}
-export namespace AnnotationMode {
-    const DISABLE: number;
-    const ENABLE: number;
-    const ENABLE_FORMS: number;
-    const ENABLE_STORAGE: number;
 }
 export namespace AnnotationReplyType {
     const GROUP: string;
@@ -185,11 +178,10 @@ export function createPromiseCapability(): PromiseCapability;
  * Attempts to create a valid absolute URL.
  *
  * @param {URL|string} url - An absolute, or relative, URL.
- * @param {URL|string} [baseUrl] - An absolute URL.
- * @param {Object} [options]
+ * @param {URL|string} baseUrl - An absolute URL.
  * @returns Either a valid {URL}, or `null` otherwise.
  */
-export function createValidAbsoluteUrl(url: URL | string, baseUrl?: string | URL | undefined, options?: Object | undefined): URL | null;
+export function createValidAbsoluteUrl(url: URL | string, baseUrl: URL | string): URL | null;
 export namespace DocumentActionEventType {
     const WC: string;
     const WS: string;
@@ -219,7 +211,6 @@ declare const FormatError_base: any;
  */
 export class FormatError extends FormatError_base {
     [x: string]: any;
-    constructor(msg: any);
 }
 export function getModificationDate(date?: Date): string;
 export function getVerbosityLevel(): number;
@@ -233,7 +224,6 @@ export function info(msg: any): void;
 declare const InvalidPDFException_base: any;
 export class InvalidPDFException extends InvalidPDFException_base {
     [x: string]: any;
-    constructor(msg: any);
 }
 export function isArrayBuffer(v: any): boolean;
 export function isArrayEqual(arr1: any, arr2: any): boolean;
@@ -247,7 +237,6 @@ export function isString(v: any): boolean;
 declare const MissingPDFException_base: any;
 export class MissingPDFException extends MissingPDFException_base {
     [x: string]: any;
-    constructor(msg: any);
 }
 export function objectFromMap(map: any): any;
 export function objectSize(obj: any): number;
@@ -374,16 +363,6 @@ export namespace PermissionFlag {
  * @param {string} str
  */
 export function removeNullCharacters(str: string): string;
-export namespace RenderingIntentFlag {
-    export const ANY: number;
-    export const DISPLAY: number;
-    const PRINT_2: number;
-    export { PRINT_2 as PRINT };
-    export const ANNOTATIONS_FORMS: number;
-    export const ANNOTATIONS_STORAGE: number;
-    export const ANNOTATIONS_DISABLE: number;
-    export const OPLIST: number;
-}
 export function setVerbosityLevel(level: any): void;
 export function shadow(obj: any, prop: any, value: any): any;
 export namespace StreamType {
@@ -452,7 +431,6 @@ export namespace UNSUPPORTED_FEATURES {
     const errorFontBuildPath: string;
     const errorFontGetPath: string;
     const errorMarkedContent: string;
-    const errorContentSubStream: string;
 }
 export function utf8StringToString(str: any): string;
 export class Util {

@@ -42,7 +42,7 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.IsLittleEndianCached = exports.IsEvalSupportedCached = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
+exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.IsLittleEndianCached = exports.IsEvalSupportedCached = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
 exports.arrayByteLength = arrayByteLength;
 exports.arraysToBytes = arraysToBytes;
 exports.assert = assert;
@@ -77,21 +77,6 @@ exports.warn = warn;
 __w_pdfjs_require__(2);
 const IDENTITY_MATRIX = exports.IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 const FONT_IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = [0.001, 0, 0, 0.001, 0, 0];
-const RenderingIntentFlag = exports.RenderingIntentFlag = {
-  ANY: 0x01,
-  DISPLAY: 0x02,
-  PRINT: 0x04,
-  ANNOTATIONS_FORMS: 0x10,
-  ANNOTATIONS_STORAGE: 0x20,
-  ANNOTATIONS_DISABLE: 0x40,
-  OPLIST: 0x100
-};
-const AnnotationMode = exports.AnnotationMode = {
-  DISABLE: 0,
-  ENABLE: 1,
-  ENABLE_FORMS: 2,
-  ENABLE_STORAGE: 3
-};
 const PermissionFlag = exports.PermissionFlag = {
   PRINT: 0x04,
   MODIFY_CONTENTS: 0x08,
@@ -383,8 +368,7 @@ const UNSUPPORTED_FEATURES = exports.UNSUPPORTED_FEATURES = {
   errorFontLoadNative: "errorFontLoadNative",
   errorFontBuildPath: "errorFontBuildPath",
   errorFontGetPath: "errorFontGetPath",
-  errorMarkedContent: "errorMarkedContent",
-  errorContentSubStream: "errorContentSubStream"
+  errorMarkedContent: "errorMarkedContent"
 };
 const PasswordResponses = exports.PasswordResponses = {
   NEED_PASSWORD: 1,
@@ -445,24 +429,11 @@ function _isValidProtocol(url) {
       return false;
   }
 }
-function createValidAbsoluteUrl(url, baseUrl = null, options = null) {
+function createValidAbsoluteUrl(url, baseUrl) {
   if (!url) {
     return null;
   }
   try {
-    if (options && typeof url === "string") {
-      if (options.addDefaultProtocol && url.startsWith("www.")) {
-        const dots = url.match(/\./g);
-        if (dots && dots.length >= 2) {
-          url = `http://${url}`;
-        }
-      }
-      if (options.tryConvertEncoding) {
-        try {
-          url = stringToUTF8String(url);
-        } catch (ex) {}
-      }
-    }
     const absoluteUrl = baseUrl ? new URL(url, baseUrl) : new URL(url);
     if (_isValidProtocol(absoluteUrl)) {
       return absoluteUrl;
@@ -480,12 +451,12 @@ function shadow(obj, prop, value) {
   return value;
 }
 const BaseException = exports.BaseException = function BaseExceptionClosure() {
-  function BaseException(message, name) {
+  function BaseException(message) {
     if (this.constructor === BaseException) {
       unreachable("Cannot initialize BaseException.");
     }
     this.message = message;
-    this.name = name;
+    this.name = this.constructor.name;
   }
   BaseException.prototype = new Error();
   BaseException.constructor = BaseException;
@@ -493,48 +464,32 @@ const BaseException = exports.BaseException = function BaseExceptionClosure() {
 }();
 class PasswordException extends BaseException {
   constructor(msg, code) {
-    super(msg, "PasswordException");
+    super(msg);
     this.code = code;
   }
 }
 exports.PasswordException = PasswordException;
 class UnknownErrorException extends BaseException {
   constructor(msg, details) {
-    super(msg, "UnknownErrorException");
+    super(msg);
     this.details = details;
   }
 }
 exports.UnknownErrorException = UnknownErrorException;
-class InvalidPDFException extends BaseException {
-  constructor(msg) {
-    super(msg, "InvalidPDFException");
-  }
-}
+class InvalidPDFException extends BaseException {}
 exports.InvalidPDFException = InvalidPDFException;
-class MissingPDFException extends BaseException {
-  constructor(msg) {
-    super(msg, "MissingPDFException");
-  }
-}
+class MissingPDFException extends BaseException {}
 exports.MissingPDFException = MissingPDFException;
 class UnexpectedResponseException extends BaseException {
   constructor(msg, status) {
-    super(msg, "UnexpectedResponseException");
+    super(msg);
     this.status = status;
   }
 }
 exports.UnexpectedResponseException = UnexpectedResponseException;
-class FormatError extends BaseException {
-  constructor(msg) {
-    super(msg, "FormatError");
-  }
-}
+class FormatError extends BaseException {}
 exports.FormatError = FormatError;
-class AbortException extends BaseException {
-  constructor(msg) {
-    super(msg, "AbortException");
-  }
-}
+class AbortException extends BaseException {}
 exports.AbortException = AbortException;
 const NullCharactersRegExp = /\x00/g;
 function removeNullCharacters(str) {
@@ -872,7 +827,7 @@ var _arithmetic_decoder = __w_pdfjs_require__(8);
 var _ccitt = __w_pdfjs_require__(9);
 class Jbig2Error extends _util.BaseException {
   constructor(msg) {
-    super(`JBIG2 error: ${msg}`, "Jbig2Error");
+    super(`JBIG2 error: ${msg}`);
   }
 }
 class ContextCache {
@@ -2672,7 +2627,6 @@ exports.parseXFAPath = parseXFAPath;
 exports.readInt8 = readInt8;
 exports.readUint16 = readUint16;
 exports.readUint32 = readUint32;
-exports.recoverJsURL = recoverJsURL;
 exports.toRomanNumerals = toRomanNumerals;
 exports.validateCSSFont = validateCSSFont;
 var _util = __w_pdfjs_require__(1);
@@ -2705,29 +2659,17 @@ function getArrayLookupTableFactory(initializer) {
 }
 class MissingDataException extends _util.BaseException {
   constructor(begin, end) {
-    super(`Missing data [${begin}, ${end})`, "MissingDataException");
+    super(`Missing data [${begin}, ${end})`);
     this.begin = begin;
     this.end = end;
   }
 }
 exports.MissingDataException = MissingDataException;
-class ParserEOFException extends _util.BaseException {
-  constructor(msg) {
-    super(msg, "ParserEOFException");
-  }
-}
+class ParserEOFException extends _util.BaseException {}
 exports.ParserEOFException = ParserEOFException;
-class XRefEntryException extends _util.BaseException {
-  constructor(msg) {
-    super(msg, "XRefEntryException");
-  }
-}
+class XRefEntryException extends _util.BaseException {}
 exports.XRefEntryException = XRefEntryException;
-class XRefParseException extends _util.BaseException {
-  constructor(msg) {
-    super(msg, "XRefParseException");
-  }
-}
+class XRefParseException extends _util.BaseException {}
 exports.XRefParseException = XRefParseException;
 function getInheritableProperty({
   dict,
@@ -2793,7 +2735,7 @@ function isWhiteSpace(ch) {
   return ch === 0x20 || ch === 0x09 || ch === 0x0d || ch === 0x0a;
 }
 function parseXFAPath(path) {
-  const positionPattern = /(.+)\[(\d+)\]$/;
+  const positionPattern = /(.+)\[([0-9]+)\]$/;
   return path.split(".").map(component => {
     const m = component.match(positionPattern);
     if (m) {
@@ -2966,7 +2908,7 @@ function validateCSSFont(cssFontInfo) {
     }
   } else {
     for (const ident of fontFamily.split(/[ \t]+/)) {
-      if (/^(\d|(-(\d|-)))/.test(ident) || !/^[\w-\\]+$/.test(ident)) {
+      if (/^([0-9]|(-([0-9]|-)))/.test(ident) || !/^[a-zA-Z0-9\-_\\]+$/.test(ident)) {
         (0, _util.warn)(`XFA - FontFamily contains some invalid <custom-ident>: ${fontFamily}.`);
         return false;
       }
@@ -2977,23 +2919,6 @@ function validateCSSFont(cssFontInfo) {
   const angle = parseFloat(italicAngle);
   cssFontInfo.italicAngle = isNaN(angle) || angle < -90 || angle > 90 ? DEFAULT_CSS_FONT_OBLIQUE : italicAngle.toString();
   return true;
-}
-function recoverJsURL(str) {
-  const URL_OPEN_METHODS = ["app.launchURL", "window.open", "xfa.host.gotoURL"];
-  const regex = new RegExp("^\\s*(" + URL_OPEN_METHODS.join("|").split(".").join("\\.") + ")\\((?:'|\")([^'\"]*)(?:'|\")(?:,\\s*(\\w+)\\)|\\))", "i");
-  const jsUrl = regex.exec(str);
-  if (jsUrl && jsUrl[2]) {
-    const url = jsUrl[2];
-    let newWindow = false;
-    if (jsUrl[3] === "true" && jsUrl[1] === "app.launchURL") {
-      newWindow = true;
-    }
-    return {
-      url,
-      newWindow
-    };
-  }
-  return null;
 }
 
 /***/ }),
@@ -3009,13 +2934,14 @@ exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF 
 exports.clearPrimitiveCaches = clearPrimitiveCaches;
 exports.isCmd = isCmd;
 exports.isDict = isDict;
+exports.isEOF = isEOF;
 exports.isName = isName;
 exports.isRef = isRef;
 exports.isRefsEqual = isRefsEqual;
 exports.isStream = isStream;
 var _util = __w_pdfjs_require__(1);
 var _base_stream = __w_pdfjs_require__(7);
-const EOF = exports.EOF = Symbol("EOF");
+const EOF = exports.EOF = {};
 const Name = exports.Name = function NameClosure() {
   let nameCache = Object.create(null);
   class Name {
@@ -3155,7 +3081,7 @@ class Dict {
         if (property === undefined) {
           property = [];
           properties.set(key, property);
-        } else if (!mergeSubDicts || !(value instanceof Dict)) {
+        } else if (!mergeSubDicts) {
           continue;
         }
         property.push(value);
@@ -3168,6 +3094,9 @@ class Dict {
       }
       const subDict = new Dict(xref);
       for (const dict of values) {
+        if (!(dict instanceof Dict)) {
+          continue;
+        }
         for (const [key, value] of Object.entries(dict._map)) {
           if (subDict._map[key] === undefined) {
             subDict._map[key] = value;
@@ -3259,6 +3188,9 @@ class RefSetCache {
   }
 }
 exports.RefSetCache = RefSetCache;
+function isEOF(v) {
+  return v === EOF;
+}
 function isName(v, name) {
   return v instanceof Name && (name === undefined || v.name === name);
 }
@@ -4245,20 +4177,16 @@ var _util = __w_pdfjs_require__(1);
 var _core_utils = __w_pdfjs_require__(5);
 class JpegError extends _util.BaseException {
   constructor(msg) {
-    super(`JPEG error: ${msg}`, "JpegError");
+    super(`JPEG error: ${msg}`);
   }
 }
 class DNLMarkerError extends _util.BaseException {
   constructor(message, scanLines) {
-    super(message, "DNLMarkerError");
+    super(message);
     this.scanLines = scanLines;
   }
 }
-class EOIMarkerError extends _util.BaseException {
-  constructor(msg) {
-    super(msg, "EOIMarkerError");
-  }
-}
+class EOIMarkerError extends _util.BaseException {}
 const dctZigZag = new Uint8Array([0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63]);
 const dctCos1 = 4017;
 const dctSin1 = 799;
@@ -5280,7 +5208,7 @@ var _core_utils = __w_pdfjs_require__(5);
 var _arithmetic_decoder = __w_pdfjs_require__(8);
 class JpxError extends _util.BaseException {
   constructor(msg) {
-    super(`JPX error: ${msg}`, "JpxError");
+    super(`JPX error: ${msg}`);
   }
 }
 const SubbandsGainLog2 = {
@@ -6282,11 +6210,6 @@ function parseTilePackets(context, data, offset, dataLength) {
           zeroBitPlanesTree = new TagTree(width, height);
           precinct.inclusionTree = inclusionTree;
           precinct.zeroBitPlanesTree = zeroBitPlanesTree;
-          for (let l = 0; l < layerNumber; l++) {
-            if (readBits(1) !== 0) {
-              throw new JpxError("Invalid tag tree");
-            }
-          }
         }
         if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {
           while (true) {
@@ -7263,8 +7186,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(10);
 var _jpx = __w_pdfjs_require__(11);
-const pdfjsVersion = '2.11.384';
-const pdfjsBuild = '492c83bb7';
+const pdfjsVersion = '2.10.422';
+const pdfjsBuild = '02e26dfe9';
 })();
 
 /******/ 	return __webpack_exports__;

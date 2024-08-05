@@ -1,4 +1,3 @@
-export type IPDFTextLayerFactory = import("./interfaces").IPDFTextLayerFactory;
 export type TextLayerBuilderOptions = {
     /**
      * - The text layer container.
@@ -16,11 +15,7 @@ export type TextLayerBuilderOptions = {
      * - The viewport of the text layer.
      */
     viewport: PageViewport;
-    /**
-     * - Optional object that will handle
-     * highlighting text from the find controller.
-     */
-    highlighter: TextHighlighter;
+    findController: PDFFindController;
     /**
      * - Option to turn on improved
      * text selection.
@@ -37,10 +32,9 @@ export class DefaultTextLayerFactory implements IPDFTextLayerFactory {
      * @param {PageViewport} viewport
      * @param {boolean} enhanceTextSelection
      * @param {EventBus} eventBus
-     * @param {TextHighlighter} highlighter
      * @returns {TextLayerBuilder}
      */
-    createTextLayerBuilder(textLayerDiv: HTMLDivElement, pageIndex: number, viewport: PageViewport, enhanceTextSelection: boolean | undefined, eventBus: EventBus, highlighter: TextHighlighter): TextLayerBuilder;
+    createTextLayerBuilder(textLayerDiv: HTMLDivElement, pageIndex: number, viewport: PageViewport, enhanceTextSelection: boolean | undefined, eventBus: EventBus): TextLayerBuilder;
 }
 /**
  * @typedef {Object} TextLayerBuilderOptions
@@ -48,23 +42,23 @@ export class DefaultTextLayerFactory implements IPDFTextLayerFactory {
  * @property {EventBus} eventBus - The application event bus.
  * @property {number} pageIndex - The page index.
  * @property {PageViewport} viewport - The viewport of the text layer.
- * @property {TextHighlighter} highlighter - Optional object that will handle
- *   highlighting text from the find controller.
+ * @property {PDFFindController} findController
  * @property {boolean} enhanceTextSelection - Option to turn on improved
  *   text selection.
  */
 /**
  * The text layer builder provides text selection functionality for the PDF.
  * It does this by creating overlay divs over the PDF's text. These divs
- * contain text that matches the PDF text they are overlaying.
+ * contain text that matches the PDF text they are overlaying. This object
+ * also provides a way to highlight text that is being searched for.
  */
 export class TextLayerBuilder {
-    constructor({ textLayerDiv, eventBus, pageIndex, viewport, highlighter, enhanceTextSelection, }: {
+    constructor({ textLayerDiv, eventBus, pageIndex, viewport, findController, enhanceTextSelection, }: {
         textLayerDiv: any;
         eventBus: any;
         pageIndex: any;
         viewport: any;
-        highlighter?: null | undefined;
+        findController?: null | undefined;
         enhanceTextSelection?: boolean | undefined;
     });
     textLayerDiv: any;
@@ -73,12 +67,15 @@ export class TextLayerBuilder {
     textContentItemsStr: any[];
     textContentStream: any;
     renderingDone: boolean;
+    pageIdx: any;
     pageNumber: any;
+    matches: any[];
     viewport: any;
     textDivs: any[];
+    findController: any;
     textLayerRenderTask: any;
-    highlighter: any;
     enhanceTextSelection: boolean;
+    _onUpdateTextLayerMatches: ((evt: any) => void) | null;
     /**
      * @private
      */
@@ -96,6 +93,14 @@ export class TextLayerBuilder {
     cancel(): void;
     setTextContentStream(readableStream: any): void;
     setTextContent(textContent: any): void;
+    _convertMatches(matches: any, matchesLength: any): {
+        begin: {
+            divIdx: number;
+            offset: number;
+        };
+    }[];
+    _renderMatches(matches: any): void;
+    _updateMatches(): void;
     /**
      * Improves text selection by adding an additional div where the mouse was
      * clicked. This reduces flickering of the content if the mouse is slowly

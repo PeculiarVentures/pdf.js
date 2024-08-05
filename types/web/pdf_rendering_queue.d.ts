@@ -6,8 +6,7 @@ export class PDFRenderingQueue {
     pdfThumbnailViewer: any;
     onIdle: any;
     highestPriorityPage: any;
-    /** @type {number} */
-    idleTimeout: number;
+    idleTimeout: NodeJS.Timeout | null;
     printing: boolean;
     isThumbnailViewEnabled: boolean;
     /**
@@ -24,10 +23,6 @@ export class PDFRenderingQueue {
      */
     isHighestPriority(view: IRenderableView): boolean;
     /**
-     * @returns {boolean}
-     */
-    hasViewer(): boolean;
-    /**
      * @param {Object} currentlyVisiblePages
      */
     renderHighestPriority(currentlyVisiblePages: Object): void;
@@ -35,9 +30,8 @@ export class PDFRenderingQueue {
      * @param {Object} visible
      * @param {Array} views
      * @param {boolean} scrolledDown
-     * @param {boolean} [preRenderExtra]
      */
-    getHighestPriority(visible: Object, views: any[], scrolledDown: boolean, preRenderExtra?: boolean | undefined): any;
+    getHighestPriority(visible: Object, views: any[], scrolledDown: boolean): any;
     /**
      * @param {IRenderableView} view
      * @returns {boolean}
