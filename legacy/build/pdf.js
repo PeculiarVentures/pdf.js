@@ -10520,7 +10520,7 @@ function _fetchDocument2() {
           _context6.next = 5;
           return worker.messageHandler.sendWithPromise("GetDocRequest", {
             docId: docId,
-            apiVersion: '2.11.384',
+            apiVersion: '2.11.385',
             source: {
               data: source.data,
               url: source.url,
@@ -11077,9 +11077,7 @@ var PDFPageProxy = exports.PDFPageProxy = /*#__PURE__*/function () {
         _ref5$background = _ref5.background,
         background = _ref5$background === void 0 ? null : _ref5$background,
         _ref5$optionalContent = _ref5.optionalContentConfigPromise,
-        optionalContentConfigPromise = _ref5$optionalContent === void 0 ? null : _ref5$optionalContent,
-        _ref5$forceRenderSigA = _ref5.forceRenderSigAnnot,
-        forceRenderSigAnnot = _ref5$forceRenderSigA === void 0 ? false : _ref5$forceRenderSigA;
+        optionalContentConfigPromise = _ref5$optionalContent === void 0 ? null : _ref5$optionalContent;
       if (((_arguments$ = arguments[0]) === null || _arguments$ === void 0 ? void 0 : _arguments$.renderInteractiveForms) !== undefined) {
         (0, _display_utils.deprecated)("render no longer accepts the `renderInteractiveForms`-option, " + "please use the `annotationMode`-option instead.");
         if (arguments[0].renderInteractiveForms === true && annotationMode === _util.AnnotationMode.ENABLE) {
@@ -11123,7 +11121,6 @@ var PDFPageProxy = exports.PDFPageProxy = /*#__PURE__*/function () {
         if (this._stats) {
           this._stats.time("Page Request");
         }
-        intentArgs.forceRenderSigAnnot = forceRenderSigAnnot === true;
         this._pumpOperatorList(intentArgs);
       }
       var complete = function complete(error) {
@@ -11649,7 +11646,7 @@ var LoopbackPort = exports.LoopbackPort = /*#__PURE__*/function () {
   }]);
 }();
 var PDFWorkerUtil = {
-  isWorkerDisabled: !!_worker_options.GlobalWorkerOptions.isWorkerDisabled,
+  isWorkerDisabled: false,
   fallbackWorkerSrc: null,
   fakeWorkerId: 0
 };
@@ -11724,6 +11721,7 @@ var PDFWorker = exports.PDFWorker = /*#__PURE__*/function () {
     key: "_initialize",
     value: function _initialize() {
       var _this8 = this;
+      PDFWorkerUtil.isWorkerDisabled = !!_worker_options.GlobalWorkerOptions.isWorkerDisabled;
       if (typeof Worker !== "undefined" && !PDFWorkerUtil.isWorkerDisabled && !PDFWorker._mainThreadWorkerMessageHandler) {
         var workerSrc = PDFWorker.workerSrc;
         try {
@@ -12864,8 +12862,8 @@ var InternalRenderTask = /*#__PURE__*/function () {
     }
   }]);
 }();
-var version = exports.version = '2.11.384';
-var build = exports.build = '492c83bb7';
+var version = exports.version = '2.11.385';
+var build = exports.build = 'b55e3fd74';
 
 /***/ }),
 /* 158 */
@@ -24310,8 +24308,8 @@ var _is_node = __w_pdfjs_require__(4);
 var _text_layer = __w_pdfjs_require__(171);
 var _svg = __w_pdfjs_require__(172);
 var _xfa_layer = __w_pdfjs_require__(173);
-var pdfjsVersion = '2.11.384';
-var pdfjsBuild = '492c83bb7';
+var pdfjsVersion = '2.11.385';
+var pdfjsBuild = 'b55e3fd74';
 {
   if (_is_node.isNodeJS) {
     var _require = __w_pdfjs_require__(174),

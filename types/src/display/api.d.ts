@@ -408,11 +408,6 @@ export type RenderParameters = {
      * states set.
      */
     optionalContentConfigPromise?: Promise<OptionalContentConfig> | undefined;
-    /**
-     * - Enforcing the rendering of
-     * Sig annotation appearance.
-     */
-    forceRenderSigAnnot?: boolean | undefined;
 };
 /**
  * Page getOperatorList parameters.
@@ -1112,8 +1107,6 @@ export class PDFDocumentProxy {
  *   created from `PDFDocumentProxy.getOptionalContentConfig`. If `null`,
  *   the configuration will be fetched automatically with the default visibility
  *   states set.
- * @property {boolean} [forceRenderSigAnnot] - Enforcing the rendering of
- *   Sig annotation appearance.
  */
 /**
  * Page getOperatorList parameters.
@@ -1229,7 +1222,7 @@ export class PDFPageProxy {
      * @returns {RenderTask} An object that contains a promise that is
      *   resolved when the page finishes rendering.
      */
-    render({ canvasContext, viewport, intent, annotationMode, transform, imageLayer, canvasFactory, background, optionalContentConfigPromise, forceRenderSigAnnot, }: RenderParameters, ...args: any[]): RenderTask;
+    render({ canvasContext, viewport, intent, annotationMode, transform, imageLayer, canvasFactory, background, optionalContentConfigPromise, }: RenderParameters, ...args: any[]): RenderTask;
     /**
      * @param {GetOperatorListParameters} params - Page getOperatorList
      *   parameters.

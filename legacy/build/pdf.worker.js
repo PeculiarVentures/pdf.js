@@ -139,7 +139,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.11.384';
+      var workerVersion = '2.11.385';
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
       }
@@ -630,8 +630,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
             task: task,
             intent: data.intent,
             cacheKey: data.cacheKey,
-            annotationStorage: data.annotationStorage,
-            forceRenderSigAnnot: data.forceRenderSigAnnot
+            annotationStorage: data.annotationStorage
           }).then(function (operatorListInfo) {
             finishWorkerTask(task);
             if (start) {
@@ -12485,8 +12484,7 @@ var Page = exports.Page = /*#__PURE__*/function () {
         intent = _ref2.intent,
         cacheKey = _ref2.cacheKey,
         _ref2$annotationStora = _ref2.annotationStorage,
-        annotationStorage = _ref2$annotationStora === void 0 ? null : _ref2$annotationStora,
-        forceRenderSigAnnot = _ref2.forceRenderSigAnnot;
+        annotationStorage = _ref2$annotationStora === void 0 ? null : _ref2$annotationStora;
       var contentStreamPromise = this.getContentStream(handler);
       var resourcesPromise = this.loadResources(["ColorSpace", "ExtGState", "Font", "Pattern", "Properties", "Shading", "XObject"]);
       var partialEvaluator = new _evaluator.PartialEvaluator({
@@ -12540,7 +12538,7 @@ var Page = exports.Page = /*#__PURE__*/function () {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
             var annotation = _step2.value;
             if (intentAny || intentDisplay && annotation.mustBeViewed(annotationStorage) || intentPrint && annotation.mustBePrinted(annotationStorage)) {
-              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderForms, annotationStorage, forceRenderSigAnnot)["catch"](function (reason) {
+              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderForms, annotationStorage)["catch"](function (reason) {
                 (0, _util.warn)("getOperatorList - ignoring annotation data during " + "\"".concat(task.name, "\" task: \"").concat(reason, "\"."));
                 return null;
               }));
@@ -27278,7 +27276,7 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+    value: function getOperatorList(evaluator, task, renderForms, annotationStorage) {
       var _this2 = this;
       if (!this.appearance) {
         return Promise.resolve(new _operator_list.OperatorList());
@@ -27749,17 +27747,17 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+    value: function getOperatorList(evaluator, task, renderForms, annotationStorage) {
       var _this5 = this;
-      if (renderForms && !(this instanceof SignatureWidgetAnnotation) || !forceRenderSigAnnot) {
+      if (renderForms && !(this instanceof SignatureWidgetAnnotation)) {
         return Promise.resolve(new _operator_list.OperatorList());
       }
       if (!this._hasText) {
-        return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot]);
+        return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]);
       }
       return this._getAppearance(evaluator, task, annotationStorage).then(function (content) {
         if (_this5.appearance && content === null) {
-          return _superPropGet(WidgetAnnotation, "getOperatorList", _this5, 3)([evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot]);
+          return _superPropGet(WidgetAnnotation, "getOperatorList", _this5, 3)([evaluator, task, renderForms, annotationStorage]);
         }
         var operatorList = new _operator_list.OperatorList();
         if (!_this5._defaultAppearance || content === null) {
@@ -28285,7 +28283,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   return _createClass(ButtonWidgetAnnotation, [{
     key: "getOperatorList",
     value: function () {
-      var _getOperatorList = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+      var _getOperatorList = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evaluator, task, renderForms, annotationStorage) {
         var value, storageEntry, appearance, savedAppearance, operatorList;
         return _regeneratorRuntime().wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
@@ -28335,7 +28333,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee6, this);
       }));
-      function getOperatorList(_x15, _x16, _x17, _x18, _x19) {
+      function getOperatorList(_x15, _x16, _x17, _x18) {
         return _getOperatorList.apply(this, arguments);
       }
       return getOperatorList;
@@ -28366,7 +28364,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee7, this);
       }));
-      function save(_x20, _x21, _x22) {
+      function save(_x19, _x20, _x21) {
         return _save3.apply(this, arguments);
       }
       return save;
@@ -28434,7 +28432,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee8, this);
       }));
-      function _saveCheckbox(_x23, _x24, _x25) {
+      function _saveCheckbox(_x22, _x23, _x24) {
         return _saveCheckbox2.apply(this, arguments);
       }
       return _saveCheckbox;
@@ -28525,7 +28523,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee9, this);
       }));
-      function _saveRadioButton(_x26, _x27, _x28) {
+      function _saveRadioButton(_x25, _x26, _x27) {
         return _saveRadioButton2.apply(this, arguments);
       }
       return _saveRadioButton;
@@ -80350,8 +80348,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
   }
 }));
 var _worker = __w_pdfjs_require__(1);
-var pdfjsVersion = '2.11.384';
-var pdfjsBuild = '492c83bb7';
+var pdfjsVersion = '2.11.385';
+var pdfjsBuild = 'b55e3fd74';
 })();
 
 /******/ 	return __webpack_exports__;

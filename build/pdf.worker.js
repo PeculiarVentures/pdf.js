@@ -105,7 +105,7 @@ class WorkerMessageHandler {
     const WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.11.384';
+    const workerVersion = '2.11.385';
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
     }
@@ -524,8 +524,7 @@ class WorkerMessageHandler {
           task,
           intent: data.intent,
           cacheKey: data.cacheKey,
-          annotationStorage: data.annotationStorage,
-          forceRenderSigAnnot: data.forceRenderSigAnnot
+          annotationStorage: data.annotationStorage
         }).then(function (operatorListInfo) {
           finishWorkerTask(task);
           if (start) {
@@ -3073,8 +3072,7 @@ class Page {
     task,
     intent,
     cacheKey,
-    annotationStorage = null,
-    forceRenderSigAnnot
+    annotationStorage = null
   }) {
     const contentStreamPromise = this.getContentStream(handler);
     const resourcesPromise = this.loadResources(["ColorSpace", "ExtGState", "Font", "Pattern", "Properties", "Shading", "XObject"]);
@@ -3120,7 +3118,7 @@ class Page {
       const opListPromises = [];
       for (const annotation of annotations) {
         if (intentAny || intentDisplay && annotation.mustBeViewed(annotationStorage) || intentPrint && annotation.mustBePrinted(annotationStorage)) {
-          opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderForms, annotationStorage, forceRenderSigAnnot).catch(function (reason) {
+          opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderForms, annotationStorage).catch(function (reason) {
             (0, _util.warn)("getOperatorList - ignoring annotation data during " + `"${task.name}" task: "${reason}".`);
             return null;
           }));
@@ -17252,7 +17250,7 @@ class Annotation {
       });
     });
   }
-  getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+  getOperatorList(evaluator, task, renderForms, annotationStorage) {
     if (!this.appearance) {
       return Promise.resolve(new _operator_list.OperatorList());
     }
@@ -17635,16 +17633,16 @@ class WidgetAnnotation extends Annotation {
   hasFieldFlag(flag) {
     return !!(this.data.fieldFlags & flag);
   }
-  getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
-    if (renderForms && !(this instanceof SignatureWidgetAnnotation) || !forceRenderSigAnnot) {
+  getOperatorList(evaluator, task, renderForms, annotationStorage) {
+    if (renderForms && !(this instanceof SignatureWidgetAnnotation)) {
       return Promise.resolve(new _operator_list.OperatorList());
     }
     if (!this._hasText) {
-      return super.getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot);
+      return super.getOperatorList(evaluator, task, renderForms, annotationStorage);
     }
     return this._getAppearance(evaluator, task, annotationStorage).then(content => {
       if (this.appearance && content === null) {
-        return super.getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot);
+        return super.getOperatorList(evaluator, task, renderForms, annotationStorage);
       }
       const operatorList = new _operator_list.OperatorList();
       if (!this._defaultAppearance || content === null) {
@@ -18018,7 +18016,7 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
       (0, _util.warn)("Invalid field flags for button widget annotation");
     }
   }
-  async getOperatorList(evaluator, task, renderForms, annotationStorage, forceRenderSigAnnot) {
+  async getOperatorList(evaluator, task, renderForms, annotationStorage) {
     if (this.data.pushButton) {
       return super.getOperatorList(evaluator, task, false, annotationStorage);
     }
@@ -61865,8 +61863,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
   }
 }));
 var _worker = __w_pdfjs_require__(1);
-const pdfjsVersion = '2.11.384';
-const pdfjsBuild = '492c83bb7';
+const pdfjsVersion = '2.11.385';
+const pdfjsBuild = 'b55e3fd74';
 })();
 
 /******/ 	return __webpack_exports__;

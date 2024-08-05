@@ -1615,7 +1615,7 @@ async function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
   }
   const workerId = await worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.11.384',
+    apiVersion: '2.11.385',
     source: {
       data: source.data,
       url: source.url,
@@ -1939,8 +1939,7 @@ class PDFPageProxy {
     imageLayer = null,
     canvasFactory = null,
     background = null,
-    optionalContentConfigPromise = null,
-    forceRenderSigAnnot = false
+    optionalContentConfigPromise = null
   }) {
     if (arguments[0]?.renderInteractiveForms !== undefined) {
       (0, _display_utils.deprecated)("render no longer accepts the `renderInteractiveForms`-option, " + "please use the `annotationMode`-option instead.");
@@ -1985,7 +1984,6 @@ class PDFPageProxy {
       if (this._stats) {
         this._stats.time("Page Request");
       }
-      intentArgs.forceRenderSigAnnot = forceRenderSigAnnot === true;
       this._pumpOperatorList(intentArgs);
     }
     const complete = error => {
@@ -2380,7 +2378,7 @@ class LoopbackPort {
 }
 exports.LoopbackPort = LoopbackPort;
 const PDFWorkerUtil = {
-  isWorkerDisabled: !!_worker_options.GlobalWorkerOptions.isWorkerDisabled,
+  isWorkerDisabled: false,
   fallbackWorkerSrc: null,
   fakeWorkerId: 0
 };
@@ -2442,6 +2440,7 @@ class PDFWorker {
     this._readyCapability.resolve();
   }
   _initialize() {
+    PDFWorkerUtil.isWorkerDisabled = !!_worker_options.GlobalWorkerOptions.isWorkerDisabled;
     if (typeof Worker !== "undefined" && !PDFWorkerUtil.isWorkerDisabled && !PDFWorker._mainThreadWorkerMessageHandler) {
       let workerSrc = PDFWorker.workerSrc;
       try {
@@ -3351,8 +3350,8 @@ class InternalRenderTask {
     }
   }
 }
-const version = exports.version = '2.11.384';
-const build = exports.build = '492c83bb7';
+const version = exports.version = '2.11.385';
+const build = exports.build = 'b55e3fd74';
 
 /***/ }),
 /* 7 */
@@ -12561,8 +12560,8 @@ var _is_node = __w_pdfjs_require__(4);
 var _text_layer = __w_pdfjs_require__(20);
 var _svg = __w_pdfjs_require__(21);
 var _xfa_layer = __w_pdfjs_require__(22);
-const pdfjsVersion = '2.11.384';
-const pdfjsBuild = '492c83bb7';
+const pdfjsVersion = '2.11.385';
+const pdfjsBuild = 'b55e3fd74';
 {
   if (_is_node.isNodeJS) {
     const {
