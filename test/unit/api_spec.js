@@ -503,10 +503,25 @@ describe("api", function () {
       expect(pdfDocument.numPages).toEqual(3);
     });
 
-    it("gets fingerprint", function () {
-      expect(pdfDocument.fingerprint).toEqual(
-        "ea8b35919d6279a369e835bde778611b"
+    it("gets fingerprints", function () {
+      expect(pdfDocument.fingerprints).toEqual([
+        "ea8b35919d6279a369e835bde778611b",
+        null,
+      ]);
+    });
+
+    it("gets fingerprints, from modified document", async function () {
+      const loadingTask = getDocument(
+        buildGetDocumentParams("annotation-tx.pdf")
       );
+      const pdfDoc = await loadingTask.promise;
+
+      expect(pdfDoc.fingerprints).toEqual([
+        "3ebd77c320274649a68f10dbf3b9f882",
+        "e7087346aa4b4ae0911c1f1643b57345",
+      ]);
+
+      await loadingTask.destroy();
     });
 
     it("gets page", async function () {
@@ -1203,13 +1218,13 @@ describe("api", function () {
         loadingTask1.promise,
         loadingTask2.promise,
       ]);
-      const fingerprint1 = data[0].fingerprint;
-      const fingerprint2 = data[1].fingerprint;
+      const fingerprints1 = data[0].fingerprints;
+      const fingerprints2 = data[1].fingerprints;
 
-      expect(fingerprint1).not.toEqual(fingerprint2);
+      expect(fingerprints1).not.toEqual(fingerprints2);
 
-      expect(fingerprint1).toEqual("2f695a83d6e7553c24fc08b7ac69712d");
-      expect(fingerprint2).toEqual("04c7126b34a46b6d4d6e7a1eff7edcb6");
+      expect(fingerprints1).toEqual(["2f695a83d6e7553c24fc08b7ac69712d", null]);
+      expect(fingerprints2).toEqual(["04c7126b34a46b6d4d6e7a1eff7edcb6", null]);
 
       await Promise.all([loadingTask1.destroy(), loadingTask2.destroy()]);
     });
@@ -1518,18 +1533,20 @@ describe("api", function () {
       const pdfPage = await pdfDoc.getPage(1);
       const { items, styles } = await pdfPage.getTextContent();
       expect(items.length).toEqual(1);
-      expect(Object.keys(styles)).toEqual(["Times"]);
+      // Font name will a random object id.
+      const fontName = items[0].fontName;
+      expect(Object.keys(styles)).toEqual([fontName]);
 
       expect(items[0]).toEqual({
         dir: "ltr",
-        fontName: "Times",
+        fontName,
         height: 18,
         str: "Issue 8276",
         transform: [18, 0, 0, 18, 441.81, 708.4499999999999],
         width: 77.49,
         hasEOL: false,
       });
-      expect(styles.Times).toEqual({
+      expect(styles[fontName]).toEqual({
         fontFamily: "serif",
         ascent: NaN,
         descent: NaN,
@@ -1605,8 +1622,9 @@ describe("api", function () {
 
     it("gets operator list", async function () {
       const operatorList = await page.getOperatorList();
-      expect(!!operatorList.fnArray).toEqual(true);
-      expect(!!operatorList.argsArray).toEqual(true);
+
+      expect(operatorList.fnArray.length).toBeGreaterThan(100);
+      expect(operatorList.argsArray.length).toBeGreaterThan(100);
       expect(operatorList.lastChunk).toEqual(true);
     });
 
@@ -1670,6 +1688,26 @@ describe("api", function () {
       }
     );
 
+    it("gets operator list, containing Annotation-operatorLists", async function () {
+      const loadingTask = getDocument(
+        buildGetDocumentParams("annotation-line.pdf")
+      );
+      const pdfDoc = await loadingTask.promise;
+      const pdfPage = await pdfDoc.getPage(1);
+      const operatorList = await pdfPage.getOperatorList();
+
+      expect(operatorList.fnArray.length).toBeGreaterThan(20);
+      expect(operatorList.argsArray.length).toBeGreaterThan(20);
+      expect(operatorList.lastChunk).toEqual(true);
+
+      // The `getOperatorList` method, similar to the `render` method,
+      // is supposed to include any existing Annotation-operatorLists.
+      expect(operatorList.fnArray.includes(OPS.beginAnnotation)).toEqual(true);
+      expect(operatorList.fnArray.includes(OPS.endAnnotation)).toEqual(true);
+
+      await loadingTask.destroy();
+    });
+
     it("gets document stats after parsing page", async function () {
       const stats = await page.getOperatorList().then(function () {
         return pdfDocument.getStats();
@@ -1678,7 +1716,7 @@ describe("api", function () {
       const expectedStreamTypes = {};
       expectedStreamTypes[StreamType.FLATE] = true;
       const expectedFontTypes = {};
-      expectedFontTypes[FontType.TYPE1] = true;
+      expectedFontTypes[FontType.TYPE1STANDARD] = true;
       expectedFontTypes[FontType.CIDFONTTYPE2] = true;
 
       expect(stats).toEqual({

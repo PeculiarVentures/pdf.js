@@ -15,16 +15,18 @@
 
 import { getInteger, getKeyword, HTMLResult } from "./utils.js";
 import { shadow, warn } from "../../shared/util.js";
+import { encodeToXmlString } from "../core_utils.js";
 import { NamespaceIds } from "./namespaces.js";
+import { searchNode } from "./som.js";
 
 // We use these symbols to avoid name conflict between tags
 // and properties/methods names.
 const $acceptWhitespace = Symbol();
 const $addHTML = Symbol();
 const $appendChild = Symbol();
-const $break = Symbol();
 const $childrenToHTML = Symbol();
 const $clean = Symbol();
+const $cleanPage = Symbol();
 const $cleanup = Symbol();
 const $clone = Symbol();
 const $consumed = Symbol();
@@ -35,24 +37,34 @@ const $extra = Symbol("extra");
 const $finalize = Symbol();
 const $flushHTML = Symbol();
 const $getAttributeIt = Symbol();
+const $getAttributes = Symbol();
 const $getAvailableSpace = Symbol();
 const $getChildrenByClass = Symbol();
 const $getChildrenByName = Symbol();
 const $getChildrenByNameIt = Symbol();
 const $getDataValue = Symbol();
+const $getExtra = Symbol();
 const $getRealChildrenByNameIt = Symbol();
 const $getChildren = Symbol();
+const $getContainedChildren = Symbol();
 const $getNextPage = Symbol();
+const $getSubformParent = Symbol();
 const $getParent = Symbol();
-const $global = Symbol();
-const $hasItem = Symbol();
+const $getTemplateRoot = Symbol();
+const $globalData = Symbol();
 const $hasSettableValue = Symbol();
 const $ids = Symbol();
 const $indexOf = Symbol();
 const $insertAt = Symbol();
+const $isCDATAXml = Symbol();
+const $isBindable = Symbol();
 const $isDataValue = Symbol();
 const $isDescendent = Symbol();
+const $isNsAgnostic = Symbol();
+const $isSplittable = Symbol();
+const $isThereMoreWidth = Symbol();
 const $isTransparent = Symbol();
+const $isUsable = Symbol();
 const $lastAttribute = Symbol();
 const $namespaceId = Symbol("namespaceId");
 const $nodeName = Symbol("nodeName");
@@ -60,14 +72,18 @@ const $nsAttributes = Symbol();
 const $onChild = Symbol();
 const $onChildCheck = Symbol();
 const $onText = Symbol();
+const $pushGlyphs = Symbol();
 const $removeChild = Symbol();
+const $root = Symbol("root");
 const $resolvePrototypes = Symbol();
 const $searchNode = Symbol();
 const $setId = Symbol();
 const $setSetAttributes = Symbol();
 const $setValue = Symbol();
+const $tabIndex = Symbol();
 const $text = Symbol();
 const $toHTML = Symbol();
+const $toString = Symbol();
 const $toStyle = Symbol();
 const $uid = Symbol("uid");
 
@@ -85,10 +101,13 @@ const _hasChildren = Symbol();
 const _max = Symbol();
 const _options = Symbol();
 const _parent = Symbol("parent");
+const _resolvePrototypesHelper = Symbol();
 const _setAttributes = Symbol();
 const _validator = Symbol();
 
 let uid = 0;
+
+const NS_DATASETS = NamespaceIds.datasets.id;
 
 class XFAObject {
   constructor(nsId, name, hasChildren = false) {
@@ -98,6 +117,7 @@ class XFAObject {
     this[_parent] = null;
     this[_children] = [];
     this[$uid] = `${name}${uid++}`;
+    this[$globalData] = null;
   }
 
   [$onChild](child) {
@@ -141,7 +161,19 @@ class XFAObject {
     );
   }
 
+  [$isNsAgnostic]() {
+    return false;
+  }
+
   [$acceptWhitespace]() {
+    return false;
+  }
+
+  [$isCDATAXml]() {
+    return false;
+  }
+
+  [$isBindable]() {
     return false;
   }
 
@@ -149,6 +181,24 @@ class XFAObject {
     if (this.id && this[$namespaceId] === NamespaceIds.template.id) {
       ids.set(this.id, this);
     }
+  }
+
+  [$getTemplateRoot]() {
+    return this[$globalData].template;
+  }
+
+  [$isSplittable]() {
+    return false;
+  }
+
+  /**
+     Return true if this node (typically a container)
+     can provide more width during layout.
+     The goal is to help to know what a descendant must
+     do in case of horizontal overflow.
+   */
+  [$isThereMoreWidth]() {
+    return false;
   }
 
   [$appendChild](child) {
@@ -179,10 +229,6 @@ class XFAObject {
     }
   }
 
-  [$hasItem]() {
-    return false;
-  }
-
   [$indexOf](child) {
     return this[_children].indexOf(child);
   }
@@ -192,8 +238,14 @@ class XFAObject {
     this[_children].splice(i, 0, child);
   }
 
+  /**
+   * If true the element is transparent when searching a node using
+   * a SOM expression which means that looking for "foo.bar" in
+   * <... name="foo"><toto><titi><... name="bar"></titi></toto>...
+   * is fine because toto and titi are transparent.
+   */
   [$isTransparent]() {
-    return this.name === "";
+    return !this.name;
   }
 
   [$lastAttribute]() {
@@ -241,6 +293,10 @@ class XFAObject {
     return this[_parent];
   }
 
+  [$getSubformParent]() {
+    return this[$getParent]();
+  }
+
   [$getChildren](name = null) {
     if (!name) {
       return this[_children];
@@ -282,8 +338,15 @@ class XFAObject {
     return HTMLResult.EMPTY;
   }
 
-  *[_filteredChildrenGenerator](filter, include) {
+  *[$getContainedChildren]() {
+    // This function is overriden in Subform and SubformSet.
     for (const node of this[$getChildren]()) {
+      yield node;
+    }
+  }
+
+  *[_filteredChildrenGenerator](filter, include) {
+    for (const node of this[$getContainedChildren]()) {
       if (!filter || include === filter.has(node[$nodeName])) {
         const availableSpace = this[$getAvailableSpace]();
         const res = node[$toHTML](availableSpace);
@@ -315,7 +378,7 @@ class XFAObject {
       const availableSpace = this[$getAvailableSpace]();
       const res = this[$extra].failingNode[$toHTML](availableSpace);
       if (!res.success) {
-        return false;
+        return res;
       }
       if (res.html) {
         this[$addHTML](res.html, res.bbox);
@@ -330,7 +393,7 @@ class XFAObject {
       }
       const res = gen.value;
       if (!res.success) {
-        return false;
+        return res;
       }
       if (res.html) {
         this[$addHTML](res.html, res.bbox);
@@ -339,14 +402,12 @@ class XFAObject {
 
     this[$extra].generator = null;
 
-    return true;
+    return HTMLResult.EMPTY;
   }
 
   [$setSetAttributes](attributes) {
-    if (attributes.use || attributes.id) {
-      // Just keep set attributes because this node uses a proto or is a proto.
-      this[_setAttributes] = new Set(Object.keys(attributes));
-    }
+    // Just keep set attributes because it can be used in a proto.
+    this[_setAttributes] = new Set(Object.keys(attributes));
   }
 
   /**
@@ -364,57 +425,105 @@ class XFAObject {
    */
   [$resolvePrototypes](ids, ancestors = new Set()) {
     for (const child of this[_children]) {
-      const proto = child[_getPrototype](ids, ancestors);
-      if (proto) {
-        // _applyPrototype will apply $resolvePrototypes with correct ancestors
-        // to avoid infinite loop.
-        child[_applyPrototype](proto, ids, ancestors);
-      } else {
-        child[$resolvePrototypes](ids, ancestors);
-      }
+      child[_resolvePrototypesHelper](ids, ancestors);
+    }
+  }
+
+  [_resolvePrototypesHelper](ids, ancestors) {
+    const proto = this[_getPrototype](ids, ancestors);
+    if (proto) {
+      // _applyPrototype will apply $resolvePrototypes with correct ancestors
+      // to avoid infinite loop.
+      this[_applyPrototype](proto, ids, ancestors);
+    } else {
+      this[$resolvePrototypes](ids, ancestors);
     }
   }
 
   [_getPrototype](ids, ancestors) {
-    const { use } = this;
-    if (use && use.startsWith("#")) {
-      const id = use.slice(1);
-      const proto = ids.get(id);
-      this.use = "";
-      if (!proto) {
-        warn(`XFA - Invalid prototype id: ${id}.`);
-        return null;
-      }
-
-      if (proto[$nodeName] !== this[$nodeName]) {
-        warn(
-          `XFA - Incompatible prototype: ${proto[$nodeName]} !== ${this[$nodeName]}.`
-        );
-        return null;
-      }
-
-      if (ancestors.has(proto)) {
-        // We've a cycle so break it.
-        warn(`XFA - Cycle detected in prototypes use.`);
-        return null;
-      }
-
-      ancestors.add(proto);
-      // The prototype can have a "use" attribute itself.
-      const protoProto = proto[_getPrototype](ids, ancestors);
-      if (!protoProto) {
-        ancestors.delete(proto);
-        return proto;
-      }
-
-      proto[_applyPrototype](protoProto, ids, ancestors);
-      ancestors.delete(proto);
-
-      return proto;
+    const { use, usehref } = this;
+    if (!use && !usehref) {
+      return null;
     }
-    // TODO: handle SOM expressions.
 
-    return null;
+    let proto = null;
+    let somExpression = null;
+    let id = null;
+    let ref = use;
+
+    // If usehref and use are non-empty then use usehref.
+    if (usehref) {
+      ref = usehref;
+      // Href can be one of the following:
+      // - #ID
+      // - URI#ID
+      // - #som(expression)
+      // - URI#som(expression)
+      // - URI
+      // For now we don't handle URI other than "." (current document).
+      if (usehref.startsWith("#som(") && usehref.endsWith(")")) {
+        somExpression = usehref.slice("#som(".length, usehref.length - 1);
+      } else if (usehref.startsWith(".#som(") && usehref.endsWith(")")) {
+        somExpression = usehref.slice(".#som(".length, usehref.length - 1);
+      } else if (usehref.startsWith("#")) {
+        id = usehref.slice(1);
+      } else if (usehref.startsWith(".#")) {
+        id = usehref.slice(2);
+      }
+    } else if (use.startsWith("#")) {
+      id = use.slice(1);
+    } else {
+      somExpression = use;
+    }
+
+    this.use = this.usehref = "";
+    if (id) {
+      proto = ids.get(id);
+    } else {
+      proto = searchNode(
+        ids.get($root),
+        this,
+        somExpression,
+        true /* = dotDotAllowed */,
+        false /* = useCache */
+      );
+      if (proto) {
+        proto = proto[0];
+      }
+    }
+
+    if (!proto) {
+      warn(`XFA - Invalid prototype reference: ${ref}.`);
+      return null;
+    }
+
+    if (proto[$nodeName] !== this[$nodeName]) {
+      warn(
+        `XFA - Incompatible prototype: ${proto[$nodeName]} !== ${this[$nodeName]}.`
+      );
+      return null;
+    }
+
+    if (ancestors.has(proto)) {
+      // We've a cycle so break it.
+      warn(`XFA - Cycle detected in prototypes use.`);
+      return null;
+    }
+
+    ancestors.add(proto);
+
+    // The prototype can have a "use" attribute itself.
+    const protoProto = proto[_getPrototype](ids, ancestors);
+    if (protoProto) {
+      proto[_applyPrototype](protoProto, ids, ancestors);
+    }
+
+    // The prototype can have a child which itself has a "use" property.
+    proto[$resolvePrototypes](ids, ancestors);
+
+    ancestors.delete(proto);
+
+    return proto;
   }
 
   [_applyPrototype](proto, ids, ancestors) {
@@ -449,7 +558,7 @@ class XFAObject {
 
       if (value instanceof XFAObjectArray) {
         for (const child of value[_children]) {
-          child[$resolvePrototypes](ids, ancestors);
+          child[_resolvePrototypesHelper](ids, ancestors);
         }
 
         for (
@@ -461,7 +570,7 @@ class XFAObject {
           if (value.push(child)) {
             child[_parent] = this;
             this[_children].push(child);
-            child[$resolvePrototypes](ids, newAncestors);
+            child[_resolvePrototypesHelper](ids, ancestors);
           } else {
             // No need to continue: other nodes will be rejected.
             break;
@@ -472,6 +581,10 @@ class XFAObject {
 
       if (value !== null) {
         value[$resolvePrototypes](ids, ancestors);
+        if (protoValue) {
+          // protoValue must be treated as a prototype for value.
+          value[_applyPrototype](protoValue, ids, ancestors);
+        }
         continue;
       }
 
@@ -480,7 +593,7 @@ class XFAObject {
         child[_parent] = this;
         this[name] = child;
         this[_children].push(child);
-        child[$resolvePrototypes](ids, newAncestors);
+        child[_resolvePrototypesHelper](ids, ancestors);
       }
     }
   }
@@ -489,7 +602,7 @@ class XFAObject {
     if (Array.isArray(obj)) {
       return obj.map(x => XFAObject[_cloneAttribute](x));
     }
-    if (obj instanceof Object) {
+    if (typeof obj === "object" && obj !== null) {
       return Object.assign({}, obj);
     }
     return obj;
@@ -504,6 +617,7 @@ class XFAObject {
         shadow(clone, $symbol, this[$symbol]);
       }
     }
+    clone[$uid] = `${clone[$nodeName]}${uid++}`;
     clone[_children] = [];
 
     for (const name of Object.getOwnPropertyNames(this)) {
@@ -625,6 +739,7 @@ class XFAAttribute {
     this[$nodeName] = name;
     this[$content] = value;
     this[$consumed] = false;
+    this[$uid] = `attribute${uid++}`;
   }
 
   [$getParent]() {
@@ -633,6 +748,15 @@ class XFAAttribute {
 
   [$isDataValue]() {
     return true;
+  }
+
+  [$getDataValue]() {
+    return this[$content].trim();
+  }
+
+  [$setValue](value) {
+    value = value.value || "";
+    this[$content] = value.toString();
   }
 
   [$text]() {
@@ -668,6 +792,44 @@ class XmlObject extends XFAObject {
       }
     }
     this[$consumed] = false;
+  }
+
+  [$toString](buf) {
+    const tagName = this[$nodeName];
+    if (tagName === "#text") {
+      buf.push(encodeToXmlString(this[$content]));
+      return;
+    }
+    const prefix = this[$namespaceId] === NS_DATASETS ? "xfa:" : "";
+    buf.push(`<${prefix}${tagName}`);
+    for (const [name, value] of this[_attributes].entries()) {
+      buf.push(` ${name}="${encodeToXmlString(value[$content])}"`);
+    }
+    if (this[_dataValue] !== null) {
+      if (this[_dataValue]) {
+        buf.push(` xfa:dataNode="dataValue"`);
+      } else {
+        buf.push(` xfa:dataNode="dataGroup"`);
+      }
+    }
+    if (!this[$content] && this[_children].length === 0) {
+      buf.push("/>");
+      return;
+    }
+
+    buf.push(">");
+    if (this[$content]) {
+      if (typeof this[$content] === "string") {
+        buf.push(encodeToXmlString(this[$content]));
+      } else {
+        this[$content][$toString](buf);
+      }
+    } else {
+      for (const child of this[_children]) {
+        child[$toString](buf);
+      }
+    }
+    buf.push(`</${prefix}${tagName}>`);
   }
 
   [$onChild](child) {
@@ -711,6 +873,10 @@ class XmlObject extends XFAObject {
     }
 
     return this[_children].filter(c => c[$nodeName] === name);
+  }
+
+  [$getAttributes]() {
+    return this[_attributes];
   }
 
   [$getChildrenByClass](name) {
@@ -785,6 +951,11 @@ class XmlObject extends XFAObject {
       return null;
     }
     return this[$content].trim();
+  }
+
+  [$setValue](value) {
+    value = value.value || "";
+    this[$content] = value.toString();
   }
 
   [$dump]() {
@@ -885,9 +1056,9 @@ export {
   $acceptWhitespace,
   $addHTML,
   $appendChild,
-  $break,
   $childrenToHTML,
   $clean,
+  $cleanPage,
   $cleanup,
   $clone,
   $consumed,
@@ -898,38 +1069,52 @@ export {
   $finalize,
   $flushHTML,
   $getAttributeIt,
+  $getAttributes,
   $getAvailableSpace,
   $getChildren,
   $getChildrenByClass,
   $getChildrenByName,
   $getChildrenByNameIt,
+  $getContainedChildren,
   $getDataValue,
+  $getExtra,
   $getNextPage,
   $getParent,
   $getRealChildrenByNameIt,
-  $global,
-  $hasItem,
+  $getSubformParent,
+  $getTemplateRoot,
+  $globalData,
   $hasSettableValue,
   $ids,
   $indexOf,
   $insertAt,
+  $isBindable,
+  $isCDATAXml,
   $isDataValue,
   $isDescendent,
+  $isNsAgnostic,
+  $isSplittable,
+  $isThereMoreWidth,
   $isTransparent,
+  $isUsable,
   $namespaceId,
   $nodeName,
   $nsAttributes,
   $onChild,
   $onChildCheck,
   $onText,
+  $pushGlyphs,
   $removeChild,
   $resolvePrototypes,
+  $root,
   $searchNode,
   $setId,
   $setSetAttributes,
   $setValue,
+  $tabIndex,
   $text,
   $toHTML,
+  $toString,
   $toStyle,
   $uid,
   ContentObject,

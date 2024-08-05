@@ -190,6 +190,7 @@ const StreamType = {
 const FontType = {
   UNKNOWN: "UNKNOWN",
   TYPE1: "TYPE1",
+  TYPE1STANDARD: "TYPE1STANDARD",
   TYPE1C: "TYPE1C",
   CIDFONTTYPE0: "CIDFONTTYPE0",
   CIDFONTTYPE0C: "CIDFONTTYPE0C",
@@ -587,6 +588,15 @@ function arraysToBytes(arr) {
 }
 
 function string32(value) {
+  if (
+    typeof PDFJSDev === "undefined" ||
+    PDFJSDev.test("!PRODUCTION || TESTING")
+  ) {
+    assert(
+      typeof value === "number" && Math.abs(value) < 2 ** 32,
+      `string32: Unexpected input "${value}".`
+    );
+  }
   return String.fromCharCode(
     (value >> 24) & 0xff,
     (value >> 16) & 0xff,

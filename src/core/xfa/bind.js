@@ -25,10 +25,10 @@ import {
   $getDataValue,
   $getParent,
   $getRealChildrenByNameIt,
-  $global,
   $hasSettableValue,
   $indexOf,
   $insertAt,
+  $isBindable,
   $isDataValue,
   $isDescendent,
   $namespaceId,
@@ -55,12 +55,12 @@ class Binder {
     this.root = root;
     this.datasets = root.datasets;
     if (root.datasets && root.datasets.data) {
-      this.emptyMerge = false;
       this.data = root.datasets.data;
     } else {
-      this.emptyMerge = true;
       this.data = new XmlObject(NamespaceIds.datasets.id, "data");
     }
+    this.emptyMerge = this.data[$getChildren]().length === 0;
+
     this.root.form = this.form = root.template[$clone]();
   }
 
@@ -87,12 +87,12 @@ class Binder {
     // data node (through $data property): we'll use it
     // to save form data.
 
+    formNode[$data] = data;
     if (formNode[$hasSettableValue]()) {
       if (data[$isDataValue]()) {
         const value = data[$getDataValue]();
         // TODO: use picture.
         formNode[$setValue](createText(value));
-        formNode[$data] = data;
       } else if (
         formNode instanceof Field &&
         formNode.ui &&
@@ -103,13 +103,11 @@ class Binder {
           .map(child => child[$content].trim())
           .join("\n");
         formNode[$setValue](createText(value));
-        formNode[$data] = data;
       } else if (this._isConsumeData()) {
         warn(`XFA - Nodes haven't the same type.`);
       }
     } else if (!data[$isDataValue]() || this._isMatchTemplate()) {
       this._bindElement(formNode, data);
-      formNode[$data] = data;
     } else {
       warn(`XFA - Nodes haven't the same type.`);
     }
@@ -159,19 +157,13 @@ class Binder {
     // (which is the location of global variables).
     generator = this.data[$getRealChildrenByNameIt](
       name,
-      /* allTransparent = */ false,
+      /* allTransparent = */ true,
       /* skipConsumed = */ false
     );
 
-    while (true) {
-      match = generator.next().value;
-      if (!match) {
-        break;
-      }
-
-      if (match[$global]) {
-        return match;
-      }
+    match = generator.next().value;
+    if (match) {
+      return match;
     }
 
     // Thirdly, try to find it in attributes.
@@ -206,34 +198,36 @@ class Binder {
         continue;
       }
 
-      const [node] = searchNode(
+      const nodes = searchNode(
         this.root,
         dataNode,
         ref,
         false /* = dotDotAllowed */,
         false /* = useCache */
       );
-      if (!node) {
+      if (!nodes) {
         warn(`XFA - Invalid reference: ${ref}.`);
         continue;
       }
+      const [node] = nodes;
 
       if (!node[$isDescendent](this.data)) {
         warn(`XFA - Invalid node: must be a data node.`);
         continue;
       }
 
-      const [targetNode] = searchNode(
+      const targetNodes = searchNode(
         this.root,
         formNode,
         target,
         false /* = dotDotAllowed */,
         false /* = useCache */
       );
-      if (!targetNode) {
+      if (!targetNodes) {
         warn(`XFA - Invalid target: ${target}.`);
         continue;
       }
+      const [targetNode] = targetNodes;
 
       if (!targetNode[$isDescendent](formNode)) {
         warn(`XFA - Invalid target: must be a property or subproperty.`);
@@ -345,34 +339,36 @@ class Binder {
           continue;
         }
 
-        const [labelNode] = searchNode(
+        const labelNodes = searchNode(
           this.root,
           node,
           labelRef,
           true /* = dotDotAllowed */,
           false /* = useCache */
         );
-        if (!labelNode) {
+        if (!labelNodes) {
           warn(`XFA - Invalid label: ${labelRef}.`);
           continue;
         }
+        const [labelNode] = labelNodes;
 
         if (!labelNode[$isDescendent](this.datasets)) {
           warn(`XFA - Invalid label: must be a datasets child.`);
           continue;
         }
 
-        const [valueNode] = searchNode(
+        const valueNodes = searchNode(
           this.root,
           node,
           valueRef,
           true /* = dotDotAllowed */,
           false /* = useCache */
         );
-        if (!valueNode) {
+        if (!valueNodes) {
           warn(`XFA - Invalid value: ${valueRef}.`);
           continue;
         }
+        const [valueNode] = valueNodes;
 
         if (!valueNode[$isDescendent](this.datasets)) {
           warn(`XFA - Invalid value: must be a datasets child.`);
@@ -477,6 +473,29 @@ class Binder {
 
       if (this._mergeMode === undefined && child[$nodeName] === "subform") {
         this._mergeMode = child.mergeMode === "consumeData";
+
+        // XFA specs p. 182:
+        // The highest-level subform and the data node representing
+        // the current record are special; they are always
+        // bound even if their names don't match.
+        const dataChildren = dataNode[$getChildren]();
+        if (dataChildren.length > 0) {
+          this._bindOccurrences(child, [dataChildren[0]], null);
+        } else if (this.emptyMerge) {
+          const dataChild = (child[$data] = new XmlObject(
+            dataNode[$namespaceId],
+            child.name || "root"
+          ));
+          dataNode[$appendChild](dataChild);
+          this._bindElement(child, dataChild);
+        }
+        continue;
+      }
+
+      if (!child[$isBindable]()) {
+        // The node cannot contain some new data so there is nothing
+        // to create in the data node.
+        continue;
       }
 
       let global = false;
@@ -523,10 +542,19 @@ class Binder {
           // to have something to match with the given expression.
           // See http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.364.2157&rep=rep1&type=pdf#page=199
           match = createDataNode(this.data, dataNode, ref);
+          if (!match) {
+            // For example if the node contains a .(...) then it isn't
+            // findable.
+            // TODO: remove this when .(...) is implemented.
+            continue;
+          }
           if (this._isConsumeData()) {
             match[$consumed] = true;
           }
-          match = [match];
+
+          // Don't bind the value in newly created node because it's empty.
+          this._bindElement(child, match);
+          continue;
         } else {
           if (this._isConsumeData()) {
             // Filter out consumed nodes.
@@ -559,6 +587,7 @@ class Binder {
               dataNode,
               global
             );
+
             if (!found) {
               break;
             }
@@ -567,16 +596,33 @@ class Binder {
           }
           match = matches.length > 0 ? matches : null;
         } else {
+          // If we've an empty merge, there are no reason
+          // to make multiple bind so skip consumed nodes.
           match = dataNode[$getRealChildrenByNameIt](
             child.name,
             /* allTransparent = */ false,
-            /* skipConsumed = */ false
+            /* skipConsumed = */ this.emptyMerge
           ).next().value;
           if (!match) {
             // We're in matchTemplate mode so create a node in data to reflect
             // what we've in template.
-            match = new XmlObject(dataNode[$namespaceId], child.name);
+            match = child[$data] = new XmlObject(
+              dataNode[$namespaceId],
+              child.name
+            );
+            if (this.emptyMerge) {
+              match[$consumed] = true;
+            }
             dataNode[$appendChild](match);
+
+            // Don't bind the value in newly created node because it's empty.
+            this._setProperties(child, match);
+            this._bindItems(child, match);
+            this._bindElement(child, match);
+            continue;
+          }
+          if (this.emptyMerge) {
+            match[$consumed] = true;
           }
           match = [match];
         }

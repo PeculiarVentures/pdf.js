@@ -14,20 +14,22 @@
  */
 
 import {
+  $content,
   $extra,
   $getParent,
+  $getSubformParent,
+  $getTemplateRoot,
+  $globalData,
   $nodeName,
+  $pushGlyphs,
+  $text,
   $toStyle,
   XFAObject,
 } from "./xfa_object.js";
-import { getMeasurement } from "./utils.js";
+import { getMeasurement, stripQuotes } from "./utils.js";
+import { selectFont } from "./fonts.js";
+import { TextMeasure } from "./text.js";
 import { warn } from "../../shared/util.js";
-
-const wordNonWordRegex = new RegExp(
-  "([\\p{N}\\p{L}\\p{M}]+)|([^\\p{N}\\p{L}\\p{M}]+)",
-  "gu"
-);
-const wordFirstRegex = new RegExp("^[\\p{N}\\p{L}\\p{M}]", "u");
 
 function measureToString(m) {
   if (typeof m === "string") {
@@ -39,7 +41,7 @@ function measureToString(m) {
 
 const converters = {
   anchorType(node, style) {
-    const parent = node[$getParent]();
+    const parent = node[$getSubformParent]();
     if (!parent || (parent.layout && parent.layout !== "position")) {
       // anchorType is only used in a positioned layout.
       return;
@@ -76,7 +78,7 @@ const converters = {
     }
   },
   dimensions(node, style) {
-    const parent = node[$getParent]();
+    const parent = node[$getSubformParent]();
     let width = node.w;
     const height = node.h;
     if (parent.layout && parent.layout.includes("row")) {
@@ -105,28 +107,16 @@ const converters = {
       style.width = measureToString(width);
     } else {
       style.width = "auto";
-      if (node.maxW > 0) {
-        style.maxWidth = measureToString(node.maxW);
-      }
-      if (parent.layout === "position") {
-        style.minWidth = measureToString(node.minW);
-      }
     }
 
     if (height !== "") {
       style.height = measureToString(height);
     } else {
       style.height = "auto";
-      if (node.maxH > 0) {
-        style.maxHeight = measureToString(node.maxH);
-      }
-      if (parent.layout === "position") {
-        style.minHeight = measureToString(node.minH);
-      }
     }
   },
   position(node, style) {
-    const parent = node[$getParent]();
+    const parent = node[$getSubformParent]();
     if (parent && parent.layout && parent.layout !== "position") {
       // IRL, we've some x/y in tb layout.
       // Specs say x/y is only used in positioned layout.
@@ -172,130 +162,135 @@ const converters = {
       }
     } else {
       switch (node.hAlign) {
-        case "right":
+        case "left":
+          style.alignSelf = "start";
+          break;
         case "center":
-          style.justifyContent = node.hAlign;
+          style.alignSelf = "center";
+          break;
+        case "right":
+          style.alignSelf = "end";
           break;
       }
     }
   },
-  borderMarginPadding(node, style) {
-    // Get border width in order to compute margin and padding.
-    const borderWidths = [0, 0, 0, 0];
-    const borderInsets = [0, 0, 0, 0];
-    const marginNode = node.margin
-      ? [
-          node.margin.topInset,
-          node.margin.rightInset,
-          node.margin.bottomInset,
-          node.margin.leftInset,
-        ]
-      : [0, 0, 0, 0];
-
-    let borderMargin;
-    if (node.border) {
-      Object.assign(style, node.border[$toStyle](borderWidths, borderInsets));
-      borderMargin = style.margin;
-      delete style.margin;
-    }
-
-    if (borderWidths.every(x => x === 0)) {
-      if (marginNode.every(x => x === 0)) {
-        return;
-      }
-
-      // No border: margin & padding are padding
-      Object.assign(style, node.margin[$toStyle]());
-      style.padding = style.margin;
-      delete style.margin;
-      delete style.outline;
-      delete style.outlineOffset;
-      return;
-    }
-
+  margin(node, style) {
     if (node.margin) {
-      Object.assign(style, node.margin[$toStyle]());
-      style.padding = style.margin;
-      delete style.margin;
+      style.margin = node.margin[$toStyle]().margin;
     }
-
-    if (!style.borderWidth) {
-      // We've an outline so no need to fake one.
-      return;
-    }
-
-    style.borderData = {
-      borderWidth: style.borderWidth,
-      borderColor: style.borderColor,
-      borderStyle: style.borderStyle,
-      margin: borderMargin,
-    };
-
-    delete style.borderWidth;
-    delete style.borderColor;
-    delete style.borderStyle;
   },
 };
 
-function layoutText(text, fontSize, space) {
-  // Try to guess width and height for the given text in taking into
-  // account the space where the text should fit.
-  // The computed dimensions are just an overestimation.
-  // TODO: base this estimation on real metrics.
-  let width = 0;
-  let height = 0;
-  let totalWidth = 0;
-  const lineHeight = fontSize * 1.5;
-  const averageCharSize = fontSize * 0.4;
-  const maxCharOnLine = Math.floor(space.width / averageCharSize);
-  const chunks = text.match(wordNonWordRegex);
-  let treatedChars = 0;
+function setMinMaxDimensions(node, style) {
+  const parent = node[$getSubformParent]();
+  if (parent.layout === "position") {
+    if (node.minW > 0) {
+      style.minWidth = measureToString(node.minW);
+    }
+    if (node.maxW > 0) {
+      style.maxWidth = measureToString(node.maxW);
+    }
+    if (node.minH > 0) {
+      style.minHeight = measureToString(node.minH);
+    }
+    if (node.maxH > 0) {
+      style.maxHeight = measureToString(node.maxH);
+    }
+  }
+}
 
-  let i = 0;
-  let chunk = chunks[0];
-  while (chunk) {
-    const w = chunk.length * averageCharSize;
-    if (width + w <= space.width) {
-      width += w;
-      treatedChars += chunk.length;
-      chunk = chunks[i++];
-      continue;
+function layoutText(text, xfaFont, margin, lineHeight, fontFinder, width) {
+  const measure = new TextMeasure(xfaFont, margin, lineHeight, fontFinder);
+  if (typeof text === "string") {
+    measure.addString(text);
+  } else {
+    text[$pushGlyphs](measure);
+  }
+
+  return measure.compute(width);
+}
+
+function layoutNode(node, availableSpace) {
+  let height = null;
+  let width = null;
+  let isBroken = false;
+
+  if ((!node.w || !node.h) && node.value) {
+    let marginH = 0;
+    let marginV = 0;
+    if (node.margin) {
+      marginH = node.margin.leftInset + node.margin.rightInset;
+      marginV = node.margin.topInset + node.margin.bottomInset;
     }
 
-    if (!wordFirstRegex.test(chunk) || chunk.length > maxCharOnLine) {
-      const numOfCharOnLine = Math.floor(
-        (space.width - width) / averageCharSize
-      );
-      chunk = chunk.slice(numOfCharOnLine);
-      treatedChars += numOfCharOnLine;
-      if (height + lineHeight > space.height) {
-        return { width: 0, height: 0, splitPos: treatedChars };
+    let lineHeight = null;
+    let margin = null;
+    if (node.para) {
+      margin = Object.create(null);
+      lineHeight = node.para.lineHeight === "" ? null : node.para.lineHeight;
+      margin.top = node.para.spaceAbove === "" ? 0 : node.para.spaceAbove;
+      margin.bottom = node.para.spaceBelow === "" ? 0 : node.para.spaceBelow;
+      margin.left = node.para.marginLeft === "" ? 0 : node.para.marginLeft;
+      margin.right = node.para.marginRight === "" ? 0 : node.para.marginRight;
+    }
+
+    let font = node.font;
+    if (!font) {
+      const root = node[$getTemplateRoot]();
+      let parent = node[$getParent]();
+      while (parent !== root) {
+        if (parent.font) {
+          font = parent.font;
+          break;
+        }
+        parent = parent[$getParent]();
       }
-      totalWidth = Math.max(width, totalWidth);
-      width = 0;
-      height += lineHeight;
-      continue;
     }
 
-    if (height + lineHeight > space.height) {
-      return { width: 0, height: 0, splitPos: treatedChars };
+    const maxWidth = !node.w ? availableSpace.width : node.w;
+    const fontFinder = node[$globalData].fontFinder;
+    if (
+      node.value.exData &&
+      node.value.exData[$content] &&
+      node.value.exData.contentType === "text/html"
+    ) {
+      const res = layoutText(
+        node.value.exData[$content],
+        font,
+        margin,
+        lineHeight,
+        fontFinder,
+        maxWidth
+      );
+      width = res.width;
+      height = res.height;
+      isBroken = res.isBroken;
+    } else {
+      const text = node.value[$text]();
+      if (text) {
+        const res = layoutText(
+          text,
+          font,
+          margin,
+          lineHeight,
+          fontFinder,
+          maxWidth
+        );
+        width = res.width;
+        height = res.height;
+        isBroken = res.isBroken;
+      }
     }
 
-    totalWidth = Math.max(width, totalWidth);
-    width = w;
-    height += lineHeight;
-    chunk = chunks[i++];
-  }
+    if (width !== null && !node.w) {
+      width += marginH;
+    }
 
-  if (totalWidth === 0) {
-    totalWidth = width;
+    if (height !== null && !node.h) {
+      height += marginV;
+    }
   }
-
-  if (totalWidth !== 0) {
-    height += lineHeight;
-  }
-
-  return { width: totalWidth, height, splitPos: -1 };
+  return { w: width, h: height, isBroken };
 }
 
 function computeBbox(node, html, availableSpace) {
@@ -309,7 +304,7 @@ function computeBbox(node, html, availableSpace) {
     let width = node.w;
     if (width === "") {
       if (node.maxW === 0) {
-        const parent = node[$getParent]();
+        const parent = node[$getSubformParent]();
         if (parent.layout === "position" && parent.w !== "") {
           width = 0;
         } else {
@@ -324,7 +319,7 @@ function computeBbox(node, html, availableSpace) {
     let height = node.h;
     if (height === "") {
       if (node.maxH === 0) {
-        const parent = node[$getParent]();
+        const parent = node[$getSubformParent]();
         if (parent.layout === "position" && parent.h !== "") {
           height = 0;
         } else {
@@ -342,7 +337,7 @@ function computeBbox(node, html, availableSpace) {
 }
 
 function fixDimensions(node) {
-  const parent = node[$getParent]();
+  const parent = node[$getSubformParent]();
   if (parent.layout && parent.layout.includes("row")) {
     const extra = parent[$extra];
     const colSpan = node.colSpan;
@@ -361,37 +356,14 @@ function fixDimensions(node) {
     }
   }
 
-  if (parent.w && node.w) {
-    node.w = Math.min(parent.w, node.w);
-  }
-
-  if (parent.h && node.h) {
-    node.h = Math.min(parent.h, node.h);
-  }
-
   if (parent.layout && parent.layout !== "position") {
     // Useless in this context.
     node.x = node.y = 0;
-    if (parent.layout === "tb") {
-      if (
-        parent.w !== "" &&
-        (node.w === "" || node.w === 0 || node.w > parent.w)
-      ) {
-        node.w = parent.w;
-      }
-    }
   }
 
-  if (node.layout === "position") {
-    // Acrobat doesn't take into account min, max values
-    // for containers with positioned layout (which makes sense).
-    node.minW = node.minH = 0;
-    node.maxW = node.maxH = Infinity;
-  } else {
-    if (node.layout === "table") {
-      if (node.w === "" && Array.isArray(node.columnWidths)) {
-        node.w = node.columnWidths.reduce((a, x) => a + x, 0);
-      }
+  if (node.layout === "table") {
+    if (node.w === "" && Array.isArray(node.columnWidths)) {
+      node.w = node.columnWidths.reduce((a, x) => a + x, 0);
     }
   }
 }
@@ -424,6 +396,11 @@ function toStyle(node, ...names) {
     if (value === null) {
       continue;
     }
+    if (converters.hasOwnProperty(name)) {
+      converters[name](node, style);
+      continue;
+    }
+
     if (value instanceof XFAObject) {
       const newStyle = value[$toStyle]();
       if (newStyle) {
@@ -431,102 +408,121 @@ function toStyle(node, ...names) {
       } else {
         warn(`(DEBUG) - XFA - style for ${name} not implemented yet`);
       }
-      continue;
-    }
-
-    if (converters.hasOwnProperty(name)) {
-      converters[name](node, style);
     }
   }
   return style;
 }
 
-function addExtraDivForBorder(html) {
-  const style = html.attributes.style;
-  const data = style.borderData;
-  const children = [];
+function createWrapper(node, html) {
+  const { attributes } = html;
+  const { style } = attributes;
 
-  const attributes = {
-    class: "xfaWrapper",
-    style: Object.create(null),
+  const wrapper = {
+    name: "div",
+    attributes: {
+      class: ["xfaWrapper"],
+      style: Object.create(null),
+    },
+    children: [],
   };
 
-  for (const key of ["top", "left"]) {
+  attributes.class.push("xfaWrapped");
+
+  if (node.border) {
+    const { widths, insets } = node.border[$extra];
+    let width, height;
+    let top = insets[0];
+    let left = insets[3];
+    const insetsH = insets[0] + insets[2];
+    const insetsW = insets[1] + insets[3];
+    switch (node.border.hand) {
+      case "even":
+        top -= widths[0] / 2;
+        left -= widths[3] / 2;
+        width = `calc(100% + ${(widths[1] + widths[3]) / 2 - insetsW}px)`;
+        height = `calc(100% + ${(widths[0] + widths[2]) / 2 - insetsH}px)`;
+        break;
+      case "left":
+        top -= widths[0];
+        left -= widths[3];
+        width = `calc(100% + ${widths[1] + widths[3] - insetsW}px)`;
+        height = `calc(100% + ${widths[0] + widths[2] - insetsH}px)`;
+        break;
+      case "right":
+        width = insetsW ? `calc(100% - ${insetsW}px)` : "100%";
+        height = insetsH ? `calc(100% - ${insetsH}px)` : "100%";
+        break;
+    }
+    const classNames = ["xfaBorder"];
+    if (isPrintOnly(node.border)) {
+      classNames.push("xfaPrintOnly");
+    }
+
+    const border = {
+      name: "div",
+      attributes: {
+        class: classNames,
+        style: {
+          top: `${top}px`,
+          left: `${left}px`,
+          width,
+          height,
+        },
+      },
+      children: [],
+    };
+
+    for (const key of [
+      "border",
+      "borderWidth",
+      "borderColor",
+      "borderRadius",
+      "borderStyle",
+    ]) {
+      if (style[key] !== undefined) {
+        border.attributes.style[key] = style[key];
+        delete style[key];
+      }
+    }
+    wrapper.children.push(border, html);
+  } else {
+    wrapper.children.push(html);
+  }
+
+  for (const key of [
+    "background",
+    "backgroundClip",
+    "top",
+    "left",
+    "width",
+    "height",
+    "minWidth",
+    "minHeight",
+    "maxWidth",
+    "maxHeight",
+    "transform",
+    "transformOrigin",
+    "visibility",
+  ]) {
     if (style[key] !== undefined) {
-      attributes.style[key] = style[key];
+      wrapper.attributes.style[key] = style[key];
+      delete style[key];
     }
   }
 
-  delete style.top;
-  delete style.left;
-
   if (style.position === "absolute") {
-    attributes.style.position = "absolute";
+    wrapper.attributes.style.position = "absolute";
   } else {
-    attributes.style.position = "relative";
+    wrapper.attributes.style.position = "relative";
   }
   delete style.position;
 
-  if (style.justifyContent) {
-    attributes.style.justifyContent = style.justifyContent;
-    delete style.justifyContent;
+  if (style.alignSelf) {
+    wrapper.attributes.style.alignSelf = style.alignSelf;
+    delete style.alignSelf;
   }
 
-  if (data) {
-    delete style.borderData;
-
-    let insets;
-    if (data.margin) {
-      insets = data.margin.split(" ");
-      delete data.margin;
-    } else {
-      insets = ["0px", "0px", "0px", "0px"];
-    }
-
-    let width = "100%";
-    let height = width;
-
-    if (insets[1] !== "0px" || insets[3] !== "0px") {
-      width = `calc(100% - ${parseInt(insets[1]) + parseInt(insets[3])}px`;
-    }
-
-    if (insets[0] !== "0px" || insets[2] !== "0px") {
-      height = `calc(100% - ${parseInt(insets[0]) + parseInt(insets[2])}px`;
-    }
-
-    const borderStyle = {
-      top: insets[0],
-      left: insets[3],
-      width,
-      height,
-    };
-
-    for (const [k, v] of Object.entries(data)) {
-      borderStyle[k] = v;
-    }
-
-    if (style.transform) {
-      borderStyle.transform = style.transform;
-    }
-
-    const borderDiv = {
-      name: "div",
-      attributes: {
-        class: "xfaBorderDiv",
-        style: borderStyle,
-      },
-    };
-
-    children.push(borderDiv);
-  }
-
-  children.push(html);
-
-  return {
-    name: "div",
-    attributes,
-    children,
-  };
+  return wrapper;
 }
 
 function fixTextIndent(styles) {
@@ -535,51 +531,109 @@ function fixTextIndent(styles) {
     return;
   }
 
-  const align = styles.textAlign || "left";
-  if (align === "left" || align === "right") {
-    const name = "margin" + (align === "left" ? "Left" : "Right");
-    const margin = getMeasurement(styles[name], "0px");
-    styles[name] = `${margin - indent}pt`;
+  // If indent is negative then it's a hanging indent.
+  const align = styles.textAlign === "right" ? "right" : "left";
+  const name = "padding" + (align === "left" ? "Left" : "Right");
+  const padding = getMeasurement(styles[name], "0px");
+  styles[name] = `${padding - indent}px`;
+}
+
+function setAccess(node, classNames) {
+  switch (node.access) {
+    case "nonInteractive":
+      classNames.push("xfaNonInteractive");
+      break;
+    case "readOnly":
+      classNames.push("xfaReadOnly");
+      break;
+    case "protected":
+      classNames.push("xfaDisabled");
+      break;
   }
 }
 
-function getFonts(family) {
-  if (family.startsWith("'")) {
-    family = `"${family.slice(1, family.length - 1)}"`;
-  } else if (family.includes(" ") && !family.startsWith('"')) {
-    family = `"${family}"`;
-  }
+function isPrintOnly(node) {
+  return (
+    node.relevant.length > 0 &&
+    !node.relevant[0].excluded &&
+    node.relevant[0].viewname === "print"
+  );
+}
 
-  // TODO in case Myriad is not available we should generate a new
-  // font based on helvetica but where glyphs have been rescaled in order
-  // to have the exact same metrics.
-  const fonts = [family];
-  switch (family) {
-    case `"Myriad Pro"`:
-      fonts.push(
-        `"Roboto Condensed"`,
-        `"Ubuntu Condensed"`,
-        `"Microsoft Sans Serif"`,
-        `"Apple Symbols"`,
-        "Helvetica",
-        `"sans serif"`
-      );
-      break;
-    case "Arial":
-      fonts.push("Helvetica", `"Liberation Sans"`, "Arimo", `"sans serif"`);
-      break;
+function setPara(node, nodeStyle, value) {
+  if (value.attributes.class && value.attributes.class.includes("xfaRich")) {
+    if (nodeStyle) {
+      if (node.h === "") {
+        nodeStyle.height = "auto";
+      }
+      if (node.w === "") {
+        nodeStyle.width = "auto";
+      }
+    }
+    if (node.para) {
+      // By definition exData are external data so para
+      // has no effect on it.
+      const valueStyle = value.attributes.style;
+      valueStyle.display = "flex";
+      valueStyle.flexDirection = "column";
+      switch (node.para.vAlign) {
+        case "top":
+          valueStyle.justifyContent = "start";
+          break;
+        case "bottom":
+          valueStyle.justifyContent = "end";
+          break;
+        case "middle":
+          valueStyle.justifyContent = "center";
+          break;
+      }
+
+      const paraStyle = node.para[$toStyle]();
+      for (const [key, val] of Object.entries(paraStyle)) {
+        if (!(key in valueStyle)) {
+          valueStyle[key] = val;
+        }
+      }
+    }
   }
-  return fonts.join(",");
+}
+
+function setFontFamily(xfaFont, fontFinder, style) {
+  const name = stripQuotes(xfaFont.typeface);
+  const typeface = fontFinder.find(name);
+
+  style.fontFamily = `"${name}"`;
+  if (typeface) {
+    const { fontFamily } = typeface.regular.cssFontInfo;
+    if (fontFamily !== name) {
+      style.fontFamily = `"${fontFamily}"`;
+    }
+    if (style.lineHeight) {
+      // Already something so don't overwrite.
+      return;
+    }
+
+    const pdfFont = selectFont(xfaFont, typeface);
+    if (pdfFont && pdfFont.lineHeight > 0) {
+      style.lineHeight = Math.max(1.2, pdfFont.lineHeight);
+    } else {
+      style.lineHeight = 1.2;
+    }
+  }
 }
 
 export {
-  addExtraDivForBorder,
   computeBbox,
+  createWrapper,
   fixDimensions,
   fixTextIndent,
-  getFonts,
+  isPrintOnly,
   layoutClass,
-  layoutText,
+  layoutNode,
   measureToString,
+  setAccess,
+  setFontFamily,
+  setMinMaxDimensions,
+  setPara,
   toStyle,
 };

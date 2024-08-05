@@ -60,7 +60,10 @@ function parseIndex(index) {
   return parseInt(index, 10) || 0;
 }
 
-function parseExpression(expr, dotDotAllowed) {
+// For now expressions containaing .[...] or .(...) are not
+// evaluated so don't parse them.
+// TODO: implement that stuff and the remove the noExpr param.
+function parseExpression(expr, dotDotAllowed, noExpr = true) {
   let match = expr.match(namePattern);
   if (!match) {
     return null;
@@ -108,10 +111,22 @@ function parseExpression(expr, dotDotAllowed) {
         operator = operators.dotHash;
         break;
       case "[":
+        if (noExpr) {
+          warn(
+            "XFA - SOM expression contains a FormCalc subexpression which is not supported for now."
+          );
+          return null;
+        }
         // TODO: FormCalc expression so need to use the parser
         operator = operators.dotBracket;
         break;
       case "(":
+        if (noExpr) {
+          warn(
+            "XFA - SOM expression contains a JavaScript subexpression which is not supported for now."
+          );
+          return null;
+        }
         // TODO:
         // Javascript expression: should be a boolean operation with a path
         // so maybe we can have our own parser for that stuff or
@@ -245,7 +260,7 @@ function searchNode(
 function createNodes(root, path) {
   let node = null;
   for (const { name, index } of path) {
-    for (let i = 0; i <= index; i++) {
+    for (let i = 0, ii = !isFinite(index) ? 0 : index; i <= ii; i++) {
       node = new XmlObject(root[$namespaceId], name);
       root[$appendChild](node);
     }
@@ -313,7 +328,7 @@ function createDataNode(root, container, expr) {
       }
       root = child;
     } else {
-      parsed[i].index = children.length - index;
+      parsed[i].index = index - children.length;
       return createNodes(root, parsed.slice(i));
     }
   }

@@ -71,6 +71,7 @@ class Catalog {
 
     this.fontCache = new RefSetCache();
     this.builtInCMapCache = new Map();
+    this.standardFontDataCache = new Map();
     this.globalImageCache = new GlobalImageCache();
     this.pageKidsCountCache = new RefSetCache();
     this.pageIndexCache = new RefSetCache();
@@ -914,6 +915,22 @@ class Catalog {
     return shadow(this, "attachments", attachments);
   }
 
+  get xfaImages() {
+    const obj = this._catDict.get("Names");
+    let xfaImages = null;
+
+    if (obj instanceof Dict && obj.has("XFAImages")) {
+      const nameTree = new NameTree(obj.getRaw("XFAImages"), this.xref);
+      for (const [key, value] of nameTree.getAll()) {
+        if (!xfaImages) {
+          xfaImages = new Dict(this.xref);
+        }
+        xfaImages.set(key, value);
+      }
+    }
+    return shadow(this, "xfaImages", xfaImages);
+  }
+
   _collectJavaScript() {
     const obj = this._catDict.get("Names");
     let javaScript = null;
@@ -1020,6 +1037,7 @@ class Catalog {
       }
       this.fontCache.clear();
       this.builtInCMapCache.clear();
+      this.standardFontDataCache.clear();
     });
   }
 

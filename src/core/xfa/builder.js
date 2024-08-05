@@ -18,9 +18,11 @@ import {
   $cleanup,
   $finalize,
   $ids,
+  $isNsAgnostic,
   $nsAttributes,
   $onChild,
   $resolvePrototypes,
+  $root,
   XFAObject,
 } from "./xfa_object.js";
 import { NamespaceSetUp } from "./setup.js";
@@ -43,6 +45,10 @@ class Root extends XFAObject {
   [$finalize]() {
     super[$finalize]();
     if (this.element.template instanceof Template) {
+      // Set the root element in $ids using a symbol in order
+      // to avoid conflict with real IDs.
+      this[$ids].set($root, this.element);
+
       this.element.template[$resolvePrototypes](this[$ids]);
       this.element.template[$ids] = this[$ids];
     }
@@ -62,6 +68,7 @@ class Empty extends XFAObject {
 class Builder {
   constructor() {
     this._namespaceStack = [];
+    this._nsAgnosticLevel = 0;
 
     // Each prefix has its own stack
     this._namespacePrefixes = new Map();
@@ -113,16 +120,25 @@ class Builder {
       (namespaceToUse && namespaceToUse[$buildXFAObject](name, attributes)) ||
       new Empty();
 
+    if (node[$isNsAgnostic]()) {
+      this._nsAgnosticLevel++;
+    }
+
     // In case the node has some namespace things,
     // we must pop the different stacks.
-    if (hasNamespaceDef || prefixes) {
+    if (hasNamespaceDef || prefixes || node[$isNsAgnostic]()) {
       node[$cleanup] = {
         hasNamespace: hasNamespaceDef,
         prefixes,
+        nsAgnostic: node[$isNsAgnostic](),
       };
     }
 
     return node;
+  }
+
+  isNsAgnostic() {
+    return this._nsAgnosticLevel > 0;
   }
 
   _searchNamespace(nsName) {
@@ -173,7 +189,7 @@ class Builder {
   }
 
   clean(data) {
-    const { hasNamespace, prefixes } = data;
+    const { hasNamespace, prefixes, nsAgnostic } = data;
     if (hasNamespace) {
       this._currentNamespace = this._namespaceStack.pop();
     }
@@ -181,6 +197,9 @@ class Builder {
       prefixes.forEach(({ prefix }) => {
         this._namespacePrefixes.get(prefix).pop();
       });
+    }
+    if (nsAgnostic) {
+      this._nsAgnosticLevel--;
     }
   }
 }

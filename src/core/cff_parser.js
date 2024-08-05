@@ -599,6 +599,12 @@ const CFFParser = (function CFFParserClosure() {
         } else if (value === 11) {
           state.stackSize = stackSize;
           return true;
+        } else if (value === 0 && j === data.length) {
+          // Operator 0 is not used according to the current spec and
+          // it's the last char and consequently it's likely a terminator.
+          // So just replace it by endchar command to make OTS happy.
+          data[j - 1] = 14;
+          validationCommand = CharstringValidationData[14];
         } else {
           validationCommand = CharstringValidationData[value];
         }
@@ -626,6 +632,14 @@ const CFFParser = (function CFFParserClosure() {
                   ", expected: " +
                   validationCommand.min
               );
+
+              if (stackSize === 0) {
+                // Just "fix" the outline in replacing command by a endchar:
+                // it could lead to wrong rendering of some glyphs or not.
+                // For example, the pdf in #6132 is well-rendered.
+                data[j - 1] = 14;
+                return true;
+              }
               return false;
             }
           }
@@ -922,7 +936,7 @@ const CFFParser = (function CFFParserClosure() {
         }
         raw = bytes.subarray(dataStart, dataEnd);
       }
-      format = format & 0x7f;
+      format &= 0x7f;
       return new CFFEncoding(predefined, format, encoding, raw);
     }
 
@@ -1538,7 +1552,7 @@ class CFFCompiler {
     if (value >= -107 && value <= 107) {
       code = [value + 139];
     } else if (value >= 108 && value <= 1131) {
-      value = value - 108;
+      value -= 108;
       code = [(value >> 8) + 247, value & 0xff];
     } else if (value >= -1131 && value <= -108) {
       value = -value - 108;

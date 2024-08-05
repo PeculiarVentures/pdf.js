@@ -62,11 +62,13 @@
 !issue7872.pdf
 !issue7901.pdf
 !issue8061.pdf
+!bug1721218_reduced.pdf
 !issue8088.pdf
 !issue8125.pdf
 !issue8229.pdf
 !issue8276_reduced.pdf
 !issue8372.pdf
+!xfa_filled_imm1344e.pdf
 !issue8424.pdf
 !issue8480.pdf
 !bug1650302_reduced.pdf
@@ -130,6 +132,7 @@
 !bug1513120_reduced.pdf
 !bug1538111.pdf
 !bug1552113.pdf
+!issue6132.pdf
 !issue9949.pdf
 !bug1308536.pdf
 !bug1337429.pdf
@@ -204,6 +207,7 @@
 !issue11403_reduced.pdf
 !issue2074.pdf
 !scan-bad.pdf
+!issue13561_reduced.pdf
 !bug847420.pdf
 !bug860632.pdf
 !bug894572.pdf
@@ -215,6 +219,7 @@
 !bug1473809.pdf
 !issue12120_reduced.pdf
 !pdfjsbad1586.pdf
+!standard_fonts.pdf
 !freeculture.pdf
 !issue6006.pdf
 !pdfkit_compressed.pdf
@@ -404,6 +409,7 @@
 !issue13193.pdf
 !annotation-underline-without-appearance.pdf
 !issue269_2.pdf
+!issue13372.pdf
 !annotation-strikeout.pdf
 !annotation-strikeout-without-appearance.pdf
 !annotation-squiggly.pdf
@@ -436,6 +442,7 @@
 !quadpoints.pdf
 !transparent.pdf
 !xobject-image.pdf
+!issue6605.pdf
 !ccitt_EndOfBlock_false.pdf
 !issue9972-1.pdf
 !issue9972-2.pdf

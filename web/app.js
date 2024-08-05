@@ -828,6 +828,7 @@ const PDFViewerApplication = {
       this.pdfDocumentProperties.setDocument(null);
     }
     webViewerResetPermissions();
+    this.pdfLinkService.externalLinkEnabled = true;
     this._fellback = false;
     this.store = null;
     this.isInitialViewSet = false;
@@ -1219,7 +1220,7 @@ const PDFViewerApplication = {
     pdfThumbnailViewer.setDocument(pdfDocument);
 
     const storedPromise = (this.store = new ViewHistory(
-      pdfDocument.fingerprint
+      pdfDocument.fingerprints[0]
     ))
       .getMultiple({
         page: null,
@@ -1251,7 +1252,7 @@ const PDFViewerApplication = {
           const viewOnLoad = AppOptions.get("viewOnLoad");
 
           this._initializePdfHistory({
-            fingerprint: pdfDocument.fingerprint,
+            fingerprint: pdfDocument.fingerprints[0],
             viewOnLoad,
             initialDest: openAction?.dest,
           });
@@ -1510,7 +1511,7 @@ const PDFViewerApplication = {
 
     // Provides some basic debug information
     console.log(
-      `PDF ${pdfDocument.fingerprint} [${info.PDFFormatVersion} ` +
+      `PDF ${pdfDocument.fingerprints[0]} [${info.PDFFormatVersion} ` +
         `${(info.Producer || "-").trim()} / ${(info.Creator || "-").trim()}] ` +
         `(PDF.js: ${version || "-"})`
     );
@@ -1546,7 +1547,7 @@ const PDFViewerApplication = {
       // Note: `isPureXfa === true` implies that `enableXfa = true` was set.
       !pdfDocument.isPureXfa
     ) {
-      console.warn("Warning: XFA is not enabled");
+      console.warn("Warning: XFA support is not enabled");
       this.fallback(UNSUPPORTED_FEATURES.forms);
     } else if (
       (info.IsAcroFormPresent || info.IsXFAPresent) &&

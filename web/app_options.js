@@ -194,7 +194,7 @@ const defaultOptions = {
   },
   enableXfa: {
     /** @type {boolean} */
-    value: false,
+    value: typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION"),
     kind: OptionKind.API + OptionKind.PREFERENCE,
   },
   fontExtraProperties: {
@@ -215,6 +215,14 @@ const defaultOptions = {
   pdfBug: {
     /** @type {boolean} */
     value: false,
+    kind: OptionKind.API,
+  },
+  standardFontDataUrl: {
+    /** @type {string} */
+    value:
+      typeof PDFJSDev === "undefined" || !PDFJSDev.test("PRODUCTION")
+        ? "../external/standard_fonts/"
+        : "../web/standard_fonts/",
     kind: OptionKind.API,
   },
   verbosity: {
