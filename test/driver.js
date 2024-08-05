@@ -17,8 +17,18 @@
 
 "use strict";
 
+const {
+  AnnotationLayer,
+  AnnotationMode,
+  getDocument,
+  GlobalWorkerOptions,
+  PixelsPerInch,
+  renderTextLayer,
+  XfaLayer,
+} = pdfjsLib;
+const { SimpleLinkService } = pdfjsViewer;
+
 const WAITING_TIME = 100; // ms
-const PDF_TO_CSS_UNITS = 96.0 / 72.0;
 const CMAP_URL = "/build/generic/web/cmaps/";
 const CMAP_PACKED = true;
 const STANDARD_FONT_DATA_URL = "/build/generic/web/standard_fonts/";
@@ -158,11 +168,11 @@ var rasterizeTextLayer = (function rasterizeTextLayerClosure() {
       foreignObject.appendChild(div);
 
       stylePromise
-        .then(async cssRules => {
+        .then(async ([cssRules]) => {
           style.textContent = cssRules;
 
           // Rendering text layer as HTML.
-          var task = pdfjsLib.renderTextLayer({
+          var task = renderTextLayer({
             textContent,
             container: div,
             viewport,
@@ -219,7 +229,7 @@ var rasterizeAnnotationLayer = (function rasterizeAnnotationLayerClosure() {
     annotations,
     page,
     imageResourcesPath,
-    renderInteractiveForms
+    renderForms = false
   ) {
     return new Promise(function (resolve, reject) {
       // Building SVG with size of the viewport.
@@ -241,8 +251,8 @@ var rasterizeAnnotationLayer = (function rasterizeAnnotationLayerClosure() {
 
       // Rendering annotation layer as HTML.
       stylePromise
-        .then(async (common, overrides) => {
-          style.textContent = common + overrides;
+        .then(async ([common, overrides]) => {
+          style.textContent = common + "\n" + overrides;
 
           var annotation_viewport = viewport.clone({ dontFlip: true });
           var parameters = {
@@ -250,11 +260,11 @@ var rasterizeAnnotationLayer = (function rasterizeAnnotationLayerClosure() {
             div,
             annotations,
             page,
-            linkService: new pdfjsViewer.SimpleLinkService(),
+            linkService: new SimpleLinkService(),
             imageResourcesPath,
-            renderInteractiveForms,
+            renderForms,
           };
-          pdfjsLib.AnnotationLayer.render(parameters);
+          AnnotationLayer.render(parameters);
 
           // Inline SVG images from text annotations.
           await resolveImages(div);
@@ -316,14 +326,15 @@ var rasterizeXfaLayer = (function rasterizeXfaLayerClosure() {
       foreignObject.appendChild(div);
 
       stylePromise
-        .then(async cssRules => {
+        .then(async ([cssRules]) => {
           style.textContent = fontRules + "\n" + cssRules;
 
-          pdfjsLib.XfaLayer.render({
+          XfaLayer.render({
             xfa,
             div,
             viewport: viewport.clone({ dontFlip: true }),
             annotationStorage,
+            linkService: new SimpleLinkService(),
             intent: isPrint ? "print" : "display",
           });
 
@@ -365,7 +376,7 @@ var Driver = (function DriverClosure() {
   // eslint-disable-next-line no-shadow
   function Driver(options) {
     // Configure the global worker options.
-    pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
+    GlobalWorkerOptions.workerSrc = WORKER_SRC;
 
     // Set the passed options
     this.inflight = options.inflight;
@@ -382,6 +393,7 @@ var Driver = (function DriverClosure() {
     this.testFilter = parameters.testFilter
       ? JSON.parse(parameters.testFilter)
       : [];
+    this.xfaOnly = parameters.xfaOnly === "true";
 
     // Create a working canvas
     this.canvas = document.createElement("canvas");
@@ -425,9 +437,15 @@ var Driver = (function DriverClosure() {
         if (r.readyState === 4) {
           self._log("done\n");
           self.manifest = JSON.parse(r.responseText);
-          if (self.testFilter && self.testFilter.length) {
+          if (self.testFilter?.length || self.xfaOnly) {
             self.manifest = self.manifest.filter(function (item) {
-              return self.testFilter.includes(item.id);
+              if (self.testFilter.includes(item.id)) {
+                return true;
+              }
+              if (self.xfaOnly && item.enableXfa) {
+                return true;
+              }
+              return false;
             });
           }
           self.currentTask = 0;
@@ -487,7 +505,7 @@ var Driver = (function DriverClosure() {
               .appendChild(xfaStyleElement);
           }
 
-          const loadingTask = pdfjsLib.getDocument({
+          const loadingTask = getDocument({
             url: absoluteUrl,
             password: task.password,
             cMapUrl: CMAP_URL,
@@ -502,7 +520,7 @@ var Driver = (function DriverClosure() {
             styleElement: xfaStyleElement,
           });
           loadingTask.promise.then(
-            doc => {
+            async doc => {
               if (task.enableXfa) {
                 task.fontRules = "";
                 for (const rule of xfaStyleElement.sheet.cssRules) {
@@ -513,6 +531,15 @@ var Driver = (function DriverClosure() {
               task.pdfDoc = doc;
               task.optionalContentConfigPromise =
                 doc.getOptionalContentConfig();
+
+              if (task.optionalContent) {
+                const entries = Object.entries(task.optionalContent),
+                  optionalContentConfig =
+                    await task.optionalContentConfigPromise;
+                for (const [id, visible] of entries) {
+                  optionalContentConfig.setVisibility(id, visible);
+                }
+              }
 
               this._nextPage(task, failure);
             },
@@ -629,7 +656,9 @@ var Driver = (function DriverClosure() {
           ctx = this.canvas.getContext("2d", { alpha: false });
           task.pdfDoc.getPage(task.pageNum).then(
             function (page) {
-              var viewport = page.getViewport({ scale: PDF_TO_CSS_UNITS });
+              var viewport = page.getViewport({
+                scale: PixelsPerInch.PDF_TO_CSS_UNITS,
+              });
               self.canvas.width = viewport.width;
               self.canvas.height = viewport.height;
               self._clearCanvas();
@@ -745,12 +774,13 @@ var Driver = (function DriverClosure() {
               var renderContext = {
                 canvasContext: ctx,
                 viewport,
-                renderInteractiveForms: renderForms,
                 optionalContentConfigPromise: task.optionalContentConfigPromise,
               };
-              if (renderPrint) {
+              if (renderForms) {
+                renderContext.annotationMode = AnnotationMode.ENABLE_FORMS;
+              } else if (renderPrint) {
                 if (task.annotationStorage) {
-                  renderContext.includeAnnotationStorage = true;
+                  renderContext.annotationMode = AnnotationMode.ENABLE_STORAGE;
                 }
                 renderContext.intent = "print";
               }

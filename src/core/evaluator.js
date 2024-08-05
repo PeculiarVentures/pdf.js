@@ -70,6 +70,7 @@ import {
   reverseIfRtl,
 } from "./unicode.js";
 import { getTilingPatternIR, Pattern } from "./pattern.js";
+import { getXfaFontDict, getXfaFontName } from "./xfa_fonts.js";
 import { IdentityToUnicodeMap, ToUnicodeMap } from "./to_unicode_map.js";
 import { isPDFFunction, PDFFunctionFactory } from "./function.js";
 import { Lexer, Parser } from "./parser.js";
@@ -86,7 +87,6 @@ import { DecodeStream } from "./decode_stream.js";
 import { getGlyphsUnicode } from "./glyphlist.js";
 import { getLookupTableFactory } from "./core_utils.js";
 import { getMetrics } from "./metrics.js";
-import { getXfaFontName } from "./xfa_fonts.js";
 import { MurmurHash3_64 } from "./murmurhash3.js";
 import { OperatorList } from "./operator_list.js";
 import { PDFImage } from "./image.js";
@@ -106,6 +106,17 @@ const PatternType = {
   TILING: 1,
   SHADING: 2,
 };
+
+// Optionally avoid sending individual, or very few, text chunks to reduce
+// `postMessage` overhead with ReadableStream (see issue 13962).
+//
+// PLEASE NOTE: This value should *not* be too large (it's used as a lower limit
+// in `enqueueChunk`), since that would cause streaming of textContent to become
+// essentially useless in practice by sending all (or most) chunks at once.
+// Also, a too large value would (indirectly) affect the main-thread `textLayer`
+// building negatively by forcing all textContent to be handled at once, which
+// could easily end up hurting *overall* performance (e.g. rendering as well).
+const TEXT_CHUNK_BATCH_SIZE = 10;
 
 const deferred = Promise.resolve();
 
@@ -461,13 +472,15 @@ class PartialEvaluator {
     } else {
       bbox = null;
     }
-    let optionalContent = null,
-      groupOptions;
+
+    let optionalContent, groupOptions;
     if (dict.has("OC")) {
       optionalContent = await this.parseMarkedContentProps(
         dict.get("OC"),
         resources
       );
+    }
+    if (optionalContent !== undefined) {
       operatorList.addOp(OPS.beginMarkedContentProps, ["OC", optionalContent]);
     }
     const group = dict.get("Group");
@@ -528,7 +541,7 @@ class PartialEvaluator {
         operatorList.addOp(OPS.endGroup, [groupOptions]);
       }
 
-      if (optionalContent) {
+      if (optionalContent !== undefined) {
         operatorList.addOp(OPS.endMarkedContent, []);
       }
     });
@@ -567,15 +580,27 @@ class PartialEvaluator {
 
     if (!(w && isNum(w)) || !(h && isNum(h))) {
       warn("Image dimensions are missing, or not numbers.");
-      return undefined;
+      return;
     }
     const maxImageSize = this.options.maxImageSize;
     if (maxImageSize !== -1 && w * h > maxImageSize) {
       warn("Image exceeded maximum allowed size and was removed.");
-      return undefined;
+      return;
+    }
+
+    let optionalContent;
+    if (dict.has("OC")) {
+      optionalContent = await this.parseMarkedContentProps(
+        dict.get("OC"),
+        resources
+      );
+    }
+    if (optionalContent !== undefined) {
+      operatorList.addOp(OPS.beginMarkedContentProps, ["OC", optionalContent]);
     }
 
     const imageMask = dict.get("ImageMask", "IM") || false;
+    const interpolate = dict.get("Interpolate", "I");
     let imgData, args;
     if (imageMask) {
       // This depends on a tmpCanvas being filled with the
@@ -599,6 +624,7 @@ class PartialEvaluator {
         height,
         imageIsFromDecodeStream: image instanceof DecodeStream,
         inverseDecode: !!decode && decode[0] > 0,
+        interpolate,
       });
       imgData.cached = !!cacheKey;
       args = [imgData];
@@ -610,7 +636,11 @@ class PartialEvaluator {
           args,
         });
       }
-      return undefined;
+
+      if (optionalContent !== undefined) {
+        operatorList.addOp(OPS.endMarkedContent, []);
+      }
+      return;
     }
 
     const softMask = dict.get("SMask", "SM") || false;
@@ -631,7 +661,11 @@ class PartialEvaluator {
       // any other kind.
       imgData = imageObj.createImageData(/* forceRGBA = */ true);
       operatorList.addOp(OPS.paintInlineImageXObject, [imgData]);
-      return undefined;
+
+      if (optionalContent !== undefined) {
+        operatorList.addOp(OPS.endMarkedContent, []);
+      }
+      return;
     }
 
     // If there is no imageMask, create the PDFImage and a lot
@@ -699,7 +733,10 @@ class PartialEvaluator {
         }
       }
     }
-    return undefined;
+
+    if (optionalContent !== undefined) {
+      operatorList.addOp(OPS.endMarkedContent, []);
+    }
   }
 
   handleSMask(
@@ -795,7 +832,6 @@ class PartialEvaluator {
     patternDict,
     operatorList,
     task,
-    cacheKey,
     localTilingPatternCache
   ) {
     // Create an IR of the pattern code.
@@ -825,8 +861,8 @@ class PartialEvaluator {
         operatorList.addDependencies(tilingOpList.dependencies);
         operatorList.addOp(fn, tilingPatternIR);
 
-        if (cacheKey) {
-          localTilingPatternCache.set(cacheKey, patternDict.objId, {
+        if (patternDict.objId) {
+          localTilingPatternCache.set(/* name = */ null, patternDict.objId, {
             operatorListIR,
             dict: patternDict,
           });
@@ -1315,20 +1351,17 @@ class PartialEvaluator {
   }
 
   parseShading({
-    keyObj,
     shading,
     resources,
     localColorSpaceCache,
     localShadingPatternCache,
-    matrix = null,
   }) {
     // Shadings and patterns may be referenced by the same name but the resource
     // dictionary could be different so we can't use the name for the cache key.
-    let id = localShadingPatternCache.get(keyObj);
+    let id = localShadingPatternCache.get(shading);
     if (!id) {
       var shadingFill = Pattern.parseShading(
         shading,
-        matrix,
         this.xref,
         resources,
         this.handler,
@@ -1337,7 +1370,7 @@ class PartialEvaluator {
       );
       const patternIR = shadingFill.getIR();
       id = `pattern_${this.idFactory.createObjId()}`;
-      localShadingPatternCache.set(keyObj, id);
+      localShadingPatternCache.set(shading, id);
       this.handler.send("obj", [id, this.pageIndex, "Pattern", patternIR]);
     }
     return id;
@@ -1359,9 +1392,11 @@ class PartialEvaluator {
     const patternName = args.pop();
     // SCN/scn applies patterns along with normal colors
     if (patternName instanceof Name) {
-      const name = patternName.name;
+      const rawPattern = patterns.getRaw(patternName.name);
 
-      const localTilingPattern = localTilingPatternCache.getByName(name);
+      const localTilingPattern =
+        rawPattern instanceof Ref &&
+        localTilingPatternCache.getByRef(rawPattern);
       if (localTilingPattern) {
         try {
           const color = cs.base ? cs.base.getRgb(args, 0) : null;
@@ -1376,11 +1411,8 @@ class PartialEvaluator {
           // Handle any errors during normal TilingPattern parsing.
         }
       }
-      // TODO: Attempt to lookup cached TilingPatterns by reference as well,
-      //       if and only if there are PDF documents where doing so would
-      //       significantly improve performance.
 
-      const pattern = patterns.get(name);
+      const pattern = this.xref.fetchIfRef(rawPattern);
       if (pattern) {
         const dict = isStream(pattern) ? pattern.dict : pattern;
         const typeNum = dict.get("PatternType");
@@ -1395,21 +1427,18 @@ class PartialEvaluator {
             dict,
             operatorList,
             task,
-            /* cacheKey = */ name,
             localTilingPatternCache
           );
         } else if (typeNum === PatternType.SHADING) {
           const shading = dict.get("Shading");
           const matrix = dict.getArray("Matrix");
           const objId = this.parseShading({
-            keyObj: pattern,
             shading,
-            matrix,
             resources,
             localColorSpaceCache,
             localShadingPatternCache,
           });
-          operatorList.addOp(fn, ["Shading", objId]);
+          operatorList.addOp(fn, ["Shading", objId, matrix]);
           return undefined;
         }
         throw new FormatError(`Unknown PatternType: ${typeNum}`);
@@ -1942,7 +1971,6 @@ class PartialEvaluator {
               throw new FormatError("No shading object found");
             }
             const patternId = self.parseShading({
-              keyObj: shading,
               shading,
               resources,
               localColorSpaceCache,
@@ -2558,8 +2586,6 @@ class PartialEvaluator {
       if (textContentItem.initialized) {
         textContentItem.hasEOL = true;
         flushTextContentItem();
-      } else if (textContent.items.length > 0) {
-        textContent.items[textContent.items.length - 1].hasEOL = true;
       } else {
         textContent.items.push({
           str: "",
@@ -2641,20 +2667,24 @@ class PartialEvaluator {
       textContentItem.str.length = 0;
     }
 
-    function enqueueChunk() {
+    function enqueueChunk(batch = false) {
       const length = textContent.items.length;
-      if (length > 0) {
-        sink.enqueue(textContent, length);
-        textContent.items = [];
-        textContent.styles = Object.create(null);
+      if (length === 0) {
+        return;
       }
+      if (batch && length < TEXT_CHUNK_BATCH_SIZE) {
+        return;
+      }
+      sink.enqueue(textContent, length);
+      textContent.items = [];
+      textContent.styles = Object.create(null);
     }
 
     const timeSlotManager = new TimeSlotManager();
 
     return new Promise(function promiseBody(resolve, reject) {
       const next = function (promise) {
-        enqueueChunk();
+        enqueueChunk(/* batch = */ true);
         Promise.all([promise, sink.ready]).then(function () {
           try {
             promiseBody(resolve, reject);
@@ -3425,6 +3455,11 @@ class PartialEvaluator {
           // NOTE: cmap can be a sparse array, so use forEach instead of
           // `for(;;)` to iterate over all keys.
           cmap.forEach(function (charCode, token) {
+            // Some cmaps contain *only* CID characters (fixes issue9367.pdf).
+            if (typeof token === "number") {
+              map[charCode] = String.fromCodePoint(token);
+              return;
+            }
             const str = [];
             for (let k = 0; k < token.length; k += 2) {
               const w1 = (token.charCodeAt(k) << 8) | token.charCodeAt(k + 1);
@@ -3820,6 +3855,7 @@ class PartialEvaluator {
           loadedName: baseDict.loadedName,
           widths: metrics.widths,
           defaultWidth: metrics.defaultWidth,
+          isSimulatedFlags: true,
           flags,
           firstChar,
           lastChar,
@@ -3924,11 +3960,17 @@ class PartialEvaluator {
       const standardFontName = getXfaFontName(fontName.name);
       if (standardFontName) {
         cssFontInfo.fontFamily = `${cssFontInfo.fontFamily}-PdfJS-XFA`;
-        cssFontInfo.lineHeight = standardFontName.lineHeight || null;
+        cssFontInfo.metrics = standardFontName.metrics || null;
         glyphScaleFactors = standardFontName.factors || null;
         fontFile = await this.fetchStandardFontData(standardFontName.name);
         isInternalFont = !!fontFile;
-        type = "TrueType";
+
+        // We're using a substitution font but for example widths (if any)
+        // are related to the glyph positions in the font.
+        // So we overwrite everything here to be sure that widths are
+        // correct.
+        baseDict = dict = getXfaFontDict(fontName.name);
+        composite = true;
       }
     } else if (!isType3Font) {
       const standardFontName = getStandardFontName(fontName.name);

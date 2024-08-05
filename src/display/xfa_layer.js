@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+import { warn } from "../shared/util.js";
+import { XfaText } from "./xfa_text.js";
+
 class XfaLayer {
   static setupStorage(html, id, element, storage, intent) {
     const storedData = storage.getValue(id, { value: null });
@@ -35,12 +38,20 @@ class XfaLayer {
         ) {
           if (storedData.value === element.attributes.xfaOn) {
             html.setAttribute("checked", true);
+          } else if (storedData.value === element.attributes.xfaOff) {
+            // The checked attribute may have been set when opening the file,
+            // unset through the UI and we're here because of printing.
+            html.removeAttribute("checked");
           }
           if (intent === "print") {
             break;
           }
           html.addEventListener("change", event => {
-            storage.setValue(id, { value: event.target.getAttribute("xfaOn") });
+            storage.setValue(id, {
+              value: event.target.checked
+                ? event.target.getAttribute("xfaOn")
+                : event.target.getAttribute("xfaOff"),
+            });
           });
         } else {
           if (storedData.value !== null) {
@@ -74,8 +85,10 @@ class XfaLayer {
     }
   }
 
-  static setAttributes(html, element, storage, intent) {
+  static setAttributes({ html, element, storage = null, intent, linkService }) {
     const { attributes } = element;
+    const isHTMLAnchorElement = html instanceof HTMLAnchorElement;
+
     if (attributes.type === "radio") {
       // Avoid to have a radio group when printing with the same as one
       // already displayed.
@@ -95,11 +108,30 @@ class XfaLayer {
         } else if (key === "class") {
           html.setAttribute(key, value.join(" "));
         } else {
+          if (isHTMLAnchorElement && (key === "href" || key === "newWindow")) {
+            continue; // Handled below.
+          }
           html.setAttribute(key, value);
         }
       } else {
         Object.assign(html.style, value);
       }
+    }
+
+    if (isHTMLAnchorElement) {
+      if (
+        (typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")) &&
+        !linkService.addLinkAttributes
+      ) {
+        warn(
+          "XfaLayer.setAttribute - missing `addLinkAttributes`-method on the `linkService`-instance."
+        );
+      }
+      linkService.addLinkAttributes?.(
+        html,
+        attributes.href,
+        attributes.newWindow
+      );
     }
 
     // Set the value after the others to be sure overwrite
@@ -111,11 +143,17 @@ class XfaLayer {
 
   static render(parameters) {
     const storage = parameters.annotationStorage;
+    const linkService = parameters.linkService;
     const root = parameters.xfa;
     const intent = parameters.intent || "display";
     const rootHtml = document.createElement(root.name);
     if (root.attributes) {
-      this.setAttributes(rootHtml, root);
+      this.setAttributes({
+        html: rootHtml,
+        element: root,
+        intent,
+        linkService,
+      });
     }
     const stack = [[root, -1, rootHtml]];
 
@@ -126,6 +164,9 @@ class XfaLayer {
 
     // Set defaults.
     rootDiv.setAttribute("class", "xfaLayer xfaFont");
+
+    // Text nodes used for the text highlighter.
+    const textDivs = [];
 
     while (stack.length > 0) {
       const [parent, i, html] = stack[stack.length - 1];
@@ -141,7 +182,9 @@ class XfaLayer {
 
       const { name } = child;
       if (name === "#text") {
-        html.appendChild(document.createTextNode(child.value));
+        const node = document.createTextNode(child.value);
+        textDivs.push(node);
+        html.appendChild(node);
         continue;
       }
 
@@ -154,13 +197,23 @@ class XfaLayer {
 
       html.appendChild(childHtml);
       if (child.attributes) {
-        this.setAttributes(childHtml, child, storage, intent);
+        this.setAttributes({
+          html: childHtml,
+          element: child,
+          storage,
+          intent,
+          linkService,
+        });
       }
 
       if (child.children && child.children.length > 0) {
         stack.push([child, -1, childHtml]);
       } else if (child.value) {
-        childHtml.appendChild(document.createTextNode(child.value));
+        const node = document.createTextNode(child.value);
+        if (XfaText.shouldBuildText(name)) {
+          textDivs.push(node);
+        }
+        childHtml.appendChild(node);
       }
     }
 
@@ -185,6 +238,10 @@ class XfaLayer {
     )) {
       el.setAttribute("readOnly", true);
     }
+
+    return {
+      textDivs,
+    };
   }
 
   /**

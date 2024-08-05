@@ -13,10 +13,15 @@
  * limitations under the License.
  */
 
-import { createPromiseCapability, version } from "pdfjs-lib";
 import {
-  CSS_UNITS,
+  AnnotationMode,
+  createPromiseCapability,
+  PixelsPerInch,
+  version,
+} from "pdfjs-lib";
+import {
   DEFAULT_SCALE,
+  DEFAULT_SCALE_DELTA,
   DEFAULT_SCALE_VALUE,
   getVisibleElements,
   isPortraitOrientation,
@@ -24,6 +29,8 @@ import {
   isValidScrollMode,
   isValidSpreadMode,
   MAX_AUTO_SCALE,
+  MAX_SCALE,
+  MIN_SCALE,
   moveToEndOfArray,
   PresentationModeState,
   RendererType,
@@ -42,6 +49,7 @@ import { NullL10n } from "./l10n_utils.js";
 import { PDFPageView } from "./pdf_page_view.js";
 import { SimpleLinkService } from "./pdf_link_service.js";
 import { StructTreeLayerBuilder } from "./struct_tree_layer_builder.js";
+import { TextHighlighter } from "./text_highlighter.js";
 import { TextLayerBuilder } from "./text_layer_builder.js";
 import { XfaLayerBuilder } from "./xfa_layer_builder.js";
 
@@ -66,10 +74,13 @@ const DEFAULT_CACHE_SIZE = 10;
  *   selection and searching is created, and if the improved text selection
  *   behaviour is enabled. The constants from {TextLayerMode} should be used.
  *   The default value is `TextLayerMode.ENABLE`.
+ * @property {number} [annotationMode] - Controls if the annotation layer is
+ *   created, and if interactive form elements or `AnnotationStorage`-data are
+ *   being rendered. The constants from {@link AnnotationMode} should be used;
+ *   see also {@link RenderParameters} and {@link GetOperatorListParameters}.
+ *   The default value is `AnnotationMode.ENABLE_FORMS`.
  * @property {string} [imageResourcesPath] - Path for image resources, mainly
  *   mainly for annotation icons. Include trailing slash.
- * @property {boolean} [renderInteractiveForms] - Enables rendering of
- *   interactive form elements. The default value is `true`.
  * @property {boolean} [enablePrintAutoRotate] - Enables automatic rotation of
  *   landscape pages upon printing. The default is `false`.
  * @property {string} renderer - 'canvas' or 'svg'. The default is 'canvas'.
@@ -79,8 +90,6 @@ const DEFAULT_CACHE_SIZE = 10;
  *   total pixels, i.e. width * height. Use -1 for no limit. The default value
  *   is 4096 * 4096 (16 mega-pixels).
  * @property {IL10n} l10n - Localization service.
- * @property {boolean} [enableScripting] - Enable embedded script execution
- *   (also requires {scriptingManager} being set). The default value is `false`.
  */
 
 function PDFPageViewBuffer(size) {
@@ -137,7 +146,6 @@ function isSameScale(oldScale, newScale) {
 
 /**
  * Simple viewer control to display PDF content/pages.
- * @implements {IRenderableView}
  */
 class BaseViewer {
   /**
@@ -154,8 +162,6 @@ class BaseViewer {
         `The API version "${version}" does not match the Viewer version "${viewerVersion}".`
       );
     }
-    this._name = this.constructor.name;
-
     this.container = options.container;
     this.viewer = options.viewer || options.container.firstElementChild;
 
@@ -185,18 +191,15 @@ class BaseViewer {
     this.findController = options.findController || null;
     this._scriptingManager = options.scriptingManager || null;
     this.removePageBorders = options.removePageBorders || false;
-    this.textLayerMode = Number.isInteger(options.textLayerMode)
-      ? options.textLayerMode
-      : TextLayerMode.ENABLE;
+    this.textLayerMode = options.textLayerMode ?? TextLayerMode.ENABLE;
+    this._annotationMode =
+      options.annotationMode ?? AnnotationMode.ENABLE_FORMS;
     this.imageResourcesPath = options.imageResourcesPath || "";
-    this.renderInteractiveForms = options.renderInteractiveForms !== false;
     this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
     this.renderer = options.renderer || RendererType.CANVAS;
     this.useOnlyCssZoom = options.useOnlyCssZoom || false;
     this.maxCanvasPixels = options.maxCanvasPixels;
     this.l10n = options.l10n || NullL10n;
-    this.enableScripting =
-      options.enableScripting === true && !!this._scriptingManager;
 
     this.defaultRenderingQueue = !options.renderingQueue;
     if (this.defaultRenderingQueue) {
@@ -206,6 +209,7 @@ class BaseViewer {
     } else {
       this.renderingQueue = options.renderingQueue;
     }
+    this._doc = document.documentElement;
 
     this.scroll = watchScroll(this.container, this._scrollUpdate.bind(this));
     this.presentationModeState = PresentationModeState.UNKNOWN;
@@ -245,6 +249,20 @@ class BaseViewer {
   }
 
   /**
+   * @type {boolean}
+   */
+  get renderForms() {
+    return this._annotationMode === AnnotationMode.ENABLE_FORMS;
+  }
+
+  /**
+   * @type {boolean}
+   */
+  get enableScripting() {
+    return !!this._scriptingManager;
+  }
+
+  /**
    * @type {number}
    */
   get currentPageNumber() {
@@ -263,9 +281,7 @@ class BaseViewer {
     }
     // The intent can be to just reset a scroll position and/or scale.
     if (!this._setCurrentPageNumber(val, /* resetCurrentPageView = */ true)) {
-      console.error(
-        `${this._name}.currentPageNumber: "${val}" is not a valid page.`
-      );
+      console.error(`currentPageNumber: "${val}" is not a valid page.`);
     }
   }
 
@@ -324,9 +340,7 @@ class BaseViewer {
     }
     // The intent can be to just reset a scroll position and/or scale.
     if (!this._setCurrentPageNumber(page, /* resetCurrentPageView = */ true)) {
-      console.error(
-        `${this._name}.currentPageLabel: "${val}" is not a valid page.`
-      );
+      console.error(`currentPageLabel: "${val}" is not a valid page.`);
     }
   }
 
@@ -398,9 +412,9 @@ class BaseViewer {
 
     const pageNumber = this._currentPageNumber;
 
-    for (let i = 0, ii = this._pages.length; i < ii; i++) {
-      const pageView = this._pages[i];
-      pageView.update(pageView.scale, rotation);
+    const updateArgs = { rotation };
+    for (const pageView of this._pages) {
+      pageView.update(updateArgs);
     }
     // Prevent errors in case the rotation changes *before* the scale has been
     // set to a non-default value.
@@ -525,9 +539,15 @@ class BaseViewer {
         this._optionalContentConfigPromise = optionalContentConfigPromise;
 
         const scale = this.currentScale;
-        const viewport = firstPdfPage.getViewport({ scale: scale * CSS_UNITS });
+        const viewport = firstPdfPage.getViewport({
+          scale: scale * PixelsPerInch.PDF_TO_CSS_UNITS,
+        });
         const textLayerFactory =
-          this.textLayerMode !== TextLayerMode.DISABLE ? this : null;
+          this.textLayerMode !== TextLayerMode.DISABLE && !isPureXfa
+            ? this
+            : null;
+        const annotationLayerFactory =
+          this._annotationMode !== AnnotationMode.DISABLE ? this : null;
         const xfaLayerFactory = isPureXfa ? this : null;
 
         for (let pageNum = 1; pageNum <= pagesCount; ++pageNum) {
@@ -541,11 +561,12 @@ class BaseViewer {
             renderingQueue: this.renderingQueue,
             textLayerFactory,
             textLayerMode: this.textLayerMode,
-            annotationLayerFactory: this,
+            annotationLayerFactory,
+            annotationMode: this._annotationMode,
             xfaLayerFactory,
+            textHighlighterFactory: this,
             structTreeLayerFactory: this,
             imageResourcesPath: this.imageResourcesPath,
-            renderInteractiveForms: this.renderInteractiveForms,
             renderer: this.renderer,
             useOnlyCssZoom: this.useOnlyCssZoom,
             maxCanvasPixels: this.maxCanvasPixels,
@@ -572,8 +593,8 @@ class BaseViewer {
           if (this.findController) {
             this.findController.setDocument(pdfDocument); // Enable searching.
           }
-          if (this.enableScripting) {
-            this._scriptingManager.setDocument(pdfDocument);
+          if (this._scriptingManager) {
+            this._scriptingManager.setDocument(pdfDocument); // Enable scripting.
           }
 
           // In addition to 'disableAutoFetch' being set, also attempt to reduce
@@ -638,7 +659,7 @@ class BaseViewer {
       !(Array.isArray(labels) && this.pdfDocument.numPages === labels.length)
     ) {
       this._pageLabels = null;
-      console.error(`${this._name}.setPageLabels: Invalid page labels.`);
+      console.error(`setPageLabels: Invalid page labels.`);
     } else {
       this._pageLabels = labels;
     }
@@ -703,9 +724,11 @@ class BaseViewer {
       }
       return;
     }
+    this._doc.style.setProperty("--zoom-factor", newScale);
 
-    for (let i = 0, ii = this._pages.length; i < ii; i++) {
-      this._pages[i].update(newScale);
+    const updateArgs = { scale: newScale };
+    for (const pageView of this._pages) {
+      pageView.update(updateArgs);
     }
     this._currentScale = newScale;
 
@@ -803,9 +826,7 @@ class BaseViewer {
           scale = Math.min(MAX_AUTO_SCALE, horizontalScale);
           break;
         default:
-          console.error(
-            `${this._name}._setScale: "${value}" is an unknown zoom value.`
-          );
+          console.error(`_setScale: "${value}" is an unknown zoom value.`);
           return;
       }
       this._setScaleUpdatePages(scale, value, noScroll, /* preset = */ true);
@@ -870,8 +891,7 @@ class BaseViewer {
       Number.isInteger(pageNumber) && this._pages[pageNumber - 1];
     if (!pageView) {
       console.error(
-        `${this._name}.scrollPageIntoView: ` +
-          `"${pageNumber}" is not a valid pageNumber parameter.`
+        `scrollPageIntoView: "${pageNumber}" is not a valid pageNumber parameter.`
       );
       return;
     }
@@ -890,11 +910,11 @@ class BaseViewer {
     const pageWidth =
       (changeOrientation ? pageView.height : pageView.width) /
       pageView.scale /
-      CSS_UNITS;
+      PixelsPerInch.PDF_TO_CSS_UNITS;
     const pageHeight =
       (changeOrientation ? pageView.width : pageView.height) /
       pageView.scale /
-      CSS_UNITS;
+      PixelsPerInch.PDF_TO_CSS_UNITS;
     let scale = 0;
     switch (destArray[1].name) {
       case "XYZ":
@@ -943,15 +963,18 @@ class BaseViewer {
         const vPadding = this.removePageBorders ? 0 : VERTICAL_PADDING;
 
         widthScale =
-          (this.container.clientWidth - hPadding) / width / CSS_UNITS;
+          (this.container.clientWidth - hPadding) /
+          width /
+          PixelsPerInch.PDF_TO_CSS_UNITS;
         heightScale =
-          (this.container.clientHeight - vPadding) / height / CSS_UNITS;
+          (this.container.clientHeight - vPadding) /
+          height /
+          PixelsPerInch.PDF_TO_CSS_UNITS;
         scale = Math.min(Math.abs(widthScale), Math.abs(heightScale));
         break;
       default:
         console.error(
-          `${this._name}.scrollPageIntoView: ` +
-            `"${destArray[1].name}" is not a valid destination type.`
+          `scrollPageIntoView: "${destArray[1].name}" is not a valid destination type.`
         );
         return;
     }
@@ -1138,9 +1161,7 @@ class BaseViewer {
         pageNumber <= this.pagesCount
       )
     ) {
-      console.error(
-        `${this._name}.isPageVisible: "${pageNumber}" is not a valid page.`
-      );
+      console.error(`isPageVisible: "${pageNumber}" is not a valid page.`);
       return false;
     }
     return this._getVisiblePages().views.some(function (view) {
@@ -1162,9 +1183,7 @@ class BaseViewer {
         pageNumber <= this.pagesCount
       )
     ) {
-      console.error(
-        `${this._name}.isPageCached: "${pageNumber}" is not a valid page.`
-      );
+      console.error(`isPageCached: "${pageNumber}" is not a valid page.`);
       return false;
     }
     const pageView = this._pages[pageNumber - 1];
@@ -1231,10 +1250,16 @@ class BaseViewer {
     const scrollAhead = this._isScrollModeHorizontal
       ? this.scroll.right
       : this.scroll.down;
+    const preRenderExtra =
+      this._scrollMode === ScrollMode.VERTICAL &&
+      this._spreadMode !== SpreadMode.NONE &&
+      !this.isInPresentationMode;
+
     const pageView = this.renderingQueue.getHighestPriority(
       visiblePages,
       this._pages,
-      scrollAhead
+      scrollAhead,
+      preRenderExtra
     );
     if (pageView) {
       this._ensurePdfPageLoaded(pageView).then(() => {
@@ -1251,6 +1276,7 @@ class BaseViewer {
    * @param {PageViewport} viewport
    * @param {boolean} enhanceTextSelection
    * @param {EventBus} eventBus
+   * @param {TextHighlighter} highlighter
    * @returns {TextLayerBuilder}
    */
   createTextLayerBuilder(
@@ -1258,17 +1284,31 @@ class BaseViewer {
     pageIndex,
     viewport,
     enhanceTextSelection = false,
-    eventBus
+    eventBus,
+    highlighter
   ) {
     return new TextLayerBuilder({
       textLayerDiv,
       eventBus,
       pageIndex,
       viewport,
-      findController: this.isInPresentationMode ? null : this.findController,
       enhanceTextSelection: this.isInPresentationMode
         ? false
         : enhanceTextSelection,
+      highlighter,
+    });
+  }
+
+  /**
+   * @param {number} pageIndex
+   * @param {EventBus} eventBus
+   * @returns {TextHighlighter}
+   */
+  createTextHighlighter(pageIndex, eventBus) {
+    return new TextHighlighter({
+      eventBus,
+      pageIndex,
+      findController: this.isInPresentationMode ? null : this.findController,
     });
   }
 
@@ -1279,11 +1319,13 @@ class BaseViewer {
    *   data in forms.
    * @param {string} [imageResourcesPath] - Path for image resources, mainly
    *   for annotation icons. Include trailing slash.
-   * @param {boolean} renderInteractiveForms
+   * @param {boolean} renderForms
    * @param {IL10n} l10n
    * @param {boolean} [enableScripting]
    * @param {Promise<boolean>} [hasJSActionsPromise]
    * @param {Object} [mouseState]
+   * @param {Promise<Object<string, Array<Object>> | null>}
+   *   [fieldObjectsPromise]
    * @returns {AnnotationLayerBuilder}
    */
   createAnnotationLayerBuilder(
@@ -1291,11 +1333,12 @@ class BaseViewer {
     pdfPage,
     annotationStorage = null,
     imageResourcesPath = "",
-    renderInteractiveForms = false,
+    renderForms = true,
     l10n = NullL10n,
     enableScripting = null,
     hasJSActionsPromise = null,
-    mouseState = null
+    mouseState = null,
+    fieldObjectsPromise = null
   ) {
     return new AnnotationLayerBuilder({
       pageDiv,
@@ -1303,13 +1346,15 @@ class BaseViewer {
       annotationStorage:
         annotationStorage || this.pdfDocument?.annotationStorage,
       imageResourcesPath,
-      renderInteractiveForms,
+      renderForms,
       linkService: this.linkService,
       downloadManager: this.downloadManager,
       l10n,
       enableScripting: enableScripting ?? this.enableScripting,
       hasJSActionsPromise:
         hasJSActionsPromise || this.pdfDocument?.hasJSActions(),
+      fieldObjectsPromise:
+        fieldObjectsPromise || this.pdfDocument?.getFieldObjects(),
       mouseState: mouseState || this._scriptingManager?.mouseState,
     });
   }
@@ -1327,6 +1372,7 @@ class BaseViewer {
       pdfPage,
       annotationStorage:
         annotationStorage || this.pdfDocument?.annotationStorage,
+      linkService: this.linkService,
     });
   }
 
@@ -1415,8 +1461,9 @@ class BaseViewer {
     }
     this._optionalContentConfigPromise = promise;
 
+    const updateArgs = { optionalContentConfigPromise: promise };
     for (const pageView of this._pages) {
-      pageView.update(pageView.scale, pageView.rotation, promise);
+      pageView.update(updateArgs);
     }
     this.update();
 
@@ -1670,6 +1717,34 @@ class BaseViewer {
 
     this.currentPageNumber = Math.max(currentPageNumber - advance, 1);
     return true;
+  }
+
+  /**
+   * Increase the current zoom level one, or more, times.
+   * @param {number} [steps] - Defaults to zooming once.
+   */
+  increaseScale(steps = 1) {
+    let newScale = this._currentScale;
+    do {
+      newScale = (newScale * DEFAULT_SCALE_DELTA).toFixed(2);
+      newScale = Math.ceil(newScale * 10) / 10;
+      newScale = Math.min(MAX_SCALE, newScale);
+    } while (--steps > 0 && newScale < MAX_SCALE);
+    this.currentScaleValue = newScale;
+  }
+
+  /**
+   * Decrease the current zoom level one, or more, times.
+   * @param {number} [steps] - Defaults to zooming once.
+   */
+  decreaseScale(steps = 1) {
+    let newScale = this._currentScale;
+    do {
+      newScale = (newScale / DEFAULT_SCALE_DELTA).toFixed(2);
+      newScale = Math.floor(newScale * 10) / 10;
+      newScale = Math.max(MIN_SCALE, newScale);
+    } while (--steps > 0 && newScale > MIN_SCALE);
+    this.currentScaleValue = newScale;
   }
 }
 

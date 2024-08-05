@@ -73,6 +73,8 @@ const $onChild = Symbol();
 const $onChildCheck = Symbol();
 const $onText = Symbol();
 const $pushGlyphs = Symbol();
+const $popPara = Symbol();
+const $pushPara = Symbol();
 const $removeChild = Symbol();
 const $root = Symbol("root");
 const $resolvePrototypes = Symbol();
@@ -177,6 +179,16 @@ class XFAObject {
     return false;
   }
 
+  [$popPara]() {
+    if (this.para) {
+      this[$getTemplateRoot]()[$extra].paraStack.pop();
+    }
+  }
+
+  [$pushPara]() {
+    this[$getTemplateRoot]()[$extra].paraStack.push(this.para);
+  }
+
   [$setId](ids) {
     if (this.id && this[$namespaceId] === NamespaceIds.template.id) {
       ids.set(this.id, this);
@@ -204,6 +216,9 @@ class XFAObject {
   [$appendChild](child) {
     child[_parent] = this;
     this[_children].push(child);
+    if (!child[$globalData] && this[$globalData]) {
+      child[$globalData] = this[$globalData];
+    }
   }
 
   [$removeChild](child) {
@@ -236,6 +251,9 @@ class XFAObject {
   [$insertAt](i, child) {
     child[_parent] = this;
     this[_children].splice(i, 0, child);
+    if (!child[$globalData] && this[$globalData]) {
+      child[$globalData] = this[$globalData];
+    }
   }
 
   /**
@@ -958,8 +976,11 @@ class XmlObject extends XFAObject {
     this[$content] = value.toString();
   }
 
-  [$dump]() {
+  [$dump](hasNS = false) {
     const dumped = Object.create(null);
+    if (hasNS) {
+      dumped.$ns = this[$namespaceId];
+    }
     if (this[$content]) {
       dumped.$content = this[$content];
     }
@@ -967,7 +988,7 @@ class XmlObject extends XFAObject {
 
     dumped.children = [];
     for (const child of this[_children]) {
-      dumped.children.push(child[$dump]());
+      dumped.children.push(child[$dump](hasNS));
     }
 
     dumped.attributes = Object.create(null);
@@ -1103,7 +1124,9 @@ export {
   $onChild,
   $onChildCheck,
   $onText,
+  $popPara,
   $pushGlyphs,
+  $pushPara,
   $removeChild,
   $resolvePrototypes,
   $root,

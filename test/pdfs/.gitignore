@@ -12,8 +12,10 @@
 !xref_command_missing.pdf
 !issue1155r.pdf
 !issue2017r.pdf
+!bug1727053.pdf
 !issue2391-1.pdf
 !issue2391-2.pdf
+!issue14046.pdf
 !issue3214.pdf
 !issue4665.pdf
 !issue4684.pdf
@@ -68,6 +70,7 @@
 !issue8229.pdf
 !issue8276_reduced.pdf
 !issue8372.pdf
+!issue9713.pdf
 !xfa_filled_imm1344e.pdf
 !issue8424.pdf
 !issue8480.pdf
@@ -109,8 +112,11 @@
 !issue11578_reduced.pdf
 !issue11651.pdf
 !issue11878.pdf
+!issue13916.pdf
+!issue14023.pdf
 !bad-PageLabels.pdf
 !decodeACSuccessive.pdf
+!issue13003.pdf
 !filled-background.pdf
 !ArabicCIDTrueType.pdf
 !ThuluthFeatures.pdf
@@ -148,6 +154,7 @@
 !complex_ttf_font.pdf
 !issue3694_reduced.pdf
 !extgstate.pdf
+!issue4706.pdf
 !rotation.pdf
 !simpletype3font.pdf
 !sizes.pdf
@@ -231,6 +238,7 @@
 !bug900822.pdf
 !bug1392647.pdf
 !issue918.pdf
+!bug920426.pdf
 !issue1905.pdf
 !issue2833.pdf
 !issue2931.pdf
@@ -238,6 +246,7 @@
 !issue4304.pdf
 !issue4379.pdf
 !issue4550.pdf
+!issue13316_reduced.pdf
 !issue4575.pdf
 !bug1011159.pdf
 !issue5734.pdf
@@ -350,6 +359,7 @@
 !tensor-allflags-withfunction.pdf
 !issue10084_reduced.pdf
 !issue4246.pdf
+!issue11915.pdf
 !js-authors.pdf
 !issue4461.pdf
 !issue4573.pdf
@@ -376,6 +386,7 @@
 !IdentityToUnicodeMap_charCodeOf.pdf
 !PDFJS-9279-reduced.pdf
 !issue5481.pdf
+!resetform.pdf
 !issue5567.pdf
 !issue5701.pdf
 !issue6769_no_matrix.pdf
@@ -425,6 +436,7 @@
 !annotation-square-circle.pdf
 !annotation-square-circle-without-appearance.pdf
 !annotation-stamp.pdf
+!issue14048.pdf
 !annotation-fileattachment.pdf
 !annotation-text-widget.pdf
 !annotation-choice-widget.pdf
@@ -441,6 +453,7 @@
 !issue8097_reduced.pdf
 !quadpoints.pdf
 !transparent.pdf
+!issue13931.pdf
 !xobject-image.pdf
 !issue6605.pdf
 !ccitt_EndOfBlock_false.pdf

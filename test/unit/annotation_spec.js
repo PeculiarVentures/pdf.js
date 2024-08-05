@@ -312,14 +312,14 @@ describe("annotation", function () {
       const annotation = new Annotation({ dict, ref });
       annotation.setContents("Foo bar baz");
 
-      expect(annotation.contents).toEqual("Foo bar baz");
+      expect(annotation._contents).toEqual({ str: "Foo bar baz", dir: "ltr" });
     });
 
     it("should not set and get invalid contents", function () {
       const annotation = new Annotation({ dict, ref });
       annotation.setContents(undefined);
 
-      expect(annotation.contents).toEqual("");
+      expect(annotation._contents).toEqual({ str: "", dir: "ltr" });
     });
 
     it("should set and get a valid modification date", function () {
@@ -610,8 +610,8 @@ describe("annotation", function () {
       );
       expect(data.inReplyTo).toEqual(annotationRef.toString());
       expect(data.replyType).toEqual("Group");
-      expect(data.title).toEqual("ParentTitle");
-      expect(data.contents).toEqual("ParentText");
+      expect(data.titleObj).toEqual({ str: "ParentTitle", dir: "ltr" });
+      expect(data.contentsObj).toEqual({ str: "ParentText", dir: "ltr" });
       expect(data.creationDate).toEqual("D:20180423");
       expect(data.modificationDate).toEqual("D:20190423");
       expect(data.color).toEqual(new Uint8ClampedArray([0, 0, 255]));
@@ -665,8 +665,8 @@ describe("annotation", function () {
       );
       expect(data.inReplyTo).toEqual(annotationRef.toString());
       expect(data.replyType).toEqual("R");
-      expect(data.title).toEqual("ReplyTitle");
-      expect(data.contents).toEqual("ReplyText");
+      expect(data.titleObj).toEqual({ str: "ReplyTitle", dir: "ltr" });
+      expect(data.contentsObj).toEqual({ str: "ReplyText", dir: "ltr" });
       expect(data.creationDate).toEqual("D:20180523");
       expect(data.modificationDate).toEqual("D:20190523");
       expect(data.color).toEqual(new Uint8ClampedArray([102, 102, 102]));
@@ -796,7 +796,7 @@ describe("annotation", function () {
         );
         expect(data.annotationType).toEqual(AnnotationType.LINK);
         expect(data.url).toEqual("http://www.hmrc.gov.uk/");
-        expect(data.unsafeUrl).toEqual("http://www.hmrc.gov.uk");
+        expect(data.unsafeUrl).toEqual("www.hmrc.gov.uk");
         expect(data.dest).toBeUndefined();
       }
     );
@@ -843,7 +843,7 @@ describe("annotation", function () {
           ).href
         );
         expect(data.unsafeUrl).toEqual(
-          stringToUTF8String("http://www.example.com/\xC3\xBC\xC3\xB6\xC3\xA4")
+          "http://www.example.com/\xC3\xBC\xC3\xB6\xC3\xA4"
         );
         expect(data.dest).toBeUndefined();
       }
@@ -1108,7 +1108,7 @@ describe("annotation", function () {
           jsEntry: "window.open('http://www.example.com/test.pdf')",
           expectedUrl: new URL("http://www.example.com/test.pdf").href,
           expectedUnsafeUrl: "http://www.example.com/test.pdf",
-          expectedNewWindow: undefined,
+          expectedNewWindow: false,
         });
 
         // Check that we accept a white-listed {Stream} 'JS' entry.
@@ -2036,7 +2036,7 @@ describe("annotation", function () {
       expect(oldData.ref).toEqual(Ref.get(123, 0));
       expect(newData.ref).toEqual(Ref.get(2, 0));
 
-      oldData.data = oldData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      oldData.data = oldData.data.replace(/\(D:\d+\)/, "(date)");
       expect(oldData.data).toEqual(
         "123 0 obj\n" +
           "<< /Type /Annot /Subtype /Widget /FT /Tx /DA (/Helv 5 Tf) /DR " +
@@ -2167,7 +2167,7 @@ describe("annotation", function () {
       expect(oldData.ref).toEqual(Ref.get(123, 0));
       expect(newData.ref).toEqual(Ref.get(2, 0));
 
-      oldData.data = oldData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      oldData.data = oldData.data.replace(/\(D:\d+\)/, "(date)");
       expect(oldData.data).toEqual(
         "123 0 obj\n" +
           "<< /Type /Annot /Subtype /Widget /FT /Tx /DA (/Goth 5 Tf) /DR " +
@@ -2576,7 +2576,7 @@ describe("annotation", function () {
         task,
         annotationStorage
       );
-      oldData.data = oldData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      oldData.data = oldData.data.replace(/\(D:\d+\)/, "(date)");
       expect(oldData.ref).toEqual(Ref.get(123, 0));
       expect(oldData.data).toEqual(
         "123 0 obj\n" +
@@ -2876,7 +2876,7 @@ describe("annotation", function () {
       );
       expect(data.length).toEqual(2);
       const [radioData, parentData] = data;
-      radioData.data = radioData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      radioData.data = radioData.data.replace(/\(D:\d+\)/, "(date)");
       expect(radioData.ref).toEqual(Ref.get(123, 0));
       expect(radioData.data).toEqual(
         "123 0 obj\n" +
@@ -2939,7 +2939,7 @@ describe("annotation", function () {
       );
       expect(data.length).toEqual(2);
       const [radioData, parentData] = data;
-      radioData.data = radioData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      radioData.data = radioData.data.replace(/\(D:\d+\)/, "(date)");
       expect(radioData.ref).toEqual(Ref.get(123, 0));
       expect(radioData.data).toEqual(
         "123 0 obj\n" +
@@ -3389,7 +3389,7 @@ describe("annotation", function () {
       expect(oldData.ref).toEqual(Ref.get(123, 0));
       expect(newData.ref).toEqual(Ref.get(1, 0));
 
-      oldData.data = oldData.data.replace(/\(D:[0-9]+\)/, "(date)");
+      oldData.data = oldData.data.replace(/\(D:\d+\)/, "(date)");
       expect(oldData.data).toEqual(
         "123 0 obj\n" +
           "<< /Type /Annot /Subtype /Widget /FT /Ch /DA (/Helv 5 Tf) /DR " +
@@ -3621,8 +3621,8 @@ describe("annotation", function () {
           pdfManagerMock,
           idFactoryMock
         );
-        expect(data.title).toEqual("Correct Title");
-        expect(data.contents).toEqual("Correct Text");
+        expect(data.titleObj).toEqual({ str: "Correct Title", dir: "ltr" });
+        expect(data.contentsObj).toEqual({ str: "Correct Text", dir: "ltr" });
         expect(data.modificationDate).toEqual("D:20190423");
         expect(data.color).toEqual(new Uint8ClampedArray([0, 0, 255]));
       }

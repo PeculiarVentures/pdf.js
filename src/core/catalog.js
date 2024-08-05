@@ -21,12 +21,14 @@ import {
   isRef,
   isRefsEqual,
   isStream,
+  Name,
   RefSet,
   RefSetCache,
 } from "./primitives.js";
 import {
   collectActions,
   MissingDataException,
+  recoverJsURL,
   toRomanNumerals,
 } from "./core_utils.js";
 import {
@@ -86,6 +88,18 @@ class Catalog {
     return shadow(this, "version", version.name);
   }
 
+  /**
+   * @type {boolean} `true` for pure XFA documents,
+   *   `false` for XFA Foreground documents.
+   */
+  get needsRendering() {
+    const needsRendering = this._catDict.get("NeedsRendering");
+    if (!isBool(needsRendering)) {
+      return shadow(this, "needsRendering", false);
+    }
+    return shadow(this, "needsRendering", needsRendering);
+  }
+
   get collection() {
     let collection = null;
     try {
@@ -116,6 +130,11 @@ class Catalog {
       info("Cannot fetch AcroForm entry; assuming no forms are present.");
     }
     return shadow(this, "acroForm", acroForm);
+  }
+
+  get acroFormRef() {
+    const value = this._catDict.getRaw("AcroForm");
+    return shadow(this, "acroFormRef", isRef(value) ? value : null);
   }
 
   get metadata() {
@@ -1266,21 +1285,6 @@ class Catalog {
    * @param {ParseDestDictionaryParameters} params
    */
   static parseDestDictionary(params) {
-    // Lets URLs beginning with 'www.' default to using the 'http://' protocol.
-    function addDefaultProtocolToUrl(url) {
-      return url.startsWith("www.") ? `http://${url}` : url;
-    }
-
-    // According to ISO 32000-1:2008, section 12.6.4.7, URIs should be encoded
-    // in 7-bit ASCII. Some bad PDFs use UTF-8 encoding; see Bugzilla 1122280.
-    function tryConvertUrlEncoding(url) {
-      try {
-        return stringToUTF8String(url);
-      } catch (e) {
-        return url;
-      }
-    }
-
     const destDict = params.destDict;
     if (!isDict(destDict)) {
       warn("parseDestDictionary: `destDict` must be a dictionary.");
@@ -1324,13 +1328,25 @@ class Catalog {
       const actionName = actionType.name;
 
       switch (actionName) {
+        case "ResetForm":
+          const flags = action.get("Flags");
+          const include = ((isNum(flags) ? flags : 0) & 1) === 0;
+          const fields = [];
+          const refs = [];
+          for (const obj of action.get("Fields") || []) {
+            if (isRef(obj)) {
+              refs.push(obj.toString());
+            } else if (isString(obj)) {
+              fields.push(stringToPDFString(obj));
+            }
+          }
+          resultObj.resetForm = { fields, refs, include };
+          break;
         case "URI":
           url = action.get("URI");
-          if (isName(url)) {
+          if (url instanceof Name) {
             // Some bad PDFs do not put parentheses around relative URLs.
             url = "/" + url.name;
-          } else if (isString(url)) {
-            url = addDefaultProtocolToUrl(url);
           }
           // TODO: pdf spec mentions urls can be relative to a Base
           // entry in the dictionary.
@@ -1395,36 +1411,15 @@ class Catalog {
             js = jsAction;
           }
 
-          if (js) {
-            // Attempt to recover valid URLs from `JS` entries with certain
-            // white-listed formats:
-            //  - window.open('http://example.com')
-            //  - app.launchURL('http://example.com', true)
-            const URL_OPEN_METHODS = ["app.launchURL", "window.open"];
-            const regex = new RegExp(
-              "^\\s*(" +
-                URL_OPEN_METHODS.join("|").split(".").join("\\.") +
-                ")\\((?:'|\")([^'\"]*)(?:'|\")(?:,\\s*(\\w+)\\)|\\))",
-              "i"
-            );
-
-            const jsUrl = regex.exec(stringToPDFString(js));
-            if (jsUrl && jsUrl[2]) {
-              url = jsUrl[2];
-
-              if (jsUrl[3] === "true" && jsUrl[1] === "app.launchURL") {
-                resultObj.newWindow = true;
-              }
-              break;
-            }
+          const jsURL = js && recoverJsURL(stringToPDFString(js));
+          if (jsURL) {
+            url = jsURL.url;
+            resultObj.newWindow = jsURL.newWindow;
+            break;
           }
         /* falls through */
         default:
-          if (
-            actionName === "JavaScript" ||
-            actionName === "ResetForm" ||
-            actionName === "SubmitForm"
-          ) {
+          if (actionName === "JavaScript" || actionName === "SubmitForm") {
             // Don't bother the user with a warning for actions that require
             // scripting support, since those will be handled separately.
             break;
@@ -1438,8 +1433,10 @@ class Catalog {
     }
 
     if (isString(url)) {
-      url = tryConvertUrlEncoding(url);
-      const absoluteUrl = createValidAbsoluteUrl(url, docBaseUrl);
+      const absoluteUrl = createValidAbsoluteUrl(url, docBaseUrl, {
+        addDefaultProtocol: true,
+        tryConvertEncoding: true,
+      });
       if (absoluteUrl) {
         resultObj.url = absoluteUrl.href;
       }

@@ -573,6 +573,7 @@ class WorkerMessageHandler {
         const promises = [
           pdfManager.onLoadedStream(),
           pdfManager.ensureCatalog("acroForm"),
+          pdfManager.ensureCatalog("acroFormRef"),
           pdfManager.ensureDoc("xref"),
           pdfManager.ensureDoc("startXRef"),
         ];
@@ -597,6 +598,7 @@ class WorkerMessageHandler {
         return Promise.all(promises).then(function ([
           stream,
           acroForm,
+          acroFormRef,
           xref,
           startXRef,
           ...refs
@@ -621,15 +623,22 @@ class WorkerMessageHandler {
             }
           }
 
-          const xfa = (acroForm instanceof Dict && acroForm.get("XFA")) || [];
-          let xfaDatasets = null;
+          const xfa = (acroForm instanceof Dict && acroForm.get("XFA")) || null;
+          let xfaDatasetsRef = null;
+          let hasXfaDatasetsEntry = false;
           if (Array.isArray(xfa)) {
             for (let i = 0, ii = xfa.length; i < ii; i += 2) {
               if (xfa[i] === "datasets") {
-                xfaDatasets = xfa[i + 1];
+                xfaDatasetsRef = xfa[i + 1];
+                acroFormRef = null;
+                hasXfaDatasetsEntry = true;
               }
             }
-          } else {
+            if (xfaDatasetsRef === null) {
+              xfaDatasetsRef = xref.getNewRef();
+            }
+          } else if (xfa) {
+            acroFormRef = null;
             // TODO: Support XFA streams.
             warn("Unsupported XFA type.");
           }
@@ -665,7 +674,11 @@ class WorkerMessageHandler {
             xrefInfo: newXrefInfo,
             newRefs,
             xref,
-            datasetsRef: xfaDatasets,
+            hasXfa: !!xfa,
+            xfaDatasetsRef,
+            hasXfaDatasetsEntry,
+            acroFormRef,
+            acroForm,
             xfaData,
           });
         });
@@ -688,7 +701,7 @@ class WorkerMessageHandler {
             sink,
             task,
             intent: data.intent,
-            renderInteractiveForms: data.renderInteractiveForms,
+            cacheKey: data.cacheKey,
             annotationStorage: data.annotationStorage,
             forceRenderSigAnnot: data.forceRenderSigAnnot,
           })
@@ -726,8 +739,6 @@ class WorkerMessageHandler {
 
     handler.on("GetTextContent", function wphExtractText(data, sink) {
       const pageIndex = data.pageIndex;
-      sink.onPull = function (desiredSize) {};
-      sink.onCancel = function (reason) {};
 
       pdfManager.getPage(pageIndex).then(function (page) {
         const task = new WorkerTask("GetTextContent: page " + pageIndex);

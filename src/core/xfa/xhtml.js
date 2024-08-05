@@ -29,7 +29,12 @@ import {
   XmlObject,
 } from "./xfa_object.js";
 import { $buildXFAObject, NamespaceIds } from "./namespaces.js";
-import { fixTextIndent, measureToString, setFontFamily } from "./html_utils.js";
+import {
+  fixTextIndent,
+  fixURL,
+  measureToString,
+  setFontFamily,
+} from "./html_utils.js";
 import { getMeasurement, HTMLResult, stripQuotes } from "./utils.js";
 
 const XHTML_NS_ID = NamespaceIds.xhtml.id;
@@ -105,7 +110,7 @@ const StyleMapping = new Map([
 const spacesRegExp = /\s+/g;
 const crlfRegExp = /[\r\n]+/g;
 
-function mapStyle(styleStr, fontFinder) {
+function mapStyle(styleStr, node) {
   const style = Object.create(null);
   if (!styleStr) {
     return style;
@@ -144,7 +149,8 @@ function mapStyle(styleStr, fontFinder) {
         posture: style.fontStyle || "normal",
         size: original.fontSize || 0,
       },
-      fontFinder,
+      node,
+      node[$globalData].fontFinder,
       style
     );
   }
@@ -309,7 +315,7 @@ class XhtmlObject extends XmlObject {
       name: this[$nodeName],
       attributes: {
         href: this.href,
-        style: mapStyle(this.style, this[$globalData].fontFinder),
+        style: mapStyle(this.style, this),
       },
       children,
       value: this[$content] || "",
@@ -320,7 +326,7 @@ class XhtmlObject extends XmlObject {
 class A extends XhtmlObject {
   constructor(attributes) {
     super(attributes, "a");
-    this.href = attributes.href || "";
+    this.href = fixURL(attributes.href) || "";
   }
 }
 

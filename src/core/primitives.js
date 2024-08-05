@@ -16,7 +16,7 @@
 import { assert, shadow, unreachable } from "../shared/util.js";
 import { BaseStream } from "./base_stream.js";
 
-const EOF = {};
+const EOF = Symbol("EOF");
 
 const Name = (function NameClosure() {
   let nameCache = Object.create(null);
@@ -197,8 +197,11 @@ class Dict {
         if (property === undefined) {
           property = [];
           properties.set(key, property);
-        } else if (!mergeSubDicts) {
-          continue; // Ignore additional entries for a "shallow" merge.
+        } else if (!mergeSubDicts || !(value instanceof Dict)) {
+          // Ignore additional entries, if either:
+          //  - This is a "shallow" merge, where only the first element matters.
+          //  - The value is *not* a `Dict`, since other types cannot be merged.
+          continue;
         }
         property.push(value);
       }
@@ -211,9 +214,6 @@ class Dict {
       const subDict = new Dict(xref);
 
       for (const dict of values) {
-        if (!(dict instanceof Dict)) {
-          continue;
-        }
         for (const [key, value] of Object.entries(dict._map)) {
           if (subDict._map[key] === undefined) {
             subDict._map[key] = value;
@@ -338,10 +338,6 @@ class RefSetCache {
   }
 }
 
-function isEOF(v) {
-  return v === EOF;
-}
-
 function isName(v, name) {
   return v instanceof Name && (name === undefined || v.name === name);
 }
@@ -390,7 +386,6 @@ export {
   EOF,
   isCmd,
   isDict,
-  isEOF,
   isName,
   isRef,
   isRefsEqual,
