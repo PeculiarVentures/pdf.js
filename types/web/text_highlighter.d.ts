@@ -1,3 +1,5 @@
+export type EventBus = import("./event_utils").EventBus;
+export type PDFFindController = import("./pdf_find_controller").PDFFindController;
 export type TextHighlighterOptions = {
     findController: PDFFindController;
     /**
@@ -9,6 +11,8 @@ export type TextHighlighterOptions = {
      */
     pageIndex: number;
 };
+/** @typedef {import("./event_utils").EventBus} EventBus */
+/** @typedef {import("./pdf_find_controller").PDFFindController} PDFFindController */
 /**
  * @typedef {Object} TextHighlighterOptions
  * @property {PDFFindController} findController
@@ -24,9 +28,9 @@ export class TextHighlighter {
      * @param {TextHighlighterOptions} options
      */
     constructor({ findController, eventBus, pageIndex }: TextHighlighterOptions);
-    findController: PDFFindController;
+    findController: import("./pdf_find_controller").PDFFindController;
     matches: any[];
-    eventBus: EventBus;
+    eventBus: import("./event_utils").EventBus;
     pageIdx: number;
     _onUpdateTextLayerMatches: ((evt: any) => void) | null;
     textDivs: Node[] | null;

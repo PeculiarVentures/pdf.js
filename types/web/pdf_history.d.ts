@@ -38,6 +38,8 @@ export type PushParameters = {
      */
     pageNumber: number;
 };
+export type EventBus = import("./event_utils").EventBus;
+export type IPDFLinkService = import("./interfaces").IPDFLinkService;
 export function isDestArraysEqual(firstDest: any, secondDest: any): boolean;
 export function isDestHashesEqual(destHash: any, pushHash: any): boolean;
 export class PDFHistory {
@@ -45,8 +47,8 @@ export class PDFHistory {
      * @param {PDFHistoryOptions} options
      */
     constructor({ linkService, eventBus }: PDFHistoryOptions);
-    linkService: IPDFLinkService;
-    eventBus: EventBus;
+    linkService: import("./interfaces").IPDFLinkService;
+    eventBus: import("./event_utils.js").EventBus;
     _initialized: boolean;
     _fingerprint: string;
     _boundEvents: {
@@ -76,7 +78,7 @@ export class PDFHistory {
     _destination: any;
     _position: {
         hash: any;
-        page: any;
+        page: number;
         first: any;
         rotation: any;
     } | null | undefined;

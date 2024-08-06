@@ -1,27 +1,17 @@
-export type IPDFXfaLayerFactory = import("./interfaces").IPDFXfaLayerFactory;
+export type PDFPageProxy = import("../src/display/api").PDFPageProxy;
+export type PageViewport = import("../src/display/display_utils").PageViewport;
+export type IPDFLinkService = import("./interfaces").IPDFLinkService;
 export type XfaLayerBuilderOptions = {
     pageDiv: HTMLDivElement;
-    pdfPage: PDFPage;
+    pdfPage: PDFPageProxy;
     annotationStorage?: any;
     linkService: IPDFLinkService;
     xfaHtml?: Object | undefined;
 };
 /**
- * @implements IPDFXfaLayerFactory
- */
-export class DefaultXfaLayerFactory implements IPDFXfaLayerFactory {
-    /**
-     * @param {HTMLDivElement} pageDiv
-     * @param {PDFPage} pdfPage
-     * @param {AnnotationStorage} [annotationStorage]
-     * @param {Object} [xfaHtml]
-     */
-    createXfaLayerBuilder(pageDiv: HTMLDivElement, pdfPage: PDFPage, annotationStorage?: any, xfaHtml?: Object | undefined): XfaLayerBuilder;
-}
-/**
  * @typedef {Object} XfaLayerBuilderOptions
  * @property {HTMLDivElement} pageDiv
- * @property {PDFPage} pdfPage
+ * @property {PDFPageProxy} pdfPage
  * @property {AnnotationStorage} [annotationStorage]
  * @property {IPDFLinkService} linkService
  * @property {Object} [xfaHtml]
@@ -30,12 +20,12 @@ export class XfaLayerBuilder {
     /**
      * @param {XfaLayerBuilderOptions} options
      */
-    constructor({ pageDiv, pdfPage, annotationStorage, linkService, xfaHtml }: XfaLayerBuilderOptions);
+    constructor({ pageDiv, pdfPage, annotationStorage, linkService, xfaHtml, }: XfaLayerBuilderOptions);
     pageDiv: HTMLDivElement;
-    pdfPage: PDFPage;
+    pdfPage: import("../src/display/api").PDFPageProxy;
     annotationStorage: any;
-    linkService: IPDFLinkService;
-    xfaHtml: Object | undefined;
+    linkService: import("./interfaces").IPDFLinkService;
+    xfaHtml: Object;
     div: HTMLDivElement | null;
     _cancelled: boolean;
     /**

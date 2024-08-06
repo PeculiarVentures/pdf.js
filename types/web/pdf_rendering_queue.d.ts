@@ -1,11 +1,14 @@
+export type IRenderableView = import("./interfaces").IRenderableView;
+export type PDFViewer = import("./pdf_viewer").PDFViewer;
+export type PDFThumbnailViewer = import("./pdf_thumbnail_viewer").PDFThumbnailViewer;
 /**
  * Controls rendering of the views for pages and thumbnails.
  */
 export class PDFRenderingQueue {
-    pdfViewer: any;
-    pdfThumbnailViewer: any;
+    pdfViewer: import("./pdf_viewer").PDFViewer | null;
+    pdfThumbnailViewer: import("./pdf_thumbnail_viewer").PDFThumbnailViewer | null;
     onIdle: any;
-    highestPriorityPage: any;
+    highestPriorityPage: string | null;
     /** @type {number} */
     idleTimeout: number;
     printing: boolean;
@@ -51,10 +54,4 @@ export class PDFRenderingQueue {
      * @param {IRenderableView} view
      */
     renderView(view: IRenderableView): boolean;
-}
-export namespace RenderingStates {
-    const INITIAL: number;
-    const RUNNING: number;
-    const PAUSED: number;
-    const FINISHED: number;
 }

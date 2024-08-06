@@ -113,15 +113,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
           return;
         }
         testMessageProcessed = true;
-        if (!(data instanceof Uint8Array)) {
-          handler.send("test", null);
-          return;
-        }
-        var supportTransfers = data[0] === 255;
-        handler.postMessageTransfers = supportTransfers;
-        handler.send("test", {
-          supportTransfers: supportTransfers
-        });
+        handler.send("test", data instanceof Uint8Array && data[0] === 255);
       });
       handler.on("configure", function wphConfigure(data) {
         (0, _util.setVerbosityLevel)(data.verbosity);
@@ -139,7 +131,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.11.385';
+      var workerVersion = '2.12.47';
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
       }
@@ -154,7 +146,6 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
       var docBaseUrl = docParams.docBaseUrl;
       var workerHandlerName = docParams.docId + "_worker";
       var handler = new _message_handler.MessageHandler(workerHandlerName, docId, port);
-      handler.postMessageTransfers = docParams.postMessageTransfers;
       function ensureNotTerminated() {
         if (terminated) {
           throw new Error("Worker was terminated");
@@ -186,55 +177,54 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
                 _context.next = 6;
                 return pdfManager.ensureDoc("parse", [recoveryMode]);
               case 6:
-                if (recoveryMode) {
-                  _context.next = 9;
-                  break;
-                }
-                _context.next = 9;
-                return pdfManager.ensureDoc("checkFirstPage");
-              case 9:
-                _context.next = 11;
+                _context.next = 8;
+                return pdfManager.ensureDoc("checkFirstPage", [recoveryMode]);
+              case 8:
+                _context.next = 10;
+                return pdfManager.ensureDoc("checkLastPage", [recoveryMode]);
+              case 10:
+                _context.next = 12;
                 return pdfManager.ensureDoc("isPureXfa");
-              case 11:
+              case 12:
                 isPureXfa = _context.sent;
                 if (!isPureXfa) {
-                  _context.next = 17;
+                  _context.next = 18;
                   break;
                 }
                 task = new WorkerTask("loadXfaFonts");
                 startWorkerTask(task);
-                _context.next = 17;
+                _context.next = 18;
                 return Promise.all([pdfManager.loadXfaFonts(handler, task)["catch"](function (reason) {}).then(function () {
                   return finishWorkerTask(task);
                 }), pdfManager.loadXfaImages()]);
-              case 17:
-                _context.next = 19;
+              case 18:
+                _context.next = 20;
                 return Promise.all([pdfManager.ensureDoc("numPages"), pdfManager.ensureDoc("fingerprints")]);
-              case 19:
+              case 20:
                 _yield$Promise$all = _context.sent;
                 _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
                 numPages = _yield$Promise$all2[0];
                 fingerprints = _yield$Promise$all2[1];
                 if (!isPureXfa) {
-                  _context.next = 29;
+                  _context.next = 30;
                   break;
                 }
-                _context.next = 26;
+                _context.next = 27;
                 return pdfManager.ensureDoc("htmlForXfa");
-              case 26:
+              case 27:
                 _context.t0 = _context.sent;
-                _context.next = 30;
+                _context.next = 31;
                 break;
-              case 29:
-                _context.t0 = null;
               case 30:
+                _context.t0 = null;
+              case 31:
                 htmlForXfa = _context.t0;
                 return _context.abrupt("return", {
                   numPages: numPages,
                   fingerprints: fingerprints,
                   htmlForXfa: htmlForXfa
                 });
-              case 32:
+              case 33:
               case "end":
                 return _context.stop();
             }
@@ -248,7 +238,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
         var source = data.source;
         if (source.data) {
           try {
-            newPdfManager = new _pdf_manager.LocalPdfManager(docId, source.data, source.password, evaluatorOptions, enableXfa, docBaseUrl);
+            newPdfManager = new _pdf_manager.LocalPdfManager(docId, source.data, source.password, handler, evaluatorOptions, enableXfa, docBaseUrl);
             pdfManagerCapability.resolve(newPdfManager);
           } catch (ex) {
             pdfManagerCapability.reject(ex);
@@ -293,7 +283,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
             (0, _util.warn)("reported HTTP length is different from actual");
           }
           try {
-            newPdfManager = new _pdf_manager.LocalPdfManager(docId, pdfFile, source.password, evaluatorOptions, enableXfa, docBaseUrl);
+            newPdfManager = new _pdf_manager.LocalPdfManager(docId, pdfFile, source.password, handler, evaluatorOptions, enableXfa, docBaseUrl);
             pdfManagerCapability.resolve(newPdfManager);
           } catch (ex) {
             pdfManagerCapability.reject(ex);
@@ -485,9 +475,6 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
         return pdfManager.onLoadedStream().then(function (stream) {
           return stream.bytes;
         });
-      });
-      handler.on("GetStats", function wphSetupGetStats(data) {
-        return pdfManager.ensureXRef("stats");
       });
       handler.on("GetAnnotations", function (_ref7) {
         var pageIndex = _ref7.pageIndex,
@@ -1284,11 +1271,16 @@ var AbortException = exports.AbortException = /*#__PURE__*/function (_BaseExcept
   _inherits(AbortException, _BaseException7);
   return _createClass(AbortException);
 }(BaseException);
-var NullCharactersRegExp = /\x00/g;
+var NullCharactersRegExp = /\x00+/g;
+var InvisibleCharactersRegExp = /[\x01-\x1F]/g;
 function removeNullCharacters(str) {
+  var replaceInvisible = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   if (typeof str !== "string") {
     warn("The argument for removeNullCharacters must be a string.");
     return str;
+  }
+  if (replaceInvisible) {
+    str = str.replace(InvisibleCharactersRegExp, " ");
   }
   return str.replace(NullCharactersRegExp, "");
 }
@@ -1502,6 +1494,62 @@ var Util = exports.Util = /*#__PURE__*/function () {
       }
       return result;
     }
+  }, {
+    key: "bezierBoundingBox",
+    value: function bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3) {
+      var tvalues = [],
+        bounds = [[], []];
+      var a, b, c, t, t1, t2, b2ac, sqrtb2ac;
+      for (var i = 0; i < 2; ++i) {
+        if (i === 0) {
+          b = 6 * x0 - 12 * x1 + 6 * x2;
+          a = -3 * x0 + 9 * x1 - 9 * x2 + 3 * x3;
+          c = 3 * x1 - 3 * x0;
+        } else {
+          b = 6 * y0 - 12 * y1 + 6 * y2;
+          a = -3 * y0 + 9 * y1 - 9 * y2 + 3 * y3;
+          c = 3 * y1 - 3 * y0;
+        }
+        if (Math.abs(a) < 1e-12) {
+          if (Math.abs(b) < 1e-12) {
+            continue;
+          }
+          t = -c / b;
+          if (0 < t && t < 1) {
+            tvalues.push(t);
+          }
+          continue;
+        }
+        b2ac = b * b - 4 * c * a;
+        sqrtb2ac = Math.sqrt(b2ac);
+        if (b2ac < 0) {
+          continue;
+        }
+        t1 = (-b + sqrtb2ac) / (2 * a);
+        if (0 < t1 && t1 < 1) {
+          tvalues.push(t1);
+        }
+        t2 = (-b - sqrtb2ac) / (2 * a);
+        if (0 < t2 && t2 < 1) {
+          tvalues.push(t2);
+        }
+      }
+      var j = tvalues.length,
+        mt;
+      var jlen = j;
+      while (j--) {
+        t = tvalues[j];
+        mt = 1 - t;
+        bounds[0][j] = mt * mt * mt * x0 + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * x3;
+        bounds[1][j] = mt * mt * mt * y0 + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * y3;
+      }
+      bounds[0][jlen] = x0;
+      bounds[1][jlen] = y0;
+      bounds[0][jlen + 1] = x3;
+      bounds[1][jlen + 1] = y3;
+      bounds[0].length = bounds[1].length = jlen + 2;
+      return [Math.min.apply(Math, _toConsumableArray(bounds[0])), Math.min.apply(Math, _toConsumableArray(bounds[1])), Math.max.apply(Math, _toConsumableArray(bounds[0])), Math.max.apply(Math, _toConsumableArray(bounds[1]))];
+    }
   }]);
 }();
 var PDFStringTranslateTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac];
@@ -1602,7 +1650,7 @@ function createPromiseCapability() {
 function createObjectURL(data) {
   var contentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
   var forceDataSchema = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  if (URL.createObjectURL && !forceDataSchema) {
+  if (URL.createObjectURL && typeof Blob !== "undefined" && !forceDataSchema) {
     return URL.createObjectURL(new Blob([data], {
       type: contentType
     }));
@@ -1768,9 +1816,9 @@ module.exports = function (options, source) {
 var check = function (it) {
  return it && it.Math === Math && it;
 };
-module.exports = check(typeof globalThis == 'object' && globalThis) || check(typeof window == 'object' && window) || check(typeof self == 'object' && self) || check(typeof global == 'object' && global) || check(typeof this == 'object' && this) || function () {
+module.exports = check(typeof globalThis == 'object' && globalThis) || check(typeof window == 'object' && window) || check(typeof self == 'object' && self) || check(typeof global == 'object' && global) || check(typeof this == 'object' && this) || (function () {
  return this;
-}() || Function('return this')();
+}()) || Function('return this')();
 
 /***/ }),
 /* 9 */
@@ -2934,187 +2982,30 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 })(void 0, function () {
   'use strict';
 
-  var CSSMatrix = function CSSMatrix() {
-    var args = [],
-      len = arguments.length;
-    while (len--) args[len] = arguments[len];
-    this.setIdentity();
-    return args && args.length && this.setMatrixValue(args);
-  };
-  var prototypeAccessors = {
-    isIdentity: {
-      configurable: true
-    },
-    is2D: {
-      configurable: true
-    }
-  };
-  prototypeAccessors.isIdentity.get = function () {
-    var m = this;
-    return m.m11 === 1 && m.m12 === 0 && m.m13 === 0 && m.m14 === 0 && m.m21 === 0 && m.m22 === 1 && m.m23 === 0 && m.m24 === 0 && m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m41 === 0 && m.m42 === 0 && m.m43 === 0 && m.m44 === 1;
-  };
-  prototypeAccessors.isIdentity.set = function (value) {
-    this.isIdentity = value;
-  };
-  prototypeAccessors.is2D.get = function () {
-    var m = this;
-    return m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m43 === 0 && m.m44 === 1;
-  };
-  prototypeAccessors.is2D.set = function (value) {
-    this.is2D = value;
-  };
-  Object.defineProperties(CSSMatrix.prototype, prototypeAccessors);
-  var CSSMatrixProto = CSSMatrix.prototype;
-  function Translate(x, y, z) {
+  function fromArray(array) {
     var m = new CSSMatrix();
-    m.m41 = x;
-    m.e = x;
-    m.m42 = y;
-    m.f = y;
-    m.m43 = z;
-    return m;
-  }
-  function Rotate(rx, ry, rz) {
-    var m = new CSSMatrix();
-    var radX = rx * Math.PI / 180;
-    var radY = ry * Math.PI / 180;
-    var radZ = rz * Math.PI / 180;
-    var cosx = Math.cos(radX);
-    var sinx = -Math.sin(radX);
-    var cosy = Math.cos(radY);
-    var siny = -Math.sin(radY);
-    var cosz = Math.cos(radZ);
-    var sinz = -Math.sin(radZ);
-    var cycz = cosy * cosz;
-    var cysz = -cosy * sinz;
-    m.m11 = cycz;
-    m.a = cycz;
-    m.m12 = cysz;
-    m.b = cysz;
-    m.m13 = siny;
-    var sxsy = sinx * siny * cosz + cosx * sinz;
-    m.m21 = sxsy;
-    m.c = sxsy;
-    var cxcz = cosx * cosz - sinx * siny * sinz;
-    m.m22 = cxcz;
-    m.d = cxcz;
-    m.m23 = -sinx * cosy;
-    m.m31 = sinx * sinz - cosx * siny * cosz;
-    m.m32 = sinx * cosz + cosx * siny * sinz;
-    m.m33 = cosx * cosy;
-    return m;
-  }
-  function RotateAxisAngle(x, y, z, angle) {
-    var m = new CSSMatrix();
-    var radA = angle * Math.PI / 360;
-    var sinA = Math.sin(radA);
-    var cosA = Math.cos(radA);
-    var sinA2 = sinA * sinA;
-    var length = Math.sqrt(x * x + y * y + z * z);
-    var X = 0;
-    var Y = 0;
-    var Z = 1;
-    if (length !== 0) {
-      X = x / length;
-      Y = y / length;
-      Z = z / length;
-    }
-    var x2 = X * X;
-    var y2 = Y * Y;
-    var z2 = Z * Z;
-    var m11 = 1 - 2 * (y2 + z2) * sinA2;
-    m.m11 = m11;
-    m.a = m11;
-    var m12 = 2 * (x * y * sinA2 + z * sinA * cosA);
-    m.m12 = m12;
-    m.b = m12;
-    m.m13 = 2 * (x * z * sinA2 - y * sinA * cosA);
-    var m21 = 2 * (y * x * sinA2 - z * sinA * cosA);
-    m.m21 = m21;
-    m.c = m21;
-    var m22 = 1 - 2 * (z2 + x2) * sinA2;
-    m.m22 = m22;
-    m.d = m22;
-    m.m23 = 2 * (y * z * sinA2 + x * sinA * cosA);
-    m.m31 = 2 * (z * x * sinA2 + y * sinA * cosA);
-    m.m32 = 2 * (z * y * sinA2 - x * sinA * cosA);
-    m.m33 = 1 - 2 * (x2 + y2) * sinA2;
-    m.m14 = 0;
-    m.m24 = 0;
-    m.m34 = 0;
-    m.m41 = 0;
-    m.e = 0;
-    m.m42 = 0;
-    m.f = 0;
-    m.m43 = 0;
-    m.m44 = 1;
-    return m;
-  }
-  function Scale(x, y, z) {
-    var m = new CSSMatrix();
-    m.m11 = x;
-    m.a = x;
-    m.m22 = y;
-    m.d = y;
-    m.m33 = z;
-    return m;
-  }
-  function SkewX(angle) {
-    var radA = angle * Math.PI / 180;
-    var m = new CSSMatrix();
-    var t = Math.tan(radA);
-    m.m21 = t;
-    m.c = t;
-    return m;
-  }
-  function SkewY(angle) {
-    var radA = angle * Math.PI / 180;
-    var m = new CSSMatrix();
-    var t = Math.tan(radA);
-    m.m12 = t;
-    m.b = t;
-    return m;
-  }
-  function Multiply(m1, m2) {
-    var m11 = m2.m11 * m1.m11 + m2.m12 * m1.m21 + m2.m13 * m1.m31 + m2.m14 * m1.m41;
-    var m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22 + m2.m13 * m1.m32 + m2.m14 * m1.m42;
-    var m13 = m2.m11 * m1.m13 + m2.m12 * m1.m23 + m2.m13 * m1.m33 + m2.m14 * m1.m43;
-    var m14 = m2.m11 * m1.m14 + m2.m12 * m1.m24 + m2.m13 * m1.m34 + m2.m14 * m1.m44;
-    var m21 = m2.m21 * m1.m11 + m2.m22 * m1.m21 + m2.m23 * m1.m31 + m2.m24 * m1.m41;
-    var m22 = m2.m21 * m1.m12 + m2.m22 * m1.m22 + m2.m23 * m1.m32 + m2.m24 * m1.m42;
-    var m23 = m2.m21 * m1.m13 + m2.m22 * m1.m23 + m2.m23 * m1.m33 + m2.m24 * m1.m43;
-    var m24 = m2.m21 * m1.m14 + m2.m22 * m1.m24 + m2.m23 * m1.m34 + m2.m24 * m1.m44;
-    var m31 = m2.m31 * m1.m11 + m2.m32 * m1.m21 + m2.m33 * m1.m31 + m2.m34 * m1.m41;
-    var m32 = m2.m31 * m1.m12 + m2.m32 * m1.m22 + m2.m33 * m1.m32 + m2.m34 * m1.m42;
-    var m33 = m2.m31 * m1.m13 + m2.m32 * m1.m23 + m2.m33 * m1.m33 + m2.m34 * m1.m43;
-    var m34 = m2.m31 * m1.m14 + m2.m32 * m1.m24 + m2.m33 * m1.m34 + m2.m34 * m1.m44;
-    var m41 = m2.m41 * m1.m11 + m2.m42 * m1.m21 + m2.m43 * m1.m31 + m2.m44 * m1.m41;
-    var m42 = m2.m41 * m1.m12 + m2.m42 * m1.m22 + m2.m43 * m1.m32 + m2.m44 * m1.m42;
-    var m43 = m2.m41 * m1.m13 + m2.m42 * m1.m23 + m2.m43 * m1.m33 + m2.m44 * m1.m43;
-    var m44 = m2.m41 * m1.m14 + m2.m42 * m1.m24 + m2.m43 * m1.m34 + m2.m44 * m1.m44;
-    return new CSSMatrix([m11, m21, m31, m41, m12, m22, m32, m42, m13, m23, m33, m43, m14, m24, m34, m44]);
-  }
-  function fromMatrix(m) {
-    return new CSSMatrix([m.m11, m.m21, m.m31, m.m41, m.m12, m.m22, m.m32, m.m42, m.m13, m.m23, m.m33, m.m43, m.m14, m.m24, m.m34, m.m44]);
-  }
-  function feedFromArray(m, array) {
     var a = Array.from(array);
+    if (!a.every(function (n) {
+      return !Number.isNaN(n);
+    })) {
+      throw TypeError("CSSMatrix: \"" + array + "\" must only have numbers.");
+    }
     if (a.length === 16) {
       var m11 = a[0];
-      var m21 = a[1];
-      var m31 = a[2];
-      var m41 = a[3];
-      var m12 = a[4];
+      var m12 = a[1];
+      var m13 = a[2];
+      var m14 = a[3];
+      var m21 = a[4];
       var m22 = a[5];
-      var m32 = a[6];
-      var m42 = a[7];
-      var m13 = a[8];
-      var m23 = a[9];
+      var m23 = a[6];
+      var m24 = a[7];
+      var m31 = a[8];
+      var m32 = a[9];
       var m33 = a[10];
-      var m43 = a[11];
-      var m14 = a[12];
-      var m24 = a[13];
-      var m34 = a[14];
+      var m34 = a[11];
+      var m41 = a[12];
+      var m42 = a[13];
+      var m43 = a[14];
       var m44 = a[15];
       m.m11 = m11;
       m.a = m11;
@@ -3139,136 +3030,401 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       m.m34 = m34;
       m.m44 = m44;
     } else if (a.length === 6) {
-      var m11$1 = a[0];
-      var m12$1 = a[1];
-      var m21$1 = a[2];
-      var m22$1 = a[3];
-      var m14$1 = a[4];
-      var m24$1 = a[5];
-      m.m11 = m11$1;
-      m.a = m11$1;
-      m.m12 = m12$1;
-      m.b = m12$1;
-      m.m21 = m21$1;
-      m.c = m21$1;
-      m.m22 = m22$1;
-      m.d = m22$1;
-      m.m14 = m14$1;
-      m.e = m14$1;
-      m.m24 = m24$1;
-      m.f = m24$1;
+      var M11 = a[0];
+      var M12 = a[1];
+      var M21 = a[2];
+      var M22 = a[3];
+      var M41 = a[4];
+      var M42 = a[5];
+      m.m11 = M11;
+      m.a = M11;
+      m.m12 = M12;
+      m.b = M12;
+      m.m21 = M21;
+      m.c = M21;
+      m.m22 = M22;
+      m.d = M22;
+      m.m41 = M41;
+      m.e = M41;
+      m.m42 = M42;
+      m.f = M42;
     } else {
-      throw new TypeError('CSSMatrix: expecting a 6/16 values Array');
+      throw new TypeError('CSSMatrix: expecting an Array of 6/16 values.');
     }
     return m;
   }
-  function fromArray(a) {
-    return feedFromArray(new CSSMatrix(), a);
-  }
-  CSSMatrixProto.setMatrixValue = function setMatrixValue(source) {
-    var m = this;
-    if (!source || !source.length) {
-      return m;
+  function fromMatrix(m) {
+    var keys = Object.keys(new CSSMatrix());
+    if (_typeof(m) === 'object' && keys.every(function (k) {
+      return k in m;
+    })) {
+      return fromArray([m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44]);
     }
-    if (source.length && typeof source[0] === 'string' && source[0].length) {
-      var string = String(source[0]).trim();
-      var type = '';
-      var values = [];
-      if (string === 'none') {
-        return m;
+    throw TypeError("CSSMatrix: \"" + m + "\" is not a DOMMatrix / CSSMatrix / JSON compatible object.");
+  }
+  function fromString(source) {
+    if (typeof source !== 'string') {
+      throw TypeError("CSSMatrix: \"" + source + "\" is not a string.");
+    }
+    var str = String(source).replace(/\s/g, '');
+    var m = new CSSMatrix();
+    var invalidStringError = "CSSMatrix: invalid transform string \"" + source + "\"";
+    str.split(')').filter(function (f) {
+      return f;
+    }).forEach(function (tf) {
+      var ref = tf.split('(');
+      var prop = ref[0];
+      var value = ref[1];
+      if (!value) {
+        throw TypeError(invalidStringError);
       }
-      type = string.slice(0, string.indexOf('('));
-      values = string.slice(type === 'matrix' ? 7 : 9, -1).split(',').map(function (n) {
-        return Math.abs(n) < 1e-6 ? 0 : +n;
+      var components = value.split(',').map(function (n) {
+        return n.includes('rad') ? parseFloat(n) * (180 / Math.PI) : parseFloat(n);
       });
-      if ([6, 16].indexOf(values.length) > -1) {
-        feedFromArray(m, values);
+      var x = components[0];
+      var y = components[1];
+      var z = components[2];
+      var a = components[3];
+      var xyz = [x, y, z];
+      var xyza = [x, y, z, a];
+      if (prop === 'perspective' && x && [y, z].every(function (n) {
+        return n === undefined;
+      })) {
+        m.m34 = -1 / x;
+      } else if (prop.includes('matrix') && [6, 16].includes(components.length) && components.every(function (n) {
+        return !Number.isNaN(+n);
+      })) {
+        var values = components.map(function (n) {
+          return Math.abs(n) < 1e-6 ? 0 : n;
+        });
+        m = m.multiply(fromArray(values));
+      } else if (prop === 'translate3d' && xyz.every(function (n) {
+        return !Number.isNaN(+n);
+      })) {
+        m = m.translate(x, y, z);
+      } else if (prop === 'translate' && x && z === undefined) {
+        m = m.translate(x, y || 0, 0);
+      } else if (prop === 'rotate3d' && xyza.every(function (n) {
+        return !Number.isNaN(+n);
+      }) && a) {
+        m = m.rotateAxisAngle(x, y, z, a);
+      } else if (prop === 'rotate' && x && [y, z].every(function (n) {
+        return n === undefined;
+      })) {
+        m = m.rotate(0, 0, x);
+      } else if (prop === 'scale3d' && xyz.every(function (n) {
+        return !Number.isNaN(+n);
+      }) && xyz.some(function (n) {
+        return n !== 1;
+      })) {
+        m = m.scale(x, y, z);
+      } else if (prop === 'scale' && !Number.isNaN(x) && x !== 1 && z === undefined) {
+        var nosy = Number.isNaN(+y);
+        var sy = nosy ? x : y;
+        m = m.scale(x, sy, 1);
+      } else if (prop === 'skew' && x && z === undefined) {
+        m = m.skewX(x);
+        m = y ? m.skewY(y) : m;
+      } else if (/[XYZ]/.test(prop) && x && [y, z].every(function (n) {
+        return n === undefined;
+      }) && ['translate', 'rotate', 'scale', 'skew'].some(function (p) {
+        return prop.includes(p);
+      })) {
+        if (['skewX', 'skewY'].includes(prop)) {
+          m = m[prop](x);
+        } else {
+          var fn = prop.replace(/[XYZ]/, '');
+          var axis = prop.replace(fn, '');
+          var idx = ['X', 'Y', 'Z'].indexOf(axis);
+          var axeValues = [idx === 0 ? x : 0, idx === 1 ? x : 0, idx === 2 ? x : 0];
+          m = m[fn].apply(m, axeValues);
+        }
       } else {
-        throw new TypeError('CSSMatrix: expecting valid CSS matrix() / matrix3d() syntax');
+        throw TypeError(invalidStringError);
       }
-    } else if (source[0] instanceof CSSMatrix) {
-      feedFromArray(m, source[0].toArray());
-    } else if (Array.isArray(source[0])) {
-      feedFromArray(m, source[0]);
-    } else if (Array.isArray(source)) {
-      feedFromArray(m, source);
-    }
+    });
     return m;
-  };
-  CSSMatrixProto.toString = function toString() {
-    var m = this;
-    var type = m.is2D ? 'matrix' : 'matrix3d';
-    return type + "(" + m.toArray(1).join(',') + ")";
-  };
-  CSSMatrixProto.toArray = function toArray(transposed) {
-    var m = this;
-    var result;
-    if (m.is2D) {
-      result = [m.a, m.b, m.c, m.d, m.e, m.f];
-    } else if (transposed) {
-      result = [m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44];
-    } else {
-      result = [m.m11, m.m21, m.m31, m.m41, m.m12, m.m22, m.m32, m.m42, m.m13, m.m23, m.m33, m.m43, m.m14, m.m24, m.m34, m.m44];
-    }
-    return result;
-  };
-  CSSMatrixProto.multiply = function multiply(m2) {
-    return Multiply(this, m2);
-  };
-  CSSMatrixProto.translate = function translate(x, y, z) {
+  }
+  function Translate(x, y, z) {
+    var m = new CSSMatrix();
+    m.m41 = x;
+    m.e = x;
+    m.m42 = y;
+    m.f = y;
+    m.m43 = z;
+    return m;
+  }
+  function Rotate(rx, ry, rz) {
+    var m = new CSSMatrix();
+    var degToRad = Math.PI / 180;
+    var radX = rx * degToRad;
+    var radY = ry * degToRad;
+    var radZ = rz * degToRad;
+    var cosx = Math.cos(radX);
+    var sinx = -Math.sin(radX);
+    var cosy = Math.cos(radY);
+    var siny = -Math.sin(radY);
+    var cosz = Math.cos(radZ);
+    var sinz = -Math.sin(radZ);
+    var m11 = cosy * cosz;
+    var m12 = -cosy * sinz;
+    m.m11 = m11;
+    m.a = m11;
+    m.m12 = m12;
+    m.b = m12;
+    m.m13 = siny;
+    var m21 = sinx * siny * cosz + cosx * sinz;
+    m.m21 = m21;
+    m.c = m21;
+    var m22 = cosx * cosz - sinx * siny * sinz;
+    m.m22 = m22;
+    m.d = m22;
+    m.m23 = -sinx * cosy;
+    m.m31 = sinx * sinz - cosx * siny * cosz;
+    m.m32 = sinx * cosz + cosx * siny * sinz;
+    m.m33 = cosx * cosy;
+    return m;
+  }
+  function RotateAxisAngle(x, y, z, alpha) {
+    var m = new CSSMatrix();
+    var angle = alpha * (Math.PI / 360);
+    var sinA = Math.sin(angle);
+    var cosA = Math.cos(angle);
+    var sinA2 = sinA * sinA;
+    var length = Math.sqrt(x * x + y * y + z * z);
     var X = x;
     var Y = y;
     var Z = z;
-    if (Z == null) {
+    if (length === 0) {
+      X = 0;
+      Y = 0;
+      Z = 1;
+    } else {
+      X /= length;
+      Y /= length;
+      Z /= length;
+    }
+    var x2 = X * X;
+    var y2 = Y * Y;
+    var z2 = Z * Z;
+    var m11 = 1 - 2 * (y2 + z2) * sinA2;
+    m.m11 = m11;
+    m.a = m11;
+    var m12 = 2 * (X * Y * sinA2 + Z * sinA * cosA);
+    m.m12 = m12;
+    m.b = m12;
+    m.m13 = 2 * (X * Z * sinA2 - Y * sinA * cosA);
+    var m21 = 2 * (Y * X * sinA2 - Z * sinA * cosA);
+    m.m21 = m21;
+    m.c = m21;
+    var m22 = 1 - 2 * (z2 + x2) * sinA2;
+    m.m22 = m22;
+    m.d = m22;
+    m.m23 = 2 * (Y * Z * sinA2 + X * sinA * cosA);
+    m.m31 = 2 * (Z * X * sinA2 + Y * sinA * cosA);
+    m.m32 = 2 * (Z * Y * sinA2 - X * sinA * cosA);
+    m.m33 = 1 - 2 * (x2 + y2) * sinA2;
+    return m;
+  }
+  function Scale(x, y, z) {
+    var m = new CSSMatrix();
+    m.m11 = x;
+    m.a = x;
+    m.m22 = y;
+    m.d = y;
+    m.m33 = z;
+    return m;
+  }
+  function SkewX(angle) {
+    var m = new CSSMatrix();
+    var radA = angle * Math.PI / 180;
+    var t = Math.tan(radA);
+    m.m21 = t;
+    m.c = t;
+    return m;
+  }
+  function SkewY(angle) {
+    var m = new CSSMatrix();
+    var radA = angle * Math.PI / 180;
+    var t = Math.tan(radA);
+    m.m12 = t;
+    m.b = t;
+    return m;
+  }
+  function Multiply(m1, m2) {
+    var m11 = m2.m11 * m1.m11 + m2.m12 * m1.m21 + m2.m13 * m1.m31 + m2.m14 * m1.m41;
+    var m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22 + m2.m13 * m1.m32 + m2.m14 * m1.m42;
+    var m13 = m2.m11 * m1.m13 + m2.m12 * m1.m23 + m2.m13 * m1.m33 + m2.m14 * m1.m43;
+    var m14 = m2.m11 * m1.m14 + m2.m12 * m1.m24 + m2.m13 * m1.m34 + m2.m14 * m1.m44;
+    var m21 = m2.m21 * m1.m11 + m2.m22 * m1.m21 + m2.m23 * m1.m31 + m2.m24 * m1.m41;
+    var m22 = m2.m21 * m1.m12 + m2.m22 * m1.m22 + m2.m23 * m1.m32 + m2.m24 * m1.m42;
+    var m23 = m2.m21 * m1.m13 + m2.m22 * m1.m23 + m2.m23 * m1.m33 + m2.m24 * m1.m43;
+    var m24 = m2.m21 * m1.m14 + m2.m22 * m1.m24 + m2.m23 * m1.m34 + m2.m24 * m1.m44;
+    var m31 = m2.m31 * m1.m11 + m2.m32 * m1.m21 + m2.m33 * m1.m31 + m2.m34 * m1.m41;
+    var m32 = m2.m31 * m1.m12 + m2.m32 * m1.m22 + m2.m33 * m1.m32 + m2.m34 * m1.m42;
+    var m33 = m2.m31 * m1.m13 + m2.m32 * m1.m23 + m2.m33 * m1.m33 + m2.m34 * m1.m43;
+    var m34 = m2.m31 * m1.m14 + m2.m32 * m1.m24 + m2.m33 * m1.m34 + m2.m34 * m1.m44;
+    var m41 = m2.m41 * m1.m11 + m2.m42 * m1.m21 + m2.m43 * m1.m31 + m2.m44 * m1.m41;
+    var m42 = m2.m41 * m1.m12 + m2.m42 * m1.m22 + m2.m43 * m1.m32 + m2.m44 * m1.m42;
+    var m43 = m2.m41 * m1.m13 + m2.m42 * m1.m23 + m2.m43 * m1.m33 + m2.m44 * m1.m43;
+    var m44 = m2.m41 * m1.m14 + m2.m42 * m1.m24 + m2.m43 * m1.m34 + m2.m44 * m1.m44;
+    return fromArray([m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]);
+  }
+  var CSSMatrix = function CSSMatrix() {
+    var args = [],
+      len = arguments.length;
+    while (len--) args[len] = arguments[len];
+    var m = this;
+    m.a = 1;
+    m.b = 0;
+    m.c = 0;
+    m.d = 1;
+    m.e = 0;
+    m.f = 0;
+    m.m11 = 1;
+    m.m12 = 0;
+    m.m13 = 0;
+    m.m14 = 0;
+    m.m21 = 0;
+    m.m22 = 1;
+    m.m23 = 0;
+    m.m24 = 0;
+    m.m31 = 0;
+    m.m32 = 0;
+    m.m33 = 1;
+    m.m34 = 0;
+    m.m41 = 0;
+    m.m42 = 0;
+    m.m43 = 0;
+    m.m44 = 1;
+    if (args && args.length) {
+      var ARGS = [16, 6].some(function (l) {
+        return l === args.length;
+      }) ? args : args[0];
+      return m.setMatrixValue(ARGS);
+    }
+    return m;
+  };
+  var prototypeAccessors = {
+    isIdentity: {
+      configurable: true
+    },
+    is2D: {
+      configurable: true
+    }
+  };
+  prototypeAccessors.isIdentity.set = function (value) {
+    this.isIdentity = value;
+  };
+  prototypeAccessors.isIdentity.get = function () {
+    var m = this;
+    return m.m11 === 1 && m.m12 === 0 && m.m13 === 0 && m.m14 === 0 && m.m21 === 0 && m.m22 === 1 && m.m23 === 0 && m.m24 === 0 && m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m41 === 0 && m.m42 === 0 && m.m43 === 0 && m.m44 === 1;
+  };
+  prototypeAccessors.is2D.get = function () {
+    var m = this;
+    return m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m43 === 0 && m.m44 === 1;
+  };
+  prototypeAccessors.is2D.set = function (value) {
+    this.is2D = value;
+  };
+  CSSMatrix.prototype.setMatrixValue = function setMatrixValue(source) {
+    var m = this;
+    if ([Array, Float64Array, Float32Array].some(function (a) {
+      return source instanceof a;
+    })) {
+      return fromArray(source);
+    }
+    if (typeof source === 'string' && source.length && source !== 'none') {
+      return fromString(source);
+    }
+    if (_typeof(source) === 'object') {
+      return fromMatrix(source);
+    }
+    return m;
+  };
+  CSSMatrix.prototype.toArray = function toArray() {
+    var m = this;
+    var pow = Math.pow(10, 6);
+    var result;
+    if (m.is2D) {
+      result = [m.a, m.b, m.c, m.d, m.e, m.f];
+    } else {
+      result = [m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44];
+    }
+    return result.map(function (n) {
+      return Math.abs(n) < 1e-6 ? 0 : (n * pow >> 0) / pow;
+    });
+  };
+  CSSMatrix.prototype.toString = function toString() {
+    var m = this;
+    var values = m.toArray();
+    var type = m.is2D ? 'matrix' : 'matrix3d';
+    return type + "(" + values + ")";
+  };
+  CSSMatrix.prototype.toJSON = function toJSON() {
+    var m = this;
+    var is2D = m.is2D;
+    var isIdentity = m.isIdentity;
+    return Object.assign({}, m, {
+      is2D: is2D,
+      isIdentity: isIdentity
+    });
+  };
+  CSSMatrix.prototype.multiply = function multiply(m2) {
+    return Multiply(this, m2);
+  };
+  CSSMatrix.prototype.translate = function translate(x, y, z) {
+    var X = x;
+    var Y = y;
+    var Z = z;
+    if (Z === undefined) {
       Z = 0;
     }
-    if (Y == null) {
+    if (Y === undefined) {
       Y = 0;
     }
     return Multiply(this, Translate(X, Y, Z));
   };
-  CSSMatrixProto.scale = function scale(x, y, z) {
+  CSSMatrix.prototype.scale = function scale(x, y, z) {
     var X = x;
     var Y = y;
     var Z = z;
-    if (Y == null) {
+    if (Y === undefined) {
       Y = x;
     }
-    if (Z == null) {
-      Z = x;
+    if (Z === undefined) {
+      Z = 1;
     }
     return Multiply(this, Scale(X, Y, Z));
   };
-  CSSMatrixProto.rotate = function rotate(rx, ry, rz) {
+  CSSMatrix.prototype.rotate = function rotate(rx, ry, rz) {
     var RX = rx;
     var RY = ry;
     var RZ = rz;
-    if (RY == null) {
+    if (RY === undefined) {
       RY = 0;
     }
-    if (RZ == null) {
+    if (RZ === undefined) {
       RZ = RX;
       RX = 0;
     }
     return Multiply(this, Rotate(RX, RY, RZ));
   };
-  CSSMatrixProto.rotateAxisAngle = function rotateAxisAngle(x, y, z, angle) {
-    if (arguments.length !== 4) {
+  CSSMatrix.prototype.rotateAxisAngle = function rotateAxisAngle(x, y, z, angle) {
+    if ([x, y, z, angle].some(function (n) {
+      return Number.isNaN(n);
+    })) {
       throw new TypeError('CSSMatrix: expecting 4 values');
     }
     return Multiply(this, RotateAxisAngle(x, y, z, angle));
   };
-  CSSMatrixProto.skewX = function skewX(angle) {
+  CSSMatrix.prototype.skewX = function skewX(angle) {
     return Multiply(this, SkewX(angle));
   };
-  CSSMatrixProto.skewY = function skewY(angle) {
+  CSSMatrix.prototype.skewY = function skewY(angle) {
     return Multiply(this, SkewY(angle));
   };
-  CSSMatrixProto.setIdentity = function setIdentity() {
-    var identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    return feedFromArray(this, identity);
-  };
-  CSSMatrixProto.transformPoint = function transformPoint(v) {
+  CSSMatrix.prototype.transformPoint = function transformPoint(v) {
     var M = this;
     var m = Translate(v.x, v.y, v.z);
     m.m44 = v.w || 1;
@@ -3280,7 +3436,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       w: m.m44
     };
   };
-  CSSMatrixProto.transform = function transform(t) {
+  CSSMatrix.prototype.transform = function transform(t) {
     var m = this;
     var x = m.m11 * t.x + m.m12 * t.y + m.m13 * t.z + m.m14 * t.w;
     var y = m.m21 * t.x + m.m22 * t.y + m.m23 * t.z + m.m24 * t.w;
@@ -3293,16 +3449,24 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       w: w
     };
   };
-  CSSMatrix.Translate = Translate;
-  CSSMatrix.Rotate = Rotate;
-  CSSMatrix.RotateAxisAngle = RotateAxisAngle;
-  CSSMatrix.Scale = Scale;
-  CSSMatrix.SkewX = SkewX;
-  CSSMatrix.SkewY = SkewY;
-  CSSMatrix.Multiply = Multiply;
-  CSSMatrix.fromMatrix = fromMatrix;
-  CSSMatrix.fromArray = fromArray;
-  CSSMatrix.feedFromArray = feedFromArray;
+  Object.defineProperties(CSSMatrix.prototype, prototypeAccessors);
+  Object.assign(CSSMatrix, {
+    Translate: Translate,
+    Rotate: Rotate,
+    RotateAxisAngle: RotateAxisAngle,
+    Scale: Scale,
+    SkewX: SkewX,
+    SkewY: SkewY,
+    Multiply: Multiply,
+    fromArray: fromArray,
+    fromMatrix: fromMatrix,
+    fromString: fromString
+  });
+  var version = "0.0.24";
+  var Version = version;
+  Object.assign(CSSMatrix, {
+    Version: Version
+  });
   return CSSMatrix;
 });
 
@@ -3764,7 +3928,7 @@ var uncurryThisAccessor = __w_pdfjs_require__(88);
 var isObject = __w_pdfjs_require__(24);
 var requireObjectCoercible = __w_pdfjs_require__(20);
 var aPossiblePrototype = __w_pdfjs_require__(89);
-module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
+module.exports = Object.setPrototypeOf || ('__proto__' in {} ? (function () {
  var CORRECT_SETTER = false;
  var test = {};
  var setter;
@@ -3785,7 +3949,7 @@ module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
    O.__proto__ = proto;
   return O;
  };
-}() : undefined);
+}()) : undefined);
 
 /***/ }),
 /* 88 */
@@ -4028,9 +4192,9 @@ var classofRaw = __w_pdfjs_require__(19);
 var wellKnownSymbol = __w_pdfjs_require__(37);
 var TO_STRING_TAG = wellKnownSymbol('toStringTag');
 var $Object = Object;
-var CORRECT_ARGUMENTS = classofRaw(function () {
+var CORRECT_ARGUMENTS = classofRaw((function () {
  return arguments;
-}()) === 'Arguments';
+}())) === 'Arguments';
 var tryGet = function (it, key) {
  try {
   return it[key];
@@ -5814,7 +5978,7 @@ module.exports = {
   }
  }
  var QUEUE_MAX_ARRAY_SIZE = 16384;
- var SimpleQueue = function () {
+ var SimpleQueue = (function () {
   function SimpleQueue() {
    this._cursor = 0;
    this._size = 0;
@@ -5891,7 +6055,7 @@ module.exports = {
    return front._elements[cursor];
   };
   return SimpleQueue;
- }();
+ }());
  var AbortSteps = SymbolPolyfill('[[AbortSteps]]');
  var ErrorSteps = SymbolPolyfill('[[ErrorSteps]]');
  var CancelSteps = SymbolPolyfill('[[CancelSteps]]');
@@ -6056,7 +6220,7 @@ module.exports = {
   }
   return true;
  }
- var ReadableStreamDefaultReader = function () {
+ var ReadableStreamDefaultReader = (function () {
   function ReadableStreamDefaultReader(stream) {
    assertRequiredArgument(stream, 1, 'ReadableStreamDefaultReader');
    assertReadableStream(stream, 'First parameter');
@@ -6131,7 +6295,7 @@ module.exports = {
    ReadableStreamDefaultReaderRelease(this);
   };
   return ReadableStreamDefaultReader;
- }();
+ }());
  Object.defineProperties(ReadableStreamDefaultReader.prototype, {
   cancel: { enumerable: true },
   read: { enumerable: true },
@@ -6241,7 +6405,7 @@ module.exports = {
   var syncIterable = (_a = {}, _a[SymbolPolyfill.iterator] = function () {
    return syncIteratorRecord.iterator;
   }, _a);
-  var asyncIterator = function () {
+  var asyncIterator = (function () {
    return __asyncGenerator(this, arguments, function () {
     return __generator(this, function (_a) {
      switch (_a.label) {
@@ -6268,7 +6432,7 @@ module.exports = {
      }
     });
    });
-  }();
+  }());
   var nextMethod = asyncIterator.next;
   return {
    iterator: asyncIterator,
@@ -6325,7 +6489,7 @@ module.exports = {
   return this;
  }, _a);
  Object.defineProperty(AsyncIteratorPrototype, SymbolAsyncIterator, { enumerable: false });
- var ReadableStreamAsyncIteratorImpl = function () {
+ var ReadableStreamAsyncIteratorImpl = (function () {
   function ReadableStreamAsyncIteratorImpl(reader, preventCancel) {
    this._ongoingPromise = undefined;
    this._isFinished = false;
@@ -6417,7 +6581,7 @@ module.exports = {
    });
   };
   return ReadableStreamAsyncIteratorImpl;
- }();
+ }());
  var ReadableStreamAsyncIteratorPrototype = {
   next: function () {
    if (!IsReadableStreamAsyncIterator(this)) {
@@ -6513,7 +6677,7 @@ module.exports = {
   }
   return ctor.BYTES_PER_ELEMENT;
  }
- var ReadableStreamBYOBRequest = function () {
+ var ReadableStreamBYOBRequest = (function () {
   function ReadableStreamBYOBRequest() {
    throw new TypeError('Illegal constructor');
   }
@@ -6558,7 +6722,7 @@ module.exports = {
    ReadableByteStreamControllerRespondWithNewView(this._associatedReadableByteStreamController, view);
   };
   return ReadableStreamBYOBRequest;
- }();
+ }());
  Object.defineProperties(ReadableStreamBYOBRequest.prototype, {
   respond: { enumerable: true },
   respondWithNewView: { enumerable: true },
@@ -6572,7 +6736,7 @@ module.exports = {
    configurable: true
   });
  }
- var ReadableByteStreamController = function () {
+ var ReadableByteStreamController = (function () {
   function ReadableByteStreamController() {
    throw new TypeError('Illegal constructor');
   }
@@ -6688,7 +6852,7 @@ module.exports = {
    }
   };
   return ReadableByteStreamController;
- }();
+ }());
  Object.defineProperties(ReadableByteStreamController.prototype, {
   close: { enumerable: true },
   enqueue: { enumerable: true },
@@ -7246,7 +7410,7 @@ module.exports = {
   }
   return true;
  }
- var ReadableStreamBYOBReader = function () {
+ var ReadableStreamBYOBReader = (function () {
   function ReadableStreamBYOBReader(stream) {
    assertRequiredArgument(stream, 1, 'ReadableStreamBYOBReader');
    assertReadableStream(stream, 'First parameter');
@@ -7356,7 +7520,7 @@ module.exports = {
    ReadableStreamBYOBReaderRelease(this);
   };
   return ReadableStreamBYOBReader;
- }();
+ }());
  Object.defineProperties(ReadableStreamBYOBReader.prototype, {
   cancel: { enumerable: true },
   read: { enumerable: true },
@@ -7503,7 +7667,7 @@ module.exports = {
   }
   return undefined;
  }
- var WritableStream = function () {
+ var WritableStream = (function () {
   function WritableStream(rawUnderlyingSink, rawStrategy) {
    if (rawUnderlyingSink === void 0) {
     rawUnderlyingSink = {};
@@ -7568,7 +7732,7 @@ module.exports = {
    return AcquireWritableStreamDefaultWriter(this);
   };
   return WritableStream;
- }();
+ }());
  Object.defineProperties(WritableStream.prototype, {
   abort: { enumerable: true },
   close: { enumerable: true },
@@ -7817,7 +7981,7 @@ module.exports = {
   }
   stream._backpressure = backpressure;
  }
- var WritableStreamDefaultWriter = function () {
+ var WritableStreamDefaultWriter = (function () {
   function WritableStreamDefaultWriter(stream) {
    assertRequiredArgument(stream, 1, 'WritableStreamDefaultWriter');
    assertWritableStream(stream, 'First parameter');
@@ -7927,7 +8091,7 @@ module.exports = {
    return WritableStreamDefaultWriterWrite(this, chunk);
   };
   return WritableStreamDefaultWriter;
- }();
+ }());
  Object.defineProperties(WritableStreamDefaultWriter.prototype, {
   abort: { enumerable: true },
   close: { enumerable: true },
@@ -8030,7 +8194,7 @@ module.exports = {
   return promise;
  }
  var closeSentinel = {};
- var WritableStreamDefaultController = function () {
+ var WritableStreamDefaultController = (function () {
   function WritableStreamDefaultController() {
    throw new TypeError('Illegal constructor');
   }
@@ -8079,7 +8243,7 @@ module.exports = {
    ResetQueue(this);
   };
   return WritableStreamDefaultController;
- }();
+ }());
  Object.defineProperties(WritableStreamDefaultController.prototype, {
   abortReason: { enumerable: true },
   signal: { enumerable: true },
@@ -8595,7 +8759,7 @@ module.exports = {
    }
   });
  }
- var ReadableStreamDefaultController = function () {
+ var ReadableStreamDefaultController = (function () {
   function ReadableStreamDefaultController() {
    throw new TypeError('Illegal constructor');
   }
@@ -8664,7 +8828,7 @@ module.exports = {
   ReadableStreamDefaultController.prototype[ReleaseSteps] = function () {
   };
   return ReadableStreamDefaultController;
- }();
+ }());
  Object.defineProperties(ReadableStreamDefaultController.prototype, {
   close: { enumerable: true },
   enqueue: { enumerable: true },
@@ -9363,7 +9527,7 @@ module.exports = {
    writable: writable
   };
  }
- var ReadableStream = function () {
+ var ReadableStream = (function () {
   function ReadableStream(rawUnderlyingSource, rawStrategy) {
    if (rawUnderlyingSource === void 0) {
     rawUnderlyingSource = {};
@@ -9497,7 +9661,7 @@ module.exports = {
    return ReadableStreamFrom(asyncIterable);
   };
   return ReadableStream;
- }();
+ }());
  Object.defineProperties(ReadableStream, { from: { enumerable: true } });
  Object.defineProperties(ReadableStream.prototype, {
   cancel: { enumerable: true },
@@ -9631,7 +9795,7 @@ module.exports = {
   return chunk.byteLength;
  };
  setFunctionName(byteLengthSizeFunction, 'size');
- var ByteLengthQueuingStrategy = function () {
+ var ByteLengthQueuingStrategy = (function () {
   function ByteLengthQueuingStrategy(options) {
    assertRequiredArgument(options, 1, 'ByteLengthQueuingStrategy');
    options = convertQueuingStrategyInit(options, 'First parameter');
@@ -9658,7 +9822,7 @@ module.exports = {
    configurable: true
   });
   return ByteLengthQueuingStrategy;
- }();
+ }());
  Object.defineProperties(ByteLengthQueuingStrategy.prototype, {
   highWaterMark: { enumerable: true },
   size: { enumerable: true }
@@ -9685,7 +9849,7 @@ module.exports = {
   return 1;
  };
  setFunctionName(countSizeFunction, 'size');
- var CountQueuingStrategy = function () {
+ var CountQueuingStrategy = (function () {
   function CountQueuingStrategy(options) {
    assertRequiredArgument(options, 1, 'CountQueuingStrategy');
    options = convertQueuingStrategyInit(options, 'First parameter');
@@ -9712,7 +9876,7 @@ module.exports = {
    configurable: true
   });
   return CountQueuingStrategy;
- }();
+ }());
  Object.defineProperties(CountQueuingStrategy.prototype, {
   highWaterMark: { enumerable: true },
   size: { enumerable: true }
@@ -9779,7 +9943,7 @@ module.exports = {
    return promiseCall(fn, original, [reason]);
   };
  }
- var TransformStream = function () {
+ var TransformStream = (function () {
   function TransformStream(rawTransformer, rawWritableStrategy, rawReadableStrategy) {
    if (rawTransformer === void 0) {
     rawTransformer = {};
@@ -9839,7 +10003,7 @@ module.exports = {
    configurable: true
   });
   return TransformStream;
- }();
+ }());
  Object.defineProperties(TransformStream.prototype, {
   readable: { enumerable: true },
   writable: { enumerable: true }
@@ -9909,7 +10073,7 @@ module.exports = {
   });
   stream._backpressure = backpressure;
  }
- var TransformStreamDefaultController = function () {
+ var TransformStreamDefaultController = (function () {
   function TransformStreamDefaultController() {
    throw new TypeError('Illegal constructor');
   }
@@ -9949,7 +10113,7 @@ module.exports = {
    TransformStreamDefaultControllerTerminate(this);
   };
   return TransformStreamDefaultController;
- }();
+ }());
  Object.defineProperties(TransformStreamDefaultController.prototype, {
   enqueue: { enumerable: true },
   error: { enumerable: true },
@@ -10212,7 +10376,7 @@ module.exports = {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = void 0;
+exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = exports.CIRCULAR_REF = void 0;
 exports.clearPrimitiveCaches = clearPrimitiveCaches;
 exports.isCmd = isCmd;
 exports.isDict = isDict;
@@ -10238,6 +10402,7 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var CIRCULAR_REF = exports.CIRCULAR_REF = Symbol("CIRCULAR_REF");
 var EOF = exports.EOF = Symbol("EOF");
 var Name = exports.Name = function NameClosure() {
   var nameCache = Object.create(null);
@@ -10940,13 +11105,14 @@ var BasePdfManager = /*#__PURE__*/function () {
   }]);
 }();
 var LocalPdfManager = exports.LocalPdfManager = /*#__PURE__*/function (_BasePdfManager) {
-  function LocalPdfManager(docId, data, password, evaluatorOptions, enableXfa, docBaseUrl) {
+  function LocalPdfManager(docId, data, password, msgHandler, evaluatorOptions, enableXfa, docBaseUrl) {
     var _this;
     _classCallCheck(this, LocalPdfManager);
     _this = _callSuper(this, LocalPdfManager);
     _this._docId = docId;
     _this._password = password;
     _this._docBaseUrl = parseDocBaseUrl(docBaseUrl);
+    _this.msgHandler = msgHandler;
     _this.evaluatorOptions = evaluatorOptions;
     _this.enableXfa = enableXfa;
     var stream = new _stream.Stream(data);
@@ -11195,6 +11361,9 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function (_Stream) {
         return;
       }
       var chunk = Math.floor(pos / this.chunkSize);
+      if (chunk > this.numChunks) {
+        return;
+      }
       if (chunk === this.lastSuccessfulEnsureByteChunk) {
         return;
       }
@@ -11212,9 +11381,11 @@ var ChunkedStream = exports.ChunkedStream = /*#__PURE__*/function (_Stream) {
       if (end <= this.progressiveDataLength) {
         return;
       }
-      var chunkSize = this.chunkSize;
-      var beginChunk = Math.floor(begin / chunkSize);
-      var endChunk = Math.floor((end - 1) / chunkSize) + 1;
+      var beginChunk = Math.floor(begin / this.chunkSize);
+      if (beginChunk > this.numChunks) {
+        return;
+      }
+      var endChunk = Math.min(Math.floor((end - 1) / this.chunkSize) + 1, this.numChunks);
       for (var chunk = beginChunk; chunk < endChunk; ++chunk) {
         if (!this._loadedChunks.has(chunk)) {
           throw new _core_utils.MissingDataException(begin, end);
@@ -11679,7 +11850,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = void 0;
+exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = exports.DocStats = void 0;
 exports.collectActions = collectActions;
 exports.encodeToXmlString = encodeToXmlString;
 exports.escapePDFName = escapePDFName;
@@ -11774,6 +11945,67 @@ var XRefParseException = exports.XRefParseException = /*#__PURE__*/function (_Ba
   _inherits(XRefParseException, _BaseException4);
   return _createClass(XRefParseException);
 }(_util.BaseException);
+var DocStats = exports.DocStats = /*#__PURE__*/function () {
+  function DocStats(handler) {
+    _classCallCheck(this, DocStats);
+    this._handler = handler;
+    this._streamTypes = new Set();
+    this._fontTypes = new Set();
+  }
+  return _createClass(DocStats, [{
+    key: "_send",
+    value: function _send() {
+      var streamTypes = Object.create(null),
+        fontTypes = Object.create(null);
+      var _iterator = _createForOfIteratorHelper(this._streamTypes),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var type = _step.value;
+          streamTypes[type] = true;
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+      var _iterator2 = _createForOfIteratorHelper(this._fontTypes),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var _type = _step2.value;
+          fontTypes[_type] = true;
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+      this._handler.send("DocStats", {
+        streamTypes: streamTypes,
+        fontTypes: fontTypes
+      });
+    }
+  }, {
+    key: "addStreamType",
+    value: function addStreamType(type) {
+      if (this._streamTypes.has(type)) {
+        return;
+      }
+      this._streamTypes.add(type);
+      this._send();
+    }
+  }, {
+    key: "addFontType",
+    value: function addFontType(type) {
+      if (this._fontTypes.has(type)) {
+        return;
+      }
+      this._fontTypes.add(type);
+      this._send();
+    }
+  }]);
+}();
 function getInheritableProperty(_ref) {
   var dict = _ref.dict,
     key = _ref.key,
@@ -11890,17 +12122,17 @@ function _collectJS(entry, xref, list, parents) {
     entry = xref.fetch(entry);
   }
   if (Array.isArray(entry)) {
-    var _iterator = _createForOfIteratorHelper(entry),
-      _step;
+    var _iterator3 = _createForOfIteratorHelper(entry),
+      _step3;
     try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var element = _step.value;
+      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+        var element = _step3.value;
         _collectJS(element, xref, list, parents);
       }
     } catch (err) {
-      _iterator.e(err);
+      _iterator3.e(err);
     } finally {
-      _iterator.f();
+      _iterator3.f();
     }
   } else if (entry instanceof _primitives.Dict) {
     if ((0, _primitives.isName)(entry.get("S"), "JavaScript") && entry.has("JS")) {
@@ -11935,11 +12167,11 @@ function collectActions(xref, dict, eventType) {
       if (!(additionalActions instanceof _primitives.Dict)) {
         continue;
       }
-      var _iterator2 = _createForOfIteratorHelper(additionalActions.getKeys()),
-        _step2;
+      var _iterator4 = _createForOfIteratorHelper(additionalActions.getKeys()),
+        _step4;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var key = _step2.value;
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var key = _step4.value;
           var action = eventType[key];
           if (!action) {
             continue;
@@ -11953,9 +12185,9 @@ function collectActions(xref, dict, eventType) {
           }
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator4.e(err);
       } finally {
-        _iterator2.f();
+        _iterator4.f();
       }
     }
   }
@@ -12028,20 +12260,20 @@ function validateCSSFont(cssFontInfo) {
       return false;
     }
   } else {
-    var _iterator3 = _createForOfIteratorHelper(fontFamily.split(/[ \t]+/)),
-      _step3;
+    var _iterator5 = _createForOfIteratorHelper(fontFamily.split(/[ \t]+/)),
+      _step5;
     try {
-      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        var ident = _step3.value;
+      for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+        var ident = _step5.value;
         if (/^(\d|(-(\d|-)))/.test(ident) || !/^[\w-\\]+$/.test(ident)) {
           (0, _util.warn)("XFA - FontFamily contains some invalid <custom-ident>: ".concat(fontFamily, "."));
           return false;
         }
       }
     } catch (err) {
-      _iterator3.e(err);
+      _iterator5.e(err);
     } finally {
-      _iterator3.f();
+      _iterator5.f();
     }
   }
   var weight = fontWeight ? fontWeight.toString() : "";
@@ -12418,12 +12650,9 @@ var Page = exports.Page = /*#__PURE__*/function () {
   }, {
     key: "xfaData",
     get: function get() {
-      if (this.xfaFactory) {
-        return (0, _util.shadow)(this, "xfaData", {
-          bbox: this.xfaFactory.getBoundingBox(this.pageIndex)
-        });
-      }
-      return (0, _util.shadow)(this, "xfaData", null);
+      return (0, _util.shadow)(this, "xfaData", this.xfaFactory ? {
+        bbox: this.xfaFactory.getBoundingBox(this.pageIndex)
+      } : null);
     }
   }, {
     key: "save",
@@ -12538,7 +12767,7 @@ var Page = exports.Page = /*#__PURE__*/function () {
           for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
             var annotation = _step2.value;
             if (intentAny || intentDisplay && annotation.mustBeViewed(annotationStorage) || intentPrint && annotation.mustBePrinted(annotationStorage)) {
-              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, renderForms, annotationStorage)["catch"](function (reason) {
+              opListPromises.push(annotation.getOperatorList(partialEvaluator, task, intent, renderForms, annotationStorage)["catch"](function (reason) {
                 (0, _util.warn)("getOperatorList - ignoring annotation data during " + "\"".concat(task.name, "\" task: \"").concat(reason, "\"."));
                 return null;
               }));
@@ -12783,7 +13012,7 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
     this.pdfManager = pdfManager;
     this.stream = stream;
     this.xref = new _xref.XRef(stream, pdfManager);
-    this._pagePromises = [];
+    this._pagePromises = new Map();
     this._version = null;
     var idCounters = {
       font: 0
@@ -12910,11 +13139,16 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
   }, {
     key: "numPages",
     get: function get() {
-      if (this.xfaFactory) {
-        return (0, _util.shadow)(this, "numPages", this.xfaFactory.numberPages);
+      var num = 0;
+      if (this.catalog.hasActualNumPages) {
+        num = this.catalog.numPages;
+      } else if (this.xfaFactory) {
+        num = this.xfaFactory.getNumPages();
+      } else if (this.linearization) {
+        num = this.linearization.numPages;
+      } else {
+        num = this.catalog.numPages;
       }
-      var linearization = this.linearization;
-      var num = linearization ? linearization.numPages : this.catalog.numPages;
       return (0, _util.shadow)(this, "numPages", num);
     }
   }, {
@@ -13004,24 +13238,21 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
   }, {
     key: "xfaFactory",
     get: function get() {
+      var data;
       if (this.pdfManager.enableXfa && this.catalog.needsRendering && this.formInfo.hasXfa && !this.formInfo.hasAcroForm) {
-        var data = this.xfaData;
-        return (0, _util.shadow)(this, "xfaFactory", data ? new _factory.XFAFactory(data) : null);
+        data = this.xfaData;
       }
-      return (0, _util.shadow)(this, "xfaFaxtory", null);
+      return (0, _util.shadow)(this, "xfaFactory", data ? new _factory.XFAFactory(data) : null);
     }
   }, {
     key: "isPureXfa",
     get: function get() {
-      return this.xfaFactory && this.xfaFactory.isValid();
+      return this.xfaFactory ? this.xfaFactory.isValid() : false;
     }
   }, {
     key: "htmlForXfa",
     get: function get() {
-      if (this.xfaFactory) {
-        return this.xfaFactory.getPages();
-      }
-      return null;
+      return this.xfaFactory ? this.xfaFactory.getPages() : null;
     }
   }, {
     key: "loadXfaImages",
@@ -13322,14 +13553,8 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
-              if (!this.xfaFactory) {
-                _context4.next = 2;
-                break;
-              }
-              return _context4.abrupt("return", this.xfaFactory.serializeData(annotationStorage));
-            case 2:
-              return _context4.abrupt("return", null);
-            case 3:
+              return _context4.abrupt("return", this.xfaFactory ? this.xfaFactory.serializeData(annotationStorage) : null);
+            case 1:
             case "end":
               return _context4.stop();
           }
@@ -13393,6 +13618,8 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
       }
       var docInfo = {
         PDFFormatVersion: version,
+        Language: this.catalog.lang,
+        EncryptFilterName: this.xref.encrypt ? this.xref.encrypt.filterName : null,
         IsLinearized: !!this.linearization,
         IsAcroFormPresent: this.formInfo.hasAcroForm,
         IsXFAPresent: this.formInfo.hasXfa,
@@ -13473,50 +13700,65 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
     }
   }, {
     key: "_getLinearizationPage",
-    value: function _getLinearizationPage(pageIndex) {
-      var catalog = this.catalog,
-        linearization = this.linearization;
-      var ref = _primitives.Ref.get(linearization.objectNumberFirst, 0);
-      return this.xref.fetchAsync(ref).then(function (obj) {
-        if ((0, _primitives.isDict)(obj, "Page") || (0, _primitives.isDict)(obj) && !obj.has("Type") && obj.has("Contents")) {
-          if (ref && !catalog.pageKidsCountCache.has(ref)) {
-            catalog.pageKidsCountCache.put(ref, 1);
+    value: function () {
+      var _getLinearizationPage2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(pageIndex) {
+        var catalog, linearization, ref, obj;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              catalog = this.catalog, linearization = this.linearization;
+              ref = _primitives.Ref.get(linearization.objectNumberFirst, 0);
+              _context5.prev = 2;
+              _context5.next = 5;
+              return this.xref.fetchAsync(ref);
+            case 5:
+              obj = _context5.sent;
+              if (!((0, _primitives.isDict)(obj, "Page") || (0, _primitives.isDict)(obj) && !obj.has("Type") && obj.has("Contents"))) {
+                _context5.next = 9;
+                break;
+              }
+              if (ref && !catalog.pageKidsCountCache.has(ref)) {
+                catalog.pageKidsCountCache.put(ref, 1);
+              }
+              return _context5.abrupt("return", [obj, ref]);
+            case 9:
+              throw new _util.FormatError("The Linearization dictionary doesn't point to a valid Page dictionary.");
+            case 12:
+              _context5.prev = 12;
+              _context5.t0 = _context5["catch"](2);
+              (0, _util.info)(_context5.t0);
+              return _context5.abrupt("return", catalog.getPageDict(pageIndex));
+            case 16:
+            case "end":
+              return _context5.stop();
           }
-          return [obj, ref];
-        }
-        throw new _util.FormatError("The Linearization dictionary doesn't point " + "to a valid Page dictionary.");
-      })["catch"](function (reason) {
-        (0, _util.info)(reason);
-        return catalog.getPageDict(pageIndex);
-      });
-    }
+        }, _callee5, this, [[2, 12]]);
+      }));
+      function _getLinearizationPage(_x4) {
+        return _getLinearizationPage2.apply(this, arguments);
+      }
+      return _getLinearizationPage;
+    }()
   }, {
     key: "getPage",
     value: function getPage(pageIndex) {
       var _this7 = this;
-      if (this._pagePromises[pageIndex] !== undefined) {
-        return this._pagePromises[pageIndex];
+      var cachedPromise = this._pagePromises.get(pageIndex);
+      if (cachedPromise) {
+        return cachedPromise;
       }
       var catalog = this.catalog,
-        linearization = this.linearization;
-      if (this.xfaFactory) {
-        return Promise.resolve(new Page({
-          pdfManager: this.pdfManager,
-          xref: this.xref,
-          pageIndex: pageIndex,
-          pageDict: _primitives.Dict.empty,
-          ref: null,
-          globalIdFactory: this._globalIdFactory,
-          fontCache: catalog.fontCache,
-          builtInCMapCache: catalog.builtInCMapCache,
-          standardFontDataCache: catalog.standardFontDataCache,
-          globalImageCache: catalog.globalImageCache,
-          nonBlendModesSet: catalog.nonBlendModesSet,
-          xfaFactory: this.xfaFactory
-        }));
+        linearization = this.linearization,
+        xfaFactory = this.xfaFactory;
+      var promise;
+      if (xfaFactory) {
+        promise = Promise.resolve([_primitives.Dict.empty, null]);
+      } else if (linearization && linearization.pageFirst === pageIndex) {
+        promise = this._getLinearizationPage(pageIndex);
+      } else {
+        promise = catalog.getPageDict(pageIndex);
       }
-      var promise = linearization && linearization.pageFirst === pageIndex ? this._getLinearizationPage(pageIndex) : catalog.getPageDict(pageIndex);
-      return this._pagePromises[pageIndex] = promise.then(function (_ref10) {
+      promise = promise.then(function (_ref10) {
         var _ref11 = _slicedToArray(_ref10, 2),
           pageDict = _ref11[0],
           ref = _ref11[1];
@@ -13532,39 +13774,190 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
           standardFontDataCache: catalog.standardFontDataCache,
           globalImageCache: catalog.globalImageCache,
           nonBlendModesSet: catalog.nonBlendModesSet,
-          xfaFactory: null
+          xfaFactory: xfaFactory
         });
       });
+      this._pagePromises.set(pageIndex, promise);
+      return promise;
     }
   }, {
     key: "checkFirstPage",
-    value: function checkFirstPage() {
-      var _this8 = this;
-      return this.getPage(0)["catch"]( /*#__PURE__*/function () {
-        var _ref12 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5(reason) {
-          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
-            while (1) switch (_context5.prev = _context5.next) {
-              case 0:
-                if (!(reason instanceof _core_utils.XRefEntryException)) {
-                  _context5.next = 5;
-                  break;
+    value: function () {
+      var _checkFirstPage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+        var recoveryMode,
+          _args6 = arguments;
+        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
+            case 0:
+              recoveryMode = _args6.length > 0 && _args6[0] !== undefined ? _args6[0] : false;
+              if (!recoveryMode) {
+                _context6.next = 3;
+                break;
+              }
+              return _context6.abrupt("return");
+            case 3:
+              _context6.prev = 3;
+              _context6.next = 6;
+              return this.getPage(0);
+            case 6:
+              _context6.next = 15;
+              break;
+            case 8:
+              _context6.prev = 8;
+              _context6.t0 = _context6["catch"](3);
+              if (!(_context6.t0 instanceof _core_utils.XRefEntryException)) {
+                _context6.next = 15;
+                break;
+              }
+              this._pagePromises["delete"](0);
+              _context6.next = 14;
+              return this.cleanup();
+            case 14:
+              throw new _core_utils.XRefParseException();
+            case 15:
+            case "end":
+              return _context6.stop();
+          }
+        }, _callee6, this, [[3, 8]]);
+      }));
+      function checkFirstPage() {
+        return _checkFirstPage.apply(this, arguments);
+      }
+      return checkFirstPage;
+    }()
+  }, {
+    key: "checkLastPage",
+    value: function () {
+      var _checkLastPage = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+        var recoveryMode,
+          catalog,
+          pdfManager,
+          numPages,
+          pagesTree,
+          _iterator11,
+          _step11,
+          _step11$value,
+          pageIndex,
+          _step11$value$,
+          pageDict,
+          ref,
+          promise,
+          _args7 = arguments;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              recoveryMode = _args7.length > 0 && _args7[0] !== undefined ? _args7[0] : false;
+              catalog = this.catalog, pdfManager = this.pdfManager;
+              catalog.setActualNumPages();
+              _context7.prev = 3;
+              _context7.next = 6;
+              return Promise.all([pdfManager.ensureDoc("xfaFactory"), pdfManager.ensureDoc("linearization"), pdfManager.ensureCatalog("numPages")]);
+            case 6:
+              if (!this.xfaFactory) {
+                _context7.next = 10;
+                break;
+              }
+              return _context7.abrupt("return");
+            case 10:
+              if (this.linearization) {
+                numPages = this.linearization.numPages;
+              } else {
+                numPages = catalog.numPages;
+              }
+            case 11:
+              if (Number.isInteger(numPages)) {
+                _context7.next = 15;
+                break;
+              }
+              throw new _util.FormatError("Page count is not an integer.");
+            case 15:
+              if (!(numPages <= 1)) {
+                _context7.next = 17;
+                break;
+              }
+              return _context7.abrupt("return");
+            case 17:
+              _context7.next = 19;
+              return this.getPage(numPages - 1);
+            case 19:
+              _context7.next = 44;
+              break;
+            case 21:
+              _context7.prev = 21;
+              _context7.t0 = _context7["catch"](3);
+              this._pagePromises["delete"](numPages - 1);
+              _context7.next = 26;
+              return this.cleanup();
+            case 26:
+              if (!(_context7.t0 instanceof _core_utils.XRefEntryException && !recoveryMode)) {
+                _context7.next = 28;
+                break;
+              }
+              throw new _core_utils.XRefParseException();
+            case 28:
+              (0, _util.warn)("checkLastPage - invalid /Pages tree /Count: ".concat(numPages, "."));
+              _context7.prev = 29;
+              _context7.next = 32;
+              return pdfManager.ensureCatalog("getAllPageDicts", [recoveryMode]);
+            case 32:
+              pagesTree = _context7.sent;
+              _context7.next = 41;
+              break;
+            case 35:
+              _context7.prev = 35;
+              _context7.t1 = _context7["catch"](29);
+              if (!(_context7.t1 instanceof _core_utils.XRefEntryException && !recoveryMode)) {
+                _context7.next = 39;
+                break;
+              }
+              throw new _core_utils.XRefParseException();
+            case 39:
+              catalog.setActualNumPages(1);
+              return _context7.abrupt("return");
+            case 41:
+              _iterator11 = _createForOfIteratorHelper(pagesTree);
+              try {
+                for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+                  _step11$value = _slicedToArray(_step11.value, 2), pageIndex = _step11$value[0], _step11$value$ = _slicedToArray(_step11$value[1], 2), pageDict = _step11$value$[0], ref = _step11$value$[1];
+                  promise = void 0;
+                  if (pageDict instanceof Error) {
+                    promise = Promise.reject(pageDict);
+                    promise["catch"](function () {});
+                  } else {
+                    promise = Promise.resolve(new Page({
+                      pdfManager: pdfManager,
+                      xref: this.xref,
+                      pageIndex: pageIndex,
+                      pageDict: pageDict,
+                      ref: ref,
+                      globalIdFactory: this._globalIdFactory,
+                      fontCache: catalog.fontCache,
+                      builtInCMapCache: catalog.builtInCMapCache,
+                      standardFontDataCache: catalog.standardFontDataCache,
+                      globalImageCache: catalog.globalImageCache,
+                      nonBlendModesSet: catalog.nonBlendModesSet,
+                      xfaFactory: null
+                    }));
+                  }
+                  this._pagePromises.set(pageIndex, promise);
                 }
-                _this8._pagePromises.length = 0;
-                _context5.next = 4;
-                return _this8.cleanup();
-              case 4:
-                throw new _core_utils.XRefParseException();
-              case 5:
-              case "end":
-                return _context5.stop();
-            }
-          }, _callee5);
-        }));
-        return function (_x4) {
-          return _ref12.apply(this, arguments);
-        };
-      }());
-    }
+              } catch (err) {
+                _iterator11.e(err);
+              } finally {
+                _iterator11.f();
+              }
+              catalog.setActualNumPages(pagesTree.size);
+            case 44:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, this, [[3, 21], [29, 35]]);
+      }));
+      function checkLastPage() {
+        return _checkLastPage.apply(this, arguments);
+      }
+      return checkLastPage;
+    }()
   }, {
     key: "fontFallback",
     value: function fontFallback(id, handler) {
@@ -13573,19 +13966,19 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
   }, {
     key: "cleanup",
     value: function () {
-      var _cleanup = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+      var _cleanup = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
         var manuallyTriggered,
-          _args6 = arguments;
-        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
-          while (1) switch (_context6.prev = _context6.next) {
+          _args8 = arguments;
+        return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+          while (1) switch (_context8.prev = _context8.next) {
             case 0:
-              manuallyTriggered = _args6.length > 0 && _args6[0] !== undefined ? _args6[0] : false;
-              return _context6.abrupt("return", this.catalog ? this.catalog.cleanup(manuallyTriggered) : (0, _primitives.clearPrimitiveCaches)());
+              manuallyTriggered = _args8.length > 0 && _args8[0] !== undefined ? _args8[0] : false;
+              return _context8.abrupt("return", this.catalog ? this.catalog.cleanup(manuallyTriggered) : (0, _primitives.clearPrimitiveCaches)());
             case 2:
             case "end":
-              return _context6.stop();
+              return _context8.stop();
           }
-        }, _callee6, this);
+        }, _callee8, this);
       }));
       function cleanup() {
         return _cleanup.apply(this, arguments);
@@ -13615,17 +14008,17 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
       }));
       if (field.has("Kids")) {
         var kids = field.get("Kids");
-        var _iterator11 = _createForOfIteratorHelper(kids),
-          _step11;
+        var _iterator12 = _createForOfIteratorHelper(kids),
+          _step12;
         try {
-          for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-            var kid = _step11.value;
+          for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+            var kid = _step12.value;
             this._collectFieldObjects(name, kid, promises);
           }
         } catch (err) {
-          _iterator11.e(err);
+          _iterator12.e(err);
         } finally {
-          _iterator11.f();
+          _iterator12.f();
         }
       }
     }
@@ -13637,26 +14030,26 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
       }
       var allFields = Object.create(null);
       var fieldPromises = new Map();
-      var _iterator12 = _createForOfIteratorHelper(this.catalog.acroForm.get("Fields")),
-        _step12;
+      var _iterator13 = _createForOfIteratorHelper(this.catalog.acroForm.get("Fields")),
+        _step13;
       try {
-        for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
-          var fieldRef = _step12.value;
+        for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+          var fieldRef = _step13.value;
           this._collectFieldObjects("", fieldRef, fieldPromises);
         }
       } catch (err) {
-        _iterator12.e(err);
+        _iterator13.e(err);
       } finally {
-        _iterator12.f();
+        _iterator13.f();
       }
       var allPromises = [];
-      var _iterator13 = _createForOfIteratorHelper(fieldPromises),
-        _step13;
+      var _iterator14 = _createForOfIteratorHelper(fieldPromises),
+        _step14;
       try {
         var _loop = function _loop() {
-          var _step13$value = _slicedToArray(_step13.value, 2),
-            name = _step13$value[0],
-            promises = _step13$value[1];
+          var _step14$value = _slicedToArray(_step14.value, 2),
+            name = _step14$value[0],
+            promises = _step14$value[1];
           allPromises.push(Promise.all(promises).then(function (fields) {
             fields = fields.filter(function (field) {
               return !!field;
@@ -13666,13 +14059,13 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
             }
           }));
         };
-        for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+        for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
           _loop();
         }
       } catch (err) {
-        _iterator13.e(err);
+        _iterator14.e(err);
       } finally {
-        _iterator13.f();
+        _iterator14.f();
       }
       return (0, _util.shadow)(this, "fieldObjects", Promise.all(allPromises).then(function () {
         return allFields;
@@ -13687,40 +14080,40 @@ var PDFDocument = exports.PDFDocument = /*#__PURE__*/function () {
   }, {
     key: "_parseHasJSActions",
     value: function () {
-      var _parseHasJSActions2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+      var _parseHasJSActions2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
         var _yield$Promise$all, _yield$Promise$all2, catalogJsActions, fieldObjects;
-        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
-          while (1) switch (_context7.prev = _context7.next) {
+        return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+          while (1) switch (_context9.prev = _context9.next) {
             case 0:
-              _context7.next = 2;
+              _context9.next = 2;
               return Promise.all([this.pdfManager.ensureCatalog("jsActions"), this.pdfManager.ensureDoc("fieldObjects")]);
             case 2:
-              _yield$Promise$all = _context7.sent;
+              _yield$Promise$all = _context9.sent;
               _yield$Promise$all2 = _slicedToArray(_yield$Promise$all, 2);
               catalogJsActions = _yield$Promise$all2[0];
               fieldObjects = _yield$Promise$all2[1];
               if (!catalogJsActions) {
-                _context7.next = 8;
+                _context9.next = 8;
                 break;
               }
-              return _context7.abrupt("return", true);
+              return _context9.abrupt("return", true);
             case 8:
               if (!fieldObjects) {
-                _context7.next = 10;
+                _context9.next = 10;
                 break;
               }
-              return _context7.abrupt("return", Object.values(fieldObjects).some(function (fieldObject) {
+              return _context9.abrupt("return", Object.values(fieldObjects).some(function (fieldObject) {
                 return fieldObject.some(function (object) {
                   return object.actions !== null;
                 });
               }));
             case 10:
-              return _context7.abrupt("return", false);
+              return _context9.abrupt("return", false);
             case 11:
             case "end":
-              return _context7.stop();
+              return _context9.stop();
           }
-        }, _callee7, this);
+        }, _callee9, this);
       }));
       function _parseHasJSActions() {
         return _parseHasJSActions2.apply(this, arguments);
@@ -26774,6 +27167,7 @@ var _object_loader = __w_pdfjs_require__(221);
 var _operator_list = __w_pdfjs_require__(213);
 var _stream = __w_pdfjs_require__(161);
 var _writer = __w_pdfjs_require__(222);
+var _factory = __w_pdfjs_require__(225);
 function _superPropGet(t, e, r, o) { var p = _get(_getPrototypeOf(1 & o ? t.prototype : t), e, r); return 2 & o ? function (t) { return p.apply(r, t); } : p; }
 function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
 function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));); return t; }
@@ -27066,7 +27460,8 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
       id: params.id,
       modificationDate: this.modificationDate,
       rect: this.rectangle,
-      subtype: params.subtype
+      subtype: params.subtype,
+      hasOwnCanvas: false
     };
     if (params.collectFields) {
       var kids = dict.get("Kids");
@@ -27232,7 +27627,7 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
           this.borderStyle.setVerticalCornerRadius(array[1]);
           this.borderStyle.setWidth(array[2], this.rectangle);
           if (array.length === 4) {
-            this.borderStyle.setDashArray(array[3]);
+            this.borderStyle.setDashArray(array[3], true);
           }
         }
       } else {
@@ -27263,8 +27658,8 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
     }
   }, {
     key: "loadResources",
-    value: function loadResources(keys) {
-      return this.appearance.dict.getAsync("Resources").then(function (resources) {
+    value: function loadResources(keys, appearance) {
+      return appearance.dict.getAsync("Resources").then(function (resources) {
         if (!resources) {
           return undefined;
         }
@@ -27276,21 +27671,26 @@ var Annotation = exports.Annotation = /*#__PURE__*/function () {
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, annotationStorage) {
+    value: function getOperatorList(evaluator, task, intent, renderForms, annotationStorage) {
       var _this2 = this;
-      if (!this.appearance) {
-        return Promise.resolve(new _operator_list.OperatorList());
-      }
-      var appearance = this.appearance;
       var data = this.data;
+      var appearance = this.appearance;
+      var isUsingOwnCanvas = data.hasOwnCanvas && intent & _util.RenderingIntentFlag.DISPLAY;
+      if (!appearance) {
+        if (!isUsingOwnCanvas) {
+          return Promise.resolve(new _operator_list.OperatorList());
+        }
+        appearance = new _stream.StringStream("");
+        appearance.dict = new _primitives.Dict();
+      }
       var appearanceDict = appearance.dict;
-      var resourcesPromise = this.loadResources(["ExtGState", "ColorSpace", "Pattern", "Shading", "XObject", "Font"]);
+      var resourcesPromise = this.loadResources(["ExtGState", "ColorSpace", "Pattern", "Shading", "XObject", "Font"], appearance);
       var bbox = appearanceDict.getArray("BBox") || [0, 0, 1, 1];
       var matrix = appearanceDict.getArray("Matrix") || [1, 0, 0, 1, 0, 0];
       var transform = getTransformMatrix(data.rect, bbox, matrix);
       return resourcesPromise.then(function (resources) {
         var opList = new _operator_list.OperatorList();
-        opList.addOp(_util.OPS.beginAnnotation, [data.id, data.rect, transform, matrix]);
+        opList.addOp(_util.OPS.beginAnnotation, [data.id, data.rect, transform, matrix, isUsingOwnCanvas]);
         return evaluator.getOperatorList({
           stream: appearance,
           task: task,
@@ -27449,6 +27849,7 @@ var AnnotationBorderStyle = exports.AnnotationBorderStyle = /*#__PURE__*/functio
   }, {
     key: "setDashArray",
     value: function setDashArray(dashArray) {
+      var forceStyle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       if (Array.isArray(dashArray) && dashArray.length > 0) {
         var isValid = true;
         var allZeros = true;
@@ -27472,6 +27873,9 @@ var AnnotationBorderStyle = exports.AnnotationBorderStyle = /*#__PURE__*/functio
         }
         if (isValid && !allZeros) {
           this.dashArray = dashArray;
+          if (forceStyle) {
+            this.setStyle(_primitives.Name.get("D"));
+          }
         } else {
           this.width = 0;
         }
@@ -27540,6 +27944,9 @@ var MarkupAnnotation = exports.MarkupAnnotation = /*#__PURE__*/function (_Annota
       if (!dict.has("C")) {
         _this3.data.color = null;
       }
+    }
+    if (dict.has("RC")) {
+      _this3.data.richText = _factory.XFAFactory.getRichTextAsHtml(dict.get("RC"));
     }
     return _this3;
   }
@@ -27747,17 +28154,17 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     }
   }, {
     key: "getOperatorList",
-    value: function getOperatorList(evaluator, task, renderForms, annotationStorage) {
+    value: function getOperatorList(evaluator, task, intent, renderForms, annotationStorage) {
       var _this5 = this;
       if (renderForms && !(this instanceof SignatureWidgetAnnotation)) {
         return Promise.resolve(new _operator_list.OperatorList());
       }
       if (!this._hasText) {
-        return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]);
+        return _superPropGet(WidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, intent, renderForms, annotationStorage]);
       }
       return this._getAppearance(evaluator, task, annotationStorage).then(function (content) {
         if (_this5.appearance && content === null) {
-          return _superPropGet(WidgetAnnotation, "getOperatorList", _this5, 3)([evaluator, task, renderForms, annotationStorage]);
+          return _superPropGet(WidgetAnnotation, "getOperatorList", _this5, 3)([evaluator, task, intent, renderForms, annotationStorage]);
         }
         var operatorList = new _operator_list.OperatorList();
         if (!_this5._defaultAppearance || content === null) {
@@ -28273,6 +28680,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
     } else if (_this7.data.radioButton) {
       _this7._processRadioButton(params);
     } else if (_this7.data.pushButton) {
+      _this7.data.hasOwnCanvas = true;
       _this7._processPushButton(params);
     } else {
       (0, _util.warn)("Invalid field flags for button widget annotation");
@@ -28283,7 +28691,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   return _createClass(ButtonWidgetAnnotation, [{
     key: "getOperatorList",
     value: function () {
-      var _getOperatorList = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evaluator, task, renderForms, annotationStorage) {
+      var _getOperatorList = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(evaluator, task, intent, renderForms, annotationStorage) {
         var value, storageEntry, appearance, savedAppearance, operatorList;
         return _regeneratorRuntime().wrap(function _callee6$(_context6) {
           while (1) switch (_context6.prev = _context6.next) {
@@ -28292,7 +28700,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
                 _context6.next = 2;
                 break;
               }
-              return _context6.abrupt("return", _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, false, annotationStorage]));
+              return _context6.abrupt("return", _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, intent, false, annotationStorage]));
             case 2:
               value = null;
               if (annotationStorage) {
@@ -28307,7 +28715,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
                 _context6.next = 7;
                 break;
               }
-              return _context6.abrupt("return", _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]));
+              return _context6.abrupt("return", _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, intent, renderForms, annotationStorage]));
             case 7:
               if (this.data.checkBox) {
                 value = this.data.fieldValue === this.data.exportValue;
@@ -28322,7 +28730,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
               }
               savedAppearance = this.appearance;
               this.appearance = appearance;
-              operatorList = _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, renderForms, annotationStorage]);
+              operatorList = _superPropGet(ButtonWidgetAnnotation, "getOperatorList", this, 3)([evaluator, task, intent, renderForms, annotationStorage]);
               this.appearance = savedAppearance;
               return _context6.abrupt("return", operatorList);
             case 15:
@@ -28333,7 +28741,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee6, this);
       }));
-      function getOperatorList(_x15, _x16, _x17, _x18) {
+      function getOperatorList(_x15, _x16, _x17, _x18, _x19) {
         return _getOperatorList.apply(this, arguments);
       }
       return getOperatorList;
@@ -28364,7 +28772,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee7, this);
       }));
-      function save(_x19, _x20, _x21) {
+      function save(_x20, _x21, _x22) {
         return _save3.apply(this, arguments);
       }
       return save;
@@ -28432,7 +28840,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee8, this);
       }));
-      function _saveCheckbox(_x22, _x23, _x24) {
+      function _saveCheckbox(_x23, _x24, _x25) {
         return _saveCheckbox2.apply(this, arguments);
       }
       return _saveCheckbox;
@@ -28523,7 +28931,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
           }
         }, _callee9, this);
       }));
-      function _saveRadioButton(_x25, _x26, _x27) {
+      function _saveRadioButton(_x26, _x27, _x28) {
         return _saveRadioButton2.apply(this, arguments);
       }
       return _saveRadioButton;
@@ -28902,6 +29310,9 @@ var PopupAnnotation = /*#__PURE__*/function (_Annotation4) {
     _this12.data.titleObj = _this12._title;
     _this12.setContents(parentItem.get("Contents"));
     _this12.data.contentsObj = _this12._contents;
+    if (parentItem.has("RC")) {
+      _this12.data.richText = _factory.XFAFactory.getRichTextAsHtml(parentItem.get("RC"));
+    }
     return _this12;
   }
   _inherits(PopupAnnotation, _Annotation4);
@@ -28984,6 +29395,9 @@ var SquareAnnotation = /*#__PURE__*/function (_MarkupAnnotation4) {
         }) : null;
       }
       var fillAlpha = fillColor ? strokeAlpha : null;
+      if (_this15.borderStyle.width === 0 && !fillColor) {
+        return _possibleConstructorReturn(_this15);
+      }
       _this15._setDefaultAppearance({
         xref: parameters.xref,
         extra: "".concat(_this15.borderStyle.width, " w"),
@@ -29031,6 +29445,9 @@ var CircleAnnotation = /*#__PURE__*/function (_MarkupAnnotation5) {
         }) : null;
       }
       var fillAlpha = fillColor ? strokeAlpha : null;
+      if (_this16.borderStyle.width === 0 && !fillColor) {
+        return _possibleConstructorReturn(_this16);
+      }
       var controlPointsDistance = 4 / 3 * Math.tan(Math.PI / (2 * 4));
       _this16._setDefaultAppearance({
         xref: parameters.xref,
@@ -29773,14 +30190,14 @@ var ColorSpace = exports.ColorSpace = /*#__PURE__*/function () {
       cs = xref.fetchIfRef(cs);
       if ((0, _primitives.isName)(cs)) {
         switch (cs.name) {
-          case "DeviceGray":
           case "G":
+          case "DeviceGray":
             return this.singletons.gray;
-          case "DeviceRGB":
           case "RGB":
+          case "DeviceRGB":
             return this.singletons.rgb;
-          case "DeviceCMYK":
           case "CMYK":
+          case "DeviceCMYK":
             return this.singletons.cmyk;
           case "Pattern":
             return new PatternCS(null);
@@ -29805,14 +30222,14 @@ var ColorSpace = exports.ColorSpace = /*#__PURE__*/function () {
         var mode = xref.fetchIfRef(cs[0]).name;
         var params, numComps, baseCS, whitePoint, blackPoint, gamma;
         switch (mode) {
-          case "DeviceGray":
           case "G":
+          case "DeviceGray":
             return this.singletons.gray;
-          case "DeviceRGB":
           case "RGB":
+          case "DeviceRGB":
             return this.singletons.rgb;
-          case "DeviceCMYK":
           case "CMYK":
+          case "DeviceCMYK":
             return this.singletons.cmyk;
           case "CalGray":
             params = xref.fetchIfRef(cs[1]);
@@ -29853,8 +30270,8 @@ var ColorSpace = exports.ColorSpace = /*#__PURE__*/function () {
               baseCS = this._parse(baseCS, xref, resources, pdfFunctionFactory);
             }
             return new PatternCS(baseCS);
-          case "Indexed":
           case "I":
+          case "Indexed":
             baseCS = this._parse(cs[1], xref, resources, pdfFunctionFactory);
             var hiVal = xref.fetchIfRef(cs[2]) + 1;
             var lookup = xref.fetchIfRef(cs[3]);
@@ -30171,7 +30588,7 @@ var CalGrayCS = function CalGrayCSClosure() {
     var A = src[srcOffset] * scale;
     var AG = Math.pow(A, cs.G);
     var L = cs.YW * AG;
-    var val = Math.max(295.8 * Math.pow(L, 0.333333333333333333) - 40.8, 0);
+    var val = Math.max(295.8 * Math.pow(L, 0.3333333333333333) - 40.8, 0);
     dest[destOffset] = val;
     dest[destOffset + 1] = val;
     dest[destOffset + 2] = val;
@@ -30571,6 +30988,7 @@ var _function = __w_pdfjs_require__(207);
 var _parser = __w_pdfjs_require__(178);
 var _image_utils = __w_pdfjs_require__(209);
 var _stream = __w_pdfjs_require__(161);
+var _base_stream = __w_pdfjs_require__(157);
 var _bidi = __w_pdfjs_require__(210);
 var _colorspace = __w_pdfjs_require__(175);
 var _decode_stream = __w_pdfjs_require__(180);
@@ -31018,7 +31436,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
     key: "buildFormXObject",
     value: function () {
       var _buildFormXObject = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(resources, xobj, smask, operatorList, task, initialState, localColorSpaceCache) {
-        var dict, matrix, bbox, optionalContent, groupOptions, group, groupSubtype, colorSpace, cs, cachedColorSpace;
+        var dict, matrix, bbox, optionalContent, groupOptions, group, groupSubtype, colorSpace, cs, cachedColorSpace, args;
         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
           while (1) switch (_context3.prev = _context3.next) {
             case 0:
@@ -31091,7 +31509,8 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               }
               operatorList.addOp(_util.OPS.beginGroup, [groupOptions]);
             case 29:
-              operatorList.addOp(_util.OPS.paintFormXObjectBegin, [matrix, bbox]);
+              args = group ? [matrix, null] : [matrix, bbox];
+              operatorList.addOp(_util.OPS.paintFormXObjectBegin, args);
               return _context3.abrupt("return", this.getOperatorList({
                 stream: xobj,
                 task: task,
@@ -31107,7 +31526,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                   operatorList.addOp(_util.OPS.endMarkedContent, []);
                 }
               }));
-            case 31:
+            case 32:
             case "end":
               return _context3.stop();
           }
@@ -31133,15 +31552,15 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
     value: function () {
       var _buildPaintImageXObject = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(_ref2) {
         var _this = this;
-        var resources, image, _ref2$isInline, isInline, operatorList, cacheKey, localImageCache, localColorSpaceCache, dict, imageRef, w, h, maxImageSize, optionalContent, imageMask, interpolate, imgData, args, width, height, bitStrideLength, imgArray, decode, softMask, mask, SMALL_IMAGE_DIMENSIONS, imageObj, objId, cacheGlobally;
+        var resources, image, _ref2$isInline, isInline, operatorList, cacheKey, localImageCache, localColorSpaceCache, dict, imageRef, w, h, maxImageSize, optionalContent, imageMask, interpolate, imgData, args, bitStrideLength, imgArray, decode, softMask, mask, SMALL_IMAGE_DIMENSIONS, imageObj, objId, cacheGlobally;
         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
           while (1) switch (_context4.prev = _context4.next) {
             case 0:
               resources = _ref2.resources, image = _ref2.image, _ref2$isInline = _ref2.isInline, isInline = _ref2$isInline === void 0 ? false : _ref2$isInline, operatorList = _ref2.operatorList, cacheKey = _ref2.cacheKey, localImageCache = _ref2.localImageCache, localColorSpaceCache = _ref2.localColorSpaceCache;
               dict = image.dict;
               imageRef = dict.objId;
-              w = dict.get("Width", "W");
-              h = dict.get("Height", "H");
+              w = dict.get("W", "Width");
+              h = dict.get("H", "Height");
               if (!(!(w && (0, _util.isNum)(w)) || !(h && (0, _util.isNum)(h)))) {
                 _context4.next = 8;
                 break;
@@ -31169,21 +31588,19 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               if (optionalContent !== undefined) {
                 operatorList.addOp(_util.OPS.beginMarkedContentProps, ["OC", optionalContent]);
               }
-              imageMask = dict.get("ImageMask", "IM") || false;
-              interpolate = dict.get("Interpolate", "I");
+              imageMask = dict.get("IM", "ImageMask") || false;
+              interpolate = dict.get("I", "Interpolate");
               if (!imageMask) {
-                _context4.next = 32;
+                _context4.next = 30;
                 break;
               }
-              width = dict.get("Width", "W");
-              height = dict.get("Height", "H");
-              bitStrideLength = width + 7 >> 3;
-              imgArray = image.getBytes(bitStrideLength * height, true);
-              decode = dict.getArray("Decode", "D");
+              bitStrideLength = w + 7 >> 3;
+              imgArray = image.getBytes(bitStrideLength * h, true);
+              decode = dict.getArray("D", "Decode");
               imgData = _image.PDFImage.createMask({
                 imgArray: imgArray,
-                width: width,
-                height: height,
+                width: w,
+                height: h,
                 imageIsFromDecodeStream: image instanceof _decode_stream.DecodeStream,
                 inverseDecode: !!decode && decode[0] > 0,
                 interpolate: interpolate
@@ -31201,12 +31618,12 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                 operatorList.addOp(_util.OPS.endMarkedContent, []);
               }
               return _context4.abrupt("return");
-            case 32:
-              softMask = dict.get("SMask", "SM") || false;
+            case 30:
+              softMask = dict.get("SM", "SMask") || false;
               mask = dict.get("Mask") || false;
               SMALL_IMAGE_DIMENSIONS = 200;
               if (!(isInline && !softMask && !mask && w + h < SMALL_IMAGE_DIMENSIONS)) {
-                _context4.next = 41;
+                _context4.next = 39;
                 break;
               }
               imageObj = new _image.PDFImage({
@@ -31223,7 +31640,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                 operatorList.addOp(_util.OPS.endMarkedContent, []);
               }
               return _context4.abrupt("return");
-            case 41:
+            case 39:
               objId = "img_".concat(this.idFactory.createObjId()), cacheGlobally = false;
               if (this.parsingType3Font) {
                 objId = "".concat(this.idFactory.getDocId(), "_type3_").concat(objId);
@@ -31274,7 +31691,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               if (optionalContent !== undefined) {
                 operatorList.addOp(_util.OPS.endMarkedContent, []);
               }
-            case 49:
+            case 47:
             case "end":
               return _context4.stop();
           }
@@ -31681,8 +32098,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
       font.loadedName = "".concat(this.idFactory.getDocId(), "_").concat(fontID);
       this.translateFont(preEvaluatedFont).then(function (translatedFont) {
         if (translatedFont.fontType !== undefined) {
-          var xrefFontStats = xref.stats.fontTypes;
-          xrefFontStats[translatedFont.fontType] = true;
+          xref.stats.addFontType(translatedFont.fontType);
         }
         fontCapability.resolve(new TranslatedFont({
           loadedName: font.loadedName,
@@ -31699,8 +32115,9 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
           var fontFile3 = descriptor && descriptor.get("FontFile3");
           var subtype = fontFile3 && fontFile3.get("Subtype");
           var fontType = (0, _fonts_utils.getFontType)(preEvaluatedFont.type, subtype && subtype.name);
-          var xrefFontStats = xref.stats.fontTypes;
-          xrefFontStats[fontType] = true;
+          if (fontType !== undefined) {
+            xref.stats.addFontType(fontType);
+          }
         } catch (ex) {}
         fontCapability.resolve(new TranslatedFont({
           loadedName: font.loadedName,
@@ -32432,6 +32849,8 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
       resources = resources || _primitives.Dict.empty;
       stateManager = stateManager || new StateManager(new TextState());
       var WhitespaceRegexp = /\s/g;
+      var DiacriticRegExp = new RegExp("^\\p{Mn}$", "u");
+      var NormalizedUnicodes = (0, _unicode.getNormalizedUnicodes)();
       var textContent = {
         items: [],
         styles: Object.create(null)
@@ -32444,21 +32863,20 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
         width: 0,
         height: 0,
         vertical: false,
-        lastCharSize: 0,
         prevTransform: null,
         textAdvanceScale: 0,
-        spaceWidth: 0,
         spaceInFlowMin: 0,
         spaceInFlowMax: 0,
         trackingSpaceMin: Infinity,
+        negativeSpaceMax: -Infinity,
         transform: null,
         fontName: null,
-        hasEOL: false,
-        isLastCharWhiteSpace: false
+        hasEOL: false
       };
-      var TRACKING_SPACE_FACTOR = 0.3;
-      var SPACE_IN_FLOW_MIN_FACTOR = 0.3;
-      var SPACE_IN_FLOW_MAX_FACTOR = 1.3;
+      var TRACKING_SPACE_FACTOR = 0.1;
+      var NEGATIVE_SPACE_FACTOR = -0.2;
+      var SPACE_IN_FLOW_MIN_FACTOR = 0.1;
+      var SPACE_IN_FLOW_MAX_FACTOR = 0.6;
       var self = this;
       var xref = this.xref;
       var showSpacedTextBuffer = [];
@@ -32507,17 +32925,10 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
         var scaleLineX = Math.hypot(textState.textLineMatrix[0], textState.textLineMatrix[1]);
         var scaleCtmX = Math.hypot(textState.ctm[0], textState.ctm[1]);
         textContentItem.textAdvanceScale = scaleCtmX * scaleLineX;
-        textContentItem.lastCharSize = textContentItem.lastCharSize || 0;
-        var spaceWidth = font.spaceWidth / 1000 * textState.fontSize;
-        if (spaceWidth) {
-          textContentItem.spaceWidth = spaceWidth;
-          textContentItem.trackingSpaceMin = spaceWidth * TRACKING_SPACE_FACTOR;
-          textContentItem.spaceInFlowMin = spaceWidth * SPACE_IN_FLOW_MIN_FACTOR;
-          textContentItem.spaceInFlowMax = spaceWidth * SPACE_IN_FLOW_MAX_FACTOR;
-        } else {
-          textContentItem.spaceWidth = 0;
-          textContentItem.trackingSpaceMin = Infinity;
-        }
+        textContentItem.trackingSpaceMin = textState.fontSize * TRACKING_SPACE_FACTOR;
+        textContentItem.negativeSpaceMax = textState.fontSize * NEGATIVE_SPACE_FACTOR;
+        textContentItem.spaceInFlowMin = textState.fontSize * SPACE_IN_FLOW_MIN_FACTOR;
+        textContentItem.spaceInFlowMax = textState.fontSize * SPACE_IN_FLOW_MAX_FACTOR;
         textContentItem.hasEOL = false;
         textContentItem.initialized = true;
         return textContentItem;
@@ -32577,7 +32988,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
           textState.fontMatrix = translated.font.fontMatrix || _util.FONT_IDENTITY_MATRIX;
         });
       }
-      function compareWithLastPosition(fontSize) {
+      function compareWithLastPosition() {
         if (!combineTextItems || !textState.font || !textContentItem.prevTransform) {
           return;
         }
@@ -32589,47 +33000,90 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
         if (lastPosX === posX && lastPosY === posY) {
           return;
         }
-        var advanceX = (posX - lastPosX) / textContentItem.textAdvanceScale;
-        var advanceY = (posY - lastPosY) / textContentItem.textAdvanceScale;
-        var HALF_LAST_CHAR = -0.5 * textContentItem.lastCharSize;
+        var rotate = 0;
+        if (currentTransform[0] && currentTransform[1] === 0 && currentTransform[2] === 0) {
+          rotate = currentTransform[0] > 0 ? 0 : 180;
+        } else if (currentTransform[1] && currentTransform[0] === 0 && currentTransform[3] === 0) {
+          rotate += currentTransform[1] > 0 ? 90 : 270;
+        }
+        if (rotate !== 0) {
+          switch (rotate) {
+            case 90:
+              var _ref9 = [posY, posX];
+              posX = _ref9[0];
+              posY = _ref9[1];
+              var _ref10 = [lastPosY, lastPosX];
+              lastPosX = _ref10[0];
+              lastPosY = _ref10[1];
+              break;
+            case 180:
+              var _ref11 = [-posX, -posY, -lastPosX, -lastPosY];
+              posX = _ref11[0];
+              posY = _ref11[1];
+              lastPosX = _ref11[2];
+              lastPosY = _ref11[3];
+              break;
+            case 270:
+              var _ref12 = [-posY, -posX];
+              posX = _ref12[0];
+              posY = _ref12[1];
+              var _ref13 = [-lastPosY, -lastPosX];
+              lastPosX = _ref13[0];
+              lastPosY = _ref13[1];
+              break;
+          }
+        }
         if (textState.font.vertical) {
-          if (Math.abs(advanceX) > textContentItem.width / textContentItem.textAdvanceScale) {
+          var _advanceY = (lastPosY - posY) / textContentItem.textAdvanceScale;
+          var _advanceX = posX - lastPosX;
+          if (_advanceY < textContentItem.negativeSpaceMax) {
+            if (Math.abs(_advanceX) > 0.5 * textContentItem.width) {
+              appendEOL();
+              return;
+            }
+            flushTextContentItem();
+            return;
+          }
+          if (Math.abs(_advanceX) > textContentItem.height) {
             appendEOL();
             return;
           }
-          if (HALF_LAST_CHAR > advanceY) {
-            return;
-          }
-          if (advanceY > textContentItem.trackingSpaceMin) {
-            textContentItem.height += advanceY;
-          } else if (!addFakeSpaces(advanceY, 0, textContentItem.prevTransform)) {
+          if (_advanceY <= textContentItem.trackingSpaceMin) {
+            textContentItem.height += _advanceY;
+          } else if (!addFakeSpaces(_advanceY, textContentItem.prevTransform)) {
             if (textContentItem.str.length === 0) {
               textContent.items.push({
                 str: " ",
                 dir: "ltr",
                 width: 0,
-                height: advanceY,
+                height: _advanceY,
                 transform: textContentItem.prevTransform,
                 fontName: textContentItem.fontName,
                 hasEOL: false
               });
-              textContentItem.isLastCharWhiteSpace = true;
             } else {
-              textContentItem.height += advanceY;
+              textContentItem.height += _advanceY;
             }
           }
           return;
         }
-        if (Math.abs(advanceY) > textContentItem.height / textContentItem.textAdvanceScale) {
-          appendEOL();
+        var advanceX = (posX - lastPosX) / textContentItem.textAdvanceScale;
+        var advanceY = posY - lastPosY;
+        if (advanceX < textContentItem.negativeSpaceMax) {
+          if (Math.abs(advanceY) > 0.5 * textContentItem.height) {
+            appendEOL();
+            return;
+          }
+          flushTextContentItem();
           return;
         }
-        if (HALF_LAST_CHAR > advanceX) {
+        if (Math.abs(advanceY) > textContentItem.height) {
+          appendEOL();
           return;
         }
         if (advanceX <= textContentItem.trackingSpaceMin) {
           textContentItem.width += advanceX;
-        } else if (!addFakeSpaces(advanceX, 0, textContentItem.prevTransform)) {
+        } else if (!addFakeSpaces(advanceX, textContentItem.prevTransform)) {
           if (textContentItem.str.length === 0) {
             textContent.items.push({
               str: " ",
@@ -32640,16 +33094,14 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               fontName: textContentItem.fontName,
               hasEOL: false
             });
-            textContentItem.isLastCharWhiteSpace = true;
           } else {
             textContentItem.width += advanceX;
           }
         }
       }
-      function buildTextContentItem(_ref9) {
-        var chars = _ref9.chars,
-          extraSpacing = _ref9.extraSpacing,
-          isFirstChunk = _ref9.isFirstChunk;
+      function buildTextContentItem(_ref14) {
+        var chars = _ref14.chars,
+          extraSpacing = _ref14.extraSpacing;
         var font = textState.font;
         if (!chars) {
           var charSpacing = textState.charSpacing + extraSpacing;
@@ -32657,70 +33109,60 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
             if (!font.vertical) {
               textState.translateTextMatrix(charSpacing * textState.textHScale, 0);
             } else {
-              textState.translateTextMatrix(0, charSpacing);
+              textState.translateTextMatrix(0, -charSpacing);
             }
           }
           return;
         }
-        var NormalizedUnicodes = (0, _unicode.getNormalizedUnicodes)();
         var glyphs = font.charsToGlyphs(chars);
         var scale = textState.fontMatrix[0] * textState.fontSize;
-        if (isFirstChunk) {
-          compareWithLastPosition(scale);
-        }
-        var textChunk = ensureTextContentItem();
-        var size = 0;
-        var lastCharSize = 0;
         for (var i = 0, ii = glyphs.length; i < ii; i++) {
           var glyph = glyphs[i];
-          var _charSpacing = textState.charSpacing + (i === ii - 1 ? extraSpacing : 0);
-          var glyphUnicode = glyph.unicode;
-          if (glyph.isSpace) {
-            _charSpacing += textState.wordSpacing;
-            textChunk.isLastCharWhiteSpace = true;
-          } else {
-            glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
-            glyphUnicode = (0, _unicode.reverseIfRtl)(glyphUnicode);
-            textChunk.isLastCharWhiteSpace = false;
+          var _charSpacing = textState.charSpacing + (i + 1 === ii ? extraSpacing : 0);
+          var glyphWidth = glyph.width;
+          if (font.vertical) {
+            glyphWidth = glyph.vmetric ? glyph.vmetric[0] : -glyphWidth;
           }
-          textChunk.str.push(glyphUnicode);
-          var glyphWidth = font.vertical && glyph.vmetric ? glyph.vmetric[0] : glyph.width;
           var scaledDim = glyphWidth * scale;
+          var glyphUnicode = glyph.unicode;
+          if (glyphUnicode === " " && (i === 0 || i + 1 === ii || glyphs[i - 1].unicode === " " || glyphs[i + 1].unicode === " " || extraSpacing)) {
+            if (!font.vertical) {
+              _charSpacing += scaledDim + textState.wordSpacing;
+              textState.translateTextMatrix(_charSpacing * textState.textHScale, 0);
+            } else {
+              _charSpacing += -scaledDim + textState.wordSpacing;
+              textState.translateTextMatrix(0, -_charSpacing);
+            }
+            continue;
+          }
+          compareWithLastPosition();
+          var textChunk = ensureTextContentItem();
+          if (DiacriticRegExp.test(glyph.unicode)) {
+            scaledDim = 0;
+          }
           if (!font.vertical) {
             scaledDim *= textState.textHScale;
             textState.translateTextMatrix(scaledDim, 0);
+            textChunk.width += scaledDim;
           } else {
             textState.translateTextMatrix(0, scaledDim);
             scaledDim = Math.abs(scaledDim);
+            textChunk.height += scaledDim;
           }
-          size += scaledDim;
+          if (scaledDim) {
+            textChunk.prevTransform = getCurrentTextTransform();
+          }
+          glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
+          glyphUnicode = (0, _unicode.reverseIfRtl)(glyphUnicode);
+          textChunk.str.push(glyphUnicode);
           if (_charSpacing) {
             if (!font.vertical) {
-              _charSpacing *= textState.textHScale;
-            }
-            scaledDim += _charSpacing;
-            var wasSplit = _charSpacing > textContentItem.trackingSpaceMin && addFakeSpaces(_charSpacing, size);
-            if (!font.vertical) {
-              textState.translateTextMatrix(_charSpacing, 0);
+              textState.translateTextMatrix(_charSpacing * textState.textHScale, 0);
             } else {
-              textState.translateTextMatrix(0, _charSpacing);
-            }
-            if (wasSplit) {
-              textChunk = ensureTextContentItem();
-              size = 0;
-            } else {
-              size += _charSpacing;
+              textState.translateTextMatrix(0, -_charSpacing);
             }
           }
-          lastCharSize = scaledDim;
         }
-        textChunk.lastCharSize = lastCharSize;
-        if (!font.vertical) {
-          textChunk.width += size;
-        } else {
-          textChunk.height += size;
-        }
-        textChunk.prevTransform = getCurrentTextTransform();
       }
       function appendEOL() {
         if (textContentItem.initialized) {
@@ -32737,39 +33179,27 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
             hasEOL: true
           });
         }
-        textContentItem.isLastCharWhiteSpace = false;
-        textContentItem.lastCharSize = 0;
       }
-      function addFakeSpaces(width, size) {
-        var transf = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      function addFakeSpaces(width, transf) {
         if (textContentItem.spaceInFlowMin <= width && width <= textContentItem.spaceInFlowMax) {
           if (textContentItem.initialized) {
             textContentItem.str.push(" ");
-            textContentItem.isLastCharWhiteSpace = true;
           }
           return false;
         }
         var fontName = textContentItem.fontName;
         var height = 0;
-        width *= textContentItem.textAdvanceScale;
-        if (!textContentItem.vertical) {
-          textContentItem.width += size;
-        } else {
-          textContentItem.height += size;
+        if (textContentItem.vertical) {
           height = width;
           width = 0;
         }
         flushTextContentItem();
-        if (textContentItem.isLastCharWhiteSpace) {
-          return true;
-        }
-        textContentItem.isLastCharWhiteSpace = true;
         textContent.items.push({
           str: " ",
           dir: "ltr",
           width: width,
           height: height,
-          transform: transf ? transf : getCurrentTextTransform(),
+          transform: transf || getCurrentTextTransform(),
           fontName: fontName,
           hasEOL: false
         });
@@ -32840,15 +33270,12 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               next(handleSetFont(fontNameArg, null));
               return;
             case _util.OPS.setTextRise:
-              flushTextContentItem();
               textState.textRise = args[0];
               break;
             case _util.OPS.setHScale:
-              flushTextContentItem();
               textState.textHScale = args[0] / 100;
               break;
             case _util.OPS.setLeading:
-              flushTextContentItem();
               textState.leading = args[0];
               break;
             case _util.OPS.moveText:
@@ -32856,13 +33283,11 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               textState.textMatrix = textState.textLineMatrix.slice();
               break;
             case _util.OPS.setLeadingMoveText:
-              flushTextContentItem();
               textState.leading = -args[1];
               textState.translateTextLineMatrix(args[0], args[1]);
               textState.textMatrix = textState.textLineMatrix.slice();
               break;
             case _util.OPS.nextLine:
-              appendEOL();
               textState.carriageReturn();
               break;
             case _util.OPS.setTextMatrix:
@@ -32877,7 +33302,6 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               textState.wordSpacing = args[0];
               break;
             case _util.OPS.beginText:
-              flushTextContentItem();
               textState.textMatrix = _util.IDENTITY_MATRIX.slice();
               textState.textLineMatrix = _util.IDENTITY_MATRIX.slice();
               break;
@@ -32888,7 +33312,6 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               }
               var spaceFactor = (textState.font.vertical ? 1 : -1) * textState.fontSize / 1000;
               var elements = args[0];
-              var isFirstChunk = true;
               for (var i = 0, ii = elements.length; i < ii - 1; i++) {
                 var _item = elements[i];
                 if (typeof _item === "string") {
@@ -32898,12 +33321,8 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                   showSpacedTextBuffer.length = 0;
                   buildTextContentItem({
                     chars: str,
-                    extraSpacing: _item * spaceFactor,
-                    isFirstChunk: isFirstChunk
+                    extraSpacing: _item * spaceFactor
                   });
-                  if (str && isFirstChunk) {
-                    isFirstChunk = false;
-                  }
                 }
               }
               var item = elements[elements.length - 1];
@@ -32915,8 +33334,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                 showSpacedTextBuffer.length = 0;
                 buildTextContentItem({
                   chars: _str,
-                  extraSpacing: 0,
-                  isFirstChunk: isFirstChunk
+                  extraSpacing: 0
                 });
               }
               break;
@@ -32927,8 +33345,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
               }
               buildTextContentItem({
                 chars: args[0],
-                extraSpacing: 0,
-                isFirstChunk: true
+                extraSpacing: 0
               });
               break;
             case _util.OPS.nextLineShowText:
@@ -32936,13 +33353,10 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                 self.ensureStateFont(stateManager.state);
                 continue;
               }
-              textContentItem.hasEOL = true;
-              flushTextContentItem();
               textState.carriageReturn();
               buildTextContentItem({
                 chars: args[0],
-                extraSpacing: 0,
-                isFirstChunk: true
+                extraSpacing: 0
               });
               break;
             case _util.OPS.nextLineSetSpacingShowText:
@@ -32950,15 +33364,12 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
                 self.ensureStateFont(stateManager.state);
                 continue;
               }
-              textContentItem.hasEOL = true;
-              flushTextContentItem();
               textState.wordSpacing = args[0];
               textState.charSpacing = args[1];
               textState.carriageReturn();
               buildTextContentItem({
                 chars: args[2],
-                extraSpacing: 0,
-                isFirstChunk: true
+                extraSpacing: 0
               });
               break;
             case _util.OPS.paintXObject:
@@ -33159,7 +33570,7 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
           };
         }
         var cidToGidMap = dict.get("CIDToGIDMap");
-        if ((0, _primitives.isStream)(cidToGidMap)) {
+        if (cidToGidMap instanceof _base_stream.BaseStream) {
           cidToGidBytes = cidToGidMap.getBytes();
         }
       }
@@ -33714,6 +34125,14 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
             }
             hash.update(_widthsBuf.join());
           }
+          var cidToGidMap = dict.getRaw("CIDToGIDMap") || baseDict.getRaw("CIDToGIDMap");
+          if (cidToGidMap instanceof _primitives.Name) {
+            hash.update(cidToGidMap.name);
+          } else if (cidToGidMap instanceof _primitives.Ref) {
+            hash.update(cidToGidMap.toString());
+          } else if (cidToGidMap instanceof _base_stream.BaseStream) {
+            hash.update(cidToGidMap.peekBytes());
+          }
         }
       }
       return {
@@ -33731,13 +34150,13 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
   }, {
     key: "translateFont",
     value: function () {
-      var _translateFont = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(_ref10) {
+      var _translateFont = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(_ref15) {
         var _this11 = this;
         var descriptor, dict, baseDict, composite, type, firstChar, lastChar, toUnicode, cssFontInfo, isType3Font, properties, baseFontName, metrics, fontNameWoStyle, flags, widths, standardFontName, file, fontName, baseFont, fontNameStr, baseFontStr, fontFile, subtype, length1, length2, length3, isStandardFont, isInternalFont, glyphScaleFactors, subtypeEntry, _standardFontName, _standardFontName2, cidEncoding, cMap;
         return _regeneratorRuntime().wrap(function _callee9$(_context10) {
           while (1) switch (_context10.prev = _context10.next) {
             case 0:
-              descriptor = _ref10.descriptor, dict = _ref10.dict, baseDict = _ref10.baseDict, composite = _ref10.composite, type = _ref10.type, firstChar = _ref10.firstChar, lastChar = _ref10.lastChar, toUnicode = _ref10.toUnicode, cssFontInfo = _ref10.cssFontInfo;
+              descriptor = _ref15.descriptor, dict = _ref15.dict, baseDict = _ref15.baseDict, composite = _ref15.composite, type = _ref15.type, firstChar = _ref15.firstChar, lastChar = _ref15.lastChar, toUnicode = _ref15.toUnicode, cssFontInfo = _ref15.cssFontInfo;
               isType3Font = type === "Type3";
               if (descriptor) {
                 _context10.next = 27;
@@ -34020,11 +34439,11 @@ var PartialEvaluator = exports.PartialEvaluator = /*#__PURE__*/function () {
   }]);
 }();
 var TranslatedFont = /*#__PURE__*/function () {
-  function TranslatedFont(_ref11) {
-    var loadedName = _ref11.loadedName,
-      font = _ref11.font,
-      dict = _ref11.dict,
-      evaluatorOptions = _ref11.evaluatorOptions;
+  function TranslatedFont(_ref16) {
+    var loadedName = _ref16.loadedName,
+      font = _ref16.font,
+      dict = _ref16.dict,
+      evaluatorOptions = _ref16.evaluatorOptions;
     _classCallCheck(this, TranslatedFont);
     this.loadedName = loadedName;
     this.font = font;
@@ -34863,7 +35282,12 @@ var CMap = exports.CMap = /*#__PURE__*/function () {
       var lastByte = dstLow.length - 1;
       while (low <= high) {
         this._map[low++] = dstLow;
-        dstLow = dstLow.substring(0, lastByte) + String.fromCharCode(dstLow.charCodeAt(lastByte) + 1);
+        var nextCharCode = dstLow.charCodeAt(lastByte) + 1;
+        if (nextCharCode > 0xff) {
+          dstLow = dstLow.substring(0, lastByte - 1) + String.fromCharCode(dstLow.charCodeAt(lastByte - 1) + 1) + "\x00";
+          continue;
+        }
+        dstLow = dstLow.substring(0, lastByte) + String.fromCharCode(nextCharCode);
       }
     }
   }, {
@@ -36151,7 +36575,7 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
       if (lexer.beginInlineImagePos !== -1) {
         dictLength = stream.pos - lexer.beginInlineImagePos;
       }
-      var filter = dict.get("Filter", "F");
+      var filter = dict.get("F", "Filter");
       var filterName;
       if ((0, _primitives.isName)(filter)) {
         filterName = filter.name;
@@ -36163,14 +36587,21 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
       }
       var startPos = stream.pos;
       var length;
-      if (filterName === "DCTDecode" || filterName === "DCT") {
-        length = this.findDCTDecodeInlineStreamEnd(stream);
-      } else if (filterName === "ASCII85Decode" || filterName === "A85") {
-        length = this.findASCII85DecodeInlineStreamEnd(stream);
-      } else if (filterName === "ASCIIHexDecode" || filterName === "AHx") {
-        length = this.findASCIIHexDecodeInlineStreamEnd(stream);
-      } else {
-        length = this.findDefaultInlineStreamEnd(stream);
+      switch (filterName) {
+        case "DCT":
+        case "DCTDecode":
+          length = this.findDCTDecodeInlineStreamEnd(stream);
+          break;
+        case "A85":
+        case "ASCII85Decode":
+          length = this.findASCII85DecodeInlineStreamEnd(stream);
+          break;
+        case "AHx":
+        case "ASCIIHexDecode":
+          length = this.findASCIIHexDecodeInlineStreamEnd(stream);
+          break;
+        default:
+          length = this.findDefaultInlineStreamEnd(stream);
       }
       var imageStream = stream.makeSubStream(startPos, length, dict);
       var cacheKey;
@@ -36241,7 +36672,7 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
       var startPos = stream.pos - 1;
       var length = dict.get("Length");
       if (!Number.isInteger(length)) {
-        (0, _util.info)("Bad length \"".concat(length, "\" in stream"));
+        (0, _util.info)("Bad length \"".concat(length && length.toString(), "\" in stream."));
         length = 0;
       }
       stream.pos = startPos + length;
@@ -36288,11 +36719,11 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
   }, {
     key: "filter",
     value: function filter(stream, dict, length) {
-      var filter = dict.get("Filter", "F");
-      var params = dict.get("DecodeParms", "DP");
+      var filter = dict.get("F", "Filter");
+      var params = dict.get("DP", "DecodeParms");
       if ((0, _primitives.isName)(filter)) {
         if (Array.isArray(params)) {
-          (0, _util.warn)("/DecodeParms should not contain an Array, " + "when /Filter contains a Name.");
+          (0, _util.warn)("/DecodeParms should not be an Array, when /Filter is a Name.");
         }
         return this.makeFilter(stream, filter.name, length, params);
       }
@@ -36322,53 +36753,54 @@ var Parser = exports.Parser = /*#__PURE__*/function () {
         (0, _util.warn)("Empty \"".concat(name, "\" stream."));
         return new _stream.NullStream();
       }
+      var xrefStats = this.xref.stats;
       try {
-        var xrefStreamStats = this.xref.stats.streamTypes;
-        if (name === "FlateDecode" || name === "Fl") {
-          xrefStreamStats[_util.StreamType.FLATE] = true;
-          if (params) {
-            return new _predictor_stream.PredictorStream(new _flate_stream.FlateStream(stream, maybeLength), maybeLength, params);
-          }
-          return new _flate_stream.FlateStream(stream, maybeLength);
-        }
-        if (name === "LZWDecode" || name === "LZW") {
-          xrefStreamStats[_util.StreamType.LZW] = true;
-          var earlyChange = 1;
-          if (params) {
-            if (params.has("EarlyChange")) {
-              earlyChange = params.get("EarlyChange");
+        switch (name) {
+          case "Fl":
+          case "FlateDecode":
+            xrefStats.addStreamType(_util.StreamType.FLATE);
+            if (params) {
+              return new _predictor_stream.PredictorStream(new _flate_stream.FlateStream(stream, maybeLength), maybeLength, params);
             }
-            return new _predictor_stream.PredictorStream(new _lzw_stream.LZWStream(stream, maybeLength, earlyChange), maybeLength, params);
-          }
-          return new _lzw_stream.LZWStream(stream, maybeLength, earlyChange);
-        }
-        if (name === "DCTDecode" || name === "DCT") {
-          xrefStreamStats[_util.StreamType.DCT] = true;
-          return new _jpeg_stream.JpegStream(stream, maybeLength, params);
-        }
-        if (name === "JPXDecode" || name === "JPX") {
-          xrefStreamStats[_util.StreamType.JPX] = true;
-          return new _jpx_stream.JpxStream(stream, maybeLength, params);
-        }
-        if (name === "ASCII85Decode" || name === "A85") {
-          xrefStreamStats[_util.StreamType.A85] = true;
-          return new _ascii_85_stream.Ascii85Stream(stream, maybeLength);
-        }
-        if (name === "ASCIIHexDecode" || name === "AHx") {
-          xrefStreamStats[_util.StreamType.AHX] = true;
-          return new _ascii_hex_stream.AsciiHexStream(stream, maybeLength);
-        }
-        if (name === "CCITTFaxDecode" || name === "CCF") {
-          xrefStreamStats[_util.StreamType.CCF] = true;
-          return new _ccitt_stream.CCITTFaxStream(stream, maybeLength, params);
-        }
-        if (name === "RunLengthDecode" || name === "RL") {
-          xrefStreamStats[_util.StreamType.RLX] = true;
-          return new _run_length_stream.RunLengthStream(stream, maybeLength);
-        }
-        if (name === "JBIG2Decode") {
-          xrefStreamStats[_util.StreamType.JBIG] = true;
-          return new _jbig2_stream.Jbig2Stream(stream, maybeLength, params);
+            return new _flate_stream.FlateStream(stream, maybeLength);
+          case "LZW":
+          case "LZWDecode":
+            xrefStats.addStreamType(_util.StreamType.LZW);
+            var earlyChange = 1;
+            if (params) {
+              if (params.has("EarlyChange")) {
+                earlyChange = params.get("EarlyChange");
+              }
+              return new _predictor_stream.PredictorStream(new _lzw_stream.LZWStream(stream, maybeLength, earlyChange), maybeLength, params);
+            }
+            return new _lzw_stream.LZWStream(stream, maybeLength, earlyChange);
+          case "DCT":
+          case "DCTDecode":
+            xrefStats.addStreamType(_util.StreamType.DCT);
+            return new _jpeg_stream.JpegStream(stream, maybeLength, params);
+          case "JPX":
+          case "JPXDecode":
+            xrefStats.addStreamType(_util.StreamType.JPX);
+            return new _jpx_stream.JpxStream(stream, maybeLength, params);
+          case "A85":
+          case "ASCII85Decode":
+            xrefStats.addStreamType(_util.StreamType.A85);
+            return new _ascii_85_stream.Ascii85Stream(stream, maybeLength);
+          case "AHx":
+          case "ASCIIHexDecode":
+            xrefStats.addStreamType(_util.StreamType.AHX);
+            return new _ascii_hex_stream.AsciiHexStream(stream, maybeLength);
+          case "CCF":
+          case "CCITTFaxDecode":
+            xrefStats.addStreamType(_util.StreamType.CCF);
+            return new _ccitt_stream.CCITTFaxStream(stream, maybeLength, params);
+          case "RL":
+          case "RunLengthDecode":
+            xrefStats.addStreamType(_util.StreamType.RLX);
+            return new _run_length_stream.RunLengthStream(stream, maybeLength);
+          case "JBIG2Decode":
+            xrefStats.addStreamType(_util.StreamType.JBIG);
+            return new _jbig2_stream.Jbig2Stream(stream, maybeLength, params);
         }
         (0, _util.warn)("Filter \"".concat(name, "\" is not supported."));
         return stream;
@@ -36628,8 +37060,6 @@ var Lexer = exports.Lexer = /*#__PURE__*/function () {
       }
       if (strBuf.length > 127) {
         (0, _util.warn)("Name token is longer than allowed by the spec: ".concat(strBuf.length));
-      } else if (strBuf.length === 0) {
-        (0, _util.warn)("Name token is empty.");
       }
       return _primitives.Name.get(strBuf.join(""));
     }
@@ -37704,6 +38134,9 @@ var CCITTFaxDecoder = exports.CCITTFaxDecoder = /*#__PURE__*/function () {
         bits = 8;
         c = 0;
         do {
+          if (typeof this.outputBits !== "number") {
+            throw new _util.FormatError('Invalid /CCITTFaxDecode data, "outputBits" must be a number.');
+          }
           if (this.outputBits > bits) {
             c <<= bits;
             if (!(this.codingPos & 1)) {
@@ -40571,9 +41004,9 @@ var JpegStream = exports.JpegStream = /*#__PURE__*/function (_DecodeStream) {
         decodeTransform: undefined,
         colorTransform: undefined
       };
-      var decodeArr = this.dict.getArray("Decode", "D");
+      var decodeArr = this.dict.getArray("D", "Decode");
       if (this.forceRGB && Array.isArray(decodeArr)) {
-        var bitsPerComponent = this.dict.get("BitsPerComponent") || 8;
+        var bitsPerComponent = this.dict.get("BPC", "BitsPerComponent") || 8;
         var decodeArrLength = decodeArr.length;
         var transform = new Int32Array(decodeArrLength);
         var transformNeeded = false;
@@ -41649,7 +42082,7 @@ var JpegImage = exports.JpegImage = /*#__PURE__*/function () {
         y = data[i + 2];
         k = data[i + 3];
         data[offset++] = 255 + c * (-0.00006747147073602441 * c + 0.0008379262121013727 * m + 0.0002894718188643294 * y + 0.003264231057537806 * k - 1.1185611867203937) + m * (0.000026374107616089405 * m - 0.00008626949158638572 * y - 0.0002748769067499491 * k - 0.02155688794978967) + y * (-0.00003878099212869363 * y - 0.0003267808279485286 * k + 0.0686742238595345) - k * (0.0003361971776183937 * k + 0.7430659151342254);
-        data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.00031891311758832814 * k + 0.7364883807733168);
+        data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.0003189131175883281 * k + 0.7364883807733168);
         data[offset++] = 255 + c * (0.000013598650411385307 * c + 0.00012423956175490851 * m + 0.0004751985097583589 * y - 0.0000036729317476630422 * k - 0.05562186980264034) + m * (0.00016141380598724676 * m + 0.0009692239130725186 * y + 0.0007782692450036253 * k - 0.44015232367526463) + y * (5.068882914068769e-7 * y + 0.0017778369011375071 * k - 0.7591454649749609) - k * (0.0003435319965105553 * k + 0.7063770186160144);
       }
       return data.subarray(0, offset);
@@ -44003,7 +44436,7 @@ var PredictorStream = exports.PredictorStream = /*#__PURE__*/function (_DecodeSt
     _this.str = str;
     _this.dict = str.dict;
     var colors = _this.colors = params.get("Colors") || 1;
-    var bits = _this.bits = params.get("BitsPerComponent") || 8;
+    var bits = _this.bits = params.get("BPC", "BitsPerComponent") || 8;
     var columns = _this.columns = params.get("Columns") || 1;
     _this.pixBytes = colors * bits + 7 >> 3;
     _this.rowBytes = columns * colors * bits + 7 >> 3;
@@ -45251,6 +45684,47 @@ var Font = exports.Font = /*#__PURE__*/function () {
             });
           }
           hasShortCmap = true;
+        } else if (format === 2) {
+          var subHeaderKeys = [];
+          var maxSubHeaderKey = 0;
+          for (var _i = 0; _i < 256; _i++) {
+            var subHeaderKey = file.getUint16() >> 3;
+            subHeaderKeys.push(subHeaderKey);
+            maxSubHeaderKey = Math.max(subHeaderKey, maxSubHeaderKey);
+          }
+          var subHeaders = [];
+          for (var _i2 = 0; _i2 <= maxSubHeaderKey; _i2++) {
+            subHeaders.push({
+              firstCode: file.getUint16(),
+              entryCount: file.getUint16(),
+              idDelta: signedInt16(file.getByte(), file.getByte()),
+              idRangePos: file.pos + file.getUint16()
+            });
+          }
+          for (var _i3 = 0; _i3 < 256; _i3++) {
+            if (subHeaderKeys[_i3] === 0) {
+              file.pos = subHeaders[0].idRangePos + 2 * _i3;
+              glyphId = file.getUint16();
+              mappings.push({
+                charCode: _i3,
+                glyphId: glyphId
+              });
+            } else {
+              var s = subHeaders[subHeaderKeys[_i3]];
+              for (j = 0; j < s.entryCount; j++) {
+                var charCode = (_i3 << 8) + j + s.firstCode;
+                file.pos = s.idRangePos + 2 * j;
+                glyphId = file.getUint16();
+                if (glyphId !== 0) {
+                  glyphId = (glyphId + s.idDelta) % 65536;
+                }
+                mappings.push({
+                  charCode: charCode,
+                  glyphId: glyphId
+                });
+              }
+            }
+          }
         } else if (format === 4) {
           var segCount = file.getUint16() >> 1;
           file.skip(6);
@@ -45308,9 +45782,9 @@ var Font = exports.Font = /*#__PURE__*/function () {
           var entryCount = file.getUint16();
           for (j = 0; j < entryCount; j++) {
             glyphId = file.getUint16();
-            var charCode = firstCode + j;
+            var _charCode = firstCode + j;
             mappings.push({
-              charCode: charCode,
+              charCode: _charCode,
               glyphId: glyphId
             });
           }
@@ -45326,10 +45800,10 @@ var Font = exports.Font = /*#__PURE__*/function () {
         mappings.sort(function (a, b) {
           return a.charCode - b.charCode;
         });
-        for (var _i = 1; _i < mappings.length; _i++) {
-          if (mappings[_i - 1].charCode === mappings[_i].charCode) {
-            mappings.splice(_i, 1);
-            _i--;
+        for (var _i4 = 1; _i4 < mappings.length; _i4++) {
+          if (mappings[_i4 - 1].charCode === mappings[_i4].charCode) {
+            mappings.splice(_i4, 1);
+            _i4--;
           }
         }
         return {
@@ -46164,40 +46638,40 @@ var Font = exports.Font = /*#__PURE__*/function () {
                 continue;
               }
             }
-            for (var _i2 = 0; _i2 < cmapMappingsLength; ++_i2) {
-              if (cmapMappings[_i2].charCode !== unicodeOrCharCode) {
+            for (var _i5 = 0; _i5 < cmapMappingsLength; ++_i5) {
+              if (cmapMappings[_i5].charCode !== unicodeOrCharCode) {
                 continue;
               }
-              charCodeToGlyphId[charCode] = cmapMappings[_i2].glyphId;
+              charCodeToGlyphId[charCode] = cmapMappings[_i5].glyphId;
               break;
             }
           }
         } else if (cmapPlatformId === 0) {
-          for (var _i3 = 0; _i3 < cmapMappingsLength; ++_i3) {
-            charCodeToGlyphId[cmapMappings[_i3].charCode] = cmapMappings[_i3].glyphId;
+          for (var _i6 = 0; _i6 < cmapMappingsLength; ++_i6) {
+            charCodeToGlyphId[cmapMappings[_i6].charCode] = cmapMappings[_i6].glyphId;
           }
           forcePostTable = true;
         } else {
-          for (var _i4 = 0; _i4 < cmapMappingsLength; ++_i4) {
-            var _charCode = cmapMappings[_i4].charCode;
-            if (cmapPlatformId === 3 && _charCode >= 0xf000 && _charCode <= 0xf0ff) {
-              _charCode &= 0xff;
+          for (var _i7 = 0; _i7 < cmapMappingsLength; ++_i7) {
+            var _charCode2 = cmapMappings[_i7].charCode;
+            if (cmapPlatformId === 3 && _charCode2 >= 0xf000 && _charCode2 <= 0xf0ff) {
+              _charCode2 &= 0xff;
             }
-            charCodeToGlyphId[_charCode] = cmapMappings[_i4].glyphId;
+            charCodeToGlyphId[_charCode2] = cmapMappings[_i7].glyphId;
           }
         }
         if (properties.glyphNames && (baseEncoding.length || this.differences.length)) {
-          for (var _i5 = 0; _i5 < 256; ++_i5) {
-            if (!forcePostTable && charCodeToGlyphId[_i5] !== undefined) {
+          for (var _i8 = 0; _i8 < 256; ++_i8) {
+            if (!forcePostTable && charCodeToGlyphId[_i8] !== undefined) {
               continue;
             }
-            var _glyphName = this.differences[_i5] || baseEncoding[_i5];
+            var _glyphName = this.differences[_i8] || baseEncoding[_i8];
             if (!_glyphName) {
               continue;
             }
             var glyphId = properties.glyphNames.indexOf(_glyphName);
             if (glyphId > 0 && hasGlyph(glyphId)) {
-              charCodeToGlyphId[_i5] = glyphId;
+              charCodeToGlyphId[_i8] = glyphId;
             }
           }
         }
@@ -46340,13 +46814,13 @@ var Font = exports.Font = /*#__PURE__*/function () {
         var charstrings = font.charstrings;
         var cffWidths = font.cff ? font.cff.widths : null;
         var hmtx = "\x00\x00\x00\x00";
-        for (var _i6 = 1, _ii = numGlyphs; _i6 < _ii; _i6++) {
+        for (var _i9 = 1, _ii = numGlyphs; _i9 < _ii; _i9++) {
           var width = 0;
           if (charstrings) {
-            var charstring = charstrings[_i6 - 1];
+            var charstring = charstrings[_i9 - 1];
             width = "width" in charstring ? charstring.width : 0;
           } else if (cffWidths) {
-            width = Math.ceil(cffWidths[_i6] || 0);
+            width = Math.ceil(cffWidths[_i9] || 0);
           }
           hmtx += string16(width) + string16(0);
         }
@@ -46468,8 +46942,8 @@ var Font = exports.Font = /*#__PURE__*/function () {
           glyphs.push(glyph);
         }
       } else {
-        for (var _i7 = 0, _ii2 = chars.length; _i7 < _ii2; ++_i7) {
-          var _charcode = chars.charCodeAt(_i7);
+        for (var _i10 = 0, _ii2 = chars.length; _i10 < _ii2; ++_i10) {
+          var _charcode = chars.charCodeAt(_i10);
           var _glyph = this._charToGlyph(_charcode, _charcode === 0x20);
           glyphs.push(_glyph);
         }
@@ -46490,8 +46964,8 @@ var Font = exports.Font = /*#__PURE__*/function () {
           i += length;
         }
       } else {
-        for (var _i8 = 0, ii = chars.length; _i8 < ii; ++_i8) {
-          positions.push([_i8, _i8 + 1]);
+        for (var _i11 = 0, ii = chars.length; _i11 < ii; ++_i11) {
+          positions.push([_i11, _i11 + 1]);
         }
       }
       return positions;
@@ -51917,7 +52391,7 @@ var RadialAxialShading = /*#__PURE__*/function (_BaseShading) {
     _this.coordsArr = dict.getArray("Coords");
     _this.shadingType = dict.get("ShadingType");
     var cs = _colorspace.ColorSpace.parse({
-      cs: dict.getRaw("ColorSpace") || dict.getRaw("CS"),
+      cs: dict.getRaw("CS") || dict.getRaw("ColorSpace"),
       xref: xref,
       resources: resources,
       pdfFunctionFactory: pdfFunctionFactory,
@@ -52150,7 +52624,7 @@ var MeshShading = /*#__PURE__*/function (_BaseShading2) {
       _this2.bbox = null;
     }
     var cs = _colorspace.ColorSpace.parse({
-      cs: dict.getRaw("ColorSpace") || dict.getRaw("CS"),
+      cs: dict.getRaw("CS") || dict.getRaw("ColorSpace"),
       xref: xref,
       resources: resources,
       pdfFunctionFactory: pdfFunctionFactory,
@@ -54531,7 +55005,7 @@ function bidi(str) {
     return createBidiText(str, isLTR);
   }
   if (startLevel === -1) {
-    if (numBidi / strLength < 0.3) {
+    if (numBidi / strLength < 0.3 && strLength > 4) {
       isLTR = true;
       startLevel = 0;
     } else {
@@ -58453,7 +58927,7 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
     _classCallCheck(this, PDFImage);
     this.image = image;
     var dict = image.dict;
-    var filter = dict.get("Filter");
+    var filter = dict.get("F", "Filter");
     if ((0, _primitives.isName)(filter)) {
       switch (filter.name) {
         case "JPXDecode":
@@ -58471,8 +58945,8 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
           break;
       }
     }
-    var width = dict.get("Width", "W");
-    var height = dict.get("Height", "H");
+    var width = dict.get("W", "Width");
+    var height = dict.get("H", "Height");
     if (Number.isInteger(image.width) && image.width > 0 && Number.isInteger(image.height) && image.height > 0 && (image.width !== width || image.height !== height)) {
       (0, _util.warn)("PDFImage - using the Width/Height of the image data, " + "rather than the image dictionary.");
       width = image.width;
@@ -58483,12 +58957,12 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
     }
     this.width = width;
     this.height = height;
-    this.interpolate = dict.get("Interpolate", "I");
-    this.imageMask = dict.get("ImageMask", "IM") || false;
+    this.interpolate = dict.get("I", "Interpolate");
+    this.imageMask = dict.get("IM", "ImageMask") || false;
     this.matte = dict.get("Matte") || false;
     var bitsPerComponent = image.bitsPerComponent;
     if (!bitsPerComponent) {
-      bitsPerComponent = dict.get("BitsPerComponent", "BPC");
+      bitsPerComponent = dict.get("BPC", "BitsPerComponent");
       if (!bitsPerComponent) {
         if (this.imageMask) {
           bitsPerComponent = 1;
@@ -58499,7 +58973,7 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
     }
     this.bpc = bitsPerComponent;
     if (!this.imageMask) {
-      var colorSpace = dict.getRaw("ColorSpace") || dict.getRaw("CS");
+      var colorSpace = dict.getRaw("CS") || dict.getRaw("ColorSpace");
       if (!colorSpace) {
         (0, _util.info)("JPX images (which do not require color spaces)");
         switch (image.numComps) {
@@ -58513,7 +58987,7 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
             colorSpace = _primitives.Name.get("DeviceCMYK");
             break;
           default:
-            throw new Error("JPX images with ".concat(image.numComps, " ") + "color components not supported.");
+            throw new Error("JPX images with ".concat(image.numComps, " color components not supported."));
         }
       }
       this.colorSpace = _colorspace.ColorSpace.parse({
@@ -58525,7 +58999,7 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
       });
       this.numComps = this.colorSpace.numComps;
     }
-    this.decode = dict.getArray("Decode", "D");
+    this.decode = dict.getArray("D", "Decode");
     this.needsDecode = false;
     if (this.decode && (this.colorSpace && !this.colorSpace.isDefaultDecode(this.decode, bitsPerComponent) || isMask && !_colorspace.ColorSpace.isDefaultDecode(this.decode, 1))) {
       this.needsDecode = true;
@@ -58552,7 +59026,7 @@ var PDFImage = exports.PDFImage = /*#__PURE__*/function () {
     } else if (mask) {
       if ((0, _primitives.isStream)(mask)) {
         var maskDict = mask.dict,
-          imageMask = maskDict.get("ImageMask", "IM");
+          imageMask = maskDict.get("IM", "ImageMask");
         if (!imageMask) {
           (0, _util.warn)("Ignoring /Mask in image without /ImageMask.");
         } else {
@@ -58992,6 +59466,7 @@ var _primitives = __w_pdfjs_require__(156);
 var _core_utils = __w_pdfjs_require__(160);
 var _util = __w_pdfjs_require__(2);
 var _name_number_tree = __w_pdfjs_require__(216);
+var _base_stream = __w_pdfjs_require__(157);
 var _colorspace = __w_pdfjs_require__(175);
 var _file_spec = __w_pdfjs_require__(217);
 var _image_utils = __w_pdfjs_require__(209);
@@ -59026,9 +59501,11 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     this.pdfManager = pdfManager;
     this.xref = xref;
     this._catDict = xref.getCatalogObj();
-    if (!(0, _primitives.isDict)(this._catDict)) {
+    if (!(this._catDict instanceof _primitives.Dict)) {
       throw new _util.FormatError("Catalog object is not a dictionary.");
     }
+    this.toplevelPagesDict;
+    this._actualNumPages = null;
     this.fontCache = new _primitives.RefSetCache();
     this.builtInCMapCache = new Map();
     this.standardFontDataCache = new Map();
@@ -59041,19 +59518,19 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     key: "version",
     get: function get() {
       var version = this._catDict.get("Version");
-      if (!(0, _primitives.isName)(version)) {
-        return (0, _util.shadow)(this, "version", null);
-      }
-      return (0, _util.shadow)(this, "version", version.name);
+      return (0, _util.shadow)(this, "version", version instanceof _primitives.Name ? version.name : null);
+    }
+  }, {
+    key: "lang",
+    get: function get() {
+      var lang = this._catDict.get("Lang");
+      return (0, _util.shadow)(this, "lang", typeof lang === "string" ? (0, _util.stringToPDFString)(lang) : null);
     }
   }, {
     key: "needsRendering",
     get: function get() {
       var needsRendering = this._catDict.get("NeedsRendering");
-      if (!(0, _util.isBool)(needsRendering)) {
-        return (0, _util.shadow)(this, "needsRendering", false);
-      }
-      return (0, _util.shadow)(this, "needsRendering", needsRendering);
+      return (0, _util.shadow)(this, "needsRendering", typeof needsRendering === "boolean" ? needsRendering : false);
     }
   }, {
     key: "collection",
@@ -59099,28 +59576,28 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     key: "metadata",
     get: function get() {
       var streamRef = this._catDict.getRaw("Metadata");
-      if (!(0, _primitives.isRef)(streamRef)) {
+      if (!(streamRef instanceof _primitives.Ref)) {
         return (0, _util.shadow)(this, "metadata", null);
       }
-      var suppressEncryption = !(this.xref.encrypt && this.xref.encrypt.encryptMetadata);
-      var stream = this.xref.fetch(streamRef, suppressEncryption);
       var metadata = null;
-      if ((0, _primitives.isStream)(stream) && (0, _primitives.isDict)(stream.dict)) {
-        var type = stream.dict.get("Type");
-        var subtype = stream.dict.get("Subtype");
-        if ((0, _primitives.isName)(type, "Metadata") && (0, _primitives.isName)(subtype, "XML")) {
-          try {
+      try {
+        var suppressEncryption = !(this.xref.encrypt && this.xref.encrypt.encryptMetadata);
+        var stream = this.xref.fetch(streamRef, suppressEncryption);
+        if (stream instanceof _base_stream.BaseStream && stream.dict instanceof _primitives.Dict) {
+          var type = stream.dict.get("Type");
+          var subtype = stream.dict.get("Subtype");
+          if ((0, _primitives.isName)(type, "Metadata") && (0, _primitives.isName)(subtype, "XML")) {
             var data = (0, _util.stringToUTF8String)(stream.getString());
             if (data) {
               metadata = new _metadata_parser.MetadataParser(data).serializable;
             }
-          } catch (e) {
-            if (e instanceof _core_utils.MissingDataException) {
-              throw e;
-            }
-            (0, _util.info)("Skipping invalid metadata.");
           }
         }
+      } catch (ex) {
+        if (ex instanceof _core_utils.MissingDataException) {
+          throw ex;
+        }
+        (0, _util.info)("Skipping invalid Metadata: \"".concat(ex, "\"."));
       }
       return (0, _util.shadow)(this, "metadata", metadata);
     }
@@ -59490,13 +59967,29 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
       };
     }
   }, {
-    key: "numPages",
+    key: "setActualNumPages",
+    value: function setActualNumPages() {
+      var num = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      this._actualNumPages = num;
+    }
+  }, {
+    key: "hasActualNumPages",
+    get: function get() {
+      return this._actualNumPages !== null;
+    }
+  }, {
+    key: "_pagesCount",
     get: function get() {
       var obj = this.toplevelPagesDict.get("Count");
       if (!Number.isInteger(obj)) {
         throw new _util.FormatError("Page count in top-level pages dictionary is not an integer.");
       }
-      return (0, _util.shadow)(this, "numPages", obj);
+      return (0, _util.shadow)(this, "_pagesCount", obj);
+    }
+  }, {
+    key: "numPages",
+    get: function get() {
+      return this.hasActualNumPages ? this._actualNumPages : this._pagesCount;
     }
   }, {
     key: "destinations",
@@ -60054,19 +60547,22 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
     key: "getPageDict",
     value: function getPageDict(pageIndex) {
       var capability = (0, _util.createPromiseCapability)();
-      var nodesToVisit = [this._catDict.getRaw("Pages")];
+      var nodesToVisit = [this.toplevelPagesDict];
       var visitedNodes = new _primitives.RefSet();
+      var pagesRef = this._catDict.getRaw("Pages");
+      if (pagesRef instanceof _primitives.Ref) {
+        visitedNodes.put(pagesRef);
+      }
       var xref = this.xref,
         pageKidsCountCache = this.pageKidsCountCache;
-      var count,
-        currentPageIndex = 0;
+      var currentPageIndex = 0;
       function next() {
         var _loop = function _loop() {
             var currentNode = nodesToVisit.pop();
-            if ((0, _primitives.isRef)(currentNode)) {
-              count = pageKidsCountCache.get(currentNode);
-              if (count > 0 && currentPageIndex + count < pageIndex) {
-                currentPageIndex += count;
+            if (currentNode instanceof _primitives.Ref) {
+              var _count = pageKidsCountCache.get(currentNode);
+              if (_count >= 0 && currentPageIndex + _count <= pageIndex) {
+                currentPageIndex += _count;
                 return 0; // continue
               }
               if (visitedNodes.has(currentNode)) {
@@ -60078,10 +60574,10 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
               visitedNodes.put(currentNode);
               xref.fetchAsync(currentNode).then(function (obj) {
                 if ((0, _primitives.isDict)(obj, "Page") || (0, _primitives.isDict)(obj) && !obj.has("Kids")) {
+                  if (currentNode && !pageKidsCountCache.has(currentNode)) {
+                    pageKidsCountCache.put(currentNode, 1);
+                  }
                   if (pageIndex === currentPageIndex) {
-                    if (currentNode && !pageKidsCountCache.has(currentNode)) {
-                      pageKidsCountCache.put(currentNode, 1);
-                    }
                     capability.resolve([obj, currentNode]);
                   } else {
                     currentPageIndex++;
@@ -60096,13 +60592,20 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
                 v: void 0
               };
             }
-            if (!(0, _primitives.isDict)(currentNode)) {
+            if (!(currentNode instanceof _primitives.Dict)) {
               capability.reject(new _util.FormatError("Page dictionary kid reference points to wrong type of object."));
               return {
                 v: void 0
               };
             }
-            count = currentNode.get("Count");
+            var count;
+            try {
+              count = currentNode.get("Count");
+            } catch (ex) {
+              if (ex instanceof _core_utils.MissingDataException) {
+                throw ex;
+              }
+            }
             if (Number.isInteger(count) && count >= 0) {
               var objId = currentNode.objId;
               if (objId && !pageKidsCountCache.has(objId)) {
@@ -60113,9 +60616,24 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
                 return 0; // continue
               }
             }
-            var kids = currentNode.get("Kids");
+            var kids;
+            try {
+              kids = currentNode.get("Kids");
+            } catch (ex) {
+              if (ex instanceof _core_utils.MissingDataException) {
+                throw ex;
+              }
+            }
             if (!Array.isArray(kids)) {
-              if ((0, _primitives.isName)(currentNode.get("Type"), "Page") || !currentNode.has("Type") && currentNode.has("Contents")) {
+              var type;
+              try {
+                type = currentNode.get("Type");
+              } catch (ex) {
+                if (ex instanceof _core_utils.MissingDataException) {
+                  throw ex;
+                }
+              }
+              if ((0, _primitives.isName)(type, "Page") || !currentNode.has("Type") && currentNode.has("Contents")) {
                 if (currentPageIndex === pageIndex) {
                   capability.resolve([currentNode, null]);
                   return {
@@ -60144,6 +60662,91 @@ var Catalog = exports.Catalog = /*#__PURE__*/function () {
       }
       next();
       return capability.promise;
+    }
+  }, {
+    key: "getAllPageDicts",
+    value: function getAllPageDicts() {
+      var recoveryMode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      var queue = [{
+        currentNode: this.toplevelPagesDict,
+        posInKids: 0
+      }];
+      var visitedNodes = new _primitives.RefSet();
+      var pagesRef = this._catDict.getRaw("Pages");
+      if (pagesRef instanceof _primitives.Ref) {
+        visitedNodes.put(pagesRef);
+      }
+      var map = new Map();
+      var pageIndex = 0;
+      function addPageDict(pageDict, pageRef) {
+        map.set(pageIndex++, [pageDict, pageRef]);
+      }
+      function addPageError(error) {
+        map.set(pageIndex++, [error, null]);
+      }
+      while (queue.length > 0) {
+        var queueItem = queue[queue.length - 1];
+        var currentNode = queueItem.currentNode,
+          posInKids = queueItem.posInKids;
+        var kids = void 0;
+        try {
+          kids = currentNode.get("Kids");
+        } catch (ex) {
+          if (ex instanceof _core_utils.MissingDataException) {
+            throw ex;
+          }
+          if (ex instanceof _core_utils.XRefEntryException && !recoveryMode) {
+            throw ex;
+          }
+          addPageError(ex);
+          break;
+        }
+        if (!Array.isArray(kids)) {
+          addPageError(new _util.FormatError("Page dictionary kids object is not an array."));
+          break;
+        }
+        if (posInKids >= kids.length) {
+          queue.pop();
+          continue;
+        }
+        var kidObj = kids[posInKids];
+        var obj = void 0;
+        if (kidObj instanceof _primitives.Ref) {
+          try {
+            obj = this.xref.fetch(kidObj);
+          } catch (ex) {
+            if (ex instanceof _core_utils.MissingDataException) {
+              throw ex;
+            }
+            if (ex instanceof _core_utils.XRefEntryException && !recoveryMode) {
+              throw ex;
+            }
+            addPageError(ex);
+            break;
+          }
+          if (visitedNodes.has(kidObj)) {
+            addPageError(new _util.FormatError("Pages tree contains circular reference."));
+            break;
+          }
+          visitedNodes.put(kidObj);
+        } else {
+          obj = kidObj;
+        }
+        if (!(obj instanceof _primitives.Dict)) {
+          addPageError(new _util.FormatError("Page dictionary kid reference points to wrong type of object."));
+          break;
+        }
+        if ((0, _primitives.isDict)(obj, "Page") || !obj.has("Kids")) {
+          addPageDict(obj, kidObj instanceof _primitives.Ref ? kidObj : null);
+        } else {
+          queue.push({
+            currentNode: obj,
+            posInKids: 0
+          });
+        }
+        queueItem.posInKids++;
+      }
+      return map;
     }
   }, {
     key: "getPageIndex",
@@ -61633,6 +62236,10 @@ var StructTreePage = exports.StructTreePage = /*#__PURE__*/function () {
         var alt = node.dict.get("Alt");
         if ((0, _util.isString)(alt)) {
           obj.alt = (0, _util.stringToPDFString)(alt);
+        }
+        var lang = node.dict.get("Lang");
+        if ((0, _util.isString)(lang)) {
+          obj.lang = (0, _util.stringToPDFString)(lang);
         }
         var _iterator4 = _createForOfIteratorHelper(node.kids),
           _step4;
@@ -63606,6 +64213,7 @@ var CipherTransformFactory = exports.CipherTransformFactory = function CipherTra
       if (!(0, _primitives.isName)(filter, "Standard")) {
         throw new _util.FormatError("unknown encryption method");
       }
+      this.filterName = filter.name;
       this.dict = dict;
       var algorithm = dict.get("V");
       if (!Number.isInteger(algorithm) || algorithm !== 1 && algorithm !== 2 && algorithm !== 4 && algorithm !== 5) {
@@ -63788,10 +64396,14 @@ var _fonts = __w_pdfjs_require__(234);
 var _utils = __w_pdfjs_require__(227);
 var _util = __w_pdfjs_require__(2);
 var _parser = __w_pdfjs_require__(237);
+var _xhtml = __w_pdfjs_require__(247);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -63816,33 +64428,91 @@ var XFAFactory = exports.XFAFactory = /*#__PURE__*/function () {
       return this.root && this.form;
     }
   }, {
-    key: "_createPages",
-    value: function _createPages() {
-      try {
-        this.pages = this.form[_xfa_object.$toHTML]();
-        this.dims = this.pages.children.map(function (c) {
-          var _c$attributes$style = c.attributes.style,
-            width = _c$attributes$style.width,
-            height = _c$attributes$style.height;
-          return [0, 0, parseInt(width), parseInt(height)];
-        });
-      } catch (e) {
-        (0, _util.warn)("XFA - an error occurred during layout: ".concat(e));
-      }
+    key: "_createPagesHelper",
+    value: function _createPagesHelper() {
+      var iterator = this.form[_xfa_object.$toPages]();
+      return new Promise(function (resolve, reject) {
+        var _nextIteration = function nextIteration() {
+          try {
+            var value = iterator.next();
+            if (value.done) {
+              resolve(value.value);
+            } else {
+              setTimeout(_nextIteration, 0);
+            }
+          } catch (e) {
+            reject(e);
+          }
+        };
+        setTimeout(_nextIteration, 0);
+      });
     }
+  }, {
+    key: "_createPages",
+    value: function () {
+      var _createPages2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              _context.prev = 0;
+              _context.next = 3;
+              return this._createPagesHelper();
+            case 3:
+              this.pages = _context.sent;
+              this.dims = this.pages.children.map(function (c) {
+                var _c$attributes$style = c.attributes.style,
+                  width = _c$attributes$style.width,
+                  height = _c$attributes$style.height;
+                return [0, 0, parseInt(width), parseInt(height)];
+              });
+              _context.next = 10;
+              break;
+            case 7:
+              _context.prev = 7;
+              _context.t0 = _context["catch"](0);
+              (0, _util.warn)("XFA - an error occurred during layout: ".concat(_context.t0));
+            case 10:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this, [[0, 7]]);
+      }));
+      function _createPages() {
+        return _createPages2.apply(this, arguments);
+      }
+      return _createPages;
+    }()
   }, {
     key: "getBoundingBox",
     value: function getBoundingBox(pageIndex) {
       return this.dims[pageIndex];
     }
   }, {
-    key: "numberPages",
-    get: function get() {
-      if (!this.pages) {
-        this._createPages();
+    key: "getNumPages",
+    value: function () {
+      var _getNumPages = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              if (this.pages) {
+                _context2.next = 3;
+                break;
+              }
+              _context2.next = 3;
+              return this._createPages();
+            case 3:
+              return _context2.abrupt("return", this.dims.length);
+            case 4:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function getNumPages() {
+        return _getNumPages.apply(this, arguments);
       }
-      return this.dims.length;
-    }
+      return getNumPages;
+    }()
   }, {
     key: "setImages",
     value: function setImages(images) {
@@ -63881,14 +64551,33 @@ var XFAFactory = exports.XFAFactory = /*#__PURE__*/function () {
     }
   }, {
     key: "getPages",
-    value: function getPages() {
-      if (!this.pages) {
-        this._createPages();
+    value: function () {
+      var _getPages = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+        var pages;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              if (this.pages) {
+                _context3.next = 3;
+                break;
+              }
+              _context3.next = 3;
+              return this._createPages();
+            case 3:
+              pages = this.pages;
+              this.pages = null;
+              return _context3.abrupt("return", pages);
+            case 6:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this);
+      }));
+      function getPages() {
+        return _getPages.apply(this, arguments);
       }
-      var pages = this.pages;
-      this.pages = null;
-      return pages;
-    }
+      return getPages;
+    }()
   }, {
     key: "serializeData",
     value: function serializeData(storage) {
@@ -63901,6 +64590,42 @@ var XFAFactory = exports.XFAFactory = /*#__PURE__*/function () {
         return data["xdp:xdp"];
       }
       return Object.values(data).join("");
+    }
+  }, {
+    key: "getRichTextAsHtml",
+    value: function getRichTextAsHtml(rc) {
+      if (!rc || typeof rc !== "string") {
+        return null;
+      }
+      try {
+        var root = new _parser.XFAParser(_xhtml.XhtmlNamespace, true).parse(rc);
+        if (!["body", "xhtml"].includes(root[_xfa_object.$nodeName])) {
+          var newRoot = _xhtml.XhtmlNamespace.body({});
+          newRoot[_xfa_object.$appendChild](root);
+          root = newRoot;
+        }
+        var result = root[_xfa_object.$toHTML]();
+        if (!result.success) {
+          return null;
+        }
+        var html = result.html;
+        var attributes = html.attributes;
+        if (attributes) {
+          if (attributes["class"]) {
+            attributes["class"] = attributes["class"].filter(function (attr) {
+              return !attr.startsWith("xfa");
+            });
+          }
+          attributes.dir = "auto";
+        }
+        return {
+          html: html,
+          str: root[_xfa_object.$text]()
+        };
+      } catch (e) {
+        (0, _util.warn)("XFA - an error occurred during parsing of rich text: ".concat(e));
+      }
+      return null;
     }
   }]);
 }();
@@ -63915,7 +64640,7 @@ var XFAFactory = exports.XFAFactory = /*#__PURE__*/function () {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.XmlObject = exports.XFAObjectArray = exports.XFAObject = exports.XFAAttribute = exports.StringObject = exports.OptionObject = exports.Option10 = exports.Option01 = exports.IntegerObject = exports.ContentObject = exports.$uid = exports.$toStyle = exports.$toString = exports.$toHTML = exports.$text = exports.$tabIndex = exports.$setValue = exports.$setSetAttributes = exports.$setId = exports.$searchNode = exports.$root = exports.$resolvePrototypes = exports.$removeChild = exports.$pushPara = exports.$pushGlyphs = exports.$popPara = exports.$onText = exports.$onChildCheck = exports.$onChild = exports.$nsAttributes = exports.$nodeName = exports.$namespaceId = exports.$isUsable = exports.$isTransparent = exports.$isThereMoreWidth = exports.$isSplittable = exports.$isNsAgnostic = exports.$isDescendent = exports.$isDataValue = exports.$isCDATAXml = exports.$isBindable = exports.$insertAt = exports.$indexOf = exports.$ids = exports.$hasSettableValue = exports.$globalData = exports.$getTemplateRoot = exports.$getSubformParent = exports.$getRealChildrenByNameIt = exports.$getParent = exports.$getNextPage = exports.$getExtra = exports.$getDataValue = exports.$getContainedChildren = exports.$getChildrenByNameIt = exports.$getChildrenByName = exports.$getChildrenByClass = exports.$getChildren = exports.$getAvailableSpace = exports.$getAttributes = exports.$getAttributeIt = exports.$flushHTML = exports.$finalize = exports.$extra = exports.$dump = exports.$data = exports.$content = exports.$consumed = exports.$clone = exports.$cleanup = exports.$cleanPage = exports.$clean = exports.$childrenToHTML = exports.$appendChild = exports.$addHTML = exports.$acceptWhitespace = void 0;
+exports.XmlObject = exports.XFAObjectArray = exports.XFAObject = exports.XFAAttribute = exports.StringObject = exports.OptionObject = exports.Option10 = exports.Option01 = exports.IntegerObject = exports.ContentObject = exports.$uid = exports.$toStyle = exports.$toString = exports.$toPages = exports.$toHTML = exports.$text = exports.$tabIndex = exports.$setValue = exports.$setSetAttributes = exports.$setId = exports.$searchNode = exports.$root = exports.$resolvePrototypes = exports.$removeChild = exports.$pushPara = exports.$pushGlyphs = exports.$popPara = exports.$onText = exports.$onChildCheck = exports.$onChild = exports.$nsAttributes = exports.$nodeName = exports.$namespaceId = exports.$isUsable = exports.$isTransparent = exports.$isThereMoreWidth = exports.$isSplittable = exports.$isNsAgnostic = exports.$isDescendent = exports.$isDataValue = exports.$isCDATAXml = exports.$isBindable = exports.$insertAt = exports.$indexOf = exports.$ids = exports.$hasSettableValue = exports.$globalData = exports.$getTemplateRoot = exports.$getSubformParent = exports.$getRealChildrenByNameIt = exports.$getParent = exports.$getNextPage = exports.$getExtra = exports.$getDataValue = exports.$getContainedChildren = exports.$getChildrenByNameIt = exports.$getChildrenByName = exports.$getChildrenByClass = exports.$getChildren = exports.$getAvailableSpace = exports.$getAttributes = exports.$getAttributeIt = exports.$flushHTML = exports.$finalize = exports.$extra = exports.$dump = exports.$data = exports.$content = exports.$consumed = exports.$clone = exports.$cleanup = exports.$cleanPage = exports.$clean = exports.$childrenToHTML = exports.$appendChild = exports.$addHTML = exports.$acceptWhitespace = void 0;
 var _utils = __w_pdfjs_require__(227);
 var _util = __w_pdfjs_require__(2);
 var _core_utils = __w_pdfjs_require__(160);
@@ -64012,6 +64737,7 @@ var $setSetAttributes = exports.$setSetAttributes = Symbol();
 var $setValue = exports.$setValue = Symbol();
 var $tabIndex = exports.$tabIndex = Symbol();
 var $text = exports.$text = Symbol();
+var $toPages = exports.$toPages = Symbol();
 var $toHTML = exports.$toHTML = Symbol();
 var $toString = exports.$toString = Symbol();
 var $toStyle = exports.$toStyle = Symbol();
@@ -64932,8 +65658,9 @@ var XmlObject = exports.XmlObject = /*#__PURE__*/function (_XFAObject) {
         buf.push((0, _core_utils.encodeToXmlString)(this[$content]));
         return;
       }
+      var utf8TagName = (0, _util.utf8StringToString)(tagName);
       var prefix = this[$namespaceId] === NS_DATASETS ? "xfa:" : "";
-      buf.push("<".concat(prefix).concat(tagName));
+      buf.push("<".concat(prefix).concat(utf8TagName));
       var _iterator13 = _createForOfIteratorHelper(this[_attributes].entries()),
         _step13;
       try {
@@ -64941,7 +65668,8 @@ var XmlObject = exports.XmlObject = /*#__PURE__*/function (_XFAObject) {
           var _step13$value = _slicedToArray(_step13.value, 2),
             name = _step13$value[0],
             value = _step13$value[1];
-          buf.push(" ".concat(name, "=\"").concat((0, _core_utils.encodeToXmlString)(value[$content]), "\""));
+          var utf8Name = (0, _util.utf8StringToString)(name);
+          buf.push(" ".concat(utf8Name, "=\"").concat((0, _core_utils.encodeToXmlString)(value[$content]), "\""));
         }
       } catch (err) {
         _iterator13.e(err);
@@ -64980,7 +65708,7 @@ var XmlObject = exports.XmlObject = /*#__PURE__*/function (_XFAObject) {
           _iterator14.f();
         }
       }
-      buf.push("</".concat(prefix).concat(tagName, ">"));
+      buf.push("</".concat(prefix).concat(utf8TagName, ">"));
     }
   }, {
     key: $onChild,
@@ -66595,6 +67323,10 @@ var Binder = exports.Binder = /*#__PURE__*/function () {
             } else {
               match = dataNode[_xfa_object.$getRealChildrenByNameIt](child.name, false, this.emptyMerge).next().value;
               if (!match) {
+                if (min === 0) {
+                  uselessNodes.push(child);
+                  continue;
+                }
                 var _nsId = dataNode[_xfa_object.$namespaceId] === NS_DATASETS ? -1 : dataNode[_xfa_object.$namespaceId];
                 match = child[_xfa_object.$data] = new _xfa_object.XmlObject(_nsId, child.name);
                 if (this.emptyMerge) {
@@ -66682,7 +67414,7 @@ var MAX_ATTEMPTS_FOR_LRTB_LAYOUT = 2;
 var MAX_EMPTY_PAGES = 3;
 var DEFAULT_TAB_INDEX = 5000;
 var HEADING_PATTERN = /^H(\d+)$/;
-var MIMES = new Set(["image/gif", "image/jpeg", "image/jpg", "image/pjpeg", "image/png", "image/apng", "image/x-png", "image/bmp", "image/x-ms-bmp", "image/tiff", "image/tif"]);
+var MIMES = new Set(["image/gif", "image/jpeg", "image/jpg", "image/pjpeg", "image/png", "image/apng", "image/x-png", "image/bmp", "image/x-ms-bmp", "image/tiff", "image/tif", "application/octet-stream"]);
 var IMAGES_HEADERS = [[[0x42, 0x4d], "image/bmp"], [[0xff, 0xd8, 0xff], "image/jpeg"], [[0x49, 0x49, 0x2a, 0x00], "image/tiff"], [[0x4d, 0x4d, 0x00, 0x2a], "image/tiff"], [[0x47, 0x49, 0x46, 0x38, 0x39, 0x61], "image/gif"], [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], "image/png"]];
 function getBorderDims(node) {
   if (!node || !node.border) {
@@ -66907,26 +67639,27 @@ function handleBreak(node) {
   }
   var pageArea = target && target[_xfa_object.$getParent]();
   var index;
+  var nextPageArea = pageArea;
   if (node.startNew) {
     if (target) {
       var contentAreas = pageArea.contentArea.children;
-      index = contentAreas.findIndex(function (e) {
-        return e === target;
-      }) - 1;
+      var indexForCurrent = contentAreas.indexOf(currentContentArea);
+      var indexForTarget = contentAreas.indexOf(target);
+      if (indexForCurrent !== -1 && indexForCurrent < indexForTarget) {
+        nextPageArea = null;
+      }
+      index = indexForTarget - 1;
     } else {
-      index = currentPageArea.contentArea.children.findIndex(function (e) {
-        return e === currentContentArea;
-      });
+      index = currentPageArea.contentArea.children.indexOf(currentContentArea);
     }
   } else if (target && target !== currentContentArea) {
     var _contentAreas = pageArea.contentArea.children;
-    index = _contentAreas.findIndex(function (e) {
-      return e === target;
-    }) - 1;
+    index = _contentAreas.indexOf(target) - 1;
+    nextPageArea = pageArea === currentPageArea ? null : pageArea;
   } else {
     return false;
   }
-  node[_xfa_object.$extra].target = pageArea === currentPageArea ? null : pageArea;
+  node[_xfa_object.$extra].target = nextPageArea;
   node[_xfa_object.$extra].index = index;
   return true;
 }
@@ -67014,7 +67747,7 @@ var Arc = /*#__PURE__*/function (_XFAObject) {
           overflow: "visible"
         }
       };
-      if (this.startAngle === 0 && this.sweepAngle === 360) {
+      if (this.sweepAngle === 360) {
         arc = {
           name: "ellipse",
           attributes: {
@@ -67029,11 +67762,11 @@ var Arc = /*#__PURE__*/function (_XFAObject) {
       } else {
         var startAngle = this.startAngle * Math.PI / 180;
         var sweepAngle = this.sweepAngle * Math.PI / 180;
-        var largeArc = this.sweepAngle - this.startAngle > 180 ? 1 : 0;
+        var largeArc = this.sweepAngle > 180 ? 1 : 0;
         var x1 = 50 * (1 + Math.cos(startAngle)),
           y1 = 50 * (1 - Math.sin(startAngle)),
-          x2 = 50 * (1 + Math.cos(sweepAngle)),
-          y2 = 50 * (1 - Math.sin(sweepAngle));
+          x2 = 50 * (1 + Math.cos(startAngle + sweepAngle)),
+          y2 = 50 * (1 - Math.sin(startAngle + sweepAngle));
         arc = {
           name: "path",
           attributes: {
@@ -71382,6 +72115,9 @@ var Subform = /*#__PURE__*/function (_XFAObject76) {
       if (this.h === "") {
         style.height = (0, _html_utils.measureToString)(height);
       }
+      if ((style.width === "0px" || style.height === "0px") && children.length === 0) {
+        return _utils.HTMLResult.EMPTY;
+      }
       var html = {
         name: "div",
         attributes: attributes,
@@ -71562,229 +72298,307 @@ var Template = exports.Template = /*#__PURE__*/function (_XFAObject80) {
       return (0, _som.searchNode)(this, container, expr, true, true);
     }
   }, {
-    key: _xfa_object.$toHTML,
-    value: function value() {
+    key: _xfa_object.$toPages,
+    value: /*#__PURE__*/_regeneratorRuntime().mark(function value() {
       var _this103 = this;
-      if (!this.subform.children.length) {
-        return _utils.HTMLResult.success({
-          name: "div",
-          children: []
-        });
-      }
-      this[_xfa_object.$extra] = {
-        overflowNode: null,
-        firstUnsplittable: null,
-        currentContentArea: null,
-        currentPageArea: null,
-        noLayoutFailure: false,
-        pageNumber: 1,
-        pagePosition: "first",
-        oddOrEven: "odd",
-        blankOrNotBlank: "nonBlank",
-        paraStack: []
-      };
-      var root = this.subform.children[0];
-      root.pageSet[_xfa_object.$cleanPage]();
-      var pageAreas = root.pageSet.pageArea.children;
-      var mainHtml = {
-        name: "div",
-        children: []
-      };
-      var pageArea = null;
-      var breakBefore = null;
-      var breakBeforeTarget = null;
-      if (root.breakBefore.children.length >= 1) {
-        breakBefore = root.breakBefore.children[0];
-        breakBeforeTarget = breakBefore.target;
-      } else if (root.subform.children.length >= 1 && root.subform.children[0].breakBefore.children.length >= 1) {
-        breakBefore = root.subform.children[0].breakBefore.children[0];
-        breakBeforeTarget = breakBefore.target;
-      } else if (root["break"] && root["break"].beforeTarget) {
-        breakBefore = root["break"];
-        breakBeforeTarget = breakBefore.beforeTarget;
-      } else if (root.subform.children.length >= 1 && root.subform.children[0]["break"] && root.subform.children[0]["break"].beforeTarget) {
-        breakBefore = root.subform.children[0]["break"];
-        breakBeforeTarget = breakBefore.beforeTarget;
-      }
-      if (breakBefore) {
-        var target = this[_xfa_object.$searchNode](breakBeforeTarget, breakBefore[_xfa_object.$getParent]());
-        if (target instanceof PageArea) {
-          pageArea = target;
-          breakBefore[_xfa_object.$extra] = {};
-        }
-      }
-      if (!pageArea) {
-        pageArea = pageAreas[0];
-      }
-      pageArea[_xfa_object.$extra] = {
-        numberOfUse: 1
-      };
-      var pageAreaParent = pageArea[_xfa_object.$getParent]();
-      pageAreaParent[_xfa_object.$extra] = {
-        numberOfUse: 1,
-        pageIndex: pageAreaParent.pageArea.children.indexOf(pageArea),
-        pageSetIndex: 0
-      };
-      var targetPageArea;
-      var leader = null;
-      var trailer = null;
-      var hasSomething = true;
-      var hasSomethingCounter = 0;
-      var startIndex = 0;
-      var _loop = function _loop() {
-          if (!hasSomething) {
-            mainHtml.children.pop();
-            if (++hasSomethingCounter === MAX_EMPTY_PAGES) {
-              (0, _util.warn)("XFA - Something goes wrong: please file a bug.");
-              return {
-                v: mainHtml
-              };
+      var root, pageAreas, mainHtml, pageArea, breakBefore, breakBeforeTarget, target, pageAreaParent, targetPageArea, leader, trailer, hasSomething, hasSomethingCounter, startIndex, _loop, _ret;
+      return _regeneratorRuntime().wrap(function value$(_context7) {
+        while (1) switch (_context7.prev = _context7.next) {
+          case 0:
+            if (this.subform.children.length) {
+              _context7.next = 2;
+              break;
             }
-          } else {
-            hasSomethingCounter = 0;
-          }
-          targetPageArea = null;
-          _this103[_xfa_object.$extra].currentPageArea = pageArea;
-          var page = pageArea[_xfa_object.$toHTML]().html;
-          mainHtml.children.push(page);
-          if (leader) {
-            _this103[_xfa_object.$extra].noLayoutFailure = true;
-            page.children.push(leader[_xfa_object.$toHTML](pageArea[_xfa_object.$extra].space).html);
+            return _context7.abrupt("return", _utils.HTMLResult.success({
+              name: "div",
+              children: []
+            }));
+          case 2:
+            this[_xfa_object.$extra] = {
+              overflowNode: null,
+              firstUnsplittable: null,
+              currentContentArea: null,
+              currentPageArea: null,
+              noLayoutFailure: false,
+              pageNumber: 1,
+              pagePosition: "first",
+              oddOrEven: "odd",
+              blankOrNotBlank: "nonBlank",
+              paraStack: []
+            };
+            root = this.subform.children[0];
+            root.pageSet[_xfa_object.$cleanPage]();
+            pageAreas = root.pageSet.pageArea.children;
+            mainHtml = {
+              name: "div",
+              children: []
+            };
+            pageArea = null;
+            breakBefore = null;
+            breakBeforeTarget = null;
+            if (root.breakBefore.children.length >= 1) {
+              breakBefore = root.breakBefore.children[0];
+              breakBeforeTarget = breakBefore.target;
+            } else if (root.subform.children.length >= 1 && root.subform.children[0].breakBefore.children.length >= 1) {
+              breakBefore = root.subform.children[0].breakBefore.children[0];
+              breakBeforeTarget = breakBefore.target;
+            } else if (root["break"] && root["break"].beforeTarget) {
+              breakBefore = root["break"];
+              breakBeforeTarget = breakBefore.beforeTarget;
+            } else if (root.subform.children.length >= 1 && root.subform.children[0]["break"] && root.subform.children[0]["break"].beforeTarget) {
+              breakBefore = root.subform.children[0]["break"];
+              breakBeforeTarget = breakBefore.beforeTarget;
+            }
+            if (breakBefore) {
+              target = this[_xfa_object.$searchNode](breakBeforeTarget, breakBefore[_xfa_object.$getParent]());
+              if (target instanceof PageArea) {
+                pageArea = target;
+                breakBefore[_xfa_object.$extra] = {};
+              }
+            }
+            if (!pageArea) {
+              pageArea = pageAreas[0];
+            }
+            pageArea[_xfa_object.$extra] = {
+              numberOfUse: 1
+            };
+            pageAreaParent = pageArea[_xfa_object.$getParent]();
+            pageAreaParent[_xfa_object.$extra] = {
+              numberOfUse: 1,
+              pageIndex: pageAreaParent.pageArea.children.indexOf(pageArea),
+              pageSetIndex: 0
+            };
             leader = null;
-          }
-          if (trailer) {
-            _this103[_xfa_object.$extra].noLayoutFailure = true;
-            page.children.push(trailer[_xfa_object.$toHTML](pageArea[_xfa_object.$extra].space).html);
             trailer = null;
-          }
-          var contentAreas = pageArea.contentArea.children;
-          var htmlContentAreas = page.children.filter(function (node) {
-            return node.attributes["class"].includes("xfaContentarea");
-          });
-          hasSomething = false;
-          _this103[_xfa_object.$extra].firstUnsplittable = null;
-          _this103[_xfa_object.$extra].noLayoutFailure = false;
-          var flush = function flush(index) {
-            var html = root[_xfa_object.$flushHTML]();
-            if (html) {
-              hasSomething = hasSomething || html.children && html.children.length !== 0;
-              htmlContentAreas[index].children.push(html);
-            }
-          };
-          var _loop2 = function _loop2(_i2) {
-              var contentArea = _this103[_xfa_object.$extra].currentContentArea = contentAreas[_i2];
-              var space = {
-                width: contentArea.w,
-                height: contentArea.h
-              };
-              startIndex = 0;
-              if (leader) {
-                htmlContentAreas[_i2].children.push(leader[_xfa_object.$toHTML](space).html);
-                leader = null;
-              }
-              if (trailer) {
-                htmlContentAreas[_i2].children.push(trailer[_xfa_object.$toHTML](space).html);
-                trailer = null;
-              }
-              var html = root[_xfa_object.$toHTML](space);
-              if (html.success) {
-                if (html.html) {
-                  hasSomething = hasSomething || html.html.children && html.html.children.length !== 0;
-                  htmlContentAreas[_i2].children.push(html.html);
-                } else if (!hasSomething) {
-                  mainHtml.children.pop();
-                }
-                return {
-                  v: {
-                    v: mainHtml
-                  }
-                };
-              }
-              if (html.isBreak()) {
-                var node = html.breakNode;
-                flush(_i2);
-                if (node.targetType === "auto") {
-                  i = _i2;
-                  return 0; // continue
-                }
-                if (node.leader) {
-                  leader = _this103[_xfa_object.$searchNode](node.leader, node[_xfa_object.$getParent]());
-                  leader = leader ? leader[0] : null;
-                }
-                if (node.trailer) {
-                  trailer = _this103[_xfa_object.$searchNode](node.trailer, node[_xfa_object.$getParent]());
-                  trailer = trailer ? trailer[0] : null;
-                }
-                if (node.targetType === "pageArea") {
-                  targetPageArea = node[_xfa_object.$extra].target;
-                  _i2 = Infinity;
-                } else if (!node[_xfa_object.$extra].target) {
-                  _i2 = node[_xfa_object.$extra].index;
-                } else {
-                  targetPageArea = node[_xfa_object.$extra].target;
-                  startIndex = node[_xfa_object.$extra].index + 1;
-                  _i2 = Infinity;
-                }
-                i = _i2;
-                return 0; // continue
-              }
-              if (_this103[_xfa_object.$extra].overflowNode) {
-                var _node3 = _this103[_xfa_object.$extra].overflowNode;
-                _this103[_xfa_object.$extra].overflowNode = null;
-                var overflowExtra = _node3[_xfa_object.$getExtra]();
-                var _target = overflowExtra.target;
-                overflowExtra.addLeader = overflowExtra.leader !== null;
-                overflowExtra.addTrailer = overflowExtra.trailer !== null;
-                flush(_i2);
-                var currentIndex = _i2;
-                _i2 = Infinity;
-                if (_target instanceof PageArea) {
-                  targetPageArea = _target;
-                } else if (_target instanceof ContentArea) {
-                  var index = contentAreas.findIndex(function (e) {
-                    return e === _target;
-                  });
-                  if (index !== -1) {
-                    if (index > currentIndex) {
-                      _i2 = index - 1;
-                    } else {
-                      startIndex = index;
+            hasSomething = true;
+            hasSomethingCounter = 0;
+            startIndex = 0;
+            _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
+              var page, contentAreas, htmlContentAreas, flush, _loop2, _ret2, i, ii;
+              return _regeneratorRuntime().wrap(function _loop$(_context6) {
+                while (1) switch (_context6.prev = _context6.next) {
+                  case 0:
+                    if (hasSomething) {
+                      _context6.next = 7;
+                      break;
                     }
-                  } else {
-                    targetPageArea = _target[_xfa_object.$getParent]();
-                    startIndex = targetPageArea.contentArea.children.findIndex(function (e) {
-                      return e === _target;
+                    mainHtml.children.pop();
+                    if (!(++hasSomethingCounter === MAX_EMPTY_PAGES)) {
+                      _context6.next = 5;
+                      break;
+                    }
+                    (0, _util.warn)("XFA - Something goes wrong: please file a bug.");
+                    return _context6.abrupt("return", {
+                      v: mainHtml
                     });
-                  }
+                  case 5:
+                    _context6.next = 8;
+                    break;
+                  case 7:
+                    hasSomethingCounter = 0;
+                  case 8:
+                    targetPageArea = null;
+                    _this103[_xfa_object.$extra].currentPageArea = pageArea;
+                    page = pageArea[_xfa_object.$toHTML]().html;
+                    mainHtml.children.push(page);
+                    if (leader) {
+                      _this103[_xfa_object.$extra].noLayoutFailure = true;
+                      page.children.push(leader[_xfa_object.$toHTML](pageArea[_xfa_object.$extra].space).html);
+                      leader = null;
+                    }
+                    if (trailer) {
+                      _this103[_xfa_object.$extra].noLayoutFailure = true;
+                      page.children.push(trailer[_xfa_object.$toHTML](pageArea[_xfa_object.$extra].space).html);
+                      trailer = null;
+                    }
+                    contentAreas = pageArea.contentArea.children;
+                    htmlContentAreas = page.children.filter(function (node) {
+                      return node.attributes["class"].includes("xfaContentarea");
+                    });
+                    hasSomething = false;
+                    _this103[_xfa_object.$extra].firstUnsplittable = null;
+                    _this103[_xfa_object.$extra].noLayoutFailure = false;
+                    flush = function flush(index) {
+                      var html = root[_xfa_object.$flushHTML]();
+                      if (html) {
+                        hasSomething = hasSomething || html.children && html.children.length !== 0;
+                        htmlContentAreas[index].children.push(html);
+                      }
+                    };
+                    _loop2 = /*#__PURE__*/_regeneratorRuntime().mark(function _loop2(_i2) {
+                      var contentArea, space, html, node, _node3, overflowExtra, _target, currentIndex, index;
+                      return _regeneratorRuntime().wrap(function _loop2$(_context5) {
+                        while (1) switch (_context5.prev = _context5.next) {
+                          case 0:
+                            contentArea = _this103[_xfa_object.$extra].currentContentArea = contentAreas[_i2];
+                            space = {
+                              width: contentArea.w,
+                              height: contentArea.h
+                            };
+                            startIndex = 0;
+                            if (leader) {
+                              htmlContentAreas[_i2].children.push(leader[_xfa_object.$toHTML](space).html);
+                              leader = null;
+                            }
+                            if (trailer) {
+                              htmlContentAreas[_i2].children.push(trailer[_xfa_object.$toHTML](space).html);
+                              trailer = null;
+                            }
+                            html = root[_xfa_object.$toHTML](space);
+                            if (!html.success) {
+                              _context5.next = 9;
+                              break;
+                            }
+                            if (html.html) {
+                              hasSomething = hasSomething || html.html.children && html.html.children.length !== 0;
+                              htmlContentAreas[_i2].children.push(html.html);
+                            } else if (!hasSomething && mainHtml.children.length > 1) {
+                              mainHtml.children.pop();
+                            }
+                            return _context5.abrupt("return", {
+                              v: {
+                                v: mainHtml
+                              }
+                            });
+                          case 9:
+                            if (!html.isBreak()) {
+                              _context5.next = 20;
+                              break;
+                            }
+                            node = html.breakNode;
+                            flush(_i2);
+                            if (!(node.targetType === "auto")) {
+                              _context5.next = 15;
+                              break;
+                            }
+                            i = _i2;
+                            return _context5.abrupt("return", 0);
+                          case 15:
+                            if (node.leader) {
+                              leader = _this103[_xfa_object.$searchNode](node.leader, node[_xfa_object.$getParent]());
+                              leader = leader ? leader[0] : null;
+                            }
+                            if (node.trailer) {
+                              trailer = _this103[_xfa_object.$searchNode](node.trailer, node[_xfa_object.$getParent]());
+                              trailer = trailer ? trailer[0] : null;
+                            }
+                            if (node.targetType === "pageArea") {
+                              targetPageArea = node[_xfa_object.$extra].target;
+                              _i2 = Infinity;
+                            } else if (!node[_xfa_object.$extra].target) {
+                              _i2 = node[_xfa_object.$extra].index;
+                            } else {
+                              targetPageArea = node[_xfa_object.$extra].target;
+                              startIndex = node[_xfa_object.$extra].index + 1;
+                              _i2 = Infinity;
+                            }
+                            i = _i2;
+                            return _context5.abrupt("return", 0);
+                          case 20:
+                            if (!_this103[_xfa_object.$extra].overflowNode) {
+                              _context5.next = 33;
+                              break;
+                            }
+                            _node3 = _this103[_xfa_object.$extra].overflowNode;
+                            _this103[_xfa_object.$extra].overflowNode = null;
+                            overflowExtra = _node3[_xfa_object.$getExtra]();
+                            _target = overflowExtra.target;
+                            overflowExtra.addLeader = overflowExtra.leader !== null;
+                            overflowExtra.addTrailer = overflowExtra.trailer !== null;
+                            flush(_i2);
+                            currentIndex = _i2;
+                            _i2 = Infinity;
+                            if (_target instanceof PageArea) {
+                              targetPageArea = _target;
+                            } else if (_target instanceof ContentArea) {
+                              index = contentAreas.findIndex(function (e) {
+                                return e === _target;
+                              });
+                              if (index !== -1) {
+                                if (index > currentIndex) {
+                                  _i2 = index - 1;
+                                } else {
+                                  startIndex = index;
+                                }
+                              } else {
+                                targetPageArea = _target[_xfa_object.$getParent]();
+                                startIndex = targetPageArea.contentArea.children.findIndex(function (e) {
+                                  return e === _target;
+                                });
+                              }
+                            }
+                            i = _i2;
+                            return _context5.abrupt("return", 0);
+                          case 33:
+                            flush(_i2);
+                            i = _i2;
+                          case 35:
+                          case "end":
+                            return _context5.stop();
+                        }
+                      }, _loop2);
+                    });
+                    i = startIndex, ii = contentAreas.length;
+                  case 22:
+                    if (!(i < ii)) {
+                      _context6.next = 32;
+                      break;
+                    }
+                    return _context6.delegateYield(_loop2(i), "t0", 24);
+                  case 24:
+                    _ret2 = _context6.t0;
+                    if (!(_ret2 === 0)) {
+                      _context6.next = 27;
+                      break;
+                    }
+                    return _context6.abrupt("continue", 29);
+                  case 27:
+                    if (!_ret2) {
+                      _context6.next = 29;
+                      break;
+                    }
+                    return _context6.abrupt("return", _ret2.v);
+                  case 29:
+                    i++;
+                    _context6.next = 22;
+                    break;
+                  case 32:
+                    _this103[_xfa_object.$extra].pageNumber += 1;
+                    if (targetPageArea) {
+                      if (targetPageArea[_xfa_object.$isUsable]()) {
+                        targetPageArea[_xfa_object.$extra].numberOfUse += 1;
+                      } else {
+                        targetPageArea = null;
+                      }
+                    }
+                    pageArea = targetPageArea || pageArea[_xfa_object.$getNextPage]();
+                    _context6.next = 37;
+                    return null;
+                  case 37:
+                  case "end":
+                    return _context6.stop();
                 }
-                i = _i2;
-                return 0; // continue
-              }
-              flush(_i2);
-              i = _i2;
-            },
-            _ret2;
-          for (var i = startIndex, ii = contentAreas.length; i < ii; i++) {
-            _ret2 = _loop2(i);
-            if (_ret2 === 0) continue;
-            if (_ret2) return _ret2.v;
-          }
-          _this103[_xfa_object.$extra].pageNumber += 1;
-          if (targetPageArea) {
-            if (targetPageArea[_xfa_object.$isUsable]()) {
-              targetPageArea[_xfa_object.$extra].numberOfUse += 1;
-            } else {
-              targetPageArea = null;
+              }, _loop);
+            });
+          case 22:
+            if (false) {}
+            return _context7.delegateYield(_loop(), "t0", 24);
+          case 24:
+            _ret = _context7.t0;
+            if (!_ret) {
+              _context7.next = 27;
+              break;
             }
-          }
-          pageArea = targetPageArea || pageArea[_xfa_object.$getNextPage]();
-        },
-        _ret;
-      while (true) {
-        _ret = _loop();
-        if (_ret) return _ret.v;
-      }
-    }
+            return _context7.abrupt("return", _ret.v);
+          case 27:
+            _context7.next = 22;
+            break;
+          case 29:
+          case "end":
+            return _context7.stop();
+        }
+      }, value, this);
+    })
   }]);
 }(_xfa_object.XFAObject);
 var Text = exports.Text = /*#__PURE__*/function (_ContentObject9) {
@@ -73002,7 +73816,7 @@ function addHTML(node, html, bbox) {
       }
     case "tb":
       {
-        extra.width = availableSpace.width;
+        extra.width = Math.min(availableSpace.width, Math.max(extra.width, w));
         extra.height += h;
         extra.children.push(html);
         break;
@@ -73428,7 +74242,7 @@ function layoutNode(node, availableSpace) {
     if (!font) {
       var root = node[_xfa_object.$getTemplateRoot]();
       var parent = node[_xfa_object.$getParent]();
-      while (parent !== root) {
+      while (parent && parent !== root) {
         if (parent.font) {
           font = parent.font;
           break;
@@ -73736,9 +74550,13 @@ function setPara(node, nodeStyle, value) {
   }
 }
 function setFontFamily(xfaFont, node, fontFinder, style) {
+  if (!fontFinder) {
+    delete style.fontFamily;
+    return;
+  }
   var name = (0, _utils.stripQuotes)(xfaFont.typeface);
-  var typeface = fontFinder.find(name);
   style.fontFamily = "\"".concat(name, "\"");
+  var typeface = fontFinder.find(name);
   if (typeface) {
     var fontFamily = typeface.regular.cssFontInfo.fontFamily;
     if (fontFamily !== name) {
@@ -74467,9 +75285,11 @@ function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf 
 var XFAParser = exports.XFAParser = /*#__PURE__*/function (_XMLParserBase) {
   function XFAParser() {
     var _this;
+    var rootNameSpace = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var richText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     _classCallCheck(this, XFAParser);
     _this = _callSuper(this, XFAParser);
-    _this._builder = new _builder.Builder();
+    _this._builder = new _builder.Builder(rootNameSpace);
     _this._stack = [];
     _this._globalData = {
       usedTypefaces: new Set()
@@ -74479,6 +75299,7 @@ var XFAParser = exports.XFAParser = /*#__PURE__*/function (_XMLParserBase) {
     _this._errorCode = _xml_parser.XMLParserErrorCode.NoError;
     _this._whiteRegex = /^\s+$/;
     _this._nbsps = /\xa0+/g;
+    _this._richText = richText;
     return _this;
   }
   _inherits(XFAParser, _XMLParserBase);
@@ -74498,8 +75319,8 @@ var XFAParser = exports.XFAParser = /*#__PURE__*/function (_XMLParserBase) {
       text = text.replace(this._nbsps, function (match) {
         return match.slice(1) + " ";
       });
-      if (this._current[_xfa_object.$acceptWhitespace]()) {
-        this._current[_xfa_object.$onText](text);
+      if (this._richText || this._current[_xfa_object.$acceptWhitespace]()) {
+        this._current[_xfa_object.$onText](text, this._richText);
         return;
       }
       if (this._whiteRegex.test(text)) {
@@ -74720,6 +75541,7 @@ var Empty = /*#__PURE__*/function (_XFAObject2) {
 }(_xfa_object.XFAObject);
 var Builder = exports.Builder = /*#__PURE__*/function () {
   function Builder() {
+    var rootNameSpace = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Builder);
     this._namespaceStack = [];
     this._nsAgnosticLevel = 0;
@@ -74729,7 +75551,7 @@ var Builder = exports.Builder = /*#__PURE__*/function () {
       var id = _ref.id;
       return id;
     })));
-    this._currentNamespace = new _unknown.UnknownNamespace(++this._nextNsId);
+    this._currentNamespace = rootNameSpace || new _unknown.UnknownNamespace(++this._nextNsId);
   }
   return _createClass(Builder, [{
     key: "buildRoot",
@@ -78264,6 +79086,7 @@ function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 var XHTML_NS_ID = _namespaces.NamespaceIds.xhtml.id;
+var $richText = Symbol();
 var VALID_STYLES = new Set(["color", "font", "font-family", "font-size", "font-stretch", "font-style", "font-weight", "margin", "margin-bottom", "margin-left", "margin-right", "margin-top", "letter-spacing", "line-height", "orphans", "page-break-after", "page-break-before", "page-break-inside", "tab-interval", "tab-stop", "text-align", "text-decoration", "text-indent", "vertical-align", "widows", "kerning-mode", "xfa-font-horizontal-scale", "xfa-font-vertical-scale", "xfa-spacerun", "xfa-tab-stops"]);
 var StyleMapping = new Map([["page-break-after", "breakAfter"], ["page-break-before", "breakBefore"], ["page-break-inside", "breakInside"], ["kerning-mode", function (value) {
   return value === "none" ? "none" : "normal";
@@ -78292,10 +79115,13 @@ var StyleMapping = new Map([["page-break-after", "breakAfter"], ["page-break-bef
   return (0, _html_utils.measureToString)((0, _utils.getMeasurement)(value));
 }], ["font-family", function (value) {
   return value;
+}], ["vertical-align", function (value) {
+  return (0, _html_utils.measureToString)((0, _utils.getMeasurement)(value));
 }]]);
 var spacesRegExp = /\s+/g;
 var crlfRegExp = /[\r\n]+/g;
-function mapStyle(styleStr, node) {
+var crlfForRichTextRegExp = /\r\n?/g;
+function mapStyle(styleStr, node, richText) {
   var style = Object.create(null);
   if (!styleStr) {
     return style;
@@ -78347,6 +79173,13 @@ function mapStyle(styleStr, node) {
       size: original.fontSize || 0
     }, node, node[_xfa_object.$globalData].fontFinder, style);
   }
+  if (richText && style.verticalAlign && style.verticalAlign !== "0px" && style.fontSize) {
+    var SUB_SUPER_SCRIPT_FACTOR = 0.583;
+    var VERTICAL_FACTOR = 0.333;
+    var fontSize = (0, _utils.getMeasurement)(style.fontSize);
+    style.fontSize = (0, _html_utils.measureToString)(fontSize * SUB_SUPER_SCRIPT_FACTOR);
+    style.verticalAlign = (0, _html_utils.measureToString)(Math.sign((0, _utils.getMeasurement)(style.verticalAlign)) * fontSize * VERTICAL_FACTOR);
+  }
   (0, _html_utils.fixTextIndent)(style);
   return style;
 }
@@ -78376,6 +79209,7 @@ var XhtmlObject = /*#__PURE__*/function (_XmlObject) {
     var _this;
     _classCallCheck(this, XhtmlObject);
     _this = _callSuper(this, XhtmlObject, [XHTML_NS_ID, name]);
+    _this[$richText] = false;
     _this.style = attributes.style || "";
     return _this;
   }
@@ -78394,9 +79228,14 @@ var XhtmlObject = /*#__PURE__*/function (_XmlObject) {
   }, {
     key: _xfa_object.$onText,
     value: function value(str) {
-      str = str.replace(crlfRegExp, "");
-      if (!this.style.includes("xfa-spacerun:yes")) {
-        str = str.replace(spacesRegExp, " ");
+      var richText = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      if (!richText) {
+        str = str.replace(crlfRegExp, "");
+        if (!this.style.includes("xfa-spacerun:yes")) {
+          str = str.replace(spacesRegExp, " ");
+        }
+      } else {
+        this[$richText] = true;
       }
       if (str) {
         this[_xfa_object.$content] += str;
@@ -78522,14 +79361,20 @@ var XhtmlObject = /*#__PURE__*/function (_XmlObject) {
       if (children.length === 0 && !this[_xfa_object.$content]) {
         return _utils.HTMLResult.EMPTY;
       }
+      var value;
+      if (this[$richText]) {
+        value = this[_xfa_object.$content] ? this[_xfa_object.$content].replace(crlfForRichTextRegExp, "\n") : undefined;
+      } else {
+        value = this[_xfa_object.$content] || undefined;
+      }
       return _utils.HTMLResult.success({
         name: this[_xfa_object.$nodeName],
         attributes: {
           href: this.href,
-          style: mapStyle(this.style, this)
+          style: mapStyle(this.style, this, this[$richText])
         },
         children: children,
-        value: this[_xfa_object.$content] || ""
+        value: value
       });
     }
   }]);
@@ -78698,6 +79543,10 @@ var P = /*#__PURE__*/function (_XhtmlObject9) {
   }, {
     key: _xfa_object.$text,
     value: function value() {
+      var siblings = this[_xfa_object.$getParent]()[_xfa_object.$getChildren]();
+      if (siblings[siblings.length - 1] === this) {
+        return _superPropGet(P, _xfa_object.$text, this, 3)([]);
+      }
       return _superPropGet(P, _xfa_object.$text, this, 3)([]) + "\n";
     }
   }]);
@@ -78859,13 +79708,20 @@ Object.defineProperty(exports, "__esModule", ({
 exports.XRef = void 0;
 var _util = __w_pdfjs_require__(2);
 var _primitives = __w_pdfjs_require__(156);
-var _parser2 = __w_pdfjs_require__(178);
 var _core_utils = __w_pdfjs_require__(160);
+var _parser2 = __w_pdfjs_require__(178);
+var _base_stream = __w_pdfjs_require__(157);
 var _crypto = __w_pdfjs_require__(223);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
@@ -78879,10 +79735,8 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
     this.entries = [];
     this.xrefstms = Object.create(null);
     this._cacheMap = new Map();
-    this.stats = {
-      streamTypes: Object.create(null),
-      fontTypes: Object.create(null)
-    };
+    this._pendingRefs = new _primitives.RefSet();
+    this.stats = new _core_utils.DocStats(pdfManager.msgHandler);
     this._newRefNum = null;
   }
   return _createClass(XRef, [{
@@ -78925,7 +79779,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
         }
         (0, _util.warn)("XRef.parse - Invalid \"Encrypt\" reference: \"".concat(ex, "\"."));
       }
-      if ((0, _primitives.isDict)(encrypt)) {
+      if (encrypt instanceof _primitives.Dict) {
         var ids = trailerDict.get("ID");
         var fileId = ids && ids.length ? ids[0] : "";
         encrypt.suppressEncryption = true;
@@ -78940,14 +79794,24 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
         }
         (0, _util.warn)("XRef.parse - Invalid \"Root\" reference: \"".concat(ex, "\"."));
       }
-      if ((0, _primitives.isDict)(root) && root.has("Pages")) {
-        this.root = root;
-      } else {
-        if (!recoveryMode) {
-          throw new _core_utils.XRefParseException();
+      if (root instanceof _primitives.Dict) {
+        try {
+          var pages = root.get("Pages");
+          if (pages instanceof _primitives.Dict) {
+            this.root = root;
+            return;
+          }
+        } catch (ex) {
+          if (ex instanceof _core_utils.MissingDataException) {
+            throw ex;
+          }
+          (0, _util.warn)("XRef.parse - Invalid \"Pages\" reference: \"".concat(ex, "\"."));
         }
-        throw new _util.FormatError("Invalid root reference");
       }
+      if (!recoveryMode) {
+        throw new _core_utils.XRefParseException();
+      }
+      throw new _util.InvalidPDFException("Invalid Root reference.");
     }
   }, {
     key: "processXRefTable",
@@ -78965,10 +79829,10 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
         throw new _util.FormatError("Invalid XRef table: could not find trailer dictionary");
       }
       var dict = parser.getObj();
-      if (!(0, _primitives.isDict)(dict) && dict.dict) {
+      if (!(dict instanceof _primitives.Dict) && dict.dict) {
         dict = dict.dict;
       }
-      if (!(0, _primitives.isDict)(dict)) {
+      if (!(dict instanceof _primitives.Dict)) {
         throw new _util.FormatError("Invalid XRef table: could not parse trailer dictionary");
       }
       delete this.tableState;
@@ -79061,40 +79925,52 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
   }, {
     key: "readXRefStream",
     value: function readXRefStream(stream) {
-      var i, j;
       var streamState = this.streamState;
       stream.pos = streamState.streamPos;
-      var byteWidths = streamState.byteWidths;
-      var typeFieldWidth = byteWidths[0];
-      var offsetFieldWidth = byteWidths[1];
-      var generationFieldWidth = byteWidths[2];
+      var _streamState$byteWidt = _slicedToArray(streamState.byteWidths, 3),
+        typeFieldWidth = _streamState$byteWidt[0],
+        offsetFieldWidth = _streamState$byteWidt[1],
+        generationFieldWidth = _streamState$byteWidt[2];
       var entryRanges = streamState.entryRanges;
       while (entryRanges.length > 0) {
-        var first = entryRanges[0];
-        var n = entryRanges[1];
+        var _entryRanges = _slicedToArray(entryRanges, 2),
+          first = _entryRanges[0],
+          n = _entryRanges[1];
         if (!Number.isInteger(first) || !Number.isInteger(n)) {
           throw new _util.FormatError("Invalid XRef range fields: ".concat(first, ", ").concat(n));
         }
         if (!Number.isInteger(typeFieldWidth) || !Number.isInteger(offsetFieldWidth) || !Number.isInteger(generationFieldWidth)) {
           throw new _util.FormatError("Invalid XRef entry fields length: ".concat(first, ", ").concat(n));
         }
-        for (i = streamState.entryNum; i < n; ++i) {
+        for (var i = streamState.entryNum; i < n; ++i) {
           streamState.entryNum = i;
           streamState.streamPos = stream.pos;
           var type = 0,
             offset = 0,
             generation = 0;
-          for (j = 0; j < typeFieldWidth; ++j) {
-            type = type << 8 | stream.getByte();
+          for (var j = 0; j < typeFieldWidth; ++j) {
+            var typeByte = stream.getByte();
+            if (typeByte === -1) {
+              throw new _util.FormatError("Invalid XRef byteWidths 'type'.");
+            }
+            type = type << 8 | typeByte;
           }
           if (typeFieldWidth === 0) {
             type = 1;
           }
-          for (j = 0; j < offsetFieldWidth; ++j) {
-            offset = offset << 8 | stream.getByte();
+          for (var _j = 0; _j < offsetFieldWidth; ++_j) {
+            var offsetByte = stream.getByte();
+            if (offsetByte === -1) {
+              throw new _util.FormatError("Invalid XRef byteWidths 'offset'.");
+            }
+            offset = offset << 8 | offsetByte;
           }
-          for (j = 0; j < generationFieldWidth; ++j) {
-            generation = generation << 8 | stream.getByte();
+          for (var _j2 = 0; _j2 < generationFieldWidth; ++_j2) {
+            var generationByte = stream.getByte();
+            if (generationByte === -1) {
+              throw new _util.FormatError("Invalid XRef byteWidths 'generation'.");
+            }
+            generation = generation << 8 | generationByte;
           }
           var entry = {};
           entry.offset = offset;
@@ -79167,6 +80043,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
       var objBytes = new Uint8Array([111, 98, 106]);
       var xrefBytes = new Uint8Array([47, 88, 82, 101, 102]);
       this.entries.length = 0;
+      this._cacheMap.clear();
       var stream = this.stream;
       stream.pos = 0;
       var buffer = stream.getBytes(),
@@ -79275,7 +80152,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
           continue;
         }
         var dict = _parser.getObj();
-        if (!(0, _primitives.isDict)(dict)) {
+        if (!(dict instanceof _primitives.Dict)) {
           continue;
         }
         try {
@@ -79301,6 +80178,9 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
       }
       if (trailerDict) {
         return trailerDict;
+      }
+      if (this.topDict) {
+        return this.topDict;
       }
       throw new _util.InvalidPDFException("Invalid PDF structure.");
     }
@@ -79341,7 +80221,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
               }
             }
           } else if (Number.isInteger(obj)) {
-            if (!Number.isInteger(parser.getObj()) || !(0, _primitives.isCmd)(parser.getObj(), "obj") || !(0, _primitives.isStream)(obj = parser.getObj())) {
+            if (!Number.isInteger(parser.getObj()) || !(0, _primitives.isCmd)(parser.getObj(), "obj") || !((obj = parser.getObj()) instanceof _base_stream.BaseStream)) {
               throw new _util.FormatError("Invalid XRef stream");
             }
             dict = this.processXRefStream(obj);
@@ -79357,7 +80237,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
           obj = dict.get("Prev");
           if (Number.isInteger(obj)) {
             this.startXRefQueue.push(obj);
-          } else if ((0, _primitives.isRef)(obj)) {
+          } else if (obj instanceof _primitives.Ref) {
             this.startXRefQueue.push(obj.num);
           }
           this.startXRefQueue.shift();
@@ -79368,6 +80248,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
           throw e;
         }
         (0, _util.info)("(while reading XRef): " + e);
+        this.startXRefQueue.shift();
       }
       if (recoveryMode) {
         return undefined;
@@ -79412,14 +80293,26 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
         this._cacheMap.set(num, xrefEntry);
         return xrefEntry;
       }
-      if (xrefEntry.uncompressed) {
-        xrefEntry = this.fetchUncompressed(ref, xrefEntry, suppressEncryption);
-      } else {
-        xrefEntry = this.fetchCompressed(ref, xrefEntry, suppressEncryption);
+      if (this._pendingRefs.has(ref)) {
+        this._pendingRefs.remove(ref);
+        (0, _util.warn)("Ignoring circular reference: ".concat(ref, "."));
+        return _primitives.CIRCULAR_REF;
       }
-      if ((0, _primitives.isDict)(xrefEntry)) {
+      this._pendingRefs.put(ref);
+      try {
+        if (xrefEntry.uncompressed) {
+          xrefEntry = this.fetchUncompressed(ref, xrefEntry, suppressEncryption);
+        } else {
+          xrefEntry = this.fetchCompressed(ref, xrefEntry, suppressEncryption);
+        }
+        this._pendingRefs.remove(ref);
+      } catch (ex) {
+        this._pendingRefs.remove(ref);
+        throw ex;
+      }
+      if (xrefEntry instanceof _primitives.Dict) {
         xrefEntry.objId = ref.toString();
-      } else if ((0, _primitives.isStream)(xrefEntry)) {
+      } else if (xrefEntry instanceof _base_stream.BaseStream) {
         xrefEntry.dict.objId = ref.toString();
       }
       return xrefEntry;
@@ -79459,7 +80352,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
       } else {
         xrefEntry = parser.getObj();
       }
-      if (!(0, _primitives.isStream)(xrefEntry)) {
+      if (!(xrefEntry instanceof _base_stream.BaseStream)) {
         this._cacheMap.set(num, xrefEntry);
       }
       return xrefEntry;
@@ -79470,7 +80363,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
       var suppressEncryption = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
       var tableOffset = xrefEntry.offset;
       var stream = this.fetch(_primitives.Ref.get(tableOffset, 0));
-      if (!(0, _primitives.isStream)(stream)) {
+      if (!(stream instanceof _base_stream.BaseStream)) {
         throw new _util.FormatError("bad ObjStm stream");
       }
       var first = stream.dict.get("First");
@@ -79511,7 +80404,7 @@ var XRef = exports.XRef = /*#__PURE__*/function () {
         });
         var obj = parser.getObj();
         entries[_i2] = obj;
-        if ((0, _primitives.isStream)(obj)) {
+        if (obj instanceof _base_stream.BaseStream) {
           continue;
         }
         var _num = nums[_i2],
@@ -79658,7 +80551,6 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
     this.comObj = comObj;
     this.callbackId = 1;
     this.streamId = 1;
-    this.postMessageTransfers = true;
     this.streamSinks = Object.create(null);
     this.streamControllers = Object.create(null);
     this.callbackCapabilities = Object.create(null);
@@ -79736,7 +80628,7 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
   }, {
     key: "send",
     value: function send(actionName, data, transfers) {
-      this._postMessage({
+      this.comObj.postMessage({
         sourceName: this.sourceName,
         targetName: this.targetName,
         action: actionName,
@@ -79750,7 +80642,7 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
       var capability = (0, _util.createPromiseCapability)();
       this.callbackCapabilities[callbackId] = capability;
       try {
-        this._postMessage({
+        this.comObj.postMessage({
           sourceName: this.sourceName,
           targetName: this.targetName,
           action: actionName,
@@ -79780,7 +80672,7 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
             cancelCall: null,
             isClosed: false
           };
-          _this2._postMessage({
+          comObj.postMessage({
             sourceName: sourceName,
             targetName: targetName,
             action: actionName,
@@ -79840,7 +80732,7 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
             this.sinkCapability = (0, _util.createPromiseCapability)();
             this.ready = this.sinkCapability.promise;
           }
-          self._postMessage({
+          comObj.postMessage({
             sourceName: sourceName,
             targetName: targetName,
             stream: StreamKind.ENQUEUE,
@@ -80046,15 +80938,6 @@ var MessageHandler = exports.MessageHandler = /*#__PURE__*/function () {
       }
       return _deleteStreamController;
     }()
-  }, {
-    key: "_postMessage",
-    value: function _postMessage(message, transfers) {
-      if (transfers && this.postMessageTransfers) {
-        this.comObj.postMessage(message, transfers);
-      } else {
-        this.comObj.postMessage(message);
-      }
-    }
   }, {
     key: "destroy",
     value: function destroy() {
@@ -80348,7 +81231,7 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
   }
 }));
 var _worker = __w_pdfjs_require__(1);
-var pdfjsVersion = '2.11.385';
+var pdfjsVersion = '2.12.47';
 var pdfjsBuild = 'b55e3fd74';
 })();
 

@@ -582,11 +582,16 @@ var AbortException = exports.AbortException = /*#__PURE__*/function (_BaseExcept
   _inherits(AbortException, _BaseException7);
   return _createClass(AbortException);
 }(BaseException);
-var NullCharactersRegExp = /\x00/g;
+var NullCharactersRegExp = /\x00+/g;
+var InvisibleCharactersRegExp = /[\x01-\x1F]/g;
 function removeNullCharacters(str) {
+  var replaceInvisible = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
   if (typeof str !== "string") {
     warn("The argument for removeNullCharacters must be a string.");
     return str;
+  }
+  if (replaceInvisible) {
+    str = str.replace(InvisibleCharactersRegExp, " ");
   }
   return str.replace(NullCharactersRegExp, "");
 }
@@ -800,6 +805,62 @@ var Util = exports.Util = /*#__PURE__*/function () {
       }
       return result;
     }
+  }, {
+    key: "bezierBoundingBox",
+    value: function bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3) {
+      var tvalues = [],
+        bounds = [[], []];
+      var a, b, c, t, t1, t2, b2ac, sqrtb2ac;
+      for (var i = 0; i < 2; ++i) {
+        if (i === 0) {
+          b = 6 * x0 - 12 * x1 + 6 * x2;
+          a = -3 * x0 + 9 * x1 - 9 * x2 + 3 * x3;
+          c = 3 * x1 - 3 * x0;
+        } else {
+          b = 6 * y0 - 12 * y1 + 6 * y2;
+          a = -3 * y0 + 9 * y1 - 9 * y2 + 3 * y3;
+          c = 3 * y1 - 3 * y0;
+        }
+        if (Math.abs(a) < 1e-12) {
+          if (Math.abs(b) < 1e-12) {
+            continue;
+          }
+          t = -c / b;
+          if (0 < t && t < 1) {
+            tvalues.push(t);
+          }
+          continue;
+        }
+        b2ac = b * b - 4 * c * a;
+        sqrtb2ac = Math.sqrt(b2ac);
+        if (b2ac < 0) {
+          continue;
+        }
+        t1 = (-b + sqrtb2ac) / (2 * a);
+        if (0 < t1 && t1 < 1) {
+          tvalues.push(t1);
+        }
+        t2 = (-b - sqrtb2ac) / (2 * a);
+        if (0 < t2 && t2 < 1) {
+          tvalues.push(t2);
+        }
+      }
+      var j = tvalues.length,
+        mt;
+      var jlen = j;
+      while (j--) {
+        t = tvalues[j];
+        mt = 1 - t;
+        bounds[0][j] = mt * mt * mt * x0 + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * x3;
+        bounds[1][j] = mt * mt * mt * y0 + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * y3;
+      }
+      bounds[0][jlen] = x0;
+      bounds[1][jlen] = y0;
+      bounds[0][jlen + 1] = x3;
+      bounds[1][jlen + 1] = y3;
+      bounds[0].length = bounds[1].length = jlen + 2;
+      return [Math.min.apply(Math, _toConsumableArray(bounds[0])), Math.min.apply(Math, _toConsumableArray(bounds[1])), Math.max.apply(Math, _toConsumableArray(bounds[0])), Math.max.apply(Math, _toConsumableArray(bounds[1]))];
+    }
   }]);
 }();
 var PDFStringTranslateTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac];
@@ -900,7 +961,7 @@ function createPromiseCapability() {
 function createObjectURL(data) {
   var contentType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
   var forceDataSchema = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  if (URL.createObjectURL && !forceDataSchema) {
+  if (URL.createObjectURL && typeof Blob !== "undefined" && !forceDataSchema) {
     return URL.createObjectURL(new Blob([data], {
       type: contentType
     }));
@@ -1050,9 +1111,9 @@ module.exports = function (options, source) {
 var check = function (it) {
  return it && it.Math === Math && it;
 };
-module.exports = check(typeof globalThis == 'object' && globalThis) || check(typeof window == 'object' && window) || check(typeof self == 'object' && self) || check(typeof global == 'object' && global) || check(typeof this == 'object' && this) || function () {
+module.exports = check(typeof globalThis == 'object' && globalThis) || check(typeof window == 'object' && window) || check(typeof self == 'object' && self) || check(typeof global == 'object' && global) || check(typeof this == 'object' && this) || (function () {
  return this;
-}() || Function('return this')();
+}()) || Function('return this')();
 
 /***/ }),
 /* 8 */
@@ -2152,187 +2213,30 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 })(void 0, function () {
   'use strict';
 
-  var CSSMatrix = function CSSMatrix() {
-    var args = [],
-      len = arguments.length;
-    while (len--) args[len] = arguments[len];
-    this.setIdentity();
-    return args && args.length && this.setMatrixValue(args);
-  };
-  var prototypeAccessors = {
-    isIdentity: {
-      configurable: true
-    },
-    is2D: {
-      configurable: true
-    }
-  };
-  prototypeAccessors.isIdentity.get = function () {
-    var m = this;
-    return m.m11 === 1 && m.m12 === 0 && m.m13 === 0 && m.m14 === 0 && m.m21 === 0 && m.m22 === 1 && m.m23 === 0 && m.m24 === 0 && m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m41 === 0 && m.m42 === 0 && m.m43 === 0 && m.m44 === 1;
-  };
-  prototypeAccessors.isIdentity.set = function (value) {
-    this.isIdentity = value;
-  };
-  prototypeAccessors.is2D.get = function () {
-    var m = this;
-    return m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m43 === 0 && m.m44 === 1;
-  };
-  prototypeAccessors.is2D.set = function (value) {
-    this.is2D = value;
-  };
-  Object.defineProperties(CSSMatrix.prototype, prototypeAccessors);
-  var CSSMatrixProto = CSSMatrix.prototype;
-  function Translate(x, y, z) {
+  function fromArray(array) {
     var m = new CSSMatrix();
-    m.m41 = x;
-    m.e = x;
-    m.m42 = y;
-    m.f = y;
-    m.m43 = z;
-    return m;
-  }
-  function Rotate(rx, ry, rz) {
-    var m = new CSSMatrix();
-    var radX = rx * Math.PI / 180;
-    var radY = ry * Math.PI / 180;
-    var radZ = rz * Math.PI / 180;
-    var cosx = Math.cos(radX);
-    var sinx = -Math.sin(radX);
-    var cosy = Math.cos(radY);
-    var siny = -Math.sin(radY);
-    var cosz = Math.cos(radZ);
-    var sinz = -Math.sin(radZ);
-    var cycz = cosy * cosz;
-    var cysz = -cosy * sinz;
-    m.m11 = cycz;
-    m.a = cycz;
-    m.m12 = cysz;
-    m.b = cysz;
-    m.m13 = siny;
-    var sxsy = sinx * siny * cosz + cosx * sinz;
-    m.m21 = sxsy;
-    m.c = sxsy;
-    var cxcz = cosx * cosz - sinx * siny * sinz;
-    m.m22 = cxcz;
-    m.d = cxcz;
-    m.m23 = -sinx * cosy;
-    m.m31 = sinx * sinz - cosx * siny * cosz;
-    m.m32 = sinx * cosz + cosx * siny * sinz;
-    m.m33 = cosx * cosy;
-    return m;
-  }
-  function RotateAxisAngle(x, y, z, angle) {
-    var m = new CSSMatrix();
-    var radA = angle * Math.PI / 360;
-    var sinA = Math.sin(radA);
-    var cosA = Math.cos(radA);
-    var sinA2 = sinA * sinA;
-    var length = Math.sqrt(x * x + y * y + z * z);
-    var X = 0;
-    var Y = 0;
-    var Z = 1;
-    if (length !== 0) {
-      X = x / length;
-      Y = y / length;
-      Z = z / length;
-    }
-    var x2 = X * X;
-    var y2 = Y * Y;
-    var z2 = Z * Z;
-    var m11 = 1 - 2 * (y2 + z2) * sinA2;
-    m.m11 = m11;
-    m.a = m11;
-    var m12 = 2 * (x * y * sinA2 + z * sinA * cosA);
-    m.m12 = m12;
-    m.b = m12;
-    m.m13 = 2 * (x * z * sinA2 - y * sinA * cosA);
-    var m21 = 2 * (y * x * sinA2 - z * sinA * cosA);
-    m.m21 = m21;
-    m.c = m21;
-    var m22 = 1 - 2 * (z2 + x2) * sinA2;
-    m.m22 = m22;
-    m.d = m22;
-    m.m23 = 2 * (y * z * sinA2 + x * sinA * cosA);
-    m.m31 = 2 * (z * x * sinA2 + y * sinA * cosA);
-    m.m32 = 2 * (z * y * sinA2 - x * sinA * cosA);
-    m.m33 = 1 - 2 * (x2 + y2) * sinA2;
-    m.m14 = 0;
-    m.m24 = 0;
-    m.m34 = 0;
-    m.m41 = 0;
-    m.e = 0;
-    m.m42 = 0;
-    m.f = 0;
-    m.m43 = 0;
-    m.m44 = 1;
-    return m;
-  }
-  function Scale(x, y, z) {
-    var m = new CSSMatrix();
-    m.m11 = x;
-    m.a = x;
-    m.m22 = y;
-    m.d = y;
-    m.m33 = z;
-    return m;
-  }
-  function SkewX(angle) {
-    var radA = angle * Math.PI / 180;
-    var m = new CSSMatrix();
-    var t = Math.tan(radA);
-    m.m21 = t;
-    m.c = t;
-    return m;
-  }
-  function SkewY(angle) {
-    var radA = angle * Math.PI / 180;
-    var m = new CSSMatrix();
-    var t = Math.tan(radA);
-    m.m12 = t;
-    m.b = t;
-    return m;
-  }
-  function Multiply(m1, m2) {
-    var m11 = m2.m11 * m1.m11 + m2.m12 * m1.m21 + m2.m13 * m1.m31 + m2.m14 * m1.m41;
-    var m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22 + m2.m13 * m1.m32 + m2.m14 * m1.m42;
-    var m13 = m2.m11 * m1.m13 + m2.m12 * m1.m23 + m2.m13 * m1.m33 + m2.m14 * m1.m43;
-    var m14 = m2.m11 * m1.m14 + m2.m12 * m1.m24 + m2.m13 * m1.m34 + m2.m14 * m1.m44;
-    var m21 = m2.m21 * m1.m11 + m2.m22 * m1.m21 + m2.m23 * m1.m31 + m2.m24 * m1.m41;
-    var m22 = m2.m21 * m1.m12 + m2.m22 * m1.m22 + m2.m23 * m1.m32 + m2.m24 * m1.m42;
-    var m23 = m2.m21 * m1.m13 + m2.m22 * m1.m23 + m2.m23 * m1.m33 + m2.m24 * m1.m43;
-    var m24 = m2.m21 * m1.m14 + m2.m22 * m1.m24 + m2.m23 * m1.m34 + m2.m24 * m1.m44;
-    var m31 = m2.m31 * m1.m11 + m2.m32 * m1.m21 + m2.m33 * m1.m31 + m2.m34 * m1.m41;
-    var m32 = m2.m31 * m1.m12 + m2.m32 * m1.m22 + m2.m33 * m1.m32 + m2.m34 * m1.m42;
-    var m33 = m2.m31 * m1.m13 + m2.m32 * m1.m23 + m2.m33 * m1.m33 + m2.m34 * m1.m43;
-    var m34 = m2.m31 * m1.m14 + m2.m32 * m1.m24 + m2.m33 * m1.m34 + m2.m34 * m1.m44;
-    var m41 = m2.m41 * m1.m11 + m2.m42 * m1.m21 + m2.m43 * m1.m31 + m2.m44 * m1.m41;
-    var m42 = m2.m41 * m1.m12 + m2.m42 * m1.m22 + m2.m43 * m1.m32 + m2.m44 * m1.m42;
-    var m43 = m2.m41 * m1.m13 + m2.m42 * m1.m23 + m2.m43 * m1.m33 + m2.m44 * m1.m43;
-    var m44 = m2.m41 * m1.m14 + m2.m42 * m1.m24 + m2.m43 * m1.m34 + m2.m44 * m1.m44;
-    return new CSSMatrix([m11, m21, m31, m41, m12, m22, m32, m42, m13, m23, m33, m43, m14, m24, m34, m44]);
-  }
-  function fromMatrix(m) {
-    return new CSSMatrix([m.m11, m.m21, m.m31, m.m41, m.m12, m.m22, m.m32, m.m42, m.m13, m.m23, m.m33, m.m43, m.m14, m.m24, m.m34, m.m44]);
-  }
-  function feedFromArray(m, array) {
     var a = Array.from(array);
+    if (!a.every(function (n) {
+      return !Number.isNaN(n);
+    })) {
+      throw TypeError("CSSMatrix: \"" + array + "\" must only have numbers.");
+    }
     if (a.length === 16) {
       var m11 = a[0];
-      var m21 = a[1];
-      var m31 = a[2];
-      var m41 = a[3];
-      var m12 = a[4];
+      var m12 = a[1];
+      var m13 = a[2];
+      var m14 = a[3];
+      var m21 = a[4];
       var m22 = a[5];
-      var m32 = a[6];
-      var m42 = a[7];
-      var m13 = a[8];
-      var m23 = a[9];
+      var m23 = a[6];
+      var m24 = a[7];
+      var m31 = a[8];
+      var m32 = a[9];
       var m33 = a[10];
-      var m43 = a[11];
-      var m14 = a[12];
-      var m24 = a[13];
-      var m34 = a[14];
+      var m34 = a[11];
+      var m41 = a[12];
+      var m42 = a[13];
+      var m43 = a[14];
       var m44 = a[15];
       m.m11 = m11;
       m.a = m11;
@@ -2357,136 +2261,401 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       m.m34 = m34;
       m.m44 = m44;
     } else if (a.length === 6) {
-      var m11$1 = a[0];
-      var m12$1 = a[1];
-      var m21$1 = a[2];
-      var m22$1 = a[3];
-      var m14$1 = a[4];
-      var m24$1 = a[5];
-      m.m11 = m11$1;
-      m.a = m11$1;
-      m.m12 = m12$1;
-      m.b = m12$1;
-      m.m21 = m21$1;
-      m.c = m21$1;
-      m.m22 = m22$1;
-      m.d = m22$1;
-      m.m14 = m14$1;
-      m.e = m14$1;
-      m.m24 = m24$1;
-      m.f = m24$1;
+      var M11 = a[0];
+      var M12 = a[1];
+      var M21 = a[2];
+      var M22 = a[3];
+      var M41 = a[4];
+      var M42 = a[5];
+      m.m11 = M11;
+      m.a = M11;
+      m.m12 = M12;
+      m.b = M12;
+      m.m21 = M21;
+      m.c = M21;
+      m.m22 = M22;
+      m.d = M22;
+      m.m41 = M41;
+      m.e = M41;
+      m.m42 = M42;
+      m.f = M42;
     } else {
-      throw new TypeError('CSSMatrix: expecting a 6/16 values Array');
+      throw new TypeError('CSSMatrix: expecting an Array of 6/16 values.');
     }
     return m;
   }
-  function fromArray(a) {
-    return feedFromArray(new CSSMatrix(), a);
-  }
-  CSSMatrixProto.setMatrixValue = function setMatrixValue(source) {
-    var m = this;
-    if (!source || !source.length) {
-      return m;
+  function fromMatrix(m) {
+    var keys = Object.keys(new CSSMatrix());
+    if (_typeof(m) === 'object' && keys.every(function (k) {
+      return k in m;
+    })) {
+      return fromArray([m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44]);
     }
-    if (source.length && typeof source[0] === 'string' && source[0].length) {
-      var string = String(source[0]).trim();
-      var type = '';
-      var values = [];
-      if (string === 'none') {
-        return m;
+    throw TypeError("CSSMatrix: \"" + m + "\" is not a DOMMatrix / CSSMatrix / JSON compatible object.");
+  }
+  function fromString(source) {
+    if (typeof source !== 'string') {
+      throw TypeError("CSSMatrix: \"" + source + "\" is not a string.");
+    }
+    var str = String(source).replace(/\s/g, '');
+    var m = new CSSMatrix();
+    var invalidStringError = "CSSMatrix: invalid transform string \"" + source + "\"";
+    str.split(')').filter(function (f) {
+      return f;
+    }).forEach(function (tf) {
+      var ref = tf.split('(');
+      var prop = ref[0];
+      var value = ref[1];
+      if (!value) {
+        throw TypeError(invalidStringError);
       }
-      type = string.slice(0, string.indexOf('('));
-      values = string.slice(type === 'matrix' ? 7 : 9, -1).split(',').map(function (n) {
-        return Math.abs(n) < 1e-6 ? 0 : +n;
+      var components = value.split(',').map(function (n) {
+        return n.includes('rad') ? parseFloat(n) * (180 / Math.PI) : parseFloat(n);
       });
-      if ([6, 16].indexOf(values.length) > -1) {
-        feedFromArray(m, values);
+      var x = components[0];
+      var y = components[1];
+      var z = components[2];
+      var a = components[3];
+      var xyz = [x, y, z];
+      var xyza = [x, y, z, a];
+      if (prop === 'perspective' && x && [y, z].every(function (n) {
+        return n === undefined;
+      })) {
+        m.m34 = -1 / x;
+      } else if (prop.includes('matrix') && [6, 16].includes(components.length) && components.every(function (n) {
+        return !Number.isNaN(+n);
+      })) {
+        var values = components.map(function (n) {
+          return Math.abs(n) < 1e-6 ? 0 : n;
+        });
+        m = m.multiply(fromArray(values));
+      } else if (prop === 'translate3d' && xyz.every(function (n) {
+        return !Number.isNaN(+n);
+      })) {
+        m = m.translate(x, y, z);
+      } else if (prop === 'translate' && x && z === undefined) {
+        m = m.translate(x, y || 0, 0);
+      } else if (prop === 'rotate3d' && xyza.every(function (n) {
+        return !Number.isNaN(+n);
+      }) && a) {
+        m = m.rotateAxisAngle(x, y, z, a);
+      } else if (prop === 'rotate' && x && [y, z].every(function (n) {
+        return n === undefined;
+      })) {
+        m = m.rotate(0, 0, x);
+      } else if (prop === 'scale3d' && xyz.every(function (n) {
+        return !Number.isNaN(+n);
+      }) && xyz.some(function (n) {
+        return n !== 1;
+      })) {
+        m = m.scale(x, y, z);
+      } else if (prop === 'scale' && !Number.isNaN(x) && x !== 1 && z === undefined) {
+        var nosy = Number.isNaN(+y);
+        var sy = nosy ? x : y;
+        m = m.scale(x, sy, 1);
+      } else if (prop === 'skew' && x && z === undefined) {
+        m = m.skewX(x);
+        m = y ? m.skewY(y) : m;
+      } else if (/[XYZ]/.test(prop) && x && [y, z].every(function (n) {
+        return n === undefined;
+      }) && ['translate', 'rotate', 'scale', 'skew'].some(function (p) {
+        return prop.includes(p);
+      })) {
+        if (['skewX', 'skewY'].includes(prop)) {
+          m = m[prop](x);
+        } else {
+          var fn = prop.replace(/[XYZ]/, '');
+          var axis = prop.replace(fn, '');
+          var idx = ['X', 'Y', 'Z'].indexOf(axis);
+          var axeValues = [idx === 0 ? x : 0, idx === 1 ? x : 0, idx === 2 ? x : 0];
+          m = m[fn].apply(m, axeValues);
+        }
       } else {
-        throw new TypeError('CSSMatrix: expecting valid CSS matrix() / matrix3d() syntax');
+        throw TypeError(invalidStringError);
       }
-    } else if (source[0] instanceof CSSMatrix) {
-      feedFromArray(m, source[0].toArray());
-    } else if (Array.isArray(source[0])) {
-      feedFromArray(m, source[0]);
-    } else if (Array.isArray(source)) {
-      feedFromArray(m, source);
-    }
+    });
     return m;
-  };
-  CSSMatrixProto.toString = function toString() {
-    var m = this;
-    var type = m.is2D ? 'matrix' : 'matrix3d';
-    return type + "(" + m.toArray(1).join(',') + ")";
-  };
-  CSSMatrixProto.toArray = function toArray(transposed) {
-    var m = this;
-    var result;
-    if (m.is2D) {
-      result = [m.a, m.b, m.c, m.d, m.e, m.f];
-    } else if (transposed) {
-      result = [m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44];
-    } else {
-      result = [m.m11, m.m21, m.m31, m.m41, m.m12, m.m22, m.m32, m.m42, m.m13, m.m23, m.m33, m.m43, m.m14, m.m24, m.m34, m.m44];
-    }
-    return result;
-  };
-  CSSMatrixProto.multiply = function multiply(m2) {
-    return Multiply(this, m2);
-  };
-  CSSMatrixProto.translate = function translate(x, y, z) {
+  }
+  function Translate(x, y, z) {
+    var m = new CSSMatrix();
+    m.m41 = x;
+    m.e = x;
+    m.m42 = y;
+    m.f = y;
+    m.m43 = z;
+    return m;
+  }
+  function Rotate(rx, ry, rz) {
+    var m = new CSSMatrix();
+    var degToRad = Math.PI / 180;
+    var radX = rx * degToRad;
+    var radY = ry * degToRad;
+    var radZ = rz * degToRad;
+    var cosx = Math.cos(radX);
+    var sinx = -Math.sin(radX);
+    var cosy = Math.cos(radY);
+    var siny = -Math.sin(radY);
+    var cosz = Math.cos(radZ);
+    var sinz = -Math.sin(radZ);
+    var m11 = cosy * cosz;
+    var m12 = -cosy * sinz;
+    m.m11 = m11;
+    m.a = m11;
+    m.m12 = m12;
+    m.b = m12;
+    m.m13 = siny;
+    var m21 = sinx * siny * cosz + cosx * sinz;
+    m.m21 = m21;
+    m.c = m21;
+    var m22 = cosx * cosz - sinx * siny * sinz;
+    m.m22 = m22;
+    m.d = m22;
+    m.m23 = -sinx * cosy;
+    m.m31 = sinx * sinz - cosx * siny * cosz;
+    m.m32 = sinx * cosz + cosx * siny * sinz;
+    m.m33 = cosx * cosy;
+    return m;
+  }
+  function RotateAxisAngle(x, y, z, alpha) {
+    var m = new CSSMatrix();
+    var angle = alpha * (Math.PI / 360);
+    var sinA = Math.sin(angle);
+    var cosA = Math.cos(angle);
+    var sinA2 = sinA * sinA;
+    var length = Math.sqrt(x * x + y * y + z * z);
     var X = x;
     var Y = y;
     var Z = z;
-    if (Z == null) {
+    if (length === 0) {
+      X = 0;
+      Y = 0;
+      Z = 1;
+    } else {
+      X /= length;
+      Y /= length;
+      Z /= length;
+    }
+    var x2 = X * X;
+    var y2 = Y * Y;
+    var z2 = Z * Z;
+    var m11 = 1 - 2 * (y2 + z2) * sinA2;
+    m.m11 = m11;
+    m.a = m11;
+    var m12 = 2 * (X * Y * sinA2 + Z * sinA * cosA);
+    m.m12 = m12;
+    m.b = m12;
+    m.m13 = 2 * (X * Z * sinA2 - Y * sinA * cosA);
+    var m21 = 2 * (Y * X * sinA2 - Z * sinA * cosA);
+    m.m21 = m21;
+    m.c = m21;
+    var m22 = 1 - 2 * (z2 + x2) * sinA2;
+    m.m22 = m22;
+    m.d = m22;
+    m.m23 = 2 * (Y * Z * sinA2 + X * sinA * cosA);
+    m.m31 = 2 * (Z * X * sinA2 + Y * sinA * cosA);
+    m.m32 = 2 * (Z * Y * sinA2 - X * sinA * cosA);
+    m.m33 = 1 - 2 * (x2 + y2) * sinA2;
+    return m;
+  }
+  function Scale(x, y, z) {
+    var m = new CSSMatrix();
+    m.m11 = x;
+    m.a = x;
+    m.m22 = y;
+    m.d = y;
+    m.m33 = z;
+    return m;
+  }
+  function SkewX(angle) {
+    var m = new CSSMatrix();
+    var radA = angle * Math.PI / 180;
+    var t = Math.tan(radA);
+    m.m21 = t;
+    m.c = t;
+    return m;
+  }
+  function SkewY(angle) {
+    var m = new CSSMatrix();
+    var radA = angle * Math.PI / 180;
+    var t = Math.tan(radA);
+    m.m12 = t;
+    m.b = t;
+    return m;
+  }
+  function Multiply(m1, m2) {
+    var m11 = m2.m11 * m1.m11 + m2.m12 * m1.m21 + m2.m13 * m1.m31 + m2.m14 * m1.m41;
+    var m12 = m2.m11 * m1.m12 + m2.m12 * m1.m22 + m2.m13 * m1.m32 + m2.m14 * m1.m42;
+    var m13 = m2.m11 * m1.m13 + m2.m12 * m1.m23 + m2.m13 * m1.m33 + m2.m14 * m1.m43;
+    var m14 = m2.m11 * m1.m14 + m2.m12 * m1.m24 + m2.m13 * m1.m34 + m2.m14 * m1.m44;
+    var m21 = m2.m21 * m1.m11 + m2.m22 * m1.m21 + m2.m23 * m1.m31 + m2.m24 * m1.m41;
+    var m22 = m2.m21 * m1.m12 + m2.m22 * m1.m22 + m2.m23 * m1.m32 + m2.m24 * m1.m42;
+    var m23 = m2.m21 * m1.m13 + m2.m22 * m1.m23 + m2.m23 * m1.m33 + m2.m24 * m1.m43;
+    var m24 = m2.m21 * m1.m14 + m2.m22 * m1.m24 + m2.m23 * m1.m34 + m2.m24 * m1.m44;
+    var m31 = m2.m31 * m1.m11 + m2.m32 * m1.m21 + m2.m33 * m1.m31 + m2.m34 * m1.m41;
+    var m32 = m2.m31 * m1.m12 + m2.m32 * m1.m22 + m2.m33 * m1.m32 + m2.m34 * m1.m42;
+    var m33 = m2.m31 * m1.m13 + m2.m32 * m1.m23 + m2.m33 * m1.m33 + m2.m34 * m1.m43;
+    var m34 = m2.m31 * m1.m14 + m2.m32 * m1.m24 + m2.m33 * m1.m34 + m2.m34 * m1.m44;
+    var m41 = m2.m41 * m1.m11 + m2.m42 * m1.m21 + m2.m43 * m1.m31 + m2.m44 * m1.m41;
+    var m42 = m2.m41 * m1.m12 + m2.m42 * m1.m22 + m2.m43 * m1.m32 + m2.m44 * m1.m42;
+    var m43 = m2.m41 * m1.m13 + m2.m42 * m1.m23 + m2.m43 * m1.m33 + m2.m44 * m1.m43;
+    var m44 = m2.m41 * m1.m14 + m2.m42 * m1.m24 + m2.m43 * m1.m34 + m2.m44 * m1.m44;
+    return fromArray([m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]);
+  }
+  var CSSMatrix = function CSSMatrix() {
+    var args = [],
+      len = arguments.length;
+    while (len--) args[len] = arguments[len];
+    var m = this;
+    m.a = 1;
+    m.b = 0;
+    m.c = 0;
+    m.d = 1;
+    m.e = 0;
+    m.f = 0;
+    m.m11 = 1;
+    m.m12 = 0;
+    m.m13 = 0;
+    m.m14 = 0;
+    m.m21 = 0;
+    m.m22 = 1;
+    m.m23 = 0;
+    m.m24 = 0;
+    m.m31 = 0;
+    m.m32 = 0;
+    m.m33 = 1;
+    m.m34 = 0;
+    m.m41 = 0;
+    m.m42 = 0;
+    m.m43 = 0;
+    m.m44 = 1;
+    if (args && args.length) {
+      var ARGS = [16, 6].some(function (l) {
+        return l === args.length;
+      }) ? args : args[0];
+      return m.setMatrixValue(ARGS);
+    }
+    return m;
+  };
+  var prototypeAccessors = {
+    isIdentity: {
+      configurable: true
+    },
+    is2D: {
+      configurable: true
+    }
+  };
+  prototypeAccessors.isIdentity.set = function (value) {
+    this.isIdentity = value;
+  };
+  prototypeAccessors.isIdentity.get = function () {
+    var m = this;
+    return m.m11 === 1 && m.m12 === 0 && m.m13 === 0 && m.m14 === 0 && m.m21 === 0 && m.m22 === 1 && m.m23 === 0 && m.m24 === 0 && m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m41 === 0 && m.m42 === 0 && m.m43 === 0 && m.m44 === 1;
+  };
+  prototypeAccessors.is2D.get = function () {
+    var m = this;
+    return m.m31 === 0 && m.m32 === 0 && m.m33 === 1 && m.m34 === 0 && m.m43 === 0 && m.m44 === 1;
+  };
+  prototypeAccessors.is2D.set = function (value) {
+    this.is2D = value;
+  };
+  CSSMatrix.prototype.setMatrixValue = function setMatrixValue(source) {
+    var m = this;
+    if ([Array, Float64Array, Float32Array].some(function (a) {
+      return source instanceof a;
+    })) {
+      return fromArray(source);
+    }
+    if (typeof source === 'string' && source.length && source !== 'none') {
+      return fromString(source);
+    }
+    if (_typeof(source) === 'object') {
+      return fromMatrix(source);
+    }
+    return m;
+  };
+  CSSMatrix.prototype.toArray = function toArray() {
+    var m = this;
+    var pow = Math.pow(10, 6);
+    var result;
+    if (m.is2D) {
+      result = [m.a, m.b, m.c, m.d, m.e, m.f];
+    } else {
+      result = [m.m11, m.m12, m.m13, m.m14, m.m21, m.m22, m.m23, m.m24, m.m31, m.m32, m.m33, m.m34, m.m41, m.m42, m.m43, m.m44];
+    }
+    return result.map(function (n) {
+      return Math.abs(n) < 1e-6 ? 0 : (n * pow >> 0) / pow;
+    });
+  };
+  CSSMatrix.prototype.toString = function toString() {
+    var m = this;
+    var values = m.toArray();
+    var type = m.is2D ? 'matrix' : 'matrix3d';
+    return type + "(" + values + ")";
+  };
+  CSSMatrix.prototype.toJSON = function toJSON() {
+    var m = this;
+    var is2D = m.is2D;
+    var isIdentity = m.isIdentity;
+    return Object.assign({}, m, {
+      is2D: is2D,
+      isIdentity: isIdentity
+    });
+  };
+  CSSMatrix.prototype.multiply = function multiply(m2) {
+    return Multiply(this, m2);
+  };
+  CSSMatrix.prototype.translate = function translate(x, y, z) {
+    var X = x;
+    var Y = y;
+    var Z = z;
+    if (Z === undefined) {
       Z = 0;
     }
-    if (Y == null) {
+    if (Y === undefined) {
       Y = 0;
     }
     return Multiply(this, Translate(X, Y, Z));
   };
-  CSSMatrixProto.scale = function scale(x, y, z) {
+  CSSMatrix.prototype.scale = function scale(x, y, z) {
     var X = x;
     var Y = y;
     var Z = z;
-    if (Y == null) {
+    if (Y === undefined) {
       Y = x;
     }
-    if (Z == null) {
-      Z = x;
+    if (Z === undefined) {
+      Z = 1;
     }
     return Multiply(this, Scale(X, Y, Z));
   };
-  CSSMatrixProto.rotate = function rotate(rx, ry, rz) {
+  CSSMatrix.prototype.rotate = function rotate(rx, ry, rz) {
     var RX = rx;
     var RY = ry;
     var RZ = rz;
-    if (RY == null) {
+    if (RY === undefined) {
       RY = 0;
     }
-    if (RZ == null) {
+    if (RZ === undefined) {
       RZ = RX;
       RX = 0;
     }
     return Multiply(this, Rotate(RX, RY, RZ));
   };
-  CSSMatrixProto.rotateAxisAngle = function rotateAxisAngle(x, y, z, angle) {
-    if (arguments.length !== 4) {
+  CSSMatrix.prototype.rotateAxisAngle = function rotateAxisAngle(x, y, z, angle) {
+    if ([x, y, z, angle].some(function (n) {
+      return Number.isNaN(n);
+    })) {
       throw new TypeError('CSSMatrix: expecting 4 values');
     }
     return Multiply(this, RotateAxisAngle(x, y, z, angle));
   };
-  CSSMatrixProto.skewX = function skewX(angle) {
+  CSSMatrix.prototype.skewX = function skewX(angle) {
     return Multiply(this, SkewX(angle));
   };
-  CSSMatrixProto.skewY = function skewY(angle) {
+  CSSMatrix.prototype.skewY = function skewY(angle) {
     return Multiply(this, SkewY(angle));
   };
-  CSSMatrixProto.setIdentity = function setIdentity() {
-    var identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    return feedFromArray(this, identity);
-  };
-  CSSMatrixProto.transformPoint = function transformPoint(v) {
+  CSSMatrix.prototype.transformPoint = function transformPoint(v) {
     var M = this;
     var m = Translate(v.x, v.y, v.z);
     m.m44 = v.w || 1;
@@ -2498,7 +2667,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       w: m.m44
     };
   };
-  CSSMatrixProto.transform = function transform(t) {
+  CSSMatrix.prototype.transform = function transform(t) {
     var m = this;
     var x = m.m11 * t.x + m.m12 * t.y + m.m13 * t.z + m.m14 * t.w;
     var y = m.m21 * t.x + m.m22 * t.y + m.m23 * t.z + m.m24 * t.w;
@@ -2511,16 +2680,24 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
       w: w
     };
   };
-  CSSMatrix.Translate = Translate;
-  CSSMatrix.Rotate = Rotate;
-  CSSMatrix.RotateAxisAngle = RotateAxisAngle;
-  CSSMatrix.Scale = Scale;
-  CSSMatrix.SkewX = SkewX;
-  CSSMatrix.SkewY = SkewY;
-  CSSMatrix.Multiply = Multiply;
-  CSSMatrix.fromMatrix = fromMatrix;
-  CSSMatrix.fromArray = fromArray;
-  CSSMatrix.feedFromArray = feedFromArray;
+  Object.defineProperties(CSSMatrix.prototype, prototypeAccessors);
+  Object.assign(CSSMatrix, {
+    Translate: Translate,
+    Rotate: Rotate,
+    RotateAxisAngle: RotateAxisAngle,
+    Scale: Scale,
+    SkewX: SkewX,
+    SkewY: SkewY,
+    Multiply: Multiply,
+    fromArray: fromArray,
+    fromMatrix: fromMatrix,
+    fromString: fromString
+  });
+  var version = "0.0.24";
+  var Version = version;
+  Object.assign(CSSMatrix, {
+    Version: Version
+  });
   return CSSMatrix;
 });
 
@@ -2967,7 +3144,7 @@ var uncurryThisAccessor = __w_pdfjs_require__(87);
 var isObject = __w_pdfjs_require__(23);
 var requireObjectCoercible = __w_pdfjs_require__(19);
 var aPossiblePrototype = __w_pdfjs_require__(88);
-module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
+module.exports = Object.setPrototypeOf || ('__proto__' in {} ? (function () {
  var CORRECT_SETTER = false;
  var test = {};
  var setter;
@@ -2988,7 +3165,7 @@ module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
    O.__proto__ = proto;
   return O;
  };
-}() : undefined);
+}()) : undefined);
 
 /***/ }),
 /* 87 */
@@ -3219,9 +3396,9 @@ var classofRaw = __w_pdfjs_require__(18);
 var wellKnownSymbol = __w_pdfjs_require__(36);
 var TO_STRING_TAG = wellKnownSymbol('toStringTag');
 var $Object = Object;
-var CORRECT_ARGUMENTS = classofRaw(function () {
+var CORRECT_ARGUMENTS = classofRaw((function () {
  return arguments;
-}()) === 'Arguments';
+}())) === 'Arguments';
 var tryGet = function (it, key) {
  try {
   return it[key];
@@ -5188,7 +5365,7 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = void 0;
+exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = exports.DocStats = void 0;
 exports.collectActions = collectActions;
 exports.encodeToXmlString = encodeToXmlString;
 exports.escapePDFName = escapePDFName;
@@ -5283,6 +5460,67 @@ var XRefParseException = exports.XRefParseException = /*#__PURE__*/function (_Ba
   _inherits(XRefParseException, _BaseException4);
   return _createClass(XRefParseException);
 }(_util.BaseException);
+var DocStats = exports.DocStats = /*#__PURE__*/function () {
+  function DocStats(handler) {
+    _classCallCheck(this, DocStats);
+    this._handler = handler;
+    this._streamTypes = new Set();
+    this._fontTypes = new Set();
+  }
+  return _createClass(DocStats, [{
+    key: "_send",
+    value: function _send() {
+      var streamTypes = Object.create(null),
+        fontTypes = Object.create(null);
+      var _iterator = _createForOfIteratorHelper(this._streamTypes),
+        _step;
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var type = _step.value;
+          streamTypes[type] = true;
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+      var _iterator2 = _createForOfIteratorHelper(this._fontTypes),
+        _step2;
+      try {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+          var _type = _step2.value;
+          fontTypes[_type] = true;
+        }
+      } catch (err) {
+        _iterator2.e(err);
+      } finally {
+        _iterator2.f();
+      }
+      this._handler.send("DocStats", {
+        streamTypes: streamTypes,
+        fontTypes: fontTypes
+      });
+    }
+  }, {
+    key: "addStreamType",
+    value: function addStreamType(type) {
+      if (this._streamTypes.has(type)) {
+        return;
+      }
+      this._streamTypes.add(type);
+      this._send();
+    }
+  }, {
+    key: "addFontType",
+    value: function addFontType(type) {
+      if (this._fontTypes.has(type)) {
+        return;
+      }
+      this._fontTypes.add(type);
+      this._send();
+    }
+  }]);
+}();
 function getInheritableProperty(_ref) {
   var dict = _ref.dict,
     key = _ref.key,
@@ -5399,17 +5637,17 @@ function _collectJS(entry, xref, list, parents) {
     entry = xref.fetch(entry);
   }
   if (Array.isArray(entry)) {
-    var _iterator = _createForOfIteratorHelper(entry),
-      _step;
+    var _iterator3 = _createForOfIteratorHelper(entry),
+      _step3;
     try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var element = _step.value;
+      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+        var element = _step3.value;
         _collectJS(element, xref, list, parents);
       }
     } catch (err) {
-      _iterator.e(err);
+      _iterator3.e(err);
     } finally {
-      _iterator.f();
+      _iterator3.f();
     }
   } else if (entry instanceof _primitives.Dict) {
     if ((0, _primitives.isName)(entry.get("S"), "JavaScript") && entry.has("JS")) {
@@ -5444,11 +5682,11 @@ function collectActions(xref, dict, eventType) {
       if (!(additionalActions instanceof _primitives.Dict)) {
         continue;
       }
-      var _iterator2 = _createForOfIteratorHelper(additionalActions.getKeys()),
-        _step2;
+      var _iterator4 = _createForOfIteratorHelper(additionalActions.getKeys()),
+        _step4;
       try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var key = _step2.value;
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var key = _step4.value;
           var action = eventType[key];
           if (!action) {
             continue;
@@ -5462,9 +5700,9 @@ function collectActions(xref, dict, eventType) {
           }
         }
       } catch (err) {
-        _iterator2.e(err);
+        _iterator4.e(err);
       } finally {
-        _iterator2.f();
+        _iterator4.f();
       }
     }
   }
@@ -5537,20 +5775,20 @@ function validateCSSFont(cssFontInfo) {
       return false;
     }
   } else {
-    var _iterator3 = _createForOfIteratorHelper(fontFamily.split(/[ \t]+/)),
-      _step3;
+    var _iterator5 = _createForOfIteratorHelper(fontFamily.split(/[ \t]+/)),
+      _step5;
     try {
-      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-        var ident = _step3.value;
+      for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+        var ident = _step5.value;
         if (/^(\d|(-(\d|-)))/.test(ident) || !/^[\w-\\]+$/.test(ident)) {
           (0, _util.warn)("XFA - FontFamily contains some invalid <custom-ident>: ".concat(fontFamily, "."));
           return false;
         }
       }
     } catch (err) {
-      _iterator3.e(err);
+      _iterator5.e(err);
     } finally {
-      _iterator3.f();
+      _iterator5.f();
     }
   }
   var weight = fontWeight ? fontWeight.toString() : "";
@@ -5586,7 +5824,7 @@ function recoverJsURL(str) {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = void 0;
+exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = exports.CIRCULAR_REF = void 0;
 exports.clearPrimitiveCaches = clearPrimitiveCaches;
 exports.isCmd = isCmd;
 exports.isDict = isDict;
@@ -5612,6 +5850,7 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var CIRCULAR_REF = exports.CIRCULAR_REF = Symbol("CIRCULAR_REF");
 var EOF = exports.EOF = Symbol("EOF");
 var Name = exports.Name = function NameClosure() {
   var nameCache = Object.create(null);
@@ -6838,6 +7077,9 @@ var CCITTFaxDecoder = exports.CCITTFaxDecoder = /*#__PURE__*/function () {
         bits = 8;
         c = 0;
         do {
+          if (typeof this.outputBits !== "number") {
+            throw new _util.FormatError('Invalid /CCITTFaxDecode data, "outputBits" must be a number.');
+          }
           if (this.outputBits > bits) {
             c <<= bits;
             if (!(this.codingPos & 1)) {
@@ -8091,7 +8333,7 @@ var JpegImage = exports.JpegImage = /*#__PURE__*/function () {
         y = data[i + 2];
         k = data[i + 3];
         data[offset++] = 255 + c * (-0.00006747147073602441 * c + 0.0008379262121013727 * m + 0.0002894718188643294 * y + 0.003264231057537806 * k - 1.1185611867203937) + m * (0.000026374107616089405 * m - 0.00008626949158638572 * y - 0.0002748769067499491 * k - 0.02155688794978967) + y * (-0.00003878099212869363 * y - 0.0003267808279485286 * k + 0.0686742238595345) - k * (0.0003361971776183937 * k + 0.7430659151342254);
-        data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.00031891311758832814 * k + 0.7364883807733168);
+        data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.0003189131175883281 * k + 0.7364883807733168);
         data[offset++] = 255 + c * (0.000013598650411385307 * c + 0.00012423956175490851 * m + 0.0004751985097583589 * y - 0.0000036729317476630422 * k - 0.05562186980264034) + m * (0.00016141380598724676 * m + 0.0009692239130725186 * y + 0.0007782692450036253 * k - 0.44015232367526463) + y * (5.068882914068769e-7 * y + 0.0017778369011375071 * k - 0.7591454649749609) - k * (0.0003435319965105553 * k + 0.7063770186160144);
       }
       return data.subarray(0, offset);
@@ -10227,7 +10469,7 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(103);
 var _jpg = __w_pdfjs_require__(109);
 var _jpx = __w_pdfjs_require__(110);
-var pdfjsVersion = '2.11.385';
+var pdfjsVersion = '2.12.47';
 var pdfjsBuild = 'b55e3fd74';
 })();
 

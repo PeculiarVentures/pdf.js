@@ -536,11 +536,15 @@ class AbortException extends BaseException {
   }
 }
 exports.AbortException = AbortException;
-const NullCharactersRegExp = /\x00/g;
-function removeNullCharacters(str) {
+const NullCharactersRegExp = /\x00+/g;
+const InvisibleCharactersRegExp = /[\x01-\x1F]/g;
+function removeNullCharacters(str, replaceInvisible = false) {
   if (typeof str !== "string") {
     warn("The argument for removeNullCharacters must be a string.");
     return str;
+  }
+  if (replaceInvisible) {
+    str = str.replace(InvisibleCharactersRegExp, " ");
   }
   return str.replace(NullCharactersRegExp, "");
 }
@@ -718,6 +722,60 @@ class Util {
     }
     return result;
   }
+  static bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3) {
+    const tvalues = [],
+      bounds = [[], []];
+    let a, b, c, t, t1, t2, b2ac, sqrtb2ac;
+    for (let i = 0; i < 2; ++i) {
+      if (i === 0) {
+        b = 6 * x0 - 12 * x1 + 6 * x2;
+        a = -3 * x0 + 9 * x1 - 9 * x2 + 3 * x3;
+        c = 3 * x1 - 3 * x0;
+      } else {
+        b = 6 * y0 - 12 * y1 + 6 * y2;
+        a = -3 * y0 + 9 * y1 - 9 * y2 + 3 * y3;
+        c = 3 * y1 - 3 * y0;
+      }
+      if (Math.abs(a) < 1e-12) {
+        if (Math.abs(b) < 1e-12) {
+          continue;
+        }
+        t = -c / b;
+        if (0 < t && t < 1) {
+          tvalues.push(t);
+        }
+        continue;
+      }
+      b2ac = b * b - 4 * c * a;
+      sqrtb2ac = Math.sqrt(b2ac);
+      if (b2ac < 0) {
+        continue;
+      }
+      t1 = (-b + sqrtb2ac) / (2 * a);
+      if (0 < t1 && t1 < 1) {
+        tvalues.push(t1);
+      }
+      t2 = (-b - sqrtb2ac) / (2 * a);
+      if (0 < t2 && t2 < 1) {
+        tvalues.push(t2);
+      }
+    }
+    let j = tvalues.length,
+      mt;
+    const jlen = j;
+    while (j--) {
+      t = tvalues[j];
+      mt = 1 - t;
+      bounds[0][j] = mt * mt * mt * x0 + 3 * mt * mt * t * x1 + 3 * mt * t * t * x2 + t * t * t * x3;
+      bounds[1][j] = mt * mt * mt * y0 + 3 * mt * mt * t * y1 + 3 * mt * t * t * y2 + t * t * t * y3;
+    }
+    bounds[0][jlen] = x0;
+    bounds[1][jlen] = y0;
+    bounds[0][jlen + 1] = x3;
+    bounds[1][jlen + 1] = y3;
+    bounds[0].length = bounds[1].length = jlen + 2;
+    return [Math.min(...bounds[0]), Math.min(...bounds[1]), Math.max(...bounds[0]), Math.max(...bounds[1])];
+  }
 }
 exports.Util = Util;
 const PDFStringTranslateTable = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2d8, 0x2c7, 0x2c6, 0x2d9, 0x2dd, 0x2db, 0x2da, 0x2dc, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x192, 0x2044, 0x2039, 0x203a, 0x2212, 0x2030, 0x201e, 0x201c, 0x201d, 0x2018, 0x2019, 0x201a, 0x2122, 0xfb01, 0xfb02, 0x141, 0x152, 0x160, 0x178, 0x17d, 0x131, 0x142, 0x153, 0x161, 0x17e, 0, 0x20ac];
@@ -815,7 +873,7 @@ function createPromiseCapability() {
   return capability;
 }
 function createObjectURL(data, contentType = "", forceDataSchema = false) {
-  if (URL.createObjectURL && !forceDataSchema) {
+  if (URL.createObjectURL && typeof Blob !== "undefined" && !forceDataSchema) {
     return URL.createObjectURL(new Blob([data], {
       type: contentType
     }));
@@ -2659,7 +2717,7 @@ exports.Jbig2Image = Jbig2Image;
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = void 0;
+exports.XRefParseException = exports.XRefEntryException = exports.ParserEOFException = exports.MissingDataException = exports.DocStats = void 0;
 exports.collectActions = collectActions;
 exports.encodeToXmlString = encodeToXmlString;
 exports.escapePDFName = escapePDFName;
@@ -2729,6 +2787,42 @@ class XRefParseException extends _util.BaseException {
   }
 }
 exports.XRefParseException = XRefParseException;
+class DocStats {
+  constructor(handler) {
+    this._handler = handler;
+    this._streamTypes = new Set();
+    this._fontTypes = new Set();
+  }
+  _send() {
+    const streamTypes = Object.create(null),
+      fontTypes = Object.create(null);
+    for (const type of this._streamTypes) {
+      streamTypes[type] = true;
+    }
+    for (const type of this._fontTypes) {
+      fontTypes[type] = true;
+    }
+    this._handler.send("DocStats", {
+      streamTypes,
+      fontTypes
+    });
+  }
+  addStreamType(type) {
+    if (this._streamTypes.has(type)) {
+      return;
+    }
+    this._streamTypes.add(type);
+    this._send();
+  }
+  addFontType(type) {
+    if (this._fontTypes.has(type)) {
+      return;
+    }
+    this._fontTypes.add(type);
+    this._send();
+  }
+}
+exports.DocStats = DocStats;
 function getInheritableProperty({
   dict,
   key,
@@ -3005,7 +3099,7 @@ function recoverJsURL(str) {
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = void 0;
+exports.RefSetCache = exports.RefSet = exports.Ref = exports.Name = exports.EOF = exports.Dict = exports.Cmd = exports.CIRCULAR_REF = void 0;
 exports.clearPrimitiveCaches = clearPrimitiveCaches;
 exports.isCmd = isCmd;
 exports.isDict = isDict;
@@ -3015,6 +3109,7 @@ exports.isRefsEqual = isRefsEqual;
 exports.isStream = isStream;
 var _util = __w_pdfjs_require__(1);
 var _base_stream = __w_pdfjs_require__(7);
+const CIRCULAR_REF = exports.CIRCULAR_REF = Symbol("CIRCULAR_REF");
 const EOF = exports.EOF = Symbol("EOF");
 const Name = exports.Name = function NameClosure() {
   let nameCache = Object.create(null);
@@ -4032,6 +4127,9 @@ class CCITTFaxDecoder {
       bits = 8;
       c = 0;
       do {
+        if (typeof this.outputBits !== "number") {
+          throw new _util.FormatError('Invalid /CCITTFaxDecode data, "outputBits" must be a number.');
+        }
         if (this.outputBits > bits) {
           c <<= bits;
           if (!(this.codingPos & 1)) {
@@ -5222,7 +5320,7 @@ class JpegImage {
       y = data[i + 2];
       k = data[i + 3];
       data[offset++] = 255 + c * (-0.00006747147073602441 * c + 0.0008379262121013727 * m + 0.0002894718188643294 * y + 0.003264231057537806 * k - 1.1185611867203937) + m * (0.000026374107616089405 * m - 0.00008626949158638572 * y - 0.0002748769067499491 * k - 0.02155688794978967) + y * (-0.00003878099212869363 * y - 0.0003267808279485286 * k + 0.0686742238595345) - k * (0.0003361971776183937 * k + 0.7430659151342254);
-      data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.00031891311758832814 * k + 0.7364883807733168);
+      data[offset++] = 255 + c * (0.00013596372813588848 * c + 0.000924537132573585 * m + 0.00010567359618683593 * y + 0.0004791864687436512 * k - 0.3109689587515875) + m * (-0.00023545346108370344 * m + 0.0002702845253534714 * y + 0.0020200308977307156 * k - 0.7488052167015494) + y * (0.00006834815998235662 * y + 0.00015168452363460973 * k - 0.09751927774728933) - k * (0.0003189131175883281 * k + 0.7364883807733168);
       data[offset++] = 255 + c * (0.000013598650411385307 * c + 0.00012423956175490851 * m + 0.0004751985097583589 * y - 0.0000036729317476630422 * k - 0.05562186980264034) + m * (0.00016141380598724676 * m + 0.0009692239130725186 * y + 0.0007782692450036253 * k - 0.44015232367526463) + y * (5.068882914068769e-7 * y + 0.0017778369011375071 * k - 0.7591454649749609) - k * (0.0003435319965105553 * k + 0.7063770186160144);
     }
     return data.subarray(0, offset);
@@ -7263,7 +7361,7 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(10);
 var _jpx = __w_pdfjs_require__(11);
-const pdfjsVersion = '2.11.385';
+const pdfjsVersion = '2.12.47';
 const pdfjsBuild = 'b55e3fd74';
 })();
 

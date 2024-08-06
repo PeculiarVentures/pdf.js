@@ -1,10 +1,14 @@
+export type PDFPageProxy = import("./api").PDFPageProxy;
+export type PageViewport = import("./display_utils").PageViewport;
+export type IDownloadManager = any;
+export type IPDFLinkService = import("../../web/interfaces").IPDFLinkService;
 export type AnnotationElementParameters = {
     data: Object;
     layer: HTMLDivElement;
-    page: PDFPage;
+    page: PDFPageProxy;
     viewport: PageViewport;
     linkService: IPDFLinkService;
-    downloadManager: DownloadManager;
+    downloadManager: any;
     annotationStorage?: AnnotationStorage | undefined;
     /**
      * - Path for image resources, mainly
@@ -22,9 +26,9 @@ export type AnnotationLayerParameters = {
     viewport: PageViewport;
     div: HTMLDivElement;
     annotations: any[];
-    page: PDFPage;
+    page: PDFPageProxy;
     linkService: IPDFLinkService;
-    downloadManager: DownloadManager;
+    downloadManager: any;
     /**
      * - Path for image resources, mainly
      * for annotation icons. Include trailing slash.
@@ -40,21 +44,23 @@ export type AnnotationLayerParameters = {
      * The default value is `false`.
      */
     hasJSActions?: boolean | undefined;
+    annotationCanvasMap?: Map<string, HTMLCanvasElement> | undefined;
 };
 /**
  * @typedef {Object} AnnotationLayerParameters
  * @property {PageViewport} viewport
  * @property {HTMLDivElement} div
  * @property {Array} annotations
- * @property {PDFPage} page
+ * @property {PDFPageProxy} page
  * @property {IPDFLinkService} linkService
- * @property {DownloadManager} downloadManager
+ * @property {IDownloadManager} downloadManager
  * @property {string} [imageResourcesPath] - Path for image resources, mainly
  *   for annotation icons. Include trailing slash.
  * @property {boolean} renderForms
  * @property {boolean} [enableScripting] - Enable embedded script execution.
  * @property {boolean} [hasJSActions] - Some fields have JS actions.
  *   The default value is `false`.
+ * @property {Map<string, HTMLCanvasElement>} [annotationCanvasMap]
  */
 export class AnnotationLayer {
     /**
@@ -73,5 +79,6 @@ export class AnnotationLayer {
      * @memberof AnnotationLayer
      */
     public static update(parameters: AnnotationLayerParameters): void;
+    static "__#3@#setAnnotationCanvasMap"(div: any, annotationCanvasMap: any): void;
 }
 import { AnnotationStorage } from "./annotation_storage.js";

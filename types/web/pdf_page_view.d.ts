@@ -1,9 +1,18 @@
+export type PageViewport = import("../src/display/display_utils").PageViewport;
+export type OptionalContentConfig = import("../src/display/optional_content_config").OptionalContentConfig;
+export type EventBus = import("./event_utils").EventBus;
+export type IL10n = import("./interfaces").IL10n;
+export type IPDFAnnotationLayerFactory = import("./interfaces").IPDFAnnotationLayerFactory;
+export type IPDFStructTreeLayerFactory = import("./interfaces").IPDFStructTreeLayerFactory;
+export type IPDFTextLayerFactory = import("./interfaces").IPDFTextLayerFactory;
+export type IPDFXfaLayerFactory = import("./interfaces").IL10n;
 export type IRenderableView = import("./interfaces").IRenderableView;
+export type PDFRenderingQueue = import("./pdf_rendering_queue").PDFRenderingQueue;
 export type PDFPageViewOptions = {
     /**
      * - The viewer element.
      */
-    container: HTMLDivElement;
+    container?: HTMLDivElement | undefined;
     /**
      * - The application event bus.
      */
@@ -25,7 +34,7 @@ export type PDFPageViewOptions = {
      * A promise that is resolved with an {@link OptionalContentConfig } instance.
      * The default value is `null`.
      */
-    optionalContentConfigPromise?: Promise<OptionalContentConfig> | undefined;
+    optionalContentConfigPromise?: Promise<import("../src/display/optional_content_config").OptionalContentConfig> | undefined;
     /**
      * - The rendering queue object.
      */
@@ -89,24 +98,23 @@ export class PDFPageView implements IRenderableView {
     pageLabel: string | null;
     rotation: number;
     scale: number;
-    viewport: PageViewport;
-    pdfPageRotate: any;
-    _optionalContentConfigPromise: Promise<OptionalContentConfig> | null;
+    viewport: import("../src/display/display_utils").PageViewport;
+    pdfPageRotate: number;
+    _optionalContentConfigPromise: Promise<import("../src/display/optional_content_config").OptionalContentConfig> | null;
     hasRestrictedScaling: boolean;
     textLayerMode: number;
-    _annotationMode: any;
     imageResourcesPath: string;
     useOnlyCssZoom: boolean;
     maxCanvasPixels: any;
-    eventBus: EventBus;
-    renderingQueue: any;
-    textLayerFactory: IPDFTextLayerFactory;
-    annotationLayerFactory: IPDFAnnotationLayerFactory;
-    xfaLayerFactory: IPDFXfaLayerFactory;
+    eventBus: import("./event_utils").EventBus;
+    renderingQueue: import("./pdf_rendering_queue").PDFRenderingQueue;
+    textLayerFactory: import("./interfaces").IPDFTextLayerFactory;
+    annotationLayerFactory: import("./interfaces").IPDFAnnotationLayerFactory;
+    xfaLayerFactory: import("./interfaces").IL10n;
     textHighlighter: any;
-    structTreeLayerFactory: IPDFStructTreeLayerFactory;
+    structTreeLayerFactory: import("./interfaces").IPDFStructTreeLayerFactory;
     renderer: string;
-    l10n: any;
+    l10n: import("./interfaces").IL10n;
     paintTask: {
         promise: any;
         onRenderContinue(cont: any): void;
@@ -117,8 +125,9 @@ export class PDFPageView implements IRenderableView {
     resume: (() => void) | null;
     _renderError: any;
     _isStandalone: boolean;
+    _annotationCanvasMap: any;
     annotationLayer: any;
-    textLayer: any;
+    textLayer: import("./text_layer_builder.js").TextLayerBuilder | null;
     zoomLayer: ParentNode | null;
     xfaLayer: any;
     structTreeLayer: any;
@@ -163,9 +172,13 @@ export class PDFPageView implements IRenderableView {
         redrawAnnotationLayer?: boolean | undefined;
         redrawXfaLayer?: boolean | undefined;
     }): void;
-    get width(): any;
-    get height(): any;
-    getPagePoint(x: any, y: any): any;
+    get width(): number;
+    get height(): number;
+    getPagePoint(x: any, y: any): Object;
+    /**
+     * @ignore
+     */
+    toggleLoadingIconSpinner(viewVisible?: boolean): void;
     draw(): any;
     paintOnCanvas(canvasWrapper: any): {
         promise: any;
@@ -184,4 +197,5 @@ export class PDFPageView implements IRenderableView {
      * @param {string|null} label
      */
     setPageLabel(label: string | null): void;
+    #private;
 }
