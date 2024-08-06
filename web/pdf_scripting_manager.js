@@ -13,9 +13,10 @@
  * limitations under the License.
  */
 
+/** @typedef {import("./event_utils").EventBus} EventBus */
+
+import { apiPageLayoutToViewerModes, RenderingStates } from "./ui_utils.js";
 import { createPromiseCapability, shadow } from "pdfjs-lib";
-import { apiPageLayoutToSpreadMode } from "./ui_utils.js";
-import { RenderingStates } from "./pdf_rendering_queue.js";
 
 /**
  * @typedef {Object} PDFScriptingManagerOptions
@@ -287,7 +288,11 @@ class PDFScriptingManager {
           console.error(value);
           break;
         case "layout":
-          this._pdfViewer.spreadMode = apiPageLayoutToSpreadMode(value);
+          if (isInPresentationMode) {
+            return;
+          }
+          const modes = apiPageLayoutToViewerModes(value);
+          this._pdfViewer.spreadMode = modes.spreadMode;
           break;
         case "page-num":
           this._pdfViewer.currentPageNumber = value + 1;

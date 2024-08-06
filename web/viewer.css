@@ -94,6 +94,7 @@
   --secondaryToolbarButton-rotateCw-icon: url(images/secondaryToolbarButton-rotateCw.svg);
   --secondaryToolbarButton-selectTool-icon: url(images/secondaryToolbarButton-selectTool.svg);
   --secondaryToolbarButton-handTool-icon: url(images/secondaryToolbarButton-handTool.svg);
+  --secondaryToolbarButton-scrollPage-icon: url(images/secondaryToolbarButton-scrollPage.svg);
   --secondaryToolbarButton-scrollVertical-icon: url(images/secondaryToolbarButton-scrollVertical.svg);
   --secondaryToolbarButton-scrollHorizontal-icon: url(images/secondaryToolbarButton-scrollHorizontal.svg);
   --secondaryToolbarButton-scrollWrapped-icon: url(images/secondaryToolbarButton-scrollWrapped.svg);
@@ -203,14 +204,8 @@ select {
   display: none !important;
 }
 
-.pdfViewer.enablePermissions .textLayer span {
-  user-select: none !important;
-  cursor: not-allowed;
-}
-
 #viewerContainer.pdfPresentationMode:fullscreen {
   top: 0;
-  border-top: 2px solid rgba(0, 0, 0, 0);
   background-color: rgba(0, 0, 0, 1);
   width: 100%;
   height: 100%;
@@ -623,11 +618,6 @@ html[dir="rtl"] .secondaryToolbar {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   margin-bottom: -4px;
-}
-
-#secondaryToolbarButtonContainer.hiddenScrollModeButtons > .scrollModeButtons,
-#secondaryToolbarButtonContainer.hiddenSpreadModeButtons > .spreadModeButtons {
-  display: none !important;
 }
 
 .doorHanger,
@@ -1196,6 +1186,11 @@ html[dir="rtl"] .secondaryToolbarButton > span {
   mask-image: var(--secondaryToolbarButton-handTool-icon);
 }
 
+.secondaryToolbarButton.scrollPage::before {
+  -webkit-mask-image: var(--secondaryToolbarButton-scrollPage-icon);
+  mask-image: var(--secondaryToolbarButton-scrollPage-icon);
+}
+
 .secondaryToolbarButton.scrollVertical::before {
   -webkit-mask-image: var(--secondaryToolbarButton-scrollVertical-icon);
   mask-image: var(--secondaryToolbarButton-scrollVertical-icon);
@@ -1701,6 +1696,7 @@ html[dir="rtl"] #documentPropertiesOverlay .row > * {
 }
 #PDFBug table {
   font-size: 10px;
+  white-space: pre;
 }
 #PDFBug table.showText {
   border-collapse: collapse;

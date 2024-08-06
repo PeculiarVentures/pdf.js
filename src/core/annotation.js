@@ -26,6 +26,7 @@ import {
   isAscii,
   isString,
   OPS,
+  RenderingIntentFlag,
   shadow,
   stringToPDFString,
   stringToUTF16BEString,
@@ -55,6 +56,7 @@ import { ObjectLoader } from "./object_loader.js";
 import { OperatorList } from "./operator_list.js";
 import { StringStream } from "./stream.js";
 import { writeDict } from "./writer.js";
+import { XFAFactory } from "./xfa/factory.js";
 
 class AnnotationFactory {
   /**
@@ -385,6 +387,7 @@ class Annotation {
       modificationDate: this.modificationDate,
       rect: this.rectangle,
       subtype: params.subtype,
+      hasOwnCanvas: false,
     };
 
     if (params.collectFields) {
@@ -660,7 +663,7 @@ class Annotation {
 
         if (array.length === 4) {
           // Dash array available
-          this.borderStyle.setDashArray(array[3]);
+          this.borderStyle.setDashArray(array[3], /* forceStyle = */ true);
         }
       }
     } else {
@@ -707,8 +710,8 @@ class Annotation {
     this.appearance = normalAppearanceState.get(as.name);
   }
 
-  loadResources(keys) {
-    return this.appearance.dict.getAsync("Resources").then(resources => {
+  loadResources(keys, appearance) {
+    return appearance.dict.getAsync("Resources").then(resources => {
       if (!resources) {
         return undefined;
       }
@@ -720,22 +723,24 @@ class Annotation {
     });
   }
 
-  getOperatorList(evaluator, task, renderForms, annotationStorage) {
-    if (!this.appearance) {
-      return Promise.resolve(new OperatorList());
+  getOperatorList(evaluator, task, intent, renderForms, annotationStorage) {
+    const data = this.data;
+    let appearance = this.appearance;
+    const isUsingOwnCanvas =
+      data.hasOwnCanvas && intent & RenderingIntentFlag.DISPLAY;
+    if (!appearance) {
+      if (!isUsingOwnCanvas) {
+        return Promise.resolve(new OperatorList());
+      }
+      appearance = new StringStream("");
+      appearance.dict = new Dict();
     }
 
-    const appearance = this.appearance;
-    const data = this.data;
     const appearanceDict = appearance.dict;
-    const resourcesPromise = this.loadResources([
-      "ExtGState",
-      "ColorSpace",
-      "Pattern",
-      "Shading",
-      "XObject",
-      "Font",
-    ]);
+    const resourcesPromise = this.loadResources(
+      ["ExtGState", "ColorSpace", "Pattern", "Shading", "XObject", "Font"],
+      appearance
+    );
     const bbox = appearanceDict.getArray("BBox") || [0, 0, 1, 1];
     const matrix = appearanceDict.getArray("Matrix") || [1, 0, 0, 1, 0, 0];
     const transform = getTransformMatrix(data.rect, bbox, matrix);
@@ -747,6 +752,7 @@ class Annotation {
         data.rect,
         transform,
         matrix,
+        isUsingOwnCanvas,
       ]);
 
       return evaluator
@@ -981,8 +987,9 @@ class AnnotationBorderStyle {
    * @public
    * @memberof AnnotationBorderStyle
    * @param {Array} dashArray - The dash array with at least one element
+   * @param {boolean} [forceStyle]
    */
-  setDashArray(dashArray) {
+  setDashArray(dashArray, forceStyle = false) {
     // We validate the dash array, but we do not use it because CSS does not
     // allow us to change spacing of dashes. For more information, visit
     // http://www.w3.org/TR/css3-background/#the-border-style.
@@ -1002,6 +1009,12 @@ class AnnotationBorderStyle {
       }
       if (isValid && !allZeros) {
         this.dashArray = dashArray;
+
+        if (forceStyle) {
+          // Even though we cannot use the dash array in the display layer,
+          // at least ensure that we use the correct border-style.
+          this.setStyle(Name.get("D"));
+        }
       } else {
         this.width = 0; // Adobe behavior when the array is invalid.
       }
@@ -1097,6 +1110,10 @@ class MarkupAnnotation extends Annotation {
         // Fall back to the default background color.
         this.data.color = null;
       }
+    }
+
+    if (dict.has("RC")) {
+      this.data.richText = XFAFactory.getRichTextAsHtml(dict.get("RC"));
     }
   }
 
@@ -1332,12 +1349,7 @@ class WidgetAnnotation extends Annotation {
     return !!(this.data.fieldFlags & flag);
   }
 
-  getOperatorList(
-    evaluator,
-    task,
-    renderForms,
-    annotationStorage,
-  ) {
+  getOperatorList(evaluator, task, intent, renderForms, annotationStorage) {
     // Do not render form elements on the canvas when interactive forms are
     // enabled. The display layer is responsible for rendering them instead.
     if (renderForms && !(this instanceof SignatureWidgetAnnotation)) {
@@ -1348,6 +1360,7 @@ class WidgetAnnotation extends Annotation {
       return super.getOperatorList(
         evaluator,
         task,
+        intent,
         renderForms,
         annotationStorage,
       );
@@ -1359,6 +1372,7 @@ class WidgetAnnotation extends Annotation {
           return super.getOperatorList(
             evaluator,
             task,
+            intent,
             renderForms,
             annotationStorage,
           );
@@ -1944,17 +1958,25 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
     } else if (this.data.radioButton) {
       this._processRadioButton(params);
     } else if (this.data.pushButton) {
+      this.data.hasOwnCanvas = true;
       this._processPushButton(params);
     } else {
       warn("Invalid field flags for button widget annotation");
     }
   }
 
-  async getOperatorList(evaluator, task, renderForms, annotationStorage) {
+  async getOperatorList(
+    evaluator,
+    task,
+    intent,
+    renderForms,
+    annotationStorage
+  ) {
     if (this.data.pushButton) {
       return super.getOperatorList(
         evaluator,
         task,
+        intent,
         false, // we use normalAppearance to render the button
         annotationStorage
       );
@@ -1973,6 +1995,7 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
         return super.getOperatorList(
           evaluator,
           task,
+          intent,
           renderForms,
           annotationStorage
         );
@@ -1996,6 +2019,7 @@ class ButtonWidgetAnnotation extends WidgetAnnotation {
       const operatorList = super.getOperatorList(
         evaluator,
         task,
+        intent,
         renderForms,
         annotationStorage
       );
@@ -2572,6 +2596,10 @@ class PopupAnnotation extends Annotation {
 
     this.setContents(parentItem.get("Contents"));
     this.data.contentsObj = this._contents;
+
+    if (parentItem.has("RC")) {
+      this.data.richText = XFAFactory.getRichTextAsHtml(parentItem.get("RC"));
+    }
   }
 }
 
@@ -2675,6 +2703,11 @@ class SquareAnnotation extends MarkupAnnotation {
       }
       const fillAlpha = fillColor ? strokeAlpha : null;
 
+      if (this.borderStyle.width === 0 && !fillColor) {
+        // Prevent rendering a "hairline" border (fixes issue14164.pdf).
+        return;
+      }
+
       this._setDefaultAppearance({
         xref: parameters.xref,
         extra: `${this.borderStyle.width} w`,
@@ -2723,6 +2756,11 @@ class CircleAnnotation extends MarkupAnnotation {
           : null;
       }
       const fillAlpha = fillColor ? strokeAlpha : null;
+
+      if (this.borderStyle.width === 0 && !fillColor) {
+        // Prevent rendering a "hairline" border (fixes issue14164.pdf).
+        return;
+      }
 
       // Circles are approximated by Bézier curves with four segments since
       // there is no circle primitive in the PDF specification. For the control
