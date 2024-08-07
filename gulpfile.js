@@ -78,10 +78,10 @@ const config = JSON.parse(fs.readFileSync(CONFIG_FILE).toString());
 const AUTOPREFIXER_CONFIG = {
   overrideBrowserslist: [
     "last 2 versions",
-    "Chrome >= 68",
+    "Chrome >= 73",
     "Firefox ESR",
-    "Safari >= 11.1",
-    "> 0.5%",
+    "Safari >= 12.1",
+    "> 1%",
     "not IE > 0",
     "not dead",
   ],
@@ -555,11 +555,19 @@ function createTestSource(testsName, { bot = false, xfaOnly = false } = {}) {
     console.log("### Running " + testsName + " tests");
 
     const PDF_TEST = process.env.PDF_TEST || "test_manifest.json";
+    let forceNoChrome = false;
     const args = ["test.js"];
     switch (testsName) {
       case "browser":
         if (!bot) {
           args.push("--reftest");
+        } else {
+          const os = process.env.OS;
+          if (/windows/i.test(os)) {
+            // The browser-tests are too slow in Google Chrome on the Windows
+            // bot, causing a timeout, hence disabling them for now.
+            forceNoChrome = true;
+          }
         }
         if (xfaOnly) {
           args.push("--xfaOnly");
@@ -582,7 +590,7 @@ function createTestSource(testsName, { bot = false, xfaOnly = false } = {}) {
     if (bot) {
       args.push("--strictVerify");
     }
-    if (process.argv.includes("--noChrome")) {
+    if (process.argv.includes("--noChrome") || forceNoChrome) {
       args.push("--noChrome");
     }
 
@@ -599,11 +607,18 @@ function makeRef(done, bot) {
   console.log();
   console.log("### Creating reference images");
 
+  let forceNoChrome = false;
   const args = ["test.js", "--masterMode"];
   if (bot) {
+    const os = process.env.OS;
+    if (/windows/i.test(os)) {
+      // The browser-tests are too slow in Google Chrome on the Windows
+      // bot, causing a timeout, hence disabling them for now.
+      forceNoChrome = true;
+    }
     args.push("--noPrompts", "--strictVerify");
   }
-  if (process.argv.includes("--noChrome")) {
+  if (process.argv.includes("--noChrome") || forceNoChrome) {
     args.push("--noChrome");
   }
 
@@ -1331,7 +1346,7 @@ gulp.task(
         ),
         preprocessCSS("web/viewer.css", "chrome", defines, true)
           .pipe(
-            postcss([autoprefixer({ overrideBrowserslist: ["chrome >= 68"] })])
+            postcss([autoprefixer({ overrideBrowserslist: ["Chrome >= 73"] })])
           )
           .pipe(gulp.dest(CHROME_BUILD_CONTENT_DIR + "web")),
 
@@ -1358,7 +1373,7 @@ gulp.task("jsdoc", function (done) {
   console.log();
   console.log("### Generating documentation (JSDoc)");
 
-  const JSDOC_FILES = ["src/doc_helper.js", "src/display/api.js"];
+  const JSDOC_FILES = ["src/display/api.js"];
 
   rimraf(JSDOC_BUILD_DIR, function () {
     mkdirp(JSDOC_BUILD_DIR).then(function () {
@@ -1555,8 +1570,7 @@ gulp.task(
       fs.readFileSync(BUILD_DIR + "version.json").toString()
     ).version;
 
-    config.stableVersion = config.betaVersion;
-    config.betaVersion = version;
+    config.stableVersion = version;
 
     return merge([
       createStringSource(CONFIG_FILE, JSON.stringify(config, null, 2)).pipe(
@@ -1957,31 +1971,11 @@ gulp.task("wintersmith", function (done) {
       done(error);
       return;
     }
-    const { stableVersion, betaVersion } = config;
 
     replaceInFile(
       GH_PAGES_DIR + "/getting_started/index.html",
       /STABLE_VERSION/g,
-      stableVersion
-    );
-    replaceInFile(
-      GH_PAGES_DIR + "/getting_started/index.html",
-      /BETA_VERSION/g,
-      betaVersion
-    );
-
-    // Hide the beta version button if there is only a stable version.
-    const groupClass = betaVersion ? "btn-group-vertical centered" : "";
-    const hiddenClass = betaVersion ? "" : "hidden";
-    replaceInFile(
-      GH_PAGES_DIR + "/getting_started/index.html",
-      /GROUP_CLASS/g,
-      groupClass
-    );
-    replaceInFile(
-      GH_PAGES_DIR + "/getting_started/index.html",
-      /HIDDEN_CLASS/g,
-      hiddenClass
+      config.stableVersion
     );
 
     console.log("Done building with wintersmith.");
@@ -2048,6 +2042,9 @@ function packageBowerJson() {
     homepage: DIST_HOMEPAGE,
     bugs: DIST_BUGS_URL,
     license: DIST_LICENSE,
+    dependencies: {
+      "web-streams-polyfill": "^3.2.0",
+    },
     peerDependencies: {
       "worker-loader": "^3.0.8", // Used in `external/dist/webpack.js`.
     },

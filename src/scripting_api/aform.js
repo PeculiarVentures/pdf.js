@@ -433,11 +433,8 @@ class AForm {
     }
 
     psf = this.AFMakeNumber(psf);
-    if (psf === null) {
-      throw new Error("Invalid psf in AFSpecial_Format");
-    }
 
-    let formatStr = "";
+    let formatStr;
     switch (psf) {
       case 0:
         formatStr = "99999";
@@ -469,6 +466,10 @@ class AForm {
 
     const event = globalThis.event;
     const value = this.AFMergeChange(event);
+    if (!value) {
+      return;
+    }
+
     const checkers = new Map([
       ["9", char => char >= "0" && char <= "9"],
       [
@@ -486,7 +487,7 @@ class AForm {
     ]);
 
     function _checkValidity(_value, _cMask) {
-      for (let i = 0, ii = value.length; i < ii; i++) {
+      for (let i = 0, ii = _value.length; i < ii; i++) {
         const mask = _cMask.charAt(i);
         const char = _value.charAt(i);
         const checker = checkers.get(mask);
@@ -499,10 +500,6 @@ class AForm {
         }
       }
       return true;
-    }
-
-    if (!value) {
-      return;
     }
 
     const err = `${GlobalConstants.IDS_INVALID_VALUE} = "${cMask}"`;
@@ -541,14 +538,7 @@ class AForm {
 
   AFSpecial_Keystroke(psf) {
     const event = globalThis.event;
-    if (!event.value) {
-      return;
-    }
-
     psf = this.AFMakeNumber(psf);
-    if (psf === null) {
-      throw new Error("Invalid psf in AFSpecial_Keystroke");
-    }
 
     let formatStr;
     switch (psf) {
@@ -559,12 +549,8 @@ class AForm {
         formatStr = "99999-9999";
         break;
       case 2:
-        const finalLen =
-          event.value.length +
-          event.change.length +
-          event.selStart -
-          event.selEnd;
-        if (finalLen >= 8) {
+        const value = this.AFMergeChange(event);
+        if (value.length > 8 || value.startsWith("(")) {
           formatStr = "(999) 999-9999";
         } else {
           formatStr = "999-9999";

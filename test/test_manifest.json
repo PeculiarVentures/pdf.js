@@ -1,4 +1,11 @@
 [
+    {  "id": "bug1755201",
+      "file": "pdfs/bug1755201.pdf",
+      "md5": "cece14097812d8a1f69e86a51e4a3804",
+      "rounds": 1,
+      "link": true,
+      "type": "other"
+    },
     {  "id": "filled-background-range",
       "file": "pdfs/filled-background.pdf",
       "md5": "2e3120255d9c3e79b96d2543b12d2589",
@@ -217,6 +224,13 @@
        "rounds": 1,
        "link": true,
        "lastPage": 3,
+       "type": "eq"
+    },
+    {  "id": "bug1753983",
+       "file": "pdfs/bug1753983.pdf",
+       "md5": "432be86262e5071176c49713ce458031",
+       "rounds": 1,
+       "link": true,
        "type": "eq"
     },
     {  "id": "bug921760",
@@ -1157,7 +1171,7 @@
        "type": "eq"
     },
     {  "id": "xfa_bug1720182",
-       "file": "pdfs/xfa_bug1720182.pdf",
+       "file": "pdfs/xfa_bug1716380.pdf",
        "md5": "1351f816f0509fe750ca61ef2bd40872",
        "link": true,
        "rounds": 1,
@@ -1174,7 +1188,8 @@
          "ComplainantLastname2711": {
            "value": "Bar"
          }
-       }
+       },
+       "about": "This *intentionally* uses the same file as test-case xfa_bug1716380."
     },
     {  "id": "bug1720411",
        "file": "pdfs/bug1720411.pdf",
@@ -1278,7 +1293,8 @@
        "link": true,
        "rounds": 1,
        "enableXfa": true,
-       "type": "eq"
+       "type": "eq",
+       "about": "Also tests bug 1716838."
     },
     {  "id": "xfa_bug1717668_2",
        "file": "pdfs/xfa_bug1717668_2.pdf",
@@ -1328,14 +1344,6 @@
       "enableXfa": true,
       "type": "eq"
     },
-    {  "id": "MBTA-pretax-form-July2012",
-      "file": "pdfs/MBTA-pretax-form-July2012.pdf",
-      "md5": "c23beb39e1c91a780da9d4b60cbd157f",
-      "rounds": 1,
-      "link": true,
-      "enableXfa": true,
-      "type": "eq"
-    },
     {  "id": "xfa_bug1716380",
        "file": "pdfs/xfa_bug1716380.pdf",
        "md5": "1351f816f0509fe750ca61ef2bd40872",
@@ -1379,14 +1387,6 @@
     {  "id": "xfa_bug1716809",
        "file": "pdfs/xfa_bug1716809.pdf",
        "md5": "7192f9e27e8b84776d107f57cbe353d5",
-       "link": true,
-       "rounds": 1,
-       "enableXfa": true,
-       "type": "eq"
-    },
-    {  "id": "xfa_bug1716838",
-       "file": "pdfs/xfa_bug1716838.pdf",
-       "md5": "564ecff67be690b43c2a144ae5967034",
        "link": true,
        "rounds": 1,
        "enableXfa": true,
@@ -2164,6 +2164,12 @@
        "type": "eq",
        "about": "Glyph that gets mapped to unicode non-breaking-space."
     },
+    {  "id": "issue14297",
+       "file": "pdfs/issue14297.pdf",
+       "md5": "46eb3d4d4bc47c8009fc4c699d213a18",
+       "rounds": 1,
+       "type": "eq"
+    },
     {  "id": "simpletype3font",
        "file": "pdfs/simpletype3font.pdf",
        "md5": "b374c7543920840c61999e9e86939f99",
@@ -2511,6 +2517,12 @@
        "link": true,
        "firstPage": 2,
        "lastPage": 2,
+       "type": "eq"
+    },
+    {  "id": "bug1755507",
+       "file": "pdfs/bug1755507.pdf",
+       "md5": "319d73b8fd680cdc583d69b7f7ab29e9",
+       "rounds": 1,
        "type": "eq"
     },
     {  "id": "issue9367",
@@ -3699,6 +3711,12 @@
        "link": true,
        "type": "eq"
     },
+    {  "id": "issue14462",
+       "file": "pdfs/issue14462_reduced.pdf",
+       "md5": "afe38169322f8e124eaeae00f94ea596",
+       "rounds": 1,
+       "type": "eq"
+    },
     {  "id": "preistabelle",
       "file": "pdfs/preistabelle.pdf",
       "md5": "d2f0b2086160d4f3d325c79a5dc1fb4d",
@@ -4036,6 +4054,12 @@
        "type": "eq",
        "annotations": true
     },
+    {  "id": "bug1743245",
+       "file": "pdfs/bug1743245.pdf",
+       "md5": "01eadf118ec05fe02e91db63536d50f6",
+       "rounds": 1,
+       "type": "eq"
+    },
     {  "id": "issue1002",
       "file": "pdfs/issue1002.pdf",
       "md5": "af62d6cd95079322d4af18edd960d15c",
@@ -4212,6 +4236,15 @@
        "rounds": 1,
        "type": "eq"
     },
+    {  "id": "issue14203",
+       "file": "pdfs/issue14203.pdf",
+       "md5": "26c1c1e7341bc23fb28d805fa516dbbe",
+       "link": true,
+       "rounds": 1,
+       "firstPage": 11,
+       "lastPage": 11,
+       "type": "eq"
+   },
     {  "id": "issue11045",
        "file": "pdfs/issue11045.pdf",
        "md5": "101d4cb649cc006e0f2b14923e8d97d6",
@@ -4526,6 +4559,18 @@
        "link": true,
        "firstPage": 3,
        "lastPage": 3,
+       "type": "eq"
+    },
+    {  "id": "ContentStreamNoCycleType3insideType3",
+       "file": "pdfs/ContentStreamNoCycleType3insideType3.pdf",
+       "md5": "fbf258be0fed9756cbc714f4be6626ff",
+       "rounds": 1,
+       "type": "eq"
+    },
+    {  "id": "ContentStreamCycleType3insideType3",
+       "file": "pdfs/ContentStreamCycleType3insideType3.pdf",
+       "md5": "64840fc5dd8ca06afbc86477d9121b59",
+       "rounds": 1,
        "type": "eq"
     },
     { "id": "issue3458.pdf",
@@ -4876,6 +4921,13 @@
        "md5": "c530851b0523c81784ab4ea3115a7c67",
        "rounds": 1,
        "type": "eq"
+    },
+    {  "id": "jpx-resetContextProbabilities",
+       "file": "pdfs/jp2k-resetprob.pdf",
+       "md5": "fc9fb23e0a08d985b70cfb32fa9e9ca1",
+       "rounds": 1,
+       "type": "eq",
+       "about": "Fixes one part of bug 1731483."
     },
     {  "id": "bug1140761",
        "file": "pdfs/bug1140761.pdf",
@@ -6097,6 +6149,18 @@
       "forms": true,
       "lastPage": 1
     },
+    {
+      "id": "issue12716-hidpi",
+      "file": "pdfs/issue12716.pdf",
+      "md5": "9bdc9c552bcfccd629f5f97385e79ca5",
+      "rounds": 1,
+      "link": true,
+      "type": "eq",
+      "forms": true,
+      "lastPage": 1,
+      "outputScale": 2,
+      "about": "This tests draws to another canvas for the button, so it's a good test to ensure output scale is working."
+    },
     {  "id": "xfa_issue13500",
        "file": "pdfs/xfa_issue13500.pdf",
        "md5": "b81274a19f5a95c1466db3648f1be491",
@@ -6182,5 +6246,68 @@
       "link": true,
       "rounds": 1,
       "type": "eq"
-    }
+    },
+    { "id": "issue14415",
+      "file": "pdfs/issue14415.pdf",
+      "md5": "fa306a250a3d37fe0e7a4b3bba51c91e",
+      "type": "text"
+    },
+    {  "id": "issue14438",
+       "file": "pdfs/issue14438.pdf",
+       "md5": "c4f5a21bbd6567fe08583fc9d3149a38",
+       "rounds": 1,
+       "type": "eq",
+       "annotations": true
+    },
+    { "id": "bug1749563",
+      "file": "pdfs/bug1749563.pdf",
+      "md5": "11294f6071a8dcc25b0e18953cee68fa",
+      "rounds": 1,
+      "link": true,
+      "firstPage": 1,
+      "lastPage": 1,
+      "type": "eq"
+   },
+   { "id": "issue9186",
+      "file": "pdfs/issue9186.pdf",
+      "md5": "d151857bb724ab9a291704a45a0b5d7f",
+      "rounds": 1,
+      "link": true,
+      "lastPage": 1,
+      "type": "text"
+   },
+   { "id": "issue14497",
+      "file": "pdfs/issue14497.pdf",
+      "md5": "7f795a92caa612117b6928f8bb4c5b65",
+      "rounds": 1,
+      "type": "text"
+   },
+   {  "id": "issue14052",
+      "file": "pdfs/issue14502.pdf",
+      "md5": "7085cdc31243ab0b979f0c5fa151e491",
+      "rounds": 1,
+      "type": "eq",
+      "print": true,
+      "annotationStorage": {
+        "27R": {
+         "value": "Hello PDF.js World"
+        },
+        "28R": {
+         "value": "PDF.js PDF.js PDF.js PDF.js\nPDF.js PDF.js PDF.js PDF.js\nPDF.js PDF.js PDF.js PDF.js\nPDF.js PDF.js PDF.js PDF.js"
+        },
+        "29R": {
+         "value": "PDF.js"
+        },
+        "30R": {
+         "value": "PDF.js PDF.js PDF.js"
+        }
+      }
+   },
+   { "id": "issue14562",
+      "file": "pdfs/issue14562.pdf",
+      "md5": "565b0a1e46a32e907837506a10d25277",
+      "rounds": 1,
+      "link": true,
+      "type": "other"
+   }
 ]

@@ -18,20 +18,10 @@ import {
   bytesToString,
   FormatError,
   info,
-  isNum,
   StreamType,
   warn,
 } from "../shared/util.js";
-import {
-  Cmd,
-  Dict,
-  EOF,
-  isCmd,
-  isDict,
-  isName,
-  Name,
-  Ref,
-} from "./primitives.js";
+import { Cmd, Dict, EOF, isCmd, Name, Ref } from "./primitives.js";
 import {
   isWhiteSpace,
   MissingDataException,
@@ -137,7 +127,7 @@ class Parser {
         case "<<": // dictionary or stream
           const dict = new Dict(this.xref);
           while (!isCmd(this.buf1, ">>") && this.buf1 !== EOF) {
-            if (!isName(this.buf1)) {
+            if (!(this.buf1 instanceof Name)) {
               info("Malformed dictionary: key must be a name object");
               this.shift();
               continue;
@@ -498,7 +488,7 @@ class Parser {
     const dict = new Dict(this.xref);
     let dictLength;
     while (!isCmd(this.buf1, "ID") && this.buf1 !== EOF) {
-      if (!isName(this.buf1)) {
+      if (!(this.buf1 instanceof Name)) {
         throw new FormatError("Dictionary key must be a name object");
       }
       const key = this.buf1.name;
@@ -515,11 +505,11 @@ class Parser {
     // Extract the name of the first (i.e. the current) image filter.
     const filter = dict.get("F", "Filter");
     let filterName;
-    if (isName(filter)) {
+    if (filter instanceof Name) {
       filterName = filter.name;
     } else if (Array.isArray(filter)) {
       const filterZero = this.xref.fetchIfRef(filter[0]);
-      if (isName(filterZero)) {
+      if (filterZero instanceof Name) {
         filterName = filterZero.name;
       }
     }
@@ -704,7 +694,7 @@ class Parser {
     let filter = dict.get("F", "Filter");
     let params = dict.get("DP", "DecodeParms");
 
-    if (isName(filter)) {
+    if (filter instanceof Name) {
       if (Array.isArray(params)) {
         warn("/DecodeParms should not be an Array, when /Filter is a Name.");
       }
@@ -717,7 +707,7 @@ class Parser {
       const paramsArray = params;
       for (let i = 0, ii = filterArray.length; i < ii; ++i) {
         filter = this.xref.fetchIfRef(filterArray[i]);
-        if (!isName(filter)) {
+        if (!(filter instanceof Name)) {
           throw new FormatError(`Bad filter name "${filter}"`);
         }
 
@@ -908,14 +898,17 @@ class Lexer {
       ch = this.nextChar();
     }
     if (ch < /* '0' = */ 0x30 || ch > /* '9' = */ 0x39) {
-      if (
-        divideBy === 10 &&
-        sign === 0 &&
-        (isWhiteSpace(ch) || ch === /* EOF = */ -1)
-      ) {
+      if (isWhiteSpace(ch) || ch === /* EOF = */ -1) {
         // This is consistent with Adobe Reader (fixes issue9252.pdf).
-        warn("Lexer.getNumber - treating a single decimal point as zero.");
-        return 0;
+        if (divideBy === 10 && sign === 0) {
+          warn("Lexer.getNumber - treating a single decimal point as zero.");
+          return 0;
+        }
+        // This is consistent with Adobe Reader (fixes bug1753983.pdf).
+        if (divideBy === 0 && sign === -1) {
+          warn("Lexer.getNumber - treating a single minus sign as zero.");
+          return 0;
+        }
       }
       throw new FormatError(
         `Invalid number: ${String.fromCharCode(ch)} (charCode ${ch})`
@@ -1398,8 +1391,8 @@ class Linearization {
         Number.isInteger(obj1) &&
         Number.isInteger(obj2) &&
         isCmd(obj3, "obj") &&
-        isDict(linDict) &&
-        isNum((obj = linDict.get("Linearized"))) &&
+        linDict instanceof Dict &&
+        typeof (obj = linDict.get("Linearized")) === "number" &&
         obj > 0
       )
     ) {

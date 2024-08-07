@@ -21,7 +21,6 @@ import {
   getVerbosityLevel,
   info,
   InvalidPDFException,
-  isString,
   MissingPDFException,
   PasswordException,
   setVerbosityLevel,
@@ -32,8 +31,9 @@ import {
   VerbosityLevel,
   warn,
 } from "../shared/util.js";
-import { clearPrimitiveCaches, Dict, Ref } from "./primitives.js";
+import { Dict, Ref } from "./primitives.js";
 import { LocalPdfManager, NetworkPdfManager } from "./pdf_manager.js";
+import { clearGlobalCaches } from "./cleanup_helper.js";
 import { incrementalUpdate } from "./writer.js";
 import { isNodeJS } from "../shared/is_node.js";
 import { MessageHandler } from "../shared/message_handler.js";
@@ -132,15 +132,15 @@ class WorkerMessageHandler {
       // Ensure that (primarily) Node.js users won't accidentally attempt to use
       // a non-translated/non-polyfilled build of the library, since that would
       // quickly fail anyway because of missing functionality.
-      if (
-        (typeof PDFJSDev === "undefined" || PDFJSDev.test("SKIP_BABEL")) &&
-        typeof ReadableStream === "undefined"
-      ) {
-        throw new Error(
+      if (typeof ReadableStream === "undefined") {
+        const partialMsg =
           "The browser/environment lacks native support for critical " +
-            "functionality used by the PDF.js library (e.g. `ReadableStream`); " +
-            "please use a `legacy`-build instead."
-        );
+          "functionality used by the PDF.js library (e.g. `ReadableStream`); ";
+
+        if (isNodeJS) {
+          throw new Error(partialMsg + "please use a `legacy`-build instead.");
+        }
+        throw new Error(partialMsg + "please update to a supported browser.");
       }
     }
 
@@ -454,8 +454,8 @@ class WorkerMessageHandler {
       });
     });
 
-    handler.on("GetPageIndex", function wphSetupGetPageIndex({ ref }) {
-      const pageRef = Ref.get(ref.num, ref.gen);
+    handler.on("GetPageIndex", function wphSetupGetPageIndex(data) {
+      const pageRef = Ref.get(data.num, data.gen);
       return pdfManager.ensureCatalog("getPageIndex", [pageRef]);
     });
 
@@ -638,7 +638,7 @@ class WorkerMessageHandler {
             const xrefInfo = xref.trailer.get("Info") || null;
             if (xrefInfo instanceof Dict) {
               xrefInfo.forEach((key, value) => {
-                if (isString(key) && isString(value)) {
+                if (typeof value === "string") {
                   infoObj[key] = stringToPDFString(value);
                 }
               });
@@ -739,7 +739,6 @@ class WorkerMessageHandler {
             handler,
             task,
             sink,
-            normalizeWhitespace: data.normalizeWhitespace,
             includeMarkedContent: data.includeMarkedContent,
             combineTextItems: data.combineTextItems,
           })
@@ -795,7 +794,7 @@ class WorkerMessageHandler {
 
         pdfManager = null;
       } else {
-        clearPrimitiveCaches();
+        clearGlobalCaches();
       }
       if (cancelXHRs) {
         cancelXHRs(new AbortException("Worker was terminated."));

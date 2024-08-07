@@ -78,24 +78,29 @@ const SpreadMode = {
 const AutoPrintRegExp = /\bprint\s*\(/;
 
 /**
- * Returns scale factor for the canvas. It makes sense for the HiDPI displays.
- * @returns {Object} The object with horizontal (sx) and vertical (sy)
- *                   scales. The scaled property is set to false if scaling is
- *                   not required, true otherwise.
+ * Scale factors for the canvas, necessary with HiDPI displays.
  */
-function getOutputScale(ctx) {
-  const devicePixelRatio = window.devicePixelRatio || 1;
-  const backingStoreRatio =
-    ctx.webkitBackingStorePixelRatio ||
-    ctx.mozBackingStorePixelRatio ||
-    ctx.backingStorePixelRatio ||
-    1;
-  const pixelRatio = devicePixelRatio / backingStoreRatio;
-  return {
-    sx: pixelRatio,
-    sy: pixelRatio,
-    scaled: pixelRatio !== 1,
-  };
+class OutputScale {
+  constructor() {
+    const pixelRatio = window.devicePixelRatio || 1;
+
+    /**
+     * @type {number} Horizontal scale.
+     */
+    this.sx = pixelRatio;
+
+    /**
+     * @type {number} Vertical scale.
+     */
+    this.sy = pixelRatio;
+  }
+
+  /**
+   * @type {boolean} Returns `true` when scaling is required, `false` otherwise.
+   */
+  get scaled() {
+    return this.sx !== 1 || this.sy !== 1;
+  }
 }
 
 /**
@@ -200,6 +205,24 @@ function parseQueryString(query) {
   return params;
 }
 
+const NullCharactersRegExp = /\x00/g;
+const InvisibleCharactersRegExp = /[\x01-\x1F]/g;
+
+/**
+ * @param {string} str
+ * @param {boolean} [replaceInvisible]
+ */
+function removeNullCharacters(str, replaceInvisible = false) {
+  if (typeof str !== "string") {
+    console.error(`The argument must be a string.`);
+    return str;
+  }
+  if (replaceInvisible) {
+    str = str.replace(InvisibleCharactersRegExp, " ");
+  }
+  return str.replace(NullCharactersRegExp, "");
+}
+
 /**
  * Use binary search to find the index of the first item in a given array which
  * passes a given condition. The items are expected to be sorted in the sense
@@ -209,8 +232,8 @@ function parseQueryString(query) {
  * @returns {number} Index of the first array element to pass the test,
  *                   or |items.length| if no such element exists.
  */
-function binarySearchFirstItem(items, condition) {
-  let minIndex = 0;
+function binarySearchFirstItem(items, condition, start = 0) {
+  let minIndex = start;
   let maxIndex = items.length - 1;
 
   if (maxIndex < 0 || !condition(items[maxIndex])) {
@@ -822,7 +845,6 @@ export {
   DEFAULT_SCALE_DELTA,
   DEFAULT_SCALE_VALUE,
   getActiveOrFocusedElement,
-  getOutputScale,
   getPageSizeInches,
   getVisibleElements,
   isPortraitOrientation,
@@ -835,9 +857,11 @@ export {
   noContextMenuHandler,
   normalizeWheelEventDelta,
   normalizeWheelEventDirection,
+  OutputScale,
   parseQueryString,
   PresentationModeState,
   ProgressBar,
+  removeNullCharacters,
   RendererType,
   RenderingStates,
   roundToDivide,

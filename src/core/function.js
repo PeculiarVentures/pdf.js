@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-import { Dict, isDict, isStream, Ref } from "./primitives.js";
+import { Dict, Ref } from "./primitives.js";
 import {
   FormatError,
   info,
-  isBool,
   IsEvalSupportedCached,
   shadow,
   unreachable,
 } from "../shared/util.js";
 import { PostScriptLexer, PostScriptParser } from "./ps_parser.js";
+import { BaseStream } from "./base_stream.js";
 import { LocalFunctionCache } from "./image_utils.js";
 
 class PDFFunctionFactory {
@@ -71,7 +71,7 @@ class PDFFunctionFactory {
       fnRef = cacheKey;
     } else if (cacheKey instanceof Dict) {
       fnRef = cacheKey.objId;
-    } else if (isStream(cacheKey)) {
+    } else if (cacheKey instanceof BaseStream) {
       fnRef = cacheKey.dict && cacheKey.dict.objId;
     }
     if (fnRef) {
@@ -97,7 +97,7 @@ class PDFFunctionFactory {
       fnRef = cacheKey;
     } else if (cacheKey instanceof Dict) {
       fnRef = cacheKey.objId;
-    } else if (isStream(cacheKey)) {
+    } else if (cacheKey instanceof BaseStream) {
       fnRef = cacheKey.dict && cacheKey.dict.objId;
     }
     if (fnRef) {
@@ -507,9 +507,9 @@ function isPDFFunction(v) {
   let fnDict;
   if (typeof v !== "object") {
     return false;
-  } else if (isDict(v)) {
+  } else if (v instanceof Dict) {
     fnDict = v;
-  } else if (isStream(v)) {
+  } else if (v instanceof BaseStream) {
     fnDict = v.dict;
   } else {
     return false;
@@ -626,7 +626,7 @@ class PostScriptEvaluator {
         case "and":
           b = stack.pop();
           a = stack.pop();
-          if (isBool(a) && isBool(b)) {
+          if (typeof a === "boolean" && typeof b === "boolean") {
             stack.push(a && b);
           } else {
             stack.push(a & b);
@@ -750,7 +750,7 @@ class PostScriptEvaluator {
           break;
         case "not":
           a = stack.pop();
-          if (isBool(a)) {
+          if (typeof a === "boolean") {
             stack.push(!a);
           } else {
             stack.push(~a);
@@ -759,7 +759,7 @@ class PostScriptEvaluator {
         case "or":
           b = stack.pop();
           a = stack.pop();
-          if (isBool(a) && isBool(b)) {
+          if (typeof a === "boolean" && typeof b === "boolean") {
             stack.push(a || b);
           } else {
             stack.push(a | b);
@@ -801,7 +801,7 @@ class PostScriptEvaluator {
         case "xor":
           b = stack.pop();
           a = stack.pop();
-          if (isBool(a) && isBool(b)) {
+          if (typeof a === "boolean" && typeof b === "boolean") {
             stack.push(a !== b);
           } else {
             stack.push(a ^ b);

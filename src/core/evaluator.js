@@ -24,8 +24,6 @@ import {
   IDENTITY_MATRIX,
   info,
   isArrayEqual,
-  isNum,
-  isString,
   OPS,
   shadow,
   stringToPDFString,
@@ -35,18 +33,7 @@ import {
   warn,
 } from "../shared/util.js";
 import { CMapFactory, IdentityCMap } from "./cmap.js";
-import {
-  Cmd,
-  Dict,
-  EOF,
-  isDict,
-  isName,
-  isRef,
-  isStream,
-  Name,
-  Ref,
-  RefSet,
-} from "./primitives.js";
+import { Cmd, Dict, EOF, isName, Name, Ref, RefSet } from "./primitives.js";
 import { ErrorFont, Font } from "./fonts.js";
 import { FontFlags, getFontType } from "./fonts_utils.js";
 import {
@@ -135,7 +122,7 @@ function normalizeBlendMode(value, parsingArray = false) {
     return "source-over";
   }
 
-  if (!isName(value)) {
+  if (!(value instanceof Name)) {
     if (parsingArray) {
       return null;
     }
@@ -340,7 +327,7 @@ class PartialEvaluator {
             continue;
           }
         }
-        if (!isStream(xObject)) {
+        if (!(xObject instanceof BaseStream)) {
           continue;
         }
         if (xObject.dict.objId) {
@@ -583,7 +570,7 @@ class PartialEvaluator {
     const w = dict.get("W", "Width");
     const h = dict.get("H", "Height");
 
-    if (!(w && isNum(w)) || !(h && isNum(h))) {
+    if (!(w && typeof w === "number") || !(h && typeof h === "number")) {
       warn("Image dimensions are missing, or not numbers.");
       return;
     }
@@ -1044,7 +1031,7 @@ class PartialEvaluator {
             gStateObj.push([key, false]);
             break;
           }
-          if (isDict(value)) {
+          if (value instanceof Dict) {
             isSimpleGState = false;
 
             promise = promise.then(() => {
@@ -1120,7 +1107,7 @@ class PartialEvaluator {
     let fontRef;
     if (font) {
       // Loading by ref.
-      if (!isRef(font)) {
+      if (!(font instanceof Ref)) {
         throw new FormatError('The "font" object should be a reference.');
       }
       fontRef = font;
@@ -1155,12 +1142,16 @@ class PartialEvaluator {
       }
     }
 
+    if (this.parsingType3Font && this.type3FontRefs.has(fontRef)) {
+      return errorFont();
+    }
+
     if (this.fontCache.has(fontRef)) {
       return this.fontCache.get(fontRef);
     }
 
     font = xref.fetchIfRef(fontRef);
-    if (!isDict(font)) {
+    if (!(font instanceof Dict)) {
       return errorFont();
     }
 
@@ -1182,13 +1173,13 @@ class PartialEvaluator {
     }
     const { descriptor, hash } = preEvaluatedFont;
 
-    const fontRefIsRef = isRef(fontRef);
+    const fontRefIsRef = fontRef instanceof Ref;
     let fontID;
     if (fontRefIsRef) {
       fontID = `f${fontRef.toString()}`;
     }
 
-    if (hash && isDict(descriptor)) {
+    if (hash && descriptor instanceof Dict) {
       if (!descriptor.fontAliases) {
         descriptor.fontAliases = Object.create(null);
       }
@@ -1416,7 +1407,7 @@ class PartialEvaluator {
 
       const pattern = this.xref.fetchIfRef(rawPattern);
       if (pattern) {
-        const dict = isStream(pattern) ? pattern.dict : pattern;
+        const dict = pattern instanceof BaseStream ? pattern.dict : pattern;
         const typeNum = dict.get("PatternType");
 
         if (typeNum === PatternType.TILING) {
@@ -1457,7 +1448,7 @@ class PartialEvaluator {
     }
     const length = array.length;
     const operator = this.xref.fetchIfRef(array[0]);
-    if (length < 2 || !isName(operator)) {
+    if (length < 2 || !(operator instanceof Name)) {
       warn("Invalid visibility expression");
       return;
     }
@@ -1479,7 +1470,7 @@ class PartialEvaluator {
         currentResult.push(nestedResult);
         // Recursively parse a subarray.
         this._parseVisibilityExpression(object, nestingCounter, nestedResult);
-      } else if (isRef(raw)) {
+      } else if (raw instanceof Ref) {
         // Reference to an OCG dictionary.
         currentResult.push(raw.toString());
       }
@@ -1488,10 +1479,10 @@ class PartialEvaluator {
 
   async parseMarkedContentProps(contentProperties, resources) {
     let optionalContent;
-    if (isName(contentProperties)) {
+    if (contentProperties instanceof Name) {
       const properties = resources.get("Properties");
       optionalContent = properties.get(contentProperties.name);
-    } else if (isDict(contentProperties)) {
+    } else if (contentProperties instanceof Dict) {
       optionalContent = contentProperties;
     } else {
       throw new FormatError("Optional content properties malformed.");
@@ -1519,7 +1510,7 @@ class PartialEvaluator {
       const optionalContentGroups = optionalContent.get("OCGs");
       if (
         Array.isArray(optionalContentGroups) ||
-        isDict(optionalContentGroups)
+        optionalContentGroups instanceof Dict
       ) {
         const groupIds = [];
         if (Array.isArray(optionalContentGroups)) {
@@ -1534,12 +1525,13 @@ class PartialEvaluator {
         return {
           type: optionalContentType,
           ids: groupIds,
-          policy: isName(optionalContent.get("P"))
-            ? optionalContent.get("P").name
-            : null,
+          policy:
+            optionalContent.get("P") instanceof Name
+              ? optionalContent.get("P").name
+              : null,
           expression: null,
         };
-      } else if (isRef(optionalContentGroups)) {
+      } else if (optionalContentGroups instanceof Ref) {
         return {
           type: optionalContentType,
           id: optionalContentGroups.toString(),
@@ -1660,12 +1652,12 @@ class PartialEvaluator {
                   xobj = xref.fetch(xobj);
                 }
 
-                if (!isStream(xobj)) {
+                if (!(xobj instanceof BaseStream)) {
                   throw new FormatError("XObject should be a stream");
                 }
 
                 const type = xobj.dict.get("Subtype");
-                if (!isName(type)) {
+                if (!(type instanceof Name)) {
                   throw new FormatError("XObject should have a Name subtype");
                 }
 
@@ -1791,12 +1783,12 @@ class PartialEvaluator {
             var state = stateManager.state;
             for (i = 0; i < arrLength; ++i) {
               const arrItem = arr[i];
-              if (isString(arrItem)) {
+              if (typeof arrItem === "string") {
                 Array.prototype.push.apply(
                   combinedGlyphs,
                   self.handleText(arrItem, state)
                 );
-              } else if (isNum(arrItem)) {
+              } else if (typeof arrItem === "number") {
                 combinedGlyphs.push(arrItem);
               }
             }
@@ -2065,7 +2057,7 @@ class PartialEvaluator {
             // but doing so is meaningless without knowing the semantics.
             continue;
           case OPS.beginMarkedContentProps:
-            if (!isName(args[0])) {
+            if (!(args[0] instanceof Name)) {
               warn(`Expected name for beginMarkedContentProps arg0=${args[0]}`);
               continue;
             }
@@ -2159,19 +2151,17 @@ class PartialEvaluator {
     task,
     resources,
     stateManager = null,
-    normalizeWhitespace = false,
     combineTextItems = false,
     includeMarkedContent = false,
     sink,
     seenStyles = new Set(),
+    viewBox,
   }) {
     // Ensure that `resources`/`stateManager` is correctly initialized,
     // even if the provided parameter is e.g. `null`.
     resources = resources || Dict.empty;
     stateManager = stateManager || new StateManager(new TextState());
 
-    const WhitespaceRegexp = /\s/g;
-    const DiacriticRegExp = new RegExp("^\\p{Mn}$", "u");
     const NormalizedUnicodes = getNormalizedUnicodes();
 
     const textContent = {
@@ -2345,30 +2335,14 @@ class PartialEvaluator {
       textContentItem.textAdvanceScale = scaleFactor;
     }
 
-    function replaceWhitespace(str) {
-      // Replaces all whitespaces with standard spaces (0x20), to avoid
-      // alignment issues between the textLayer and the canvas if the text
-      // contains e.g. tabs (fixes issue6612.pdf).
-      const ii = str.length;
-      let i = 0,
-        code;
-      while (i < ii && (code = str.charCodeAt(i)) >= 0x20 && code <= 0x7f) {
-        i++;
-      }
-      return i < ii ? str.replace(WhitespaceRegexp, " ") : str;
-    }
-
     function runBidiTransform(textChunk) {
       const text = textChunk.str.join("");
       const bidiResult = bidi(text, -1, textChunk.vertical);
-      const str = normalizeWhitespace
-        ? replaceWhitespace(bidiResult.str)
-        : bidiResult.str;
       return {
-        str,
+        str: bidiResult.str,
         dir: bidiResult.dir,
-        width: textChunk.totalWidth,
-        height: textChunk.totalHeight,
+        width: Math.abs(textChunk.totalWidth),
+        height: Math.abs(textChunk.totalHeight),
         transform: textChunk.transform,
         fontName: textChunk.fontName,
         hasEOL: textChunk.hasEOL,
@@ -2399,28 +2373,48 @@ class PartialEvaluator {
         });
     }
 
+    function applyInverseRotation(x, y, matrix) {
+      const scale = Math.hypot(matrix[0], matrix[1]);
+      return [
+        (matrix[0] * x + matrix[1] * y) / scale,
+        (matrix[2] * x + matrix[3] * y) / scale,
+      ];
+    }
+
     function compareWithLastPosition() {
+      const currentTransform = getCurrentTextTransform();
+      let posX = currentTransform[4];
+      let posY = currentTransform[5];
+
+      const shiftedX = posX - viewBox[0];
+      const shiftedY = posY - viewBox[1];
+
+      if (
+        shiftedX < 0 ||
+        shiftedX > viewBox[2] ||
+        shiftedY < 0 ||
+        shiftedY > viewBox[3]
+      ) {
+        return false;
+      }
+
       if (
         !combineTextItems ||
         !textState.font ||
         !textContentItem.prevTransform
       ) {
-        return;
+        return true;
       }
 
-      const currentTransform = getCurrentTextTransform();
-      let posX = currentTransform[4];
-      let posY = currentTransform[5];
       let lastPosX = textContentItem.prevTransform[4];
       let lastPosY = textContentItem.prevTransform[5];
 
       if (lastPosX === posX && lastPosY === posY) {
-        return;
+        return true;
       }
 
-      let rotate = 0;
+      let rotate = -1;
       // Take into account the rotation is the current transform.
-      // Only rotations with an angle of 0, 90, 180 or 270 are considered.
       if (
         currentTransform[0] &&
         currentTransform[1] === 0 &&
@@ -2432,59 +2426,81 @@ class PartialEvaluator {
         currentTransform[0] === 0 &&
         currentTransform[3] === 0
       ) {
-        rotate += currentTransform[1] > 0 ? 90 : 270;
+        rotate = currentTransform[1] > 0 ? 90 : 270;
       }
 
-      if (rotate !== 0) {
-        switch (rotate) {
-          case 90:
-            [posX, posY] = [posY, posX];
-            [lastPosX, lastPosY] = [lastPosY, lastPosX];
-            break;
-          case 180:
-            [posX, posY, lastPosX, lastPosY] = [
-              -posX,
-              -posY,
-              -lastPosX,
-              -lastPosY,
-            ];
-            break;
-          case 270:
-            [posX, posY] = [-posY, -posX];
-            [lastPosX, lastPosY] = [-lastPosY, -lastPosX];
-            break;
-        }
+      switch (rotate) {
+        case 0:
+          break;
+        case 90:
+          [posX, posY] = [posY, posX];
+          [lastPosX, lastPosY] = [lastPosY, lastPosX];
+          break;
+        case 180:
+          [posX, posY, lastPosX, lastPosY] = [
+            -posX,
+            -posY,
+            -lastPosX,
+            -lastPosY,
+          ];
+          break;
+        case 270:
+          [posX, posY] = [-posY, -posX];
+          [lastPosX, lastPosY] = [-lastPosY, -lastPosX];
+          break;
+        default:
+          // This is not a 0, 90, 180, 270 rotation so:
+          //  - remove the scale factor from the matrix to get a rotation matrix
+          //  - apply the inverse (which is the transposed) to the positions
+          // and we can then compare positions of the glyphes to detect
+          // a whitespace.
+          [posX, posY] = applyInverseRotation(posX, posY, currentTransform);
+          [lastPosX, lastPosY] = applyInverseRotation(
+            lastPosX,
+            lastPosY,
+            textContentItem.prevTransform
+          );
       }
 
       if (textState.font.vertical) {
         const advanceY = (lastPosY - posY) / textContentItem.textAdvanceScale;
         const advanceX = posX - lastPosX;
-        if (advanceY < textContentItem.negativeSpaceMax) {
+
+        // When the total height of the current chunk is negative
+        // then we're writing from bottom to top.
+        const textOrientation = Math.sign(textContentItem.height);
+        if (advanceY < textOrientation * textContentItem.negativeSpaceMax) {
           if (
             Math.abs(advanceX) >
             0.5 * textContentItem.width /* not the same column */
           ) {
             appendEOL();
-            return;
+            return true;
           }
 
           flushTextContentItem();
-          return;
+          return true;
         }
 
-        if (Math.abs(advanceX) > textContentItem.height) {
+        if (Math.abs(advanceX) > textContentItem.width) {
           appendEOL();
-          return;
+          return true;
         }
-        if (advanceY <= textContentItem.trackingSpaceMin) {
+        if (advanceY <= textOrientation * textContentItem.trackingSpaceMin) {
           textContentItem.height += advanceY;
-        } else if (!addFakeSpaces(advanceY, textContentItem.prevTransform)) {
+        } else if (
+          !addFakeSpaces(
+            advanceY,
+            textContentItem.prevTransform,
+            textOrientation
+          )
+        ) {
           if (textContentItem.str.length === 0) {
             textContent.items.push({
               str: " ",
               dir: "ltr",
               width: 0,
-              height: advanceY,
+              height: Math.abs(advanceY),
               transform: textContentItem.prevTransform,
               fontName: textContentItem.fontName,
               hasEOL: false,
@@ -2494,36 +2510,42 @@ class PartialEvaluator {
           }
         }
 
-        return;
+        return true;
       }
 
       const advanceX = (posX - lastPosX) / textContentItem.textAdvanceScale;
       const advanceY = posY - lastPosY;
-      if (advanceX < textContentItem.negativeSpaceMax) {
+
+      // When the total width of the current chunk is negative
+      // then we're writing from right to left.
+      const textOrientation = Math.sign(textContentItem.width);
+      if (advanceX < textOrientation * textContentItem.negativeSpaceMax) {
         if (
           Math.abs(advanceY) >
           0.5 * textContentItem.height /* not the same line */
         ) {
           appendEOL();
-          return;
+          return true;
         }
         flushTextContentItem();
-        return;
+        return true;
       }
 
       if (Math.abs(advanceY) > textContentItem.height) {
         appendEOL();
-        return;
+        return true;
       }
 
-      if (advanceX <= textContentItem.trackingSpaceMin) {
+      if (advanceX <= textOrientation * textContentItem.trackingSpaceMin) {
         textContentItem.width += advanceX;
-      } else if (!addFakeSpaces(advanceX, textContentItem.prevTransform)) {
+      } else if (
+        !addFakeSpaces(advanceX, textContentItem.prevTransform, textOrientation)
+      ) {
         if (textContentItem.str.length === 0) {
           textContent.items.push({
             str: " ",
             dir: "ltr",
-            width: advanceX,
+            width: Math.abs(advanceX),
             height: 0,
             transform: textContentItem.prevTransform,
             fontName: textContentItem.fontName,
@@ -2533,6 +2555,8 @@ class PartialEvaluator {
           textContentItem.width += advanceX;
         }
       }
+
+      return true;
     }
 
     function buildTextContentItem({ chars, extraSpacing }) {
@@ -2556,8 +2580,12 @@ class PartialEvaluator {
 
       const glyphs = font.charsToGlyphs(chars);
       const scale = textState.fontMatrix[0] * textState.fontSize;
+
       for (let i = 0, ii = glyphs.length; i < ii; i++) {
         const glyph = glyphs[i];
+        if (glyph.isInvisibleFormatMark) {
+          continue;
+        }
         let charSpacing =
           textState.charSpacing + (i + 1 === ii ? extraSpacing : 0);
 
@@ -2567,13 +2595,12 @@ class PartialEvaluator {
         }
         let scaledDim = glyphWidth * scale;
 
-        let glyphUnicode = glyph.unicode;
         if (
-          glyphUnicode === " " &&
+          glyph.isWhitespace &&
           (i === 0 ||
             i + 1 === ii ||
-            glyphs[i - 1].unicode === " " ||
-            glyphs[i + 1].unicode === " " ||
+            glyphs[i - 1].isWhitespace ||
+            glyphs[i + 1].isWhitespace ||
             extraSpacing)
         ) {
           // Don't push a " " in the textContentItem
@@ -2594,12 +2621,15 @@ class PartialEvaluator {
           continue;
         }
 
-        compareWithLastPosition();
+        if (!compareWithLastPosition()) {
+          // The glyph is not in page so just skip it.
+          continue;
+        }
 
         // Must be called after compareWithLastPosition because
         // the textContentItem could have been flushed.
         const textChunk = ensureTextContentItem();
-        if (DiacriticRegExp.test(glyph.unicode)) {
+        if (glyph.isZeroWidthDiacritic) {
           scaledDim = 0;
         }
 
@@ -2618,9 +2648,17 @@ class PartialEvaluator {
           textChunk.prevTransform = getCurrentTextTransform();
         }
 
-        glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
-        glyphUnicode = reverseIfRtl(glyphUnicode);
-        textChunk.str.push(glyphUnicode);
+        if (glyph.isWhitespace) {
+          // Replaces all whitespaces with standard spaces (0x20), to avoid
+          // alignment issues between the textLayer and the canvas if the text
+          // contains e.g. tabs (fixes issue6612.pdf).
+          textChunk.str.push(" ");
+        } else {
+          let glyphUnicode = glyph.unicode;
+          glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
+          glyphUnicode = reverseIfRtl(glyphUnicode);
+          textChunk.str.push(glyphUnicode);
+        }
 
         if (charSpacing) {
           if (!font.vertical) {
@@ -2652,10 +2690,10 @@ class PartialEvaluator {
       }
     }
 
-    function addFakeSpaces(width, transf) {
+    function addFakeSpaces(width, transf, textOrientation) {
       if (
-        textContentItem.spaceInFlowMin <= width &&
-        width <= textContentItem.spaceInFlowMax
+        textOrientation * textContentItem.spaceInFlowMin <= width &&
+        width <= textOrientation * textContentItem.spaceInFlowMax
       ) {
         if (textContentItem.initialized) {
           textContentItem.str.push(" ");
@@ -2677,8 +2715,8 @@ class PartialEvaluator {
         // TODO: check if using the orientation from last chunk is
         // better or not.
         dir: "ltr",
-        width,
-        height,
+        width: Math.abs(width),
+        height: Math.abs(height),
         transform: transf || getCurrentTextTransform(),
         fontName,
         hasEOL: false,
@@ -2936,12 +2974,12 @@ class PartialEvaluator {
                   xobj = xref.fetch(xobj);
                 }
 
-                if (!isStream(xobj)) {
+                if (!(xobj instanceof BaseStream)) {
                   throw new FormatError("XObject should be a stream");
                 }
 
                 const type = xobj.dict.get("Subtype");
-                if (!isName(type)) {
+                if (!(type instanceof Name)) {
                   throw new FormatError("XObject should have a Name subtype");
                 }
 
@@ -2991,11 +3029,11 @@ class PartialEvaluator {
                     task,
                     resources: xobj.dict.get("Resources") || resources,
                     stateManager: xObjStateManager,
-                    normalizeWhitespace,
                     combineTextItems,
                     includeMarkedContent,
                     sink: sinkWrapper,
                     seenStyles,
+                    viewBox,
                   })
                   .then(function () {
                     if (!sinkWrapper.enqueueInvoked) {
@@ -3077,7 +3115,7 @@ class PartialEvaluator {
             if (includeMarkedContent) {
               textContent.items.push({
                 type: "beginMarkedContent",
-                tag: isName(args[0]) ? args[0].name : null,
+                tag: args[0] instanceof Name ? args[0].name : null,
               });
             }
             break;
@@ -3085,7 +3123,7 @@ class PartialEvaluator {
             if (includeMarkedContent) {
               flushTextContentItem();
               let mcid = null;
-              if (isDict(args[1])) {
+              if (args[1] instanceof Dict) {
                 mcid = args[1].get("MCID");
               }
               textContent.items.push({
@@ -3093,7 +3131,7 @@ class PartialEvaluator {
                 id: Number.isInteger(mcid)
                   ? `${self.idFactory.getPageObjId()}_mcid${mcid}`
                   : null,
-                tag: isName(args[0]) ? args[0].name : null,
+                tag: args[0] instanceof Name ? args[0].name : null,
               });
             }
             break;
@@ -3149,7 +3187,7 @@ class PartialEvaluator {
     if (properties.composite) {
       // CIDSystemInfo helps to match CID to glyphs
       const cidSystemInfo = dict.get("CIDSystemInfo");
-      if (isDict(cidSystemInfo)) {
+      if (cidSystemInfo instanceof Dict) {
         properties.cidSystemInfo = {
           registry: stringToPDFString(cidSystemInfo.get("Registry")),
           ordering: stringToPDFString(cidSystemInfo.get("Ordering")),
@@ -3174,20 +3212,19 @@ class PartialEvaluator {
     let encoding;
     if (dict.has("Encoding")) {
       encoding = dict.get("Encoding");
-      if (isDict(encoding)) {
+      if (encoding instanceof Dict) {
         baseEncodingName = encoding.get("BaseEncoding");
-        baseEncodingName = isName(baseEncodingName)
-          ? baseEncodingName.name
-          : null;
+        baseEncodingName =
+          baseEncodingName instanceof Name ? baseEncodingName.name : null;
         // Load the differences between the base and original
         if (encoding.has("Differences")) {
           const diffEncoding = encoding.get("Differences");
           let index = 0;
           for (let j = 0, jj = diffEncoding.length; j < jj; j++) {
             const data = xref.fetchIfRef(diffEncoding[j]);
-            if (isNum(data)) {
+            if (typeof data === "number") {
               index = data;
-            } else if (isName(data)) {
+            } else if (data instanceof Name) {
               differences[index++] = data.name;
             } else {
               throw new FormatError(
@@ -3196,7 +3233,7 @@ class PartialEvaluator {
             }
           }
         }
-      } else if (isName(encoding)) {
+      } else if (encoding instanceof Name) {
         baseEncodingName = encoding.name;
       } else {
         throw new FormatError("Encoding is not a Name nor a Dict");
@@ -3448,7 +3485,7 @@ class PartialEvaluator {
     if (!cmapObj) {
       return Promise.resolve(null);
     }
-    if (isName(cmapObj)) {
+    if (cmapObj instanceof Name) {
       return CMapFactory.create({
         encoding: cmapObj,
         fetchBuiltInCMap: this._fetchBuiltInCMapBound,
@@ -3459,7 +3496,7 @@ class PartialEvaluator {
         }
         return new ToUnicodeMap(cmap.getMap());
       });
-    } else if (isStream(cmapObj)) {
+    } else if (cmapObj instanceof BaseStream) {
       return CMapFactory.create({
         encoding: cmapObj,
         fetchBuiltInCMap: this._fetchBuiltInCMapBound,
@@ -3600,7 +3637,7 @@ class PartialEvaluator {
       } else {
         // Trying get the BaseFont metrics (see comment above).
         const baseFontName = dict.get("BaseFont");
-        if (isName(baseFontName)) {
+        if (baseFontName instanceof Name) {
           const metrics = this.getBaseFontMetrics(baseFontName.name);
 
           glyphsWidths = this.buildCharCodeToWidth(metrics.widths, properties);
@@ -3664,7 +3701,7 @@ class PartialEvaluator {
     }
     const glyphWidths = Metrics[lookupName];
 
-    if (isNum(glyphWidths)) {
+    if (typeof glyphWidths === "number") {
       defaultWidth = glyphWidths;
       monospace = true;
     } else {
@@ -3698,7 +3735,7 @@ class PartialEvaluator {
   preEvaluateFont(dict) {
     const baseDict = dict;
     let type = dict.get("Subtype");
-    if (!isName(type)) {
+    if (!(type instanceof Name)) {
       throw new FormatError("invalid font Subtype");
     }
 
@@ -3719,7 +3756,7 @@ class PartialEvaluator {
         throw new FormatError("Descendant font is not a dictionary.");
       }
       type = dict.get("Subtype");
-      if (!isName(type)) {
+      if (!(type instanceof Name)) {
         throw new FormatError("invalid font Subtype");
       }
       composite = true;
@@ -3732,15 +3769,15 @@ class PartialEvaluator {
       hash = new MurmurHash3_64();
 
       const encoding = baseDict.getRaw("Encoding");
-      if (isName(encoding)) {
+      if (encoding instanceof Name) {
         hash.update(encoding.name);
-      } else if (isRef(encoding)) {
+      } else if (encoding instanceof Ref) {
         hash.update(encoding.toString());
-      } else if (isDict(encoding)) {
+      } else if (encoding instanceof Dict) {
         for (const entry of encoding.getRawValues()) {
-          if (isName(entry)) {
+          if (entry instanceof Name) {
             hash.update(entry.name);
-          } else if (isRef(entry)) {
+          } else if (entry instanceof Ref) {
             hash.update(entry.toString());
           } else if (Array.isArray(entry)) {
             // 'Differences' array (fixes bug1157493.pdf).
@@ -3749,9 +3786,12 @@ class PartialEvaluator {
 
             for (let j = 0; j < diffLength; j++) {
               const diffEntry = entry[j];
-              if (isName(diffEntry)) {
+              if (diffEntry instanceof Name) {
                 diffBuf[j] = diffEntry.name;
-              } else if (isNum(diffEntry) || isRef(diffEntry)) {
+              } else if (
+                typeof diffEntry === "number" ||
+                diffEntry instanceof Ref
+              ) {
                 diffBuf[j] = diffEntry.toString();
               }
             }
@@ -3763,7 +3803,7 @@ class PartialEvaluator {
       hash.update(`${firstChar}-${lastChar}`); // Fixes issue10665_reduced.pdf
 
       toUnicode = dict.get("ToUnicode") || baseDict.get("ToUnicode");
-      if (isStream(toUnicode)) {
+      if (toUnicode instanceof BaseStream) {
         const stream = toUnicode.str || toUnicode;
         const uint8array = stream.buffer
           ? new Uint8Array(stream.buffer.buffer, 0, stream.bufferLength)
@@ -3773,7 +3813,7 @@ class PartialEvaluator {
               stream.end - stream.start
             );
         hash.update(uint8array);
-      } else if (isName(toUnicode)) {
+      } else if (toUnicode instanceof Name) {
         hash.update(toUnicode.name);
       }
 
@@ -3781,7 +3821,7 @@ class PartialEvaluator {
       if (Array.isArray(widths)) {
         const widthsBuf = [];
         for (const entry of widths) {
-          if (isNum(entry) || isRef(entry)) {
+          if (typeof entry === "number" || entry instanceof Ref) {
             widthsBuf.push(entry.toString());
           }
         }
@@ -3795,12 +3835,12 @@ class PartialEvaluator {
         if (Array.isArray(compositeWidths)) {
           const widthsBuf = [];
           for (const entry of compositeWidths) {
-            if (isNum(entry) || isRef(entry)) {
+            if (typeof entry === "number" || entry instanceof Ref) {
               widthsBuf.push(entry.toString());
             } else if (Array.isArray(entry)) {
               const subWidthsBuf = [];
               for (const element of entry) {
-                if (isNum(element) || isRef(element)) {
+                if (typeof element === "number" || element instanceof Ref) {
                   subWidthsBuf.push(element.toString());
                 }
               }
@@ -3861,7 +3901,7 @@ class PartialEvaluator {
         // FontDescriptor was not required.
         // This case is here for compatibility.
         let baseFontName = dict.get("BaseFont");
-        if (!isName(baseFontName)) {
+        if (!(baseFontName instanceof Name)) {
           throw new FormatError("Base font is not specified");
         }
 
@@ -3933,10 +3973,10 @@ class PartialEvaluator {
     let fontName = descriptor.get("FontName");
     let baseFont = dict.get("BaseFont");
     // Some bad PDFs have a string as the font name.
-    if (isString(fontName)) {
+    if (typeof fontName === "string") {
       fontName = Name.get(fontName);
     }
-    if (isString(baseFont)) {
+    if (typeof baseFont === "string") {
       baseFont = Name.get(baseFont);
     }
 
@@ -3957,7 +3997,7 @@ class PartialEvaluator {
     }
     fontName = fontName || baseFont;
 
-    if (!isName(fontName)) {
+    if (!(fontName instanceof Name)) {
       throw new FormatError("invalid font name");
     }
 
@@ -4041,7 +4081,7 @@ class PartialEvaluator {
 
     if (composite) {
       const cidEncoding = baseDict.get("Encoding");
-      if (isName(cidEncoding)) {
+      if (cidEncoding instanceof Name) {
         properties.cidEncoding = cidEncoding.name;
       }
       const cMap = await CMapFactory.create({
@@ -4167,6 +4207,12 @@ class TranslatedFont {
     // make sense to only be able to render a Type3 glyph partially.
     const type3Evaluator = evaluator.clone({ ignoreErrors: false });
     type3Evaluator.parsingType3Font = true;
+    // Prevent circular references in Type3 fonts.
+    const type3FontRefs = new RefSet(evaluator.type3FontRefs);
+    if (this.dict.objId && !type3FontRefs.has(this.dict.objId)) {
+      type3FontRefs.put(this.dict.objId);
+    }
+    type3Evaluator.type3FontRefs = type3FontRefs;
 
     const translatedFont = this.font,
       type3Dependencies = this.type3Dependencies;
@@ -4525,7 +4571,7 @@ class EvaluatorPreprocessor {
   }
 
   static get MAX_INVALID_PATH_OPS() {
-    return shadow(this, "MAX_INVALID_PATH_OPS", 20);
+    return shadow(this, "MAX_INVALID_PATH_OPS", 10);
   }
 
   constructor(stream, xref, stateManager = new StateManager()) {

@@ -19,7 +19,12 @@ import {
   DefaultTextLayerFactory,
   DefaultXfaLayerFactory,
 } from "./default_factory.js";
-import { PDFLinkService, SimpleLinkService } from "./pdf_link_service.js";
+import {
+  LinkTarget,
+  PDFLinkService,
+  SimpleLinkService,
+} from "./pdf_link_service.js";
+import { parseQueryString, ProgressBar } from "./ui_utils.js";
 import { PDFSinglePageViewer, PDFViewer } from "./pdf_viewer.js";
 import { AnnotationLayerBuilder } from "./annotation_layer_builder.js";
 import { DownloadManager } from "./download_manager.js";
@@ -30,7 +35,6 @@ import { PDFFindController } from "./pdf_find_controller.js";
 import { PDFHistory } from "./pdf_history.js";
 import { PDFPageView } from "./pdf_page_view.js";
 import { PDFScriptingManager } from "./pdf_scripting_manager.js";
-import { ProgressBar } from "./ui_utils.js";
 import { StructTreeLayerBuilder } from "./struct_tree_layer_builder.js";
 import { TextLayerBuilder } from "./text_layer_builder.js";
 import { XfaLayerBuilder } from "./xfa_layer_builder.js";
@@ -49,7 +53,9 @@ export {
   DownloadManager,
   EventBus,
   GenericL10n,
+  LinkTarget,
   NullL10n,
+  parseQueryString,
   PDFFindController,
   PDFHistory,
   PDFLinkService,
