@@ -1,6 +1,6 @@
 /**
  * @licstart The following is the entire license notice for the
- * Javascript code in this page
+ * JavaScript code in this page
  *
  * Copyright 2022 Mozilla Foundation
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  * @licend The above is the entire license notice for the
- * Javascript code in this page
+ * JavaScript code in this page
  */
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -42,7 +42,7 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.IsLittleEndianCached = exports.IsEvalSupportedCached = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
+exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FeatureTest = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
 exports.arrayByteLength = arrayByteLength;
 exports.arraysToBytes = arraysToBytes;
 exports.assert = assert;
@@ -56,7 +56,6 @@ exports.info = info;
 exports.isArrayBuffer = isArrayBuffer;
 exports.isArrayEqual = isArrayEqual;
 exports.isAscii = isAscii;
-exports.isSameOrigin = isSameOrigin;
 exports.objectFromMap = objectFromMap;
 exports.objectSize = objectSize;
 exports.setVerbosityLevel = setVerbosityLevel;
@@ -412,19 +411,6 @@ function assert(cond, msg) {
     unreachable(msg);
   }
 }
-function isSameOrigin(baseUrl, otherUrl) {
-  let base;
-  try {
-    base = new URL(baseUrl);
-    if (!base.origin || base.origin === "null") {
-      return false;
-    }
-  } catch (e) {
-    return false;
-  }
-  const other = new URL(otherUrl, base);
-  return base.origin === other.origin;
-}
 function _isValidProtocol(url) {
   if (!url) {
     return false;
@@ -613,11 +599,6 @@ function isLittleEndian() {
   const view32 = new Uint32Array(buffer8.buffer, 0, 1);
   return view32[0] === 1;
 }
-const IsLittleEndianCached = exports.IsLittleEndianCached = {
-  get value() {
-    return shadow(this, "value", isLittleEndian());
-  }
-};
 function isEvalSupported() {
   try {
     new Function("");
@@ -626,15 +607,66 @@ function isEvalSupported() {
     return false;
   }
 }
-const IsEvalSupportedCached = exports.IsEvalSupportedCached = {
-  get value() {
-    return shadow(this, "value", isEvalSupported());
+class FeatureTest {
+  static get isLittleEndian() {
+    return shadow(this, "isLittleEndian", isLittleEndian());
   }
-};
+  static get isEvalSupported() {
+    return shadow(this, "isEvalSupported", isEvalSupported());
+  }
+  static get isOffscreenCanvasSupported() {
+    return shadow(this, "isOffscreenCanvasSupported", typeof OffscreenCanvas !== "undefined");
+  }
+}
+exports.FeatureTest = FeatureTest;
 const hexNumbers = [...Array(256).keys()].map(n => n.toString(16).padStart(2, "0"));
 class Util {
   static makeHexColor(r, g, b) {
     return `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
+  }
+  static scaleMinMax(transform, minMax) {
+    let temp;
+    if (transform[0]) {
+      if (transform[0] < 0) {
+        temp = minMax[0];
+        minMax[0] = minMax[1];
+        minMax[1] = temp;
+      }
+      minMax[0] *= transform[0];
+      minMax[1] *= transform[0];
+      if (transform[3] < 0) {
+        temp = minMax[2];
+        minMax[2] = minMax[3];
+        minMax[3] = temp;
+      }
+      minMax[2] *= transform[3];
+      minMax[3] *= transform[3];
+    } else {
+      temp = minMax[0];
+      minMax[0] = minMax[2];
+      minMax[2] = temp;
+      temp = minMax[1];
+      minMax[1] = minMax[3];
+      minMax[3] = temp;
+      if (transform[1] < 0) {
+        temp = minMax[2];
+        minMax[2] = minMax[3];
+        minMax[3] = temp;
+      }
+      minMax[2] *= transform[1];
+      minMax[3] *= transform[1];
+      if (transform[2] < 0) {
+        temp = minMax[0];
+        minMax[0] = minMax[1];
+        minMax[1] = temp;
+      }
+      minMax[0] *= transform[2];
+      minMax[1] *= transform[2];
+    }
+    minMax[0] += transform[4];
+    minMax[1] += transform[4];
+    minMax[2] += transform[5];
+    minMax[3] += transform[5];
   }
   static transform(m1, m2) {
     return [m1[0] * m2[0] + m1[2] * m2[1], m1[1] * m2[0] + m1[3] * m2[1], m1[0] * m2[2] + m1[2] * m2[3], m1[1] * m2[2] + m1[3] * m2[3], m1[0] * m2[4] + m1[2] * m2[5] + m1[4], m1[1] * m2[4] + m1[3] * m2[5] + m1[5]];
@@ -689,27 +721,17 @@ class Util {
     return r;
   }
   static intersect(rect1, rect2) {
-    function compare(a, b) {
-      return a - b;
-    }
-    const orderedX = [rect1[0], rect1[2], rect2[0], rect2[2]].sort(compare);
-    const orderedY = [rect1[1], rect1[3], rect2[1], rect2[3]].sort(compare);
-    const result = [];
-    rect1 = Util.normalizeRect(rect1);
-    rect2 = Util.normalizeRect(rect2);
-    if (orderedX[0] === rect1[0] && orderedX[1] === rect2[0] || orderedX[0] === rect2[0] && orderedX[1] === rect1[0]) {
-      result[0] = orderedX[1];
-      result[2] = orderedX[2];
-    } else {
+    const xLow = Math.max(Math.min(rect1[0], rect1[2]), Math.min(rect2[0], rect2[2]));
+    const xHigh = Math.min(Math.max(rect1[0], rect1[2]), Math.max(rect2[0], rect2[2]));
+    if (xLow > xHigh) {
       return null;
     }
-    if (orderedY[0] === rect1[1] && orderedY[1] === rect2[1] || orderedY[0] === rect2[1] && orderedY[1] === rect1[1]) {
-      result[1] = orderedY[1];
-      result[3] = orderedY[2];
-    } else {
+    const yLow = Math.max(Math.min(rect1[1], rect1[3]), Math.min(rect2[1], rect2[3]));
+    const yHigh = Math.min(Math.max(rect1[1], rect1[3]), Math.max(rect2[1], rect2[3]));
+    if (yLow > yHigh) {
       return null;
     }
-    return result;
+    return [xLow, yLow, xHigh, yHigh];
   }
   static bezierBoundingBox(x0, y0, x1, y1, x2, y2, x3, y3) {
     const tvalues = [],
@@ -2087,9 +2109,7 @@ class SimpleSegmentVisitor {
     const rowSize = info.width + 7 >> 3;
     const buffer = new Uint8ClampedArray(rowSize * info.height);
     if (info.defaultPixelValue) {
-      for (let i = 0, ii = buffer.length; i < ii; i++) {
-        buffer[i] = 0xff;
-      }
+      buffer.fill(0xff);
     }
     this.buffer = buffer;
   }
@@ -3283,10 +3303,8 @@ class RefSet {
   remove(ref) {
     this._set.delete(ref.toString());
   }
-  forEach(callback) {
-    for (const ref of this._set.values()) {
-      callback(ref);
-    }
+  [Symbol.iterator]() {
+    return this._set.values();
   }
   clear() {
     this._set.clear();
@@ -3312,10 +3330,8 @@ class RefSetCache {
   putAlias(ref, aliasRef) {
     this._map.set(ref.toString(), this.get(aliasRef));
   }
-  forEach(callback) {
-    for (const value of this._map.values()) {
-      callback(value);
-    }
+  [Symbol.iterator]() {
+    return this._map.values();
   }
   clear() {
     this._map.clear();
@@ -3369,7 +3385,7 @@ class BaseStream {
   getByte() {
     (0, _util.unreachable)("Abstract method `getByte` called");
   }
-  getBytes(length, forceClamped = false) {
+  getBytes(length) {
     (0, _util.unreachable)("Abstract method `getBytes` called");
   }
   peekByte() {
@@ -3379,8 +3395,8 @@ class BaseStream {
     }
     return peekedByte;
   }
-  peekBytes(length, forceClamped = false) {
-    const bytes = this.getBytes(length, forceClamped);
+  peekBytes(length) {
+    const bytes = this.getBytes(length);
     this.pos -= bytes.length;
     return bytes;
   }
@@ -3403,7 +3419,7 @@ class BaseStream {
     (0, _util.unreachable)("Abstract method `getByteRange` called");
   }
   getString(length) {
-    return (0, _util.bytesToString)(this.getBytes(length, false));
+    return (0, _util.bytesToString)(this.getBytes(length));
   }
   skip(n) {
     this.pos += n || 1;
@@ -7324,8 +7340,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(10);
 var _jpx = __w_pdfjs_require__(11);
-const pdfjsVersion = '2.13.48';
-const pdfjsBuild = '9090033be';
+const pdfjsVersion = '2.14.49';
+const pdfjsBuild = '8c17486c3';
 })();
 
 /******/ 	return __webpack_exports__;

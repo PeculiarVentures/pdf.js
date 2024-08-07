@@ -1,6 +1,6 @@
 /**
  * @licstart The following is the entire license notice for the
- * Javascript code in this page
+ * JavaScript code in this page
  *
  * Copyright 2022 Mozilla Foundation
  *
@@ -17,7 +17,7 @@
  * limitations under the License.
  *
  * @licend The above is the entire license notice for the
- * Javascript code in this page
+ * JavaScript code in this page
  */
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -1064,6 +1064,9 @@ exports.removeNullCharacters = removeNullCharacters;
 exports.roundToDivide = roundToDivide;
 exports.scrollIntoView = scrollIntoView;
 exports.watchScroll = watchScroll;
+function _classPrivateMethodInitSpec(e, a) { _checkPrivateRedeclaration(e, a), a.add(e); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -1086,7 +1089,6 @@ var UNKNOWN_SCALE = exports.UNKNOWN_SCALE = 0;
 var MAX_AUTO_SCALE = exports.MAX_AUTO_SCALE = 1.25;
 var SCROLLBAR_PADDING = exports.SCROLLBAR_PADDING = 40;
 var VERTICAL_PADDING = exports.VERTICAL_PADDING = 5;
-var LOADINGBAR_END_OFFSET_VAR = "--loadingBar-end-offset";
 var RenderingStates = exports.RenderingStates = {
   INITIAL: 0,
   RUNNING: 1,
@@ -1461,35 +1463,20 @@ var animationStarted = exports.animationStarted = new Promise(function (resolve)
 function clamp(v, min, max) {
   return Math.min(Math.max(v, min), max);
 }
+var _ProgressBar_brand = /*#__PURE__*/new WeakSet();
 var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
   function ProgressBar(id) {
-    var _ref3 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-      height = _ref3.height,
-      width = _ref3.width,
-      units = _ref3.units;
     _classCallCheck(this, ProgressBar);
+    _classPrivateMethodInitSpec(this, _ProgressBar_brand);
+    if (arguments.length > 1) {
+      throw new Error("ProgressBar no longer accepts any additional options, " + "please use CSS rules to modify its appearance instead.");
+    }
     this.visible = true;
     this.div = document.querySelector(id + " .progress");
     this.bar = this.div.parentNode;
-    this.height = height || 100;
-    this.width = width || 100;
-    this.units = units || "%";
-    this.div.style.height = this.height + this.units;
     this.percent = 0;
   }
   return _createClass(ProgressBar, [{
-    key: "_updateBar",
-    value: function _updateBar() {
-      if (this._indeterminate) {
-        this.div.classList.add("indeterminate");
-        this.div.style.width = this.width + this.units;
-        return;
-      }
-      this.div.classList.remove("indeterminate");
-      var progressSize = this.width * this._percent / 100;
-      this.div.style.width = progressSize + this.units;
-    }
-  }, {
     key: "percent",
     get: function get() {
       return this._percent;
@@ -1497,7 +1484,7 @@ var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
     set: function set(val) {
       this._indeterminate = isNaN(val);
       this._percent = clamp(val, 0, 100);
-      this._updateBar();
+      _assertClassBrand(_ProgressBar_brand, this, _updateBar).call(this);
     }
   }, {
     key: "setWidth",
@@ -1509,7 +1496,7 @@ var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
       var scrollbarWidth = container.offsetWidth - viewer.offsetWidth;
       if (scrollbarWidth > 0) {
         var doc = document.documentElement;
-        doc.style.setProperty(LOADINGBAR_END_OFFSET_VAR, "".concat(scrollbarWidth, "px"));
+        doc.style.setProperty("--progressBar-end-offset", "".concat(scrollbarWidth, "px"));
       }
     }
   }, {
@@ -1532,6 +1519,15 @@ var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
     }
   }]);
 }();
+function _updateBar() {
+  if (this._indeterminate) {
+    this.div.classList.add("indeterminate");
+    return;
+  }
+  this.div.classList.remove("indeterminate");
+  var doc = document.documentElement;
+  doc.style.setProperty("--progressBar-percent", "".concat(this._percent, "%"));
+}
 function getActiveOrFocusedElement() {
   var curRoot = document;
   var curActiveOrFocused = curRoot.activeElement || curRoot.querySelector(":focus");
@@ -2182,7 +2178,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     if (this.constructor === BaseViewer) {
       throw new Error("Cannot initialize BaseViewer.");
     }
-    var viewerVersion = '2.13.48';
+    var viewerVersion = '2.14.49';
     if (_pdfjsLib.version !== viewerVersion) {
       throw new Error("The API version \"".concat(_pdfjsLib.version, "\" does not match the Viewer version \"").concat(viewerVersion, "\"."));
     }
@@ -2209,6 +2205,13 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     this.maxCanvasPixels = options.maxCanvasPixels;
     this.l10n = options.l10n || _l10n_utils.NullL10n;
     _classPrivateFieldSet(_enablePermissions, this, options.enablePermissions || false);
+    this.pageColors = options.pageColors || null;
+    if (options.pageColors && (!CSS.supports("color", options.pageColors.background) || !CSS.supports("color", options.pageColors.foreground))) {
+      if (options.pageColors.background || options.pageColors.foreground) {
+        console.warn("Ignoring `pageColors`-option, since the browser doesn't support the values used.");
+      }
+      this.pageColors = null;
+    }
     this.defaultRenderingQueue = !options.renderingQueue;
     if (this.defaultRenderingQueue) {
       this.renderingQueue = new _pdf_rendering_queue.PDFRenderingQueue();
@@ -2224,6 +2227,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     if (this.removePageBorders) {
       this.viewer.classList.add("removePageBorders");
     }
+    this.updateContainerHeightCss();
     Promise.resolve().then(function () {
       _this.eventBus.dispatch("baseviewerinit", {
         source: _this
@@ -2283,7 +2287,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       var resetCurrentPageView = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       if (this._currentPageNumber === val) {
         if (resetCurrentPageView) {
-          this._resetCurrentPageView();
+          _assertClassBrand(_BaseViewer_brand, this, _resetCurrentPageView).call(this);
         }
         return true;
       }
@@ -2299,7 +2303,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         previous: previous
       });
       if (resetCurrentPageView) {
-        this._resetCurrentPageView();
+        _assertClassBrand(_BaseViewer_brand, this, _resetCurrentPageView).call(this);
       }
       return true;
     }
@@ -2513,6 +2517,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
             renderer: _this2.renderer,
             useOnlyCssZoom: _this2.useOnlyCssZoom,
             maxCanvasPixels: _this2.maxCanvasPixels,
+            pageColors: _this2.pageColors,
             l10n: _this2.l10n
           });
           _this2._pages.push(pageView);
@@ -2694,36 +2699,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       this.update();
     }
   }, {
-    key: "_scrollIntoView",
-    value: function _scrollIntoView(_ref5) {
-      var pageDiv = _ref5.pageDiv,
-        _ref5$pageSpot = _ref5.pageSpot,
-        pageSpot = _ref5$pageSpot === void 0 ? null : _ref5$pageSpot,
-        _ref5$pageNumber = _ref5.pageNumber,
-        pageNumber = _ref5$pageNumber === void 0 ? null : _ref5$pageNumber;
-      if (this._scrollMode === _ui_utils.ScrollMode.PAGE) {
-        if (pageNumber) {
-          this._setCurrentPageNumber(pageNumber);
-        }
-        _assertClassBrand(_BaseViewer_brand, this, _ensurePageViewVisible).call(this);
-        this.update();
-      }
-      if (!pageSpot && !this.isInPresentationMode) {
-        var left = pageDiv.offsetLeft + pageDiv.clientLeft;
-        var right = left + pageDiv.clientWidth;
-        var _this$container2 = this.container,
-          scrollLeft = _this$container2.scrollLeft,
-          clientWidth = _this$container2.clientWidth;
-        if (this._scrollMode === _ui_utils.ScrollMode.HORIZONTAL || left < scrollLeft || right > scrollLeft + clientWidth) {
-          pageSpot = {
-            left: 0,
-            top: 0
-          };
-        }
-      }
-      (0, _ui_utils.scrollIntoView)(pageDiv, pageSpot);
-    }
-  }, {
     key: "_setScaleUpdatePages",
     value: function _setScaleUpdatePages(newScale, newValue) {
       var noScroll = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
@@ -2740,7 +2715,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         return;
       }
       this._doc.style.setProperty("--zoom-factor", newScale);
-      this._doc.style.setProperty("--viewport-scale-factor", newScale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS);
       var updateArgs = {
         scale: newScale
       };
@@ -2780,7 +2754,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       if (this.defaultRenderingQueue) {
         this.update();
       }
-      _classPrivateFieldSet(_previousContainerHeight, this, this.container.clientHeight);
+      this.updateContainerHeightCss();
     }
   }, {
     key: "_pageWidthScaleFactor",
@@ -2808,11 +2782,10 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
           hPadding = vPadding = 4;
         } else if (this.removePageBorders) {
           hPadding = vPadding = 0;
-        }
-        if (this._scrollMode === _ui_utils.ScrollMode.HORIZONTAL) {
-          var _ref6 = [vPadding, hPadding];
-          hPadding = _ref6[0];
-          vPadding = _ref6[1];
+        } else if (this._scrollMode === _ui_utils.ScrollMode.HORIZONTAL) {
+          var _ref5 = [vPadding, hPadding];
+          hPadding = _ref5[0];
+          vPadding = _ref5[1];
         }
         var pageWidthScale = (this.container.clientWidth - hPadding) / currentPage.width * currentPage.scale / this._pageWidthScaleFactor;
         var pageHeightScale = (this.container.clientHeight - vPadding) / currentPage.height * currentPage.scale;
@@ -2841,17 +2814,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       }
     }
   }, {
-    key: "_resetCurrentPageView",
-    value: function _resetCurrentPageView() {
-      if (this.isInPresentationMode) {
-        this._setScale(this._currentScaleValue, true);
-      }
-      var pageView = this._pages[this._currentPageNumber - 1];
-      this._scrollIntoView({
-        pageDiv: pageView.div
-      });
-    }
-  }, {
     key: "pageLabelToPageNumber",
     value: function pageLabelToPageNumber(label) {
       if (!this._pageLabels) {
@@ -2865,14 +2827,14 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     }
   }, {
     key: "scrollPageIntoView",
-    value: function scrollPageIntoView(_ref7) {
-      var pageNumber = _ref7.pageNumber,
-        _ref7$destArray = _ref7.destArray,
-        destArray = _ref7$destArray === void 0 ? null : _ref7$destArray,
-        _ref7$allowNegativeOf = _ref7.allowNegativeOffset,
-        allowNegativeOffset = _ref7$allowNegativeOf === void 0 ? false : _ref7$allowNegativeOf,
-        _ref7$ignoreDestinati = _ref7.ignoreDestinationZoom,
-        ignoreDestinationZoom = _ref7$ignoreDestinati === void 0 ? false : _ref7$ignoreDestinati;
+    value: function scrollPageIntoView(_ref6) {
+      var pageNumber = _ref6.pageNumber,
+        _ref6$destArray = _ref6.destArray,
+        destArray = _ref6$destArray === void 0 ? null : _ref6$destArray,
+        _ref6$allowNegativeOf = _ref6.allowNegativeOffset,
+        allowNegativeOffset = _ref6$allowNegativeOf === void 0 ? false : _ref6$allowNegativeOf,
+        _ref6$ignoreDestinati = _ref6.ignoreDestinationZoom,
+        ignoreDestinationZoom = _ref6$ignoreDestinati === void 0 ? false : _ref6$ignoreDestinati;
       if (!this.pdfDocument) {
         return;
       }
@@ -2948,10 +2910,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         }
       }
       if (scale === "page-fit" && !destArray[4]) {
-        this._scrollIntoView({
-          pageDiv: pageView.div,
-          pageNumber: pageNumber
-        });
+        _assertClassBrand(_BaseViewer_brand, this, _scrollIntoView).call(this, pageView);
         return;
       }
       var boundingRect = [pageView.viewport.convertToViewportPoint(x, y), pageView.viewport.convertToViewportPoint(x + width, y + height)];
@@ -2961,13 +2920,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         left = Math.max(left, 0);
         top = Math.max(top, 0);
       }
-      this._scrollIntoView({
-        pageDiv: pageView.div,
-        pageSpot: {
-          left: left,
-          top: top
-        },
-        pageNumber: pageNumber
+      _assertClassBrand(_BaseViewer_brand, this, _scrollIntoView).call(this, pageView, {
+        left: left,
+        top: top
       });
     }
   }, {
@@ -2977,14 +2932,15 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       var currentScaleValue = this._currentScaleValue;
       var normalizedScaleValue = parseFloat(currentScaleValue) === currentScale ? Math.round(currentScale * 10000) / 100 : currentScaleValue;
       var pageNumber = firstPage.id;
-      var pdfOpenParams = "#page=" + pageNumber;
-      pdfOpenParams += "&zoom=" + normalizedScaleValue;
       var currentPageView = this._pages[pageNumber - 1];
       var container = this.container;
       var topLeft = currentPageView.getPagePoint(container.scrollLeft - firstPage.x, container.scrollTop - firstPage.y);
       var intLeft = Math.round(topLeft[0]);
       var intTop = Math.round(topLeft[1]);
-      pdfOpenParams += "," + intLeft + "," + intTop;
+      var pdfOpenParams = "#page=".concat(pageNumber);
+      if (!this.isInPresentationMode) {
+        pdfOpenParams += "&zoom=".concat(normalizedScaleValue, ",").concat(intLeft, ",").concat(intTop);
+      }
       this._location = {
         pageNumber: pageNumber,
         scale: normalizedScaleValue,
@@ -3006,33 +2962,28 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       var newCacheSize = Math.max(DEFAULT_CACHE_SIZE, 2 * numVisiblePages + 1);
       _classPrivateFieldGet(_buffer, this).resize(newCacheSize, visible.ids);
       this.renderingQueue.renderHighestPriority(visible);
-      if (!this.isInPresentationMode) {
-        var isSimpleLayout = this._spreadMode === _ui_utils.SpreadMode.NONE && (this._scrollMode === _ui_utils.ScrollMode.PAGE || this._scrollMode === _ui_utils.ScrollMode.VERTICAL);
-        var currentId = this._currentPageNumber;
-        var stillFullyVisible = false;
-        var _iterator4 = _createForOfIteratorHelper(visiblePages),
-          _step4;
-        try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var page = _step4.value;
-            if (page.percent < 100) {
-              break;
-            }
-            if (page.id === currentId && isSimpleLayout) {
-              stillFullyVisible = true;
-              break;
-            }
+      var isSimpleLayout = this._spreadMode === _ui_utils.SpreadMode.NONE && (this._scrollMode === _ui_utils.ScrollMode.PAGE || this._scrollMode === _ui_utils.ScrollMode.VERTICAL);
+      var currentId = this._currentPageNumber;
+      var stillFullyVisible = false;
+      var _iterator4 = _createForOfIteratorHelper(visiblePages),
+        _step4;
+      try {
+        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+          var page = _step4.value;
+          if (page.percent < 100) {
+            break;
           }
-        } catch (err) {
-          _iterator4.e(err);
-        } finally {
-          _iterator4.f();
+          if (page.id === currentId && isSimpleLayout) {
+            stillFullyVisible = true;
+            break;
+          }
         }
-        if (!stillFullyVisible) {
-          currentId = visiblePages[0].id;
-        }
-        this._setCurrentPageNumber(currentId);
+      } catch (err) {
+        _iterator4.e(err);
+      } finally {
+        _iterator4.f();
       }
+      this._setCurrentPageNumber(stillFullyVisible ? currentId : visiblePages[0].id);
       this._updateLocation(visible.first);
       this.eventBus.dispatch("updateviewarea", {
         source: this,
@@ -3075,35 +3026,8 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       return this.isInPresentationMode ? false : this.container.scrollHeight > this.container.clientHeight;
     }
   }, {
-    key: "_getCurrentVisiblePage",
-    value: function _getCurrentVisiblePage() {
-      if (!this.pagesCount) {
-        return {
-          views: []
-        };
-      }
-      var pageView = this._pages[this._currentPageNumber - 1];
-      var element = pageView.div;
-      var view = {
-        id: pageView.id,
-        x: element.offsetLeft + element.clientLeft,
-        y: element.offsetTop + element.clientTop,
-        view: pageView
-      };
-      var ids = new Set([pageView.id]);
-      return {
-        first: view,
-        last: view,
-        views: [view],
-        ids: ids
-      };
-    }
-  }, {
     key: "_getVisiblePages",
     value: function _getVisiblePages() {
-      if (this.isInPresentationMode) {
-        return this._getCurrentVisiblePage();
-      }
       var views = this._scrollMode === _ui_utils.ScrollMode.PAGE ? _classPrivateFieldGet(_scrollModePageState, this).pages : this._pages,
         horizontal = this._scrollMode === _ui_utils.ScrollMode.HORIZONTAL,
         rtl = horizontal && this._isContainerRtl;
@@ -3143,19 +3067,35 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
   }, {
     key: "cleanup",
     value: function cleanup() {
-      for (var i = 0, ii = this._pages.length; i < ii; i++) {
-        if (this._pages[i] && this._pages[i].renderingState !== _ui_utils.RenderingStates.FINISHED) {
-          this._pages[i].reset();
+      var _iterator5 = _createForOfIteratorHelper(this._pages),
+        _step5;
+      try {
+        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+          var pageView = _step5.value;
+          if (pageView.renderingState !== _ui_utils.RenderingStates.FINISHED) {
+            pageView.reset();
+          }
         }
+      } catch (err) {
+        _iterator5.e(err);
+      } finally {
+        _iterator5.f();
       }
     }
   }, {
     key: "_cancelRendering",
     value: function _cancelRendering() {
-      for (var i = 0, ii = this._pages.length; i < ii; i++) {
-        if (this._pages[i]) {
-          this._pages[i].cancelRendering();
+      var _iterator6 = _createForOfIteratorHelper(this._pages),
+        _step6;
+      try {
+        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+          var pageView = _step6.value;
+          pageView.cancelRendering();
         }
+      } catch (err) {
+        _iterator6.e(err);
+      } finally {
+        _iterator6.f();
       }
     }
   }, {
@@ -3306,17 +3246,17 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       var updateArgs = {
         optionalContentConfigPromise: promise
       };
-      var _iterator5 = _createForOfIteratorHelper(this._pages),
-        _step5;
+      var _iterator7 = _createForOfIteratorHelper(this._pages),
+        _step7;
       try {
-        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-          var pageView = _step5.value;
+        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+          var pageView = _step7.value;
           pageView.update(updateArgs);
         }
       } catch (err) {
-        _iterator5.e(err);
+        _iterator7.e(err);
       } finally {
-        _iterator5.f();
+        _iterator7.f();
       }
       this.update();
       this.eventBus.dispatch("optionalcontentconfigchanged", {
@@ -3402,22 +3342,31 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       } else {
         viewer.textContent = "";
         if (this._spreadMode === _ui_utils.SpreadMode.NONE) {
-          for (var i = 0, ii = pages.length; i < ii; ++i) {
-            viewer.appendChild(pages[i].div);
+          var _iterator8 = _createForOfIteratorHelper(this._pages),
+            _step8;
+          try {
+            for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+              var pageView = _step8.value;
+              viewer.appendChild(pageView.div);
+            }
+          } catch (err) {
+            _iterator8.e(err);
+          } finally {
+            _iterator8.f();
           }
         } else {
           var parity = this._spreadMode - 1;
           var spread = null;
-          for (var _i = 0, _ii = pages.length; _i < _ii; ++_i) {
+          for (var i = 0, ii = pages.length; i < ii; ++i) {
             if (spread === null) {
               spread = document.createElement("div");
               spread.className = "spread";
               viewer.appendChild(spread);
-            } else if (_i % 2 === parity) {
+            } else if (i % 2 === parity) {
               spread = spread.cloneNode(false);
               viewer.appendChild(spread);
             }
-            spread.appendChild(pages[_i].div);
+            spread.appendChild(pages[i].div);
           }
         }
       }
@@ -3440,15 +3389,15 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
             var _this$_getVisiblePage = this._getVisiblePages(),
               views = _this$_getVisiblePage.views,
               pageLayout = new Map();
-            var _iterator6 = _createForOfIteratorHelper(views),
-              _step6;
+            var _iterator9 = _createForOfIteratorHelper(views),
+              _step9;
             try {
-              for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-                var _step6$value = _step6.value,
-                  id = _step6$value.id,
-                  y = _step6$value.y,
-                  percent = _step6$value.percent,
-                  widthPercent = _step6$value.widthPercent;
+              for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
+                var _step9$value = _step9.value,
+                  id = _step9$value.id,
+                  y = _step9$value.y,
+                  percent = _step9$value.percent,
+                  widthPercent = _step9$value.widthPercent;
                 if (percent === 0 || widthPercent < 100) {
                   continue;
                 }
@@ -3459,15 +3408,15 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                 yArray.push(id);
               }
             } catch (err) {
-              _iterator6.e(err);
+              _iterator9.e(err);
             } finally {
-              _iterator6.f();
+              _iterator9.f();
             }
-            var _iterator7 = _createForOfIteratorHelper(pageLayout.values()),
-              _step7;
+            var _iterator10 = _createForOfIteratorHelper(pageLayout.values()),
+              _step10;
             try {
-              for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-                var _yArray = _step7.value;
+              for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
+                var _yArray = _step10.value;
                 var currentIndex = _yArray.indexOf(currentPageNumber);
                 if (currentIndex === -1) {
                   continue;
@@ -3485,9 +3434,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                     }
                   }
                 } else {
-                  for (var _i2 = currentIndex + 1, _ii2 = numPages; _i2 < _ii2; _i2++) {
-                    var _currentId = _yArray[_i2],
-                      _expectedId = _yArray[_i2 - 1] + 1;
+                  for (var _i = currentIndex + 1, _ii = numPages; _i < _ii; _i++) {
+                    var _currentId = _yArray[_i],
+                      _expectedId = _yArray[_i - 1] + 1;
                     if (_currentId > _expectedId) {
                       return _expectedId - currentPageNumber;
                     }
@@ -3507,9 +3456,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                 break;
               }
             } catch (err) {
-              _iterator7.e(err);
+              _iterator10.e(err);
             } finally {
-              _iterator7.f();
+              _iterator10.f();
             }
             break;
           }
@@ -3532,14 +3481,14 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
             var _this$_getVisiblePage2 = this._getVisiblePages(),
               _views = _this$_getVisiblePage2.views,
               _expectedId2 = previous ? currentPageNumber - 1 : currentPageNumber + 1;
-            var _iterator8 = _createForOfIteratorHelper(_views),
-              _step8;
+            var _iterator11 = _createForOfIteratorHelper(_views),
+              _step11;
             try {
-              for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-                var _step8$value = _step8.value,
-                  _id = _step8$value.id,
-                  _percent = _step8$value.percent,
-                  _widthPercent = _step8$value.widthPercent;
+              for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
+                var _step11$value = _step11.value,
+                  _id = _step11$value.id,
+                  _percent = _step11$value.percent,
+                  _widthPercent = _step11$value.widthPercent;
                 if (_id !== _expectedId2) {
                   continue;
                 }
@@ -3549,9 +3498,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                 break;
               }
             } catch (err) {
-              _iterator8.e(err);
+              _iterator11.e(err);
             } finally {
-              _iterator8.f();
+              _iterator11.f();
             }
             break;
           }
@@ -3605,6 +3554,15 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       } while (--steps > 0 && newScale > _ui_utils.MIN_SCALE);
       this.currentScaleValue = newScale;
     }
+  }, {
+    key: "updateContainerHeightCss",
+    value: function updateContainerHeightCss() {
+      var height = this.container.clientHeight;
+      if (height !== _classPrivateFieldGet(_previousContainerHeight, this)) {
+        _classPrivateFieldSet(_previousContainerHeight, this, height);
+        this._doc.style.setProperty("--viewer-container-height", "".concat(height, "px"));
+      }
+    }
   }]);
 }();
 function _initializePermissions(permissions) {
@@ -3648,66 +3606,84 @@ function _ensurePageViewVisible() {
     viewer = this.viewer;
   viewer.textContent = "";
   state.pages.length = 0;
-  if (this._spreadMode === _ui_utils.SpreadMode.NONE) {
+  if (this._spreadMode === _ui_utils.SpreadMode.NONE && !this.isInPresentationMode) {
     var pageView = this._pages[pageNumber - 1];
-    if (this.isInPresentationMode) {
-      var spread = document.createElement("div");
-      spread.className = "spread";
-      var dummyPage = document.createElement("div");
-      dummyPage.className = "dummyPage";
-      dummyPage.style.height = "".concat(this.container.clientHeight, "px");
-      spread.appendChild(dummyPage);
-      spread.appendChild(pageView.div);
-      viewer.appendChild(spread);
-    } else {
-      viewer.appendChild(pageView.div);
-    }
+    viewer.appendChild(pageView.div);
     state.pages.push(pageView);
   } else {
     var pageIndexSet = new Set(),
       parity = this._spreadMode - 1;
-    if (pageNumber % 2 !== parity) {
+    if (parity === -1) {
+      pageIndexSet.add(pageNumber - 1);
+    } else if (pageNumber % 2 !== parity) {
       pageIndexSet.add(pageNumber - 1);
       pageIndexSet.add(pageNumber);
     } else {
       pageIndexSet.add(pageNumber - 2);
       pageIndexSet.add(pageNumber - 1);
     }
-    var _spread = null;
-    var _iterator9 = _createForOfIteratorHelper(pageIndexSet),
-      _step9;
+    var spread = document.createElement("div");
+    spread.className = "spread";
+    if (this.isInPresentationMode) {
+      var dummyPage = document.createElement("div");
+      dummyPage.className = "dummyPage";
+      spread.appendChild(dummyPage);
+    }
+    var _iterator12 = _createForOfIteratorHelper(pageIndexSet),
+      _step12;
     try {
-      for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-        var i = _step9.value;
+      for (_iterator12.s(); !(_step12 = _iterator12.n()).done;) {
+        var i = _step12.value;
         var _pageView = this._pages[i];
         if (!_pageView) {
           continue;
         }
-        if (_spread === null) {
-          _spread = document.createElement("div");
-          _spread.className = "spread";
-          viewer.appendChild(_spread);
-        } else if (i % 2 === parity) {
-          _spread = _spread.cloneNode(false);
-          viewer.appendChild(_spread);
-        }
-        _spread.appendChild(_pageView.div);
+        spread.appendChild(_pageView.div);
         state.pages.push(_pageView);
       }
     } catch (err) {
-      _iterator9.e(err);
+      _iterator12.e(err);
     } finally {
-      _iterator9.f();
+      _iterator12.f();
     }
+    viewer.appendChild(spread);
   }
   state.scrollDown = pageNumber >= state.previousPageNumber;
   state.previousPageNumber = pageNumber;
 }
-function _isSameScale(newScale) {
-  if (this.isInPresentationMode && this.container.clientHeight !== _classPrivateFieldGet(_previousContainerHeight, this)) {
-    return false;
+function _scrollIntoView(pageView) {
+  var pageSpot = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var div = pageView.div,
+    id = pageView.id;
+  if (this._scrollMode === _ui_utils.ScrollMode.PAGE) {
+    this._setCurrentPageNumber(id);
+    _assertClassBrand(_BaseViewer_brand, this, _ensurePageViewVisible).call(this);
+    this.update();
   }
+  if (!pageSpot && !this.isInPresentationMode) {
+    var left = div.offsetLeft + div.clientLeft,
+      right = left + div.clientWidth;
+    var _this$container2 = this.container,
+      scrollLeft = _this$container2.scrollLeft,
+      clientWidth = _this$container2.clientWidth;
+    if (this._scrollMode === _ui_utils.ScrollMode.HORIZONTAL || left < scrollLeft || right > scrollLeft + clientWidth) {
+      pageSpot = {
+        left: 0,
+        top: 0
+      };
+    }
+  }
+  (0, _ui_utils.scrollIntoView)(div, pageSpot);
+}
+function _isSameScale(newScale) {
   return newScale === this._currentScale || Math.abs(newScale - this._currentScale) < 1e-15;
+}
+function _resetCurrentPageView() {
+  var pageView = this._pages[this._currentPageNumber - 1];
+  if (this.isInPresentationMode) {
+    this._setScale(this._currentScaleValue, true);
+  }
+  _assertClassBrand(_BaseViewer_brand, this, _scrollIntoView).call(this, pageView);
 }
 function _ensurePdfPageLoaded(_x) {
   return _ensurePdfPageLoaded2.apply(this, arguments);
@@ -3765,33 +3741,33 @@ function _getScrollAhead(visible) {
   return this.scroll.down;
 }
 function _toggleLoadingIconSpinner(visibleIds) {
-  var _iterator10 = _createForOfIteratorHelper(visibleIds),
-    _step10;
+  var _iterator13 = _createForOfIteratorHelper(visibleIds),
+    _step13;
   try {
-    for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-      var id = _step10.value;
+    for (_iterator13.s(); !(_step13 = _iterator13.n()).done;) {
+      var id = _step13.value;
       var pageView = this._pages[id - 1];
       pageView === null || pageView === void 0 || pageView.toggleLoadingIconSpinner(true);
     }
   } catch (err) {
-    _iterator10.e(err);
+    _iterator13.e(err);
   } finally {
-    _iterator10.f();
+    _iterator13.f();
   }
-  var _iterator11 = _createForOfIteratorHelper(_classPrivateFieldGet(_buffer, this)),
-    _step11;
+  var _iterator14 = _createForOfIteratorHelper(_classPrivateFieldGet(_buffer, this)),
+    _step14;
   try {
-    for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-      var _pageView2 = _step11.value;
+    for (_iterator14.s(); !(_step14 = _iterator14.n()).done;) {
+      var _pageView2 = _step14.value;
       if (visibleIds.has(_pageView2.id)) {
         continue;
       }
       _pageView2.toggleLoadingIconSpinner(false);
     }
   } catch (err) {
-    _iterator11.e(err);
+    _iterator14.e(err);
   } finally {
-    _iterator11.f();
+    _iterator14.f();
   }
 }
 
@@ -3801,6 +3777,7 @@ function _toggleLoadingIconSpinner(visibleIds) {
 
 
 
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
@@ -3809,7 +3786,6 @@ var _pdfjsLib = __w_pdfjs_require__(3);
 var _ui_utils = __w_pdfjs_require__(6);
 var _app_options = __w_pdfjs_require__(13);
 var _l10n_utils = __w_pdfjs_require__(4);
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
@@ -3850,6 +3826,7 @@ var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
     this.imageResourcesPath = options.imageResourcesPath || "";
     this.useOnlyCssZoom = options.useOnlyCssZoom || false;
     this.maxCanvasPixels = options.maxCanvasPixels || MAX_CANVAS_PIXELS;
+    this.pageColors = options.pageColors || null;
     this.eventBus = options.eventBus;
     this.renderingQueue = options.renderingQueue;
     this.textLayerFactory = options.textLayerFactory;
@@ -4114,15 +4091,6 @@ var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
         rotation = _ref2$rotation === void 0 ? null : _ref2$rotation,
         _ref2$optionalContent = _ref2.optionalContentConfigPromise,
         optionalContentConfigPromise = _ref2$optionalContent === void 0 ? null : _ref2$optionalContent;
-      if (_typeof(arguments[0]) !== "object") {
-        console.error("PDFPageView.update called with separate parameters, please use an object instead.");
-        this.update({
-          scale: arguments[0],
-          rotation: arguments[1],
-          optionalContentConfigPromise: arguments[2]
-        });
-        return;
-      }
       this.scale = scale || this.scale;
       if (typeof rotation === "number") {
         this.rotation = rotation;
@@ -4131,15 +4099,13 @@ var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
         this._optionalContentConfigPromise = optionalContentConfigPromise;
       }
       var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
-      var viewportScale = this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS;
       this.viewport = this.viewport.clone({
-        scale: viewportScale,
+        scale: this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS,
         rotation: totalRotation
       });
       if (this._isStandalone) {
         var style = document.documentElement.style;
         style.setProperty("--zoom-factor", this.scale);
-        style.setProperty("--viewport-scale-factor", viewportScale);
       }
       if (this.svg) {
         this.cssTransform({
@@ -4507,7 +4473,6 @@ var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
       };
       canvasWrapper.appendChild(canvas);
       this.canvas = canvas;
-      canvas.mozOpaque = true;
       var ctx = canvas.getContext("2d", {
         alpha: false
       });
@@ -4544,7 +4509,8 @@ var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
         viewport: this.viewport,
         annotationMode: _classPrivateFieldGet(_annotationMode, this),
         optionalContentConfigPromise: this._optionalContentConfigPromise,
-        annotationCanvasMap: this._annotationCanvasMap
+        annotationCanvasMap: this._annotationCanvasMap,
+        pageColors: this.pageColors
       };
       var renderTask = this.pdfPage.render(renderContext);
       renderTask.onContinue = function (cont) {
@@ -4712,6 +4678,14 @@ var defaultOptions = {
     value: 16777216,
     compatibility: compatibilityParams.maxCanvasPixels,
     kind: OptionKind.VIEWER
+  },
+  pageColorsBackground: {
+    value: "Canvas",
+    kind: OptionKind.VIEWER + OptionKind.PREFERENCE
+  },
+  pageColorsForeground: {
+    value: "CanvasText",
+    kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   pdfBugEnabled: {
     value: false,
@@ -6427,6 +6401,7 @@ exports.PDFFindController = exports.FindState = void 0;
 var _ui_utils = __w_pdfjs_require__(6);
 var _pdfjsLib = __w_pdfjs_require__(3);
 var _pdf_find_utils = __w_pdfjs_require__(21);
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -6436,6 +6411,10 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _classPrivateMethodInitSpec(e, a) { _checkPrivateRedeclaration(e, a), a.add(e); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _classPrivateGetter(s, r, a) { return a(_assertClassBrand(s, r)); }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -6563,24 +6542,18 @@ function getOriginalIndex(diffs, pos, len) {
   }
   return [start + diffs[i][1], len + diffs[j][1] - diffs[i][1]];
 }
+var _PDFFindController_brand = /*#__PURE__*/new WeakSet();
 var PDFFindController = exports.PDFFindController = /*#__PURE__*/function () {
   function PDFFindController(_ref) {
-    var _this = this;
-    var linkService = _ref.linkService,
+    var _linkService = _ref.linkService,
       eventBus = _ref.eventBus;
     _classCallCheck(this, PDFFindController);
-    this._linkService = linkService;
+    _classPrivateMethodInitSpec(this, _PDFFindController_brand);
+    this._linkService = _linkService;
     this._eventBus = eventBus;
-    this._reset();
-    eventBus._on("find", this._onFind.bind(this));
-    eventBus._on("findbarclose", this._onFindBarClose.bind(this));
-    this.executeCommand = function (cmd, state) {
-      console.error("Deprecated method `PDFFindController.executeCommand` called, " + 'please dispatch a "find"-event using the EventBus instead.');
-      var eventState = Object.assign(Object.create(null), state, {
-        type: cmd.substring("find".length)
-      });
-      _this._onFind(eventState);
-    };
+    _assertClassBrand(_PDFFindController_brand, this, _reset).call(this);
+    eventBus._on("find", _assertClassBrand(_PDFFindController_brand, this, _onFind).bind(this));
+    eventBus._on("findbarclose", _assertClassBrand(_PDFFindController_brand, this, _onFindBarClose).bind(this));
   }
   return _createClass(PDFFindController, [{
     key: "highlightMatches",
@@ -6611,64 +6584,13 @@ var PDFFindController = exports.PDFFindController = /*#__PURE__*/function () {
     key: "setDocument",
     value: function setDocument(pdfDocument) {
       if (this._pdfDocument) {
-        this._reset();
+        _assertClassBrand(_PDFFindController_brand, this, _reset).call(this);
       }
       if (!pdfDocument) {
         return;
       }
       this._pdfDocument = pdfDocument;
       this._firstPageCapability.resolve();
-    }
-  }, {
-    key: "_onFind",
-    value: function _onFind(state) {
-      var _this2 = this;
-      if (!state) {
-        return;
-      }
-      var pdfDocument = this._pdfDocument;
-      var type = state.type;
-      if (this._state === null || this._shouldDirtyMatch(state)) {
-        this._dirtyMatch = true;
-      }
-      this._state = state;
-      if (type !== "highlightallchange") {
-        this._updateUIState(FindState.PENDING);
-      }
-      this._firstPageCapability.promise.then(function () {
-        if (!_this2._pdfDocument || pdfDocument && _this2._pdfDocument !== pdfDocument) {
-          return;
-        }
-        _this2._extractText();
-        var findbarClosed = !_this2._highlightMatches;
-        var pendingTimeout = !!_this2._findTimeout;
-        if (_this2._findTimeout) {
-          clearTimeout(_this2._findTimeout);
-          _this2._findTimeout = null;
-        }
-        if (!type) {
-          _this2._findTimeout = setTimeout(function () {
-            _this2._nextMatch();
-            _this2._findTimeout = null;
-          }, FIND_TIMEOUT);
-        } else if (_this2._dirtyMatch) {
-          _this2._nextMatch();
-        } else if (type === "again") {
-          _this2._nextMatch();
-          if (findbarClosed && _this2._state.highlightAll) {
-            _this2._updateAllPages();
-          }
-        } else if (type === "highlightallchange") {
-          if (pendingTimeout) {
-            _this2._nextMatch();
-          } else {
-            _this2._highlightMatches = true;
-          }
-          _this2._updateAllPages();
-        } else {
-          _this2._nextMatch();
-        }
-      });
     }
   }, {
     key: "scrollMatchIntoView",
@@ -6695,450 +6617,472 @@ var PDFFindController = exports.PDFFindController = /*#__PURE__*/function () {
       };
       (0, _ui_utils.scrollIntoView)(element, spot, true);
     }
-  }, {
-    key: "_reset",
-    value: function _reset() {
-      this._highlightMatches = false;
-      this._scrollMatches = false;
-      this._pdfDocument = null;
-      this._pageMatches = [];
-      this._pageMatchesLength = [];
-      this._state = null;
-      this._selected = {
-        pageIdx: -1,
-        matchIdx: -1
-      };
-      this._offset = {
-        pageIdx: null,
-        matchIdx: null,
-        wrapped: false
-      };
-      this._extractTextPromises = [];
-      this._pageContents = [];
-      this._pageDiffs = [];
-      this._hasDiacritics = [];
-      this._matchesCountTotal = 0;
-      this._pagesToSearch = null;
-      this._pendingFindMatches = new Set();
-      this._resumePageIdx = null;
-      this._dirtyMatch = false;
-      clearTimeout(this._findTimeout);
-      this._findTimeout = null;
-      this._firstPageCapability = (0, _pdfjsLib.createPromiseCapability)();
-    }
-  }, {
-    key: "_query",
-    get: function get() {
-      if (this._state.query !== this._rawQuery) {
-        this._rawQuery = this._state.query;
-        var _normalize = normalize(this._state.query);
-        var _normalize2 = _slicedToArray(_normalize, 1);
-        this._normalizedQuery = _normalize2[0];
-      }
-      return this._normalizedQuery;
-    }
-  }, {
-    key: "_shouldDirtyMatch",
-    value: function _shouldDirtyMatch(state) {
-      if (state.query !== this._state.query) {
-        return true;
-      }
-      switch (state.type) {
-        case "again":
-          var pageNumber = this._selected.pageIdx + 1;
-          var linkService = this._linkService;
-          if (pageNumber >= 1 && pageNumber <= linkService.pagesCount && pageNumber !== linkService.page && !linkService.isPageVisible(pageNumber)) {
-            return true;
-          }
-          return false;
-        case "highlightallchange":
-          return false;
-      }
-      return true;
-    }
-  }, {
-    key: "_isEntireWord",
-    value: function _isEntireWord(content, startIdx, length) {
-      var match = content.slice(0, startIdx).match(NOT_DIACRITIC_FROM_END_REG_EXP);
-      if (match) {
-        var first = content.charCodeAt(startIdx);
-        var limit = match[1].charCodeAt(0);
-        if ((0, _pdf_find_utils.getCharacterType)(first) === (0, _pdf_find_utils.getCharacterType)(limit)) {
-          return false;
-        }
-      }
-      match = content.slice(startIdx + length).match(NOT_DIACRITIC_FROM_START_REG_EXP);
-      if (match) {
-        var last = content.charCodeAt(startIdx + length - 1);
-        var _limit = match[1].charCodeAt(0);
-        if ((0, _pdf_find_utils.getCharacterType)(last) === (0, _pdf_find_utils.getCharacterType)(_limit)) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }, {
-    key: "_calculateRegExpMatch",
-    value: function _calculateRegExpMatch(query, entireWord, pageIndex, pageContent) {
-      var matches = [],
-        matchesLength = [];
-      var diffs = this._pageDiffs[pageIndex];
-      var match;
-      while ((match = query.exec(pageContent)) !== null) {
-        if (entireWord && !this._isEntireWord(pageContent, match.index, match[0].length)) {
-          continue;
-        }
-        var _getOriginalIndex = getOriginalIndex(diffs, match.index, match[0].length),
-          _getOriginalIndex2 = _slicedToArray(_getOriginalIndex, 2),
-          matchPos = _getOriginalIndex2[0],
-          matchLen = _getOriginalIndex2[1];
-        if (matchLen) {
-          matches.push(matchPos);
-          matchesLength.push(matchLen);
-        }
-      }
-      this._pageMatches[pageIndex] = matches;
-      this._pageMatchesLength[pageIndex] = matchesLength;
-    }
-  }, {
-    key: "_convertToRegExpString",
-    value: function _convertToRegExpString(query, hasDiacritics) {
-      var matchDiacritics = this._state.matchDiacritics;
-      var isUnicode = false;
-      query = query.replace(SPECIAL_CHARS_REG_EXP, function (match, p1, p2, p3, p4, p5) {
-        if (p1) {
-          return "[ ]*\\".concat(p1, "[ ]*");
-        }
-        if (p2) {
-          return "[ ]*".concat(p2, "[ ]*");
-        }
-        if (p3) {
-          return "[ ]+";
-        }
-        if (matchDiacritics) {
-          return p4 || p5;
-        }
-        if (p4) {
-          return DIACRITICS_EXCEPTION.has(p4.charCodeAt(0)) ? p4 : "";
-        }
-        if (hasDiacritics) {
-          isUnicode = true;
-          return "".concat(p5, "\\p{M}*");
-        }
-        return p5;
-      });
-      var trailingSpaces = "[ ]*";
-      if (query.endsWith(trailingSpaces)) {
-        query = query.slice(0, query.length - trailingSpaces.length);
-      }
-      if (matchDiacritics) {
-        if (hasDiacritics) {
-          isUnicode = true;
-          query = "".concat(query, "(?=[").concat(DIACRITICS_EXCEPTION_STR, "]|[^\\p{M}]|$)");
-        }
-      }
-      return [isUnicode, query];
-    }
-  }, {
-    key: "_calculateMatch",
-    value: function _calculateMatch(pageIndex) {
-      var _this3 = this;
-      var query = this._query;
-      if (query.length === 0) {
-        return;
-      }
-      var _this$_state = this._state,
-        caseSensitive = _this$_state.caseSensitive,
-        entireWord = _this$_state.entireWord,
-        phraseSearch = _this$_state.phraseSearch;
-      var pageContent = this._pageContents[pageIndex];
-      var hasDiacritics = this._hasDiacritics[pageIndex];
-      var isUnicode = false;
-      if (phraseSearch) {
-        var _this$_convertToRegEx = this._convertToRegExpString(query, hasDiacritics);
-        var _this$_convertToRegEx2 = _slicedToArray(_this$_convertToRegEx, 2);
-        isUnicode = _this$_convertToRegEx2[0];
-        query = _this$_convertToRegEx2[1];
-      } else {
-        var match = query.match(/\S+/g);
-        if (match) {
-          query = match.sort().reverse().map(function (q) {
-            var _this3$_convertToRegE = _this3._convertToRegExpString(q, hasDiacritics),
-              _this3$_convertToRegE2 = _slicedToArray(_this3$_convertToRegE, 2),
-              isUnicodePart = _this3$_convertToRegE2[0],
-              queryPart = _this3$_convertToRegE2[1];
-            isUnicode || (isUnicode = isUnicodePart);
-            return "(".concat(queryPart, ")");
-          }).join("|");
-        }
-      }
-      var flags = "g".concat(isUnicode ? "u" : "").concat(caseSensitive ? "" : "i");
-      query = new RegExp(query, flags);
-      this._calculateRegExpMatch(query, entireWord, pageIndex, pageContent);
-      if (this._state.highlightAll) {
-        this._updatePage(pageIndex);
-      }
-      if (this._resumePageIdx === pageIndex) {
-        this._resumePageIdx = null;
-        this._nextPageMatch();
-      }
-      var pageMatchesCount = this._pageMatches[pageIndex].length;
-      if (pageMatchesCount > 0) {
-        this._matchesCountTotal += pageMatchesCount;
-        this._updateUIResultsCount();
-      }
-    }
-  }, {
-    key: "_extractText",
-    value: function _extractText() {
-      var _this4 = this;
-      if (this._extractTextPromises.length > 0) {
-        return;
-      }
-      var promise = Promise.resolve();
-      var _loop = function _loop(i) {
-        var extractTextCapability = (0, _pdfjsLib.createPromiseCapability)();
-        _this4._extractTextPromises[i] = extractTextCapability.promise;
-        promise = promise.then(function () {
-          return _this4._pdfDocument.getPage(i + 1).then(function (pdfPage) {
-            return pdfPage.getTextContent();
-          }).then(function (textContent) {
-            var textItems = textContent.items;
-            var strBuf = [];
-            for (var j = 0, jj = textItems.length; j < jj; j++) {
-              strBuf.push(textItems[j].str);
-              if (textItems[j].hasEOL) {
-                strBuf.push("\n");
-              }
-            }
-            var _normalize3 = normalize(strBuf.join(""));
-            var _normalize4 = _slicedToArray(_normalize3, 3);
-            _this4._pageContents[i] = _normalize4[0];
-            _this4._pageDiffs[i] = _normalize4[1];
-            _this4._hasDiacritics[i] = _normalize4[2];
-            extractTextCapability.resolve(i);
-          }, function (reason) {
-            console.error("Unable to get text content for page ".concat(i + 1), reason);
-            _this4._pageContents[i] = "";
-            _this4._pageDiffs[i] = null;
-            _this4._hasDiacritics[i] = false;
-            extractTextCapability.resolve(i);
-          });
-        });
-      };
-      for (var i = 0, ii = this._linkService.pagesCount; i < ii; i++) {
-        _loop(i);
-      }
-    }
-  }, {
-    key: "_updatePage",
-    value: function _updatePage(index) {
-      if (this._scrollMatches && this._selected.pageIdx === index) {
-        this._linkService.page = index + 1;
-      }
-      this._eventBus.dispatch("updatetextlayermatches", {
-        source: this,
-        pageIndex: index
-      });
-    }
-  }, {
-    key: "_updateAllPages",
-    value: function _updateAllPages() {
-      this._eventBus.dispatch("updatetextlayermatches", {
-        source: this,
-        pageIndex: -1
-      });
-    }
-  }, {
-    key: "_nextMatch",
-    value: function _nextMatch() {
-      var _this5 = this;
-      var previous = this._state.findPrevious;
-      var currentPageIndex = this._linkService.page - 1;
-      var numPages = this._linkService.pagesCount;
-      this._highlightMatches = true;
-      if (this._dirtyMatch) {
-        this._dirtyMatch = false;
-        this._selected.pageIdx = this._selected.matchIdx = -1;
-        this._offset.pageIdx = currentPageIndex;
-        this._offset.matchIdx = null;
-        this._offset.wrapped = false;
-        this._resumePageIdx = null;
-        this._pageMatches.length = 0;
-        this._pageMatchesLength.length = 0;
-        this._matchesCountTotal = 0;
-        this._updateAllPages();
-        for (var i = 0; i < numPages; i++) {
-          if (this._pendingFindMatches.has(i)) {
-            continue;
-          }
-          this._pendingFindMatches.add(i);
-          this._extractTextPromises[i].then(function (pageIdx) {
-            _this5._pendingFindMatches["delete"](pageIdx);
-            _this5._calculateMatch(pageIdx);
-          });
-        }
-      }
-      if (this._query === "") {
-        this._updateUIState(FindState.FOUND);
-        return;
-      }
-      if (this._resumePageIdx) {
-        return;
-      }
-      var offset = this._offset;
-      this._pagesToSearch = numPages;
-      if (offset.matchIdx !== null) {
-        var numPageMatches = this._pageMatches[offset.pageIdx].length;
-        if (!previous && offset.matchIdx + 1 < numPageMatches || previous && offset.matchIdx > 0) {
-          offset.matchIdx = previous ? offset.matchIdx - 1 : offset.matchIdx + 1;
-          this._updateMatch(true);
-          return;
-        }
-        this._advanceOffsetPage(previous);
-      }
-      this._nextPageMatch();
-    }
-  }, {
-    key: "_matchesReady",
-    value: function _matchesReady(matches) {
-      var offset = this._offset;
-      var numMatches = matches.length;
-      var previous = this._state.findPrevious;
-      if (numMatches) {
-        offset.matchIdx = previous ? numMatches - 1 : 0;
-        this._updateMatch(true);
-        return true;
-      }
-      this._advanceOffsetPage(previous);
-      if (offset.wrapped) {
-        offset.matchIdx = null;
-        if (this._pagesToSearch < 0) {
-          this._updateMatch(false);
-          return true;
-        }
-      }
-      return false;
-    }
-  }, {
-    key: "_nextPageMatch",
-    value: function _nextPageMatch() {
-      if (this._resumePageIdx !== null) {
-        console.error("There can only be one pending page.");
-      }
-      var matches = null;
-      do {
-        var pageIdx = this._offset.pageIdx;
-        matches = this._pageMatches[pageIdx];
-        if (!matches) {
-          this._resumePageIdx = pageIdx;
-          break;
-        }
-      } while (!this._matchesReady(matches));
-    }
-  }, {
-    key: "_advanceOffsetPage",
-    value: function _advanceOffsetPage(previous) {
-      var offset = this._offset;
-      var numPages = this._linkService.pagesCount;
-      offset.pageIdx = previous ? offset.pageIdx - 1 : offset.pageIdx + 1;
-      offset.matchIdx = null;
-      this._pagesToSearch--;
-      if (offset.pageIdx >= numPages || offset.pageIdx < 0) {
-        offset.pageIdx = previous ? numPages - 1 : 0;
-        offset.wrapped = true;
-      }
-    }
-  }, {
-    key: "_updateMatch",
-    value: function _updateMatch() {
-      var found = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      var state = FindState.NOT_FOUND;
-      var wrapped = this._offset.wrapped;
-      this._offset.wrapped = false;
-      if (found) {
-        var previousPage = this._selected.pageIdx;
-        this._selected.pageIdx = this._offset.pageIdx;
-        this._selected.matchIdx = this._offset.matchIdx;
-        state = wrapped ? FindState.WRAPPED : FindState.FOUND;
-        if (previousPage !== -1 && previousPage !== this._selected.pageIdx) {
-          this._updatePage(previousPage);
-        }
-      }
-      this._updateUIState(state, this._state.findPrevious);
-      if (this._selected.pageIdx !== -1) {
-        this._scrollMatches = true;
-        this._updatePage(this._selected.pageIdx);
-      }
-    }
-  }, {
-    key: "_onFindBarClose",
-    value: function _onFindBarClose(evt) {
-      var _this6 = this;
-      var pdfDocument = this._pdfDocument;
-      this._firstPageCapability.promise.then(function () {
-        if (!_this6._pdfDocument || pdfDocument && _this6._pdfDocument !== pdfDocument) {
-          return;
-        }
-        if (_this6._findTimeout) {
-          clearTimeout(_this6._findTimeout);
-          _this6._findTimeout = null;
-        }
-        if (_this6._resumePageIdx) {
-          _this6._resumePageIdx = null;
-          _this6._dirtyMatch = true;
-        }
-        _this6._updateUIState(FindState.FOUND);
-        _this6._highlightMatches = false;
-        _this6._updateAllPages();
-      });
-    }
-  }, {
-    key: "_requestMatchesCount",
-    value: function _requestMatchesCount() {
-      var _this$_selected = this._selected,
-        pageIdx = _this$_selected.pageIdx,
-        matchIdx = _this$_selected.matchIdx;
-      var current = 0,
-        total = this._matchesCountTotal;
-      if (matchIdx !== -1) {
-        for (var i = 0; i < pageIdx; i++) {
-          var _this$_pageMatches$i;
-          current += ((_this$_pageMatches$i = this._pageMatches[i]) === null || _this$_pageMatches$i === void 0 ? void 0 : _this$_pageMatches$i.length) || 0;
-        }
-        current += matchIdx + 1;
-      }
-      if (current < 1 || current > total) {
-        current = total = 0;
-      }
-      return {
-        current: current,
-        total: total
-      };
-    }
-  }, {
-    key: "_updateUIResultsCount",
-    value: function _updateUIResultsCount() {
-      this._eventBus.dispatch("updatefindmatchescount", {
-        source: this,
-        matchesCount: this._requestMatchesCount()
-      });
-    }
-  }, {
-    key: "_updateUIState",
-    value: function _updateUIState(state) {
-      var _this$_state$query, _this$_state2;
-      var previous = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-      this._eventBus.dispatch("updatefindcontrolstate", {
-        source: this,
-        state: state,
-        previous: previous,
-        matchesCount: this._requestMatchesCount(),
-        rawQuery: (_this$_state$query = (_this$_state2 = this._state) === null || _this$_state2 === void 0 ? void 0 : _this$_state2.query) !== null && _this$_state$query !== void 0 ? _this$_state$query : null
-      });
-    }
   }]);
 }();
+function _onFind(state) {
+  var _this2 = this;
+  if (!state) {
+    return;
+  }
+  var pdfDocument = this._pdfDocument;
+  var type = state.type;
+  if (this._state === null || _assertClassBrand(_PDFFindController_brand, this, _shouldDirtyMatch).call(this, state)) {
+    this._dirtyMatch = true;
+  }
+  this._state = state;
+  if (type !== "highlightallchange") {
+    _assertClassBrand(_PDFFindController_brand, this, _updateUIState).call(this, FindState.PENDING);
+  }
+  this._firstPageCapability.promise.then(function () {
+    if (!_this2._pdfDocument || pdfDocument && _this2._pdfDocument !== pdfDocument) {
+      return;
+    }
+    _assertClassBrand(_PDFFindController_brand, _this2, _extractText).call(_this2);
+    var findbarClosed = !_this2._highlightMatches;
+    var pendingTimeout = !!_this2._findTimeout;
+    if (_this2._findTimeout) {
+      clearTimeout(_this2._findTimeout);
+      _this2._findTimeout = null;
+    }
+    if (!type) {
+      _this2._findTimeout = setTimeout(function () {
+        _assertClassBrand(_PDFFindController_brand, _this2, _nextMatch).call(_this2);
+        _this2._findTimeout = null;
+      }, FIND_TIMEOUT);
+    } else if (_this2._dirtyMatch) {
+      _assertClassBrand(_PDFFindController_brand, _this2, _nextMatch).call(_this2);
+    } else if (type === "again") {
+      _assertClassBrand(_PDFFindController_brand, _this2, _nextMatch).call(_this2);
+      if (findbarClosed && _this2._state.highlightAll) {
+        _assertClassBrand(_PDFFindController_brand, _this2, _updateAllPages).call(_this2);
+      }
+    } else if (type === "highlightallchange") {
+      if (pendingTimeout) {
+        _assertClassBrand(_PDFFindController_brand, _this2, _nextMatch).call(_this2);
+      } else {
+        _this2._highlightMatches = true;
+      }
+      _assertClassBrand(_PDFFindController_brand, _this2, _updateAllPages).call(_this2);
+    } else {
+      _assertClassBrand(_PDFFindController_brand, _this2, _nextMatch).call(_this2);
+    }
+  });
+}
+function _reset() {
+  this._highlightMatches = false;
+  this._scrollMatches = false;
+  this._pdfDocument = null;
+  this._pageMatches = [];
+  this._pageMatchesLength = [];
+  this._state = null;
+  this._selected = {
+    pageIdx: -1,
+    matchIdx: -1
+  };
+  this._offset = {
+    pageIdx: null,
+    matchIdx: null,
+    wrapped: false
+  };
+  this._extractTextPromises = [];
+  this._pageContents = [];
+  this._pageDiffs = [];
+  this._hasDiacritics = [];
+  this._matchesCountTotal = 0;
+  this._pagesToSearch = null;
+  this._pendingFindMatches = new Set();
+  this._resumePageIdx = null;
+  this._dirtyMatch = false;
+  clearTimeout(this._findTimeout);
+  this._findTimeout = null;
+  this._firstPageCapability = (0, _pdfjsLib.createPromiseCapability)();
+}
+function _get_query(_this) {
+  if (_this._state.query !== _this._rawQuery) {
+    _this._rawQuery = _this._state.query;
+    var _normalize = normalize(_this._state.query);
+    var _normalize2 = _slicedToArray(_normalize, 1);
+    _this._normalizedQuery = _normalize2[0];
+  }
+  return _this._normalizedQuery;
+}
+function _shouldDirtyMatch(state) {
+  if (state.query !== this._state.query) {
+    return true;
+  }
+  switch (state.type) {
+    case "again":
+      var pageNumber = this._selected.pageIdx + 1;
+      var linkService = this._linkService;
+      if (pageNumber >= 1 && pageNumber <= linkService.pagesCount && pageNumber !== linkService.page && !linkService.isPageVisible(pageNumber)) {
+        return true;
+      }
+      return false;
+    case "highlightallchange":
+      return false;
+  }
+  return true;
+}
+function _isEntireWord(content, startIdx, length) {
+  var match = content.slice(0, startIdx).match(NOT_DIACRITIC_FROM_END_REG_EXP);
+  if (match) {
+    var first = content.charCodeAt(startIdx);
+    var limit = match[1].charCodeAt(0);
+    if ((0, _pdf_find_utils.getCharacterType)(first) === (0, _pdf_find_utils.getCharacterType)(limit)) {
+      return false;
+    }
+  }
+  match = content.slice(startIdx + length).match(NOT_DIACRITIC_FROM_START_REG_EXP);
+  if (match) {
+    var last = content.charCodeAt(startIdx + length - 1);
+    var _limit = match[1].charCodeAt(0);
+    if ((0, _pdf_find_utils.getCharacterType)(last) === (0, _pdf_find_utils.getCharacterType)(_limit)) {
+      return false;
+    }
+  }
+  return true;
+}
+function _calculateRegExpMatch(query, entireWord, pageIndex, pageContent) {
+  var matches = [],
+    matchesLength = [];
+  var diffs = this._pageDiffs[pageIndex];
+  var match;
+  while ((match = query.exec(pageContent)) !== null) {
+    if (entireWord && !_assertClassBrand(_PDFFindController_brand, this, _isEntireWord).call(this, pageContent, match.index, match[0].length)) {
+      continue;
+    }
+    var _getOriginalIndex = getOriginalIndex(diffs, match.index, match[0].length),
+      _getOriginalIndex2 = _slicedToArray(_getOriginalIndex, 2),
+      matchPos = _getOriginalIndex2[0],
+      matchLen = _getOriginalIndex2[1];
+    if (matchLen) {
+      matches.push(matchPos);
+      matchesLength.push(matchLen);
+    }
+  }
+  this._pageMatches[pageIndex] = matches;
+  this._pageMatchesLength[pageIndex] = matchesLength;
+}
+function _convertToRegExpString(query, hasDiacritics) {
+  var matchDiacritics = this._state.matchDiacritics;
+  var isUnicode = false;
+  query = query.replace(SPECIAL_CHARS_REG_EXP, function (match, p1, p2, p3, p4, p5) {
+    if (p1) {
+      return "[ ]*\\".concat(p1, "[ ]*");
+    }
+    if (p2) {
+      return "[ ]*".concat(p2, "[ ]*");
+    }
+    if (p3) {
+      return "[ ]+";
+    }
+    if (matchDiacritics) {
+      return p4 || p5;
+    }
+    if (p4) {
+      return DIACRITICS_EXCEPTION.has(p4.charCodeAt(0)) ? p4 : "";
+    }
+    if (hasDiacritics) {
+      isUnicode = true;
+      return "".concat(p5, "\\p{M}*");
+    }
+    return p5;
+  });
+  var trailingSpaces = "[ ]*";
+  if (query.endsWith(trailingSpaces)) {
+    query = query.slice(0, query.length - trailingSpaces.length);
+  }
+  if (matchDiacritics) {
+    if (hasDiacritics) {
+      isUnicode = true;
+      query = "".concat(query, "(?=[").concat(DIACRITICS_EXCEPTION_STR, "]|[^\\p{M}]|$)");
+    }
+  }
+  return [isUnicode, query];
+}
+function _calculateMatch(pageIndex) {
+  var _this3 = this;
+  var query = _classPrivateGetter(_PDFFindController_brand, this, _get_query);
+  if (query.length === 0) {
+    return;
+  }
+  var _this$_state = this._state,
+    caseSensitive = _this$_state.caseSensitive,
+    entireWord = _this$_state.entireWord,
+    phraseSearch = _this$_state.phraseSearch;
+  var pageContent = this._pageContents[pageIndex];
+  var hasDiacritics = this._hasDiacritics[pageIndex];
+  var isUnicode = false;
+  if (phraseSearch) {
+    var _assertClassBrand$cal = _assertClassBrand(_PDFFindController_brand, this, _convertToRegExpString).call(this, query, hasDiacritics);
+    var _assertClassBrand$cal2 = _slicedToArray(_assertClassBrand$cal, 2);
+    isUnicode = _assertClassBrand$cal2[0];
+    query = _assertClassBrand$cal2[1];
+  } else {
+    var match = query.match(/\S+/g);
+    if (match) {
+      query = match.sort().reverse().map(function (q) {
+        var _assertClassBrand$cal3 = _assertClassBrand(_PDFFindController_brand, _this3, _convertToRegExpString).call(_this3, q, hasDiacritics),
+          _assertClassBrand$cal4 = _slicedToArray(_assertClassBrand$cal3, 2),
+          isUnicodePart = _assertClassBrand$cal4[0],
+          queryPart = _assertClassBrand$cal4[1];
+        isUnicode || (isUnicode = isUnicodePart);
+        return "(".concat(queryPart, ")");
+      }).join("|");
+    }
+  }
+  var flags = "g".concat(isUnicode ? "u" : "").concat(caseSensitive ? "" : "i");
+  query = new RegExp(query, flags);
+  _assertClassBrand(_PDFFindController_brand, this, _calculateRegExpMatch).call(this, query, entireWord, pageIndex, pageContent);
+  if (this._state.highlightAll) {
+    _assertClassBrand(_PDFFindController_brand, this, _updatePage).call(this, pageIndex);
+  }
+  if (this._resumePageIdx === pageIndex) {
+    this._resumePageIdx = null;
+    _assertClassBrand(_PDFFindController_brand, this, _nextPageMatch).call(this);
+  }
+  var pageMatchesCount = this._pageMatches[pageIndex].length;
+  if (pageMatchesCount > 0) {
+    this._matchesCountTotal += pageMatchesCount;
+    _assertClassBrand(_PDFFindController_brand, this, _updateUIResultsCount).call(this);
+  }
+}
+function _extractText() {
+  var _this4 = this;
+  if (this._extractTextPromises.length > 0) {
+    return;
+  }
+  var promise = Promise.resolve();
+  var _loop = function _loop(i) {
+    var extractTextCapability = (0, _pdfjsLib.createPromiseCapability)();
+    _this4._extractTextPromises[i] = extractTextCapability.promise;
+    promise = promise.then(function () {
+      return _this4._pdfDocument.getPage(i + 1).then(function (pdfPage) {
+        return pdfPage.getTextContent();
+      }).then(function (textContent) {
+        var strBuf = [];
+        var _iterator = _createForOfIteratorHelper(textContent.items),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var textItem = _step.value;
+            strBuf.push(textItem.str);
+            if (textItem.hasEOL) {
+              strBuf.push("\n");
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        var _normalize3 = normalize(strBuf.join(""));
+        var _normalize4 = _slicedToArray(_normalize3, 3);
+        _this4._pageContents[i] = _normalize4[0];
+        _this4._pageDiffs[i] = _normalize4[1];
+        _this4._hasDiacritics[i] = _normalize4[2];
+        extractTextCapability.resolve();
+      }, function (reason) {
+        console.error("Unable to get text content for page ".concat(i + 1), reason);
+        _this4._pageContents[i] = "";
+        _this4._pageDiffs[i] = null;
+        _this4._hasDiacritics[i] = false;
+        extractTextCapability.resolve();
+      });
+    });
+  };
+  for (var i = 0, ii = this._linkService.pagesCount; i < ii; i++) {
+    _loop(i);
+  }
+}
+function _updatePage(index) {
+  if (this._scrollMatches && this._selected.pageIdx === index) {
+    this._linkService.page = index + 1;
+  }
+  this._eventBus.dispatch("updatetextlayermatches", {
+    source: this,
+    pageIndex: index
+  });
+}
+function _updateAllPages() {
+  this._eventBus.dispatch("updatetextlayermatches", {
+    source: this,
+    pageIndex: -1
+  });
+}
+function _nextMatch() {
+  var _this5 = this;
+  var previous = this._state.findPrevious;
+  var currentPageIndex = this._linkService.page - 1;
+  var numPages = this._linkService.pagesCount;
+  this._highlightMatches = true;
+  if (this._dirtyMatch) {
+    this._dirtyMatch = false;
+    this._selected.pageIdx = this._selected.matchIdx = -1;
+    this._offset.pageIdx = currentPageIndex;
+    this._offset.matchIdx = null;
+    this._offset.wrapped = false;
+    this._resumePageIdx = null;
+    this._pageMatches.length = 0;
+    this._pageMatchesLength.length = 0;
+    this._matchesCountTotal = 0;
+    _assertClassBrand(_PDFFindController_brand, this, _updateAllPages).call(this);
+    var _loop2 = function _loop2(i) {
+      if (_this5._pendingFindMatches.has(i)) {
+        return 1; // continue
+      }
+      _this5._pendingFindMatches.add(i);
+      _this5._extractTextPromises[i].then(function () {
+        _this5._pendingFindMatches["delete"](i);
+        _assertClassBrand(_PDFFindController_brand, _this5, _calculateMatch).call(_this5, i);
+      });
+    };
+    for (var i = 0; i < numPages; i++) {
+      if (_loop2(i)) continue;
+    }
+  }
+  if (_classPrivateGetter(_PDFFindController_brand, this, _get_query) === "") {
+    _assertClassBrand(_PDFFindController_brand, this, _updateUIState).call(this, FindState.FOUND);
+    return;
+  }
+  if (this._resumePageIdx) {
+    return;
+  }
+  var offset = this._offset;
+  this._pagesToSearch = numPages;
+  if (offset.matchIdx !== null) {
+    var numPageMatches = this._pageMatches[offset.pageIdx].length;
+    if (!previous && offset.matchIdx + 1 < numPageMatches || previous && offset.matchIdx > 0) {
+      offset.matchIdx = previous ? offset.matchIdx - 1 : offset.matchIdx + 1;
+      _assertClassBrand(_PDFFindController_brand, this, _updateMatch).call(this, true);
+      return;
+    }
+    _assertClassBrand(_PDFFindController_brand, this, _advanceOffsetPage).call(this, previous);
+  }
+  _assertClassBrand(_PDFFindController_brand, this, _nextPageMatch).call(this);
+}
+function _matchesReady(matches) {
+  var offset = this._offset;
+  var numMatches = matches.length;
+  var previous = this._state.findPrevious;
+  if (numMatches) {
+    offset.matchIdx = previous ? numMatches - 1 : 0;
+    _assertClassBrand(_PDFFindController_brand, this, _updateMatch).call(this, true);
+    return true;
+  }
+  _assertClassBrand(_PDFFindController_brand, this, _advanceOffsetPage).call(this, previous);
+  if (offset.wrapped) {
+    offset.matchIdx = null;
+    if (this._pagesToSearch < 0) {
+      _assertClassBrand(_PDFFindController_brand, this, _updateMatch).call(this, false);
+      return true;
+    }
+  }
+  return false;
+}
+function _nextPageMatch() {
+  if (this._resumePageIdx !== null) {
+    console.error("There can only be one pending page.");
+  }
+  var matches = null;
+  do {
+    var pageIdx = this._offset.pageIdx;
+    matches = this._pageMatches[pageIdx];
+    if (!matches) {
+      this._resumePageIdx = pageIdx;
+      break;
+    }
+  } while (!_assertClassBrand(_PDFFindController_brand, this, _matchesReady).call(this, matches));
+}
+function _advanceOffsetPage(previous) {
+  var offset = this._offset;
+  var numPages = this._linkService.pagesCount;
+  offset.pageIdx = previous ? offset.pageIdx - 1 : offset.pageIdx + 1;
+  offset.matchIdx = null;
+  this._pagesToSearch--;
+  if (offset.pageIdx >= numPages || offset.pageIdx < 0) {
+    offset.pageIdx = previous ? numPages - 1 : 0;
+    offset.wrapped = true;
+  }
+}
+function _updateMatch() {
+  var found = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+  var state = FindState.NOT_FOUND;
+  var wrapped = this._offset.wrapped;
+  this._offset.wrapped = false;
+  if (found) {
+    var previousPage = this._selected.pageIdx;
+    this._selected.pageIdx = this._offset.pageIdx;
+    this._selected.matchIdx = this._offset.matchIdx;
+    state = wrapped ? FindState.WRAPPED : FindState.FOUND;
+    if (previousPage !== -1 && previousPage !== this._selected.pageIdx) {
+      _assertClassBrand(_PDFFindController_brand, this, _updatePage).call(this, previousPage);
+    }
+  }
+  _assertClassBrand(_PDFFindController_brand, this, _updateUIState).call(this, state, this._state.findPrevious);
+  if (this._selected.pageIdx !== -1) {
+    this._scrollMatches = true;
+    _assertClassBrand(_PDFFindController_brand, this, _updatePage).call(this, this._selected.pageIdx);
+  }
+}
+function _onFindBarClose(evt) {
+  var _this6 = this;
+  var pdfDocument = this._pdfDocument;
+  this._firstPageCapability.promise.then(function () {
+    if (!_this6._pdfDocument || pdfDocument && _this6._pdfDocument !== pdfDocument) {
+      return;
+    }
+    if (_this6._findTimeout) {
+      clearTimeout(_this6._findTimeout);
+      _this6._findTimeout = null;
+    }
+    if (_this6._resumePageIdx) {
+      _this6._resumePageIdx = null;
+      _this6._dirtyMatch = true;
+    }
+    _assertClassBrand(_PDFFindController_brand, _this6, _updateUIState).call(_this6, FindState.FOUND);
+    _this6._highlightMatches = false;
+    _assertClassBrand(_PDFFindController_brand, _this6, _updateAllPages).call(_this6);
+  });
+}
+function _requestMatchesCount() {
+  var _this$_selected = this._selected,
+    pageIdx = _this$_selected.pageIdx,
+    matchIdx = _this$_selected.matchIdx;
+  var current = 0,
+    total = this._matchesCountTotal;
+  if (matchIdx !== -1) {
+    for (var i = 0; i < pageIdx; i++) {
+      var _this$_pageMatches$i;
+      current += ((_this$_pageMatches$i = this._pageMatches[i]) === null || _this$_pageMatches$i === void 0 ? void 0 : _this$_pageMatches$i.length) || 0;
+    }
+    current += matchIdx + 1;
+  }
+  if (current < 1 || current > total) {
+    current = total = 0;
+  }
+  return {
+    current: current,
+    total: total
+  };
+}
+function _updateUIResultsCount() {
+  this._eventBus.dispatch("updatefindmatchescount", {
+    source: this,
+    matchesCount: _assertClassBrand(_PDFFindController_brand, this, _requestMatchesCount).call(this)
+  });
+}
+function _updateUIState(state) {
+  var _this$_state$query, _this$_state2;
+  var previous = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  this._eventBus.dispatch("updatefindcontrolstate", {
+    source: this,
+    state: state,
+    previous: previous,
+    matchesCount: _assertClassBrand(_PDFFindController_brand, this, _requestMatchesCount).call(this),
+    rawQuery: (_this$_state$query = (_this$_state2 = this._state) === null || _this$_state2 === void 0 ? void 0 : _this$_state2.query) !== null && _this$_state$query !== void 0 ? _this$_state$query : null
+  });
+}
 
 /***/ }),
 /* 21 */
@@ -7263,10 +7207,6 @@ var PDFHistory = exports.PDFHistory = /*#__PURE__*/function () {
     this._fingerprint = "";
     this.reset();
     this._boundEvents = null;
-    this._isViewerInPresentationMode = false;
-    this.eventBus._on("presentationmodechanged", function (evt) {
-      _this._isViewerInPresentationMode = evt.state !== _ui_utils.PresentationModeState.NORMAL;
-    });
     this.eventBus._on("pagesinit", function () {
       _this._isPagesLoaded = false;
       _this.eventBus._on("pagesloaded", function (evt) {
@@ -7612,7 +7552,7 @@ var PDFHistory = exports.PDFHistory = /*#__PURE__*/function () {
         this._updateViewareaTimeout = null;
       }
       this._position = {
-        hash: this._isViewerInPresentationMode ? "page=".concat(location.pageNumber) : location.pdfOpenParams.substring(1),
+        hash: location.pdfOpenParams.substring(1),
         page: this.linkService.page,
         first: location.pageNumber,
         rotation: location.rotation
@@ -7973,7 +7913,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
               try {
                 for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                   _step2$value = _slicedToArray(_step2.value, 2), _name = _step2$value[0], _listener = _step2$value[1];
-                  window.addEventListener(_name, _listener);
+                  window.addEventListener(_name, _listener, true);
                 }
               } catch (err) {
                 _iterator2.e(err);
@@ -8536,7 +8476,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
               try {
                 for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
                   _step5$value = _slicedToArray(_step5.value, 2), _name2 = _step5$value[0], _listener2 = _step5$value[1];
-                  window.removeEventListener(_name2, _listener2);
+                  window.removeEventListener(_name2, _listener2, true);
                 }
               } catch (err) {
                 _iterator5.e(err);
@@ -8909,8 +8849,8 @@ var _pdf_scripting_manager = __w_pdfjs_require__(23);
 var _struct_tree_layer_builder = __w_pdfjs_require__(7);
 var _text_layer_builder = __w_pdfjs_require__(8);
 var _xfa_layer_builder = __w_pdfjs_require__(9);
-var pdfjsVersion = '2.13.48';
-var pdfjsBuild = '9090033be';
+var pdfjsVersion = '2.14.49';
+var pdfjsBuild = '8c17486c3';
 })();
 
 /******/ 	return __webpack_exports__;
