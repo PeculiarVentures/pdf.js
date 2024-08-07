@@ -132,7 +132,7 @@ var WorkerMessageHandler = exports.WorkerMessageHandler = /*#__PURE__*/function 
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.14.49';
+      var workerVersion = '2.14.356';
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
       }
@@ -24129,7 +24129,7 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     data.hidden = _this4._hasFlag(data.annotationFlags, _util.AnnotationFlag.HIDDEN);
     try {
       var actionDict = dict.get('A');
-      if (isDict(actionDict)) {
+      if (actionDict instanceof _primitives.Dict) {
         data.actionDict = {
           S: actionDict.get('S') || '',
           JS: (0, _util.stringToPDFString)(actionDict.get('JS') || '')
@@ -78122,8 +78122,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
   }
 }));
 var _worker = __w_pdfjs_require__(1);
-var pdfjsVersion = '2.14.49';
-var pdfjsBuild = '8c17486c3';
+var pdfjsVersion = '2.14.356';
+var pdfjsBuild = '8ff9a37e0';
 })();
 
 /******/ 	return __webpack_exports__;

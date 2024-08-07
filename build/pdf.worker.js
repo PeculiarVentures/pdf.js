@@ -98,7 +98,7 @@ class WorkerMessageHandler {
     const WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.14.49';
+    const workerVersion = '2.14.356';
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
     }
@@ -17866,7 +17866,7 @@ class WidgetAnnotation extends Annotation {
     data.hidden = this._hasFlag(data.annotationFlags, _util.AnnotationFlag.HIDDEN);
     try {
       const actionDict = dict.get('A');
-      if (isDict(actionDict)) {
+      if (actionDict instanceof _primitives.Dict) {
         data.actionDict = {
           S: actionDict.get('S') || '',
           JS: (0, _util.stringToPDFString)(actionDict.get('JS') || '')
@@ -63032,8 +63032,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
   }
 }));
 var _worker = __w_pdfjs_require__(1);
-const pdfjsVersion = '2.14.49';
-const pdfjsBuild = '8c17486c3';
+const pdfjsVersion = '2.14.356';
+const pdfjsBuild = '8ff9a37e0';
 })();
 
 /******/ 	return __webpack_exports__;
