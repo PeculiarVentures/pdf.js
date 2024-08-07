@@ -948,7 +948,7 @@ async function startBrowser(browserName, startUrl = "") {
       "pdfjs.disabled": true,
       "browser.helperApps.neverAsk.saveToDisk": "application/pdf",
       // Avoid popup when saving is done
-      "browser.download.improvements_to_download_panel": false,
+      "browser.download.always_ask_before_handling_new_types": true,
       "browser.download.panel.shown": true,
       // Save file in output
       "browser.download.folderList": 2,
@@ -959,6 +959,8 @@ async function startBrowser(browserName, startUrl = "") {
       print_printer: "PDF",
       "print.printer_PDF.print_to_file": true,
       "print.printer_PDF.print_to_filename": printFile,
+      // Enable OffscreenCanvas
+      "gfx.offscreencanvas.enabled": true,
     };
   }
 

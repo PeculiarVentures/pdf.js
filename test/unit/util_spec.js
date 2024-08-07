@@ -21,7 +21,6 @@ import {
   getModificationDate,
   isArrayBuffer,
   isAscii,
-  isSameOrigin,
   string32,
   stringToBytes,
   stringToPDFString,
@@ -50,9 +49,8 @@ describe("util", function () {
         bytes[i] = "a".charCodeAt(0);
       }
 
-      // Create a string with `length` 'a' characters. We need an array of size
-      // `length + 1` since `join` puts the argument between the array elements.
-      const string = Array(length + 1).join("a");
+      // Create a string with `length` 'a' characters.
+      const string = "a".repeat(length);
 
       expect(bytesToString(bytes)).toEqual(string);
     });
@@ -162,31 +160,6 @@ describe("util", function () {
     it("should have property `href`", function () {
       const url = new URL("https://example.com");
       expect(typeof url.href).toEqual("string");
-    });
-  });
-
-  describe("isSameOrigin", function () {
-    it("handles invalid base URLs", function () {
-      // The base URL is not valid.
-      expect(isSameOrigin("/foo", "/bar")).toEqual(false);
-
-      // The base URL has no origin.
-      expect(isSameOrigin("blob:foo", "/bar")).toEqual(false);
-    });
-
-    it("correctly checks if the origin of both URLs matches", function () {
-      expect(
-        isSameOrigin(
-          "https://www.mozilla.org/foo",
-          "https://www.mozilla.org/bar"
-        )
-      ).toEqual(true);
-      expect(
-        isSameOrigin(
-          "https://www.mozilla.org/foo",
-          "https://www.example.com/bar"
-        )
-      ).toEqual(false);
     });
   });
 

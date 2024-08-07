@@ -19,6 +19,7 @@
 const {
   AnnotationLayer,
   AnnotationMode,
+  createPromiseCapability,
   getDocument,
   GlobalWorkerOptions,
   PixelsPerInch,
@@ -44,24 +45,23 @@ function loadStyles(styles) {
 
   for (const file of styles) {
     promises.push(
-      new Promise(function (resolve, reject) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("GET", file);
-        xhr.onload = function () {
-          resolve(xhr.responseText);
-        };
-        xhr.onerror = function (e) {
-          reject(new Error(`Error fetching style (${file}): ${e}`));
-        };
-        xhr.send(null);
-      })
+      fetch(file)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+          return response.text();
+        })
+        .catch(reason => {
+          throw new Error(`Error fetching style (${file}): ${reason}`);
+        })
     );
   }
 
   return Promise.all(promises);
 }
 
-function writeSVG(svgElement, ctx, outputScale) {
+function writeSVG(svgElement, ctx) {
   // We need to have UTF-8 encoded XML.
   const svg_xml = unescape(
     encodeURIComponent(new XMLSerializer().serializeToString(svgElement))
@@ -79,29 +79,52 @@ function writeSVG(svgElement, ctx, outputScale) {
   });
 }
 
-function inlineImages(images) {
-  const imagePromises = [];
-  for (let i = 0, ii = images.length; i < ii; i++) {
-    imagePromises.push(
-      new Promise(function (resolve, reject) {
-        const xhr = new XMLHttpRequest();
-        xhr.responseType = "blob";
-        xhr.onload = function () {
-          const reader = new FileReader();
-          reader.onloadend = function () {
-            resolve(reader.result);
-          };
-          reader.readAsDataURL(xhr.response);
-        };
-        xhr.onerror = function (e) {
-          reject(new Error("Error fetching inline image " + e));
-        };
-        xhr.open("GET", images[i].src);
-        xhr.send();
-      })
+async function inlineImages(node, silentErrors = false) {
+  const promises = [];
+
+  for (const image of node.getElementsByTagName("img")) {
+    const url = image.src;
+
+    promises.push(
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText);
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              resolve(reader.result);
+            };
+            reader.onerror = reject;
+
+            reader.readAsDataURL(blob);
+          });
+        })
+        .then(dataUrl => {
+          return new Promise((resolve, reject) => {
+            image.onload = resolve;
+            image.onerror = evt => {
+              if (silentErrors) {
+                resolve();
+                return;
+              }
+              reject(evt);
+            };
+
+            image.src = dataUrl;
+          });
+        })
+        .catch(reason => {
+          throw new Error(`Error inlining image (${url}): ${reason}`);
+        })
     );
   }
-  return Promise.all(imagePromises);
+
+  await Promise.all(promises);
 }
 
 async function convertCanvasesToImages(annotationCanvasMap, outputScale) {
@@ -124,29 +147,6 @@ async function convertCanvasesToImages(annotationCanvasMap, outputScale) {
   }
   await Promise.all(promises);
   return results;
-}
-
-async function resolveImages(node, silentErrors = false) {
-  const images = node.getElementsByTagName("img");
-  const data = await inlineImages(images);
-
-  const loadedPromises = [];
-  for (let i = 0, ii = data.length; i < ii; i++) {
-    loadedPromises.push(
-      new Promise(function (resolveImage, rejectImage) {
-        images[i].onload = resolveImage;
-        images[i].onerror = function (e) {
-          if (silentErrors) {
-            resolveImage();
-          } else {
-            rejectImage(new Error("Error loading image " + e));
-          }
-        };
-        images[i].src = data[i];
-      })
-    );
-  }
-  await Promise.all(loadedPromises);
 }
 
 class Rasterize {
@@ -237,7 +237,7 @@ class Rasterize {
       AnnotationLayer.render(parameters);
 
       // Inline SVG images from text annotations.
-      await resolveImages(div);
+      await inlineImages(div);
       foreignObject.appendChild(div);
       svg.appendChild(foreignObject);
 
@@ -301,7 +301,7 @@ class Rasterize {
       });
 
       // Some unsupported type of images (e.g. tiff) lead to errors.
-      await resolveImages(div, /* silentErrors = */ true);
+      await inlineImages(div, /* silentErrors = */ true);
       svg.appendChild(foreignObject);
 
       await writeSVG(svg, ctx);
@@ -368,34 +368,32 @@ class Driver {
     this._log(`Harness thinks this browser is ${this.browser}\n`);
     this._log('Fetching manifest "' + this.manifestFile + '"... ');
 
-    const r = new XMLHttpRequest();
-    r.open("GET", this.manifestFile, false);
-    r.onreadystatechange = () => {
-      if (r.readyState === 4) {
-        this._log("done\n");
-        this.manifest = JSON.parse(r.responseText);
-        if (this.testFilter?.length || this.xfaOnly) {
-          this.manifest = this.manifest.filter(item => {
-            if (this.testFilter.includes(item.id)) {
-              return true;
-            }
-            if (this.xfaOnly && item.enableXfa) {
-              return true;
-            }
-            return false;
-          });
-        }
-        this.currentTask = 0;
-        this._nextTask();
-      }
-    };
     if (this.delay > 0) {
       this._log("\nDelaying for " + this.delay + " ms...\n");
     }
     // When gathering the stats the numbers seem to be more reliable
     // if the browser is given more time to start.
-    setTimeout(function () {
-      r.send(null);
+    setTimeout(async () => {
+      const response = await fetch(this.manifestFile);
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      this._log("done\n");
+      this.manifest = await response.json();
+
+      if (this.testFilter?.length || this.xfaOnly) {
+        this.manifest = this.manifest.filter(item => {
+          if (this.testFilter.includes(item.id)) {
+            return true;
+          }
+          if (this.xfaOnly && item.enableXfa) {
+            return true;
+          }
+          return false;
+        });
+      }
+      this.currentTask = 0;
+      this._nextTask();
     }, this.delay);
   }
 
@@ -574,7 +572,7 @@ class Driver {
 
     if (!task.pdfDoc) {
       const dataUrl = this.canvas.toDataURL("image/png");
-      this._sendResult(dataUrl, task, failure, () => {
+      this._sendResult(dataUrl, task, failure).then(() => {
         this._log(
           "done" + (failure ? " (failed !: " + failure + ")" : "") + "\n"
         );
@@ -609,7 +607,6 @@ class Driver {
         this._log(
           " Loading page " + task.pageNum + "/" + task.pdfDoc.numPages + "... "
         );
-        this.canvas.mozOpaque = true;
         ctx = this.canvas.getContext("2d", { alpha: false });
         task.pdfDoc.getPage(task.pageNum).then(
           page => {
@@ -650,7 +647,8 @@ class Driver {
               renderForms = false,
               renderPrint = false,
               renderXfa = false,
-              annotationCanvasMap = null;
+              annotationCanvasMap = null,
+              pageColors = null;
 
             if (task.annotationStorage) {
               const entries = Object.entries(task.annotationStorage),
@@ -701,6 +699,7 @@ class Driver {
               renderForms = !!task.forms;
               renderPrint = !!task.print;
               renderXfa = !!task.enableXfa;
+              pageColors = task.pageColors || null;
 
               // Render the annotation layer if necessary.
               if (renderAnnotations || renderForms || renderXfa) {
@@ -748,6 +747,7 @@ class Driver {
               viewport,
               optionalContentConfigPromise: task.optionalContentConfigPromise,
               annotationCanvasMap,
+              pageColors,
               transform,
             };
             if (renderForms) {
@@ -834,7 +834,7 @@ class Driver {
     this._log("Snapshotting... ");
 
     const dataUrl = this.canvas.toDataURL("image/png");
-    this._sendResult(dataUrl, task, failure, () => {
+    this._sendResult(dataUrl, task, failure).then(() => {
       this._log(
         "done" + (failure ? " (failed !: " + failure + ")" : "") + "\n"
       );
@@ -848,9 +848,9 @@ class Driver {
     this.end.textContent = "Tests finished. Close this window!";
 
     // Send the quit request
-    const r = new XMLHttpRequest();
-    r.open("POST", `/tellMeToQuit?browser=${escape(this.browser)}`, false);
-    r.send(null);
+    fetch(`/tellMeToQuit?browser=${escape(this.browser)}`, {
+      method: "POST",
+    });
   }
 
   _info(message) {
@@ -888,7 +888,7 @@ class Driver {
     }
   }
 
-  _sendResult(snapshot, task, failure, callback) {
+  _sendResult(snapshot, task, failure) {
     const result = JSON.stringify({
       browser: this.browser,
       id: task.id,
@@ -904,29 +904,38 @@ class Driver {
       viewportHeight: task.viewportHeight,
       outputScale: task.outputScale,
     });
-    this._send("/submit_task_results", result, callback);
+    return this._send("/submit_task_results", result);
   }
 
-  _send(url, message, callback) {
-    const r = new XMLHttpRequest();
-    r.open("POST", url, true);
-    r.setRequestHeader("Content-Type", "application/json");
-    r.onreadystatechange = e => {
-      if (r.readyState === 4) {
-        this.inFlightRequests--;
-
-        // Retry until successful
-        if (r.status !== 200) {
-          setTimeout(() => {
-            this._send(url, message);
-          });
-        }
-        if (callback) {
-          callback();
-        }
-      }
-    };
+  _send(url, message) {
+    const capability = createPromiseCapability();
     this.inflight.textContent = this.inFlightRequests++;
-    r.send(message);
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: message,
+    })
+      .then(response => {
+        // Retry until successful.
+        if (!response.ok || response.status !== 200) {
+          throw new Error(response.statusText);
+        }
+
+        this.inFlightRequests--;
+        capability.resolve();
+      })
+      .catch(reason => {
+        console.warn(`Driver._send failed (${url}): ${reason}`);
+
+        this.inFlightRequests--;
+        capability.resolve();
+
+        this._send(url, message);
+      });
+
+    return capability.promise;
   }
 }

@@ -411,22 +411,6 @@ function assert(cond, msg) {
   }
 }
 
-// Checks if URLs have the same origin. For non-HTTP based URLs, returns false.
-function isSameOrigin(baseUrl, otherUrl) {
-  let base;
-  try {
-    base = new URL(baseUrl);
-    if (!base.origin || base.origin === "null") {
-      return false; // non-HTTP url
-    }
-  } catch (e) {
-    return false;
-  }
-
-  const other = new URL(otherUrl, base);
-  return base.origin === other.origin;
-}
-
 // Checks if URLs use one of the allowed protocols, e.g. to avoid XSS.
 function _isValidProtocol(url) {
   if (!url) {
@@ -698,11 +682,6 @@ function isLittleEndian() {
   const view32 = new Uint32Array(buffer8.buffer, 0, 1);
   return view32[0] === 1;
 }
-const IsLittleEndianCached = {
-  get value() {
-    return shadow(this, "value", isLittleEndian());
-  },
-};
 
 // Checks if it's possible to eval JS expressions.
 function isEvalSupported() {
@@ -713,11 +692,24 @@ function isEvalSupported() {
     return false;
   }
 }
-const IsEvalSupportedCached = {
-  get value() {
-    return shadow(this, "value", isEvalSupported());
-  },
-};
+
+class FeatureTest {
+  static get isLittleEndian() {
+    return shadow(this, "isLittleEndian", isLittleEndian());
+  }
+
+  static get isEvalSupported() {
+    return shadow(this, "isEvalSupported", isEvalSupported());
+  }
+
+  static get isOffscreenCanvasSupported() {
+    return shadow(
+      this,
+      "isOffscreenCanvasSupported",
+      typeof OffscreenCanvas !== "undefined"
+    );
+  }
+}
 
 const hexNumbers = [...Array(256).keys()].map(n =>
   n.toString(16).padStart(2, "0")
@@ -726,6 +718,57 @@ const hexNumbers = [...Array(256).keys()].map(n =>
 class Util {
   static makeHexColor(r, g, b) {
     return `#${hexNumbers[r]}${hexNumbers[g]}${hexNumbers[b]}`;
+  }
+
+  // Apply a scaling matrix to some min/max values.
+  // If a scaling factor is negative then min and max must be
+  // swaped.
+  static scaleMinMax(transform, minMax) {
+    let temp;
+    if (transform[0]) {
+      if (transform[0] < 0) {
+        temp = minMax[0];
+        minMax[0] = minMax[1];
+        minMax[1] = temp;
+      }
+      minMax[0] *= transform[0];
+      minMax[1] *= transform[0];
+
+      if (transform[3] < 0) {
+        temp = minMax[2];
+        minMax[2] = minMax[3];
+        minMax[3] = temp;
+      }
+      minMax[2] *= transform[3];
+      minMax[3] *= transform[3];
+    } else {
+      temp = minMax[0];
+      minMax[0] = minMax[2];
+      minMax[2] = temp;
+      temp = minMax[1];
+      minMax[1] = minMax[3];
+      minMax[3] = temp;
+
+      if (transform[1] < 0) {
+        temp = minMax[2];
+        minMax[2] = minMax[3];
+        minMax[3] = temp;
+      }
+      minMax[2] *= transform[1];
+      minMax[3] *= transform[1];
+
+      if (transform[2] < 0) {
+        temp = minMax[0];
+        minMax[0] = minMax[1];
+        minMax[1] = temp;
+      }
+      minMax[0] *= transform[2];
+      minMax[1] *= transform[2];
+    }
+    minMax[0] += transform[4];
+    minMax[1] += transform[4];
+    minMax[2] += transform[5];
+    minMax[3] += transform[5];
   }
 
   // Concatenates two transformation matrices together and returns the result.
@@ -835,46 +878,33 @@ class Util {
   }
 
   // Returns a rectangle [x1, y1, x2, y2] corresponding to the
-  // intersection of rect1 and rect2. If no intersection, returns 'false'
+  // intersection of rect1 and rect2. If no intersection, returns 'null'
   // The rectangle coordinates of rect1, rect2 should be [x1, y1, x2, y2]
   static intersect(rect1, rect2) {
-    function compare(a, b) {
-      return a - b;
+    const xLow = Math.max(
+      Math.min(rect1[0], rect1[2]),
+      Math.min(rect2[0], rect2[2])
+    );
+    const xHigh = Math.min(
+      Math.max(rect1[0], rect1[2]),
+      Math.max(rect2[0], rect2[2])
+    );
+    if (xLow > xHigh) {
+      return null;
     }
-
-    // Order points along the axes
-    const orderedX = [rect1[0], rect1[2], rect2[0], rect2[2]].sort(compare);
-    const orderedY = [rect1[1], rect1[3], rect2[1], rect2[3]].sort(compare);
-    const result = [];
-
-    rect1 = Util.normalizeRect(rect1);
-    rect2 = Util.normalizeRect(rect2);
-
-    // X: first and second points belong to different rectangles?
-    if (
-      (orderedX[0] === rect1[0] && orderedX[1] === rect2[0]) ||
-      (orderedX[0] === rect2[0] && orderedX[1] === rect1[0])
-    ) {
-      // Intersection must be between second and third points
-      result[0] = orderedX[1];
-      result[2] = orderedX[2];
-    } else {
+    const yLow = Math.max(
+      Math.min(rect1[1], rect1[3]),
+      Math.min(rect2[1], rect2[3])
+    );
+    const yHigh = Math.min(
+      Math.max(rect1[1], rect1[3]),
+      Math.max(rect2[1], rect2[3])
+    );
+    if (yLow > yHigh) {
       return null;
     }
 
-    // Y: first and second points belong to different rectangles?
-    if (
-      (orderedY[0] === rect1[1] && orderedY[1] === rect2[1]) ||
-      (orderedY[0] === rect2[1] && orderedY[1] === rect1[1])
-    ) {
-      // Intersection must be between second and third points
-      result[1] = orderedY[1];
-      result[3] = orderedY[2];
-    } else {
-      return null;
-    }
-
-    return result;
+    return [xLow, yLow, xHigh, yHigh];
   }
 
   // From https://github.com/adobe-webplatform/Snap.svg/blob/b365287722a72526000ac4bfcf0ce4cac2faa015/src/path.js#L852
@@ -1119,6 +1149,7 @@ export {
   createValidAbsoluteUrl,
   DocumentActionEventType,
   escapeString,
+  FeatureTest,
   FONT_IDENTITY_MATRIX,
   FontType,
   FormatError,
@@ -1131,9 +1162,6 @@ export {
   isArrayBuffer,
   isArrayEqual,
   isAscii,
-  IsEvalSupportedCached,
-  IsLittleEndianCached,
-  isSameOrigin,
   MissingPDFException,
   objectFromMap,
   objectSize,

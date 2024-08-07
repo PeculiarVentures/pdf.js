@@ -34,8 +34,8 @@ const UI_NOTIFICATION_CLASS = "pdfSidebarNotification";
  * @typedef {Object} PDFSidebarElements
  * @property {HTMLDivElement} outerContainer - The outer container
  *   (encasing both the viewer and sidebar elements).
- * @property {HTMLDivElement} viewerContainer - The viewer container
- *   (in which the viewer element is placed).
+ * @property {HTMLDivElement} sidebarContainer - The sidebar container
+ *   (in which the views are placed).
  * @property {HTMLButtonElement} toggleButton - The button used for
  *   opening/closing the sidebar.
  * @property {HTMLButtonElement} thumbnailButton - The button used to show
@@ -79,7 +79,7 @@ class PDFSidebar {
     this.pdfThumbnailViewer = pdfThumbnailViewer;
 
     this.outerContainer = elements.outerContainer;
-    this.viewerContainer = elements.viewerContainer;
+    this.sidebarContainer = elements.sidebarContainer;
     this.toggleButton = elements.toggleButton;
 
     this.thumbnailButton = elements.thumbnailButton;
@@ -212,34 +212,29 @@ class PDFSidebar {
     // in order to prevent setting it to an invalid state.
     this.active = view;
 
-    // Update the CSS classes, for all buttons...
-    this.thumbnailButton.classList.toggle(
-      "toggled",
-      view === SidebarView.THUMBS
-    );
-    this.outlineButton.classList.toggle(
-      "toggled",
-      view === SidebarView.OUTLINE
-    );
-    this.attachmentsButton.classList.toggle(
-      "toggled",
-      view === SidebarView.ATTACHMENTS
-    );
-    this.layersButton.classList.toggle("toggled", view === SidebarView.LAYERS);
+    const isThumbs = view === SidebarView.THUMBS,
+      isOutline = view === SidebarView.OUTLINE,
+      isAttachments = view === SidebarView.ATTACHMENTS,
+      isLayers = view === SidebarView.LAYERS;
+
+    // Update the CSS classes (and aria attributes), for all buttons...
+    this.thumbnailButton.classList.toggle("toggled", isThumbs);
+    this.outlineButton.classList.toggle("toggled", isOutline);
+    this.attachmentsButton.classList.toggle("toggled", isAttachments);
+    this.layersButton.classList.toggle("toggled", isLayers);
+
+    this.thumbnailButton.setAttribute("aria-checked", isThumbs);
+    this.outlineButton.setAttribute("aria-checked", isOutline);
+    this.attachmentsButton.setAttribute("aria-checked", isAttachments);
+    this.layersButton.setAttribute("aria-checked", isLayers);
     // ... and for all views.
-    this.thumbnailView.classList.toggle("hidden", view !== SidebarView.THUMBS);
-    this.outlineView.classList.toggle("hidden", view !== SidebarView.OUTLINE);
-    this.attachmentsView.classList.toggle(
-      "hidden",
-      view !== SidebarView.ATTACHMENTS
-    );
-    this.layersView.classList.toggle("hidden", view !== SidebarView.LAYERS);
+    this.thumbnailView.classList.toggle("hidden", !isThumbs);
+    this.outlineView.classList.toggle("hidden", !isOutline);
+    this.attachmentsView.classList.toggle("hidden", !isAttachments);
+    this.layersView.classList.toggle("hidden", !isLayers);
 
     // Finally, update view-specific CSS classes.
-    this._outlineOptionsContainer.classList.toggle(
-      "hidden",
-      view !== SidebarView.OUTLINE
-    );
+    this._outlineOptionsContainer.classList.toggle("hidden", !isOutline);
 
     if (forceOpen && !this.isOpen) {
       this.open();
@@ -374,8 +369,8 @@ class PDFSidebar {
    * @private
    */
   _addEventListeners() {
-    this.viewerContainer.addEventListener("transitionend", evt => {
-      if (evt.target === this.viewerContainer) {
+    this.sidebarContainer.addEventListener("transitionend", evt => {
+      if (evt.target === this.sidebarContainer) {
         this.outerContainer.classList.remove("sidebarMoving");
       }
     });

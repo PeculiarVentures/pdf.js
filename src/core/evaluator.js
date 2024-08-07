@@ -75,7 +75,7 @@ import { DecodeStream } from "./decode_stream.js";
 import { getGlyphsUnicode } from "./glyphlist.js";
 import { getLookupTableFactory } from "./core_utils.js";
 import { getMetrics } from "./metrics.js";
-import { MurmurHash3_64 } from "./murmurhash3.js";
+import { MurmurHash3_64 } from "../shared/murmurhash3.js";
 import { OperatorList } from "./operator_list.js";
 import { PDFImage } from "./image.js";
 
@@ -168,6 +168,16 @@ function normalizeBlendMode(value, parsingArray = false) {
   }
   warn(`Unsupported blend mode: ${value.name}`);
   return "source-over";
+}
+
+function incrementCachedImageMaskCount(data) {
+  if (
+    data.fn === OPS.paintImageMaskXObject &&
+    data.args[0] &&
+    data.args[0].count > 0
+  ) {
+    data.args[0].count++;
+  }
 }
 
 // Trying to minimize Date.now() usage and check every 100 time.
@@ -352,9 +362,9 @@ class PartialEvaluator {
     // When no blend modes exist, there's no need re-fetch/re-parse any of the
     // processed `Ref`s again for subsequent pages. This helps reduce redundant
     // `XRef.fetch` calls for some documents (e.g. issue6961.pdf).
-    processed.forEach(ref => {
+    for (const ref of processed) {
       nonBlendModesSet.put(ref);
-    });
+    }
     return false;
   }
 
@@ -436,7 +446,7 @@ class PartialEvaluator {
     if (!data) {
       return null;
     }
-    // Cache the "raw" standard font data, to avoid fetching it repeateadly
+    // Cache the "raw" standard font data, to avoid fetching it repeatedly
     // (see e.g. issue 11399).
     this.standardFontDataCache.set(name, data);
 
@@ -540,7 +550,7 @@ class PartialEvaluator {
   }
 
   _sendImgData(objId, imgData, cacheGlobally = false) {
-    const transfers = imgData ? [imgData.data.buffer] : null;
+    const transfers = imgData ? [imgData.bitmap || imgData.data.buffer] : null;
 
     if (this.parsingType3Font || cacheGlobally) {
       return this.handler.send(
@@ -576,8 +586,13 @@ class PartialEvaluator {
     }
     const maxImageSize = this.options.maxImageSize;
     if (maxImageSize !== -1 && w * h > maxImageSize) {
-      warn("Image exceeded maximum allowed size and was removed.");
-      return;
+      const msg = "Image exceeded maximum allowed size and was removed.";
+
+      if (this.options.ignoreErrors) {
+        warn(msg);
+        return;
+      }
+      throw new Error(msg);
     }
 
     let optionalContent;
@@ -587,12 +602,8 @@ class PartialEvaluator {
         resources
       );
     }
-    if (optionalContent !== undefined) {
-      operatorList.addOp(OPS.beginMarkedContentProps, ["OC", optionalContent]);
-    }
 
     const imageMask = dict.get("IM", "ImageMask") || false;
-    const interpolate = dict.get("I", "Interpolate");
     let imgData, args;
     if (imageMask) {
       // This depends on a tmpCanvas being filled with the
@@ -600,12 +611,39 @@ class PartialEvaluator {
       // data can't be done here. Instead of creating a
       // complete PDFImage, only read the information needed
       // for later.
+      const interpolate = dict.get("I", "Interpolate");
       const bitStrideLength = (w + 7) >> 3;
-      const imgArray = image.getBytes(
-        bitStrideLength * h,
-        /* forceClamped = */ true
-      );
+      const imgArray = image.getBytes(bitStrideLength * h);
       const decode = dict.getArray("D", "Decode");
+
+      if (this.parsingType3Font) {
+        imgData = PDFImage.createRawMask({
+          imgArray,
+          width: w,
+          height: h,
+          imageIsFromDecodeStream: image instanceof DecodeStream,
+          inverseDecode: !!decode && decode[0] > 0,
+          interpolate,
+        });
+
+        imgData.cached = !!cacheKey;
+        args = [imgData];
+
+        operatorList.addImageOps(
+          OPS.paintImageMaskXObject,
+          args,
+          optionalContent
+        );
+
+        if (cacheKey) {
+          localImageCache.set(cacheKey, imageRef, {
+            fn: OPS.paintImageMaskXObject,
+            args,
+            optionalContent,
+          });
+        }
+        return;
+      }
 
       imgData = PDFImage.createMask({
         imgArray,
@@ -615,19 +653,51 @@ class PartialEvaluator {
         inverseDecode: !!decode && decode[0] > 0,
         interpolate,
       });
-      imgData.cached = !!cacheKey;
-      args = [imgData];
 
-      operatorList.addOp(OPS.paintImageMaskXObject, args);
+      if (imgData.isSingleOpaquePixel) {
+        // Handles special case of mainly LaTeX documents which use image
+        // masks to draw lines with the current fill style.
+        operatorList.addImageOps(
+          OPS.paintSolidColorImageMask,
+          [],
+          optionalContent
+        );
+
+        if (cacheKey) {
+          localImageCache.set(cacheKey, imageRef, {
+            fn: OPS.paintSolidColorImageMask,
+            args: [],
+            optionalContent,
+          });
+        }
+        return;
+      }
+
+      const objId = `mask_${this.idFactory.createObjId()}`;
+      operatorList.addDependency(objId);
+      this._sendImgData(objId, imgData);
+
+      args = [
+        {
+          data: objId,
+          width: imgData.width,
+          height: imgData.height,
+          interpolate: imgData.interpolate,
+          count: 1,
+        },
+      ];
+      operatorList.addImageOps(
+        OPS.paintImageMaskXObject,
+        args,
+        optionalContent
+      );
+
       if (cacheKey) {
         localImageCache.set(cacheKey, imageRef, {
           fn: OPS.paintImageMaskXObject,
           args,
+          optionalContent,
         });
-      }
-
-      if (optionalContent !== undefined) {
-        operatorList.addOp(OPS.endMarkedContent, []);
       }
       return;
     }
@@ -649,11 +719,11 @@ class PartialEvaluator {
       // We force the use of RGBA_32BPP images here, because we can't handle
       // any other kind.
       imgData = imageObj.createImageData(/* forceRGBA = */ true);
-      operatorList.addOp(OPS.paintInlineImageXObject, [imgData]);
-
-      if (optionalContent !== undefined) {
-        operatorList.addOp(OPS.endMarkedContent, []);
-      }
+      operatorList.addImageOps(
+        OPS.paintInlineImageXObject,
+        [imgData],
+        optionalContent
+      );
       return;
     }
 
@@ -701,11 +771,13 @@ class PartialEvaluator {
         return this._sendImgData(objId, /* imgData = */ null, cacheGlobally);
       });
 
-    operatorList.addOp(OPS.paintImageXObject, args);
+    operatorList.addImageOps(OPS.paintImageXObject, args, optionalContent);
+
     if (cacheKey) {
       localImageCache.set(cacheKey, imageRef, {
         fn: OPS.paintImageXObject,
         args,
+        optionalContent,
       });
 
       if (imageRef) {
@@ -717,14 +789,11 @@ class PartialEvaluator {
             objId,
             fn: OPS.paintImageXObject,
             args,
+            optionalContent,
             byteSize: 0, // Temporary entry, note `addByteSize` above.
           });
         }
       }
-    }
-
-    if (optionalContent !== undefined) {
-      operatorList.addOp(OPS.endMarkedContent, []);
     }
   }
 
@@ -1291,6 +1360,7 @@ class PartialEvaluator {
     if (!args) {
       args = [];
     }
+    let minMax;
     if (
       lastIndex < 0 ||
       operatorList.fnArray[lastIndex] !== OPS.constructPath
@@ -1307,7 +1377,8 @@ class PartialEvaluator {
         operatorList.addOp(OPS.save, null);
       }
 
-      operatorList.addOp(OPS.constructPath, [[fn], args]);
+      minMax = [Infinity, -Infinity, Infinity, -Infinity];
+      operatorList.addOp(OPS.constructPath, [[fn], args, minMax]);
 
       if (parsingText) {
         operatorList.addOp(OPS.restore, null);
@@ -1316,6 +1387,28 @@ class PartialEvaluator {
       const opArgs = operatorList.argsArray[lastIndex];
       opArgs[0].push(fn);
       Array.prototype.push.apply(opArgs[1], args);
+      minMax = opArgs[2];
+    }
+
+    // Compute min/max in the worker instead of the main thread.
+    // If the current matrix (when drawing) is a scaling one
+    // then min/max can be easily computed in using those values.
+    // Only rectangle, lineTo and moveTo are handled here since
+    // Bezier stuff requires to have the starting point.
+    switch (fn) {
+      case OPS.rectangle:
+        minMax[0] = Math.min(minMax[0], args[0], args[0] + args[2]);
+        minMax[1] = Math.max(minMax[1], args[0], args[0] + args[2]);
+        minMax[2] = Math.min(minMax[2], args[1], args[1] + args[3]);
+        minMax[3] = Math.max(minMax[3], args[1], args[1] + args[3]);
+        break;
+      case OPS.moveTo:
+      case OPS.lineTo:
+        minMax[0] = Math.min(minMax[0], args[0]);
+        minMax[1] = Math.max(minMax[1], args[0]);
+        minMax[2] = Math.min(minMax[2], args[1]);
+        minMax[3] = Math.max(minMax[3], args[1]);
+        break;
     }
   }
 
@@ -1615,7 +1708,13 @@ class PartialEvaluator {
             if (isValidName) {
               const localImage = localImageCache.getByName(name);
               if (localImage) {
-                operatorList.addOp(localImage.fn, localImage.args);
+                operatorList.addImageOps(
+                  localImage.fn,
+                  localImage.args,
+                  localImage.optionalContent
+                );
+
+                incrementCachedImageMaskCount(localImage);
                 args = null;
                 continue;
               }
@@ -1631,8 +1730,13 @@ class PartialEvaluator {
                 if (xobj instanceof Ref) {
                   const localImage = localImageCache.getByRef(xobj);
                   if (localImage) {
-                    operatorList.addOp(localImage.fn, localImage.args);
+                    operatorList.addImageOps(
+                      localImage.fn,
+                      localImage.args,
+                      localImage.optionalContent
+                    );
 
+                    incrementCachedImageMaskCount(localImage);
                     resolveXObject();
                     return;
                   }
@@ -1643,7 +1747,11 @@ class PartialEvaluator {
                   );
                   if (globalImage) {
                     operatorList.addDependency(globalImage.objId);
-                    operatorList.addOp(globalImage.fn, globalImage.args);
+                    operatorList.addImageOps(
+                      globalImage.fn,
+                      globalImage.args,
+                      globalImage.optionalContent
+                    );
 
                     resolveXObject();
                     return;
@@ -1748,7 +1856,13 @@ class PartialEvaluator {
             if (cacheKey) {
               const localImage = localImageCache.getByName(cacheKey);
               if (localImage) {
-                operatorList.addOp(localImage.fn, localImage.args);
+                operatorList.addImageOps(
+                  localImage.fn,
+                  localImage.args,
+                  localImage.optionalContent
+                );
+
+                incrementCachedImageMaskCount(localImage);
                 args = null;
                 continue;
               }
@@ -2182,16 +2296,61 @@ class PartialEvaluator {
       spaceInFlowMax: 0,
       trackingSpaceMin: Infinity,
       negativeSpaceMax: -Infinity,
+      notASpace: -Infinity,
       transform: null,
       fontName: null,
       hasEOL: false,
     };
+
+    // Use a circular buffer (length === 2) to save the last chars in the
+    // text stream.
+    // This implementation of the circular buffer is using a fixed array
+    // and the position of the next element:
+    // function addElement(x) {
+    //   buffer[pos] = x;
+    //   pos = (pos + 1) % buffer.length;
+    // }
+    // It's a way faster than:
+    // function addElement(x) {
+    //   buffer.push(x);
+    //   buffer.shift();
+    // }
+    //
+    // It's useful to know when we need to add a whitespace in the
+    // text chunk.
+    const twoLastChars = [" ", " "];
+    let twoLastCharsPos = 0;
+
+    /**
+     * Save the last char.
+     * @param {string} char
+     * @returns {boolean} true when the two last chars before adding the new one
+     * are a non-whitespace followed by a whitespace.
+     */
+    function saveLastChar(char) {
+      const nextPos = (twoLastCharsPos + 1) % 2;
+      const ret =
+        twoLastChars[twoLastCharsPos] !== " " && twoLastChars[nextPos] === " ";
+      twoLastChars[twoLastCharsPos] = char;
+      twoLastCharsPos = nextPos;
+
+      return ret;
+    }
+
+    function resetLastChars() {
+      twoLastChars[0] = twoLastChars[1] = " ";
+      twoLastCharsPos = 0;
+    }
 
     // Used in addFakeSpaces.
 
     // A white <= fontSize * TRACKING_SPACE_FACTOR is a tracking space
     // so it doesn't count as a space.
     const TRACKING_SPACE_FACTOR = 0.1;
+
+    // When a white <= fontSize * NOT_A_SPACE_FACTOR, there is no space
+    // even if one is present in the text stream.
+    const NOT_A_SPACE_FACTOR = 0.03;
 
     // A negative white < fontSize * NEGATIVE_SPACE_FACTOR induces
     // a break (a new chunk of text is created).
@@ -2294,6 +2453,7 @@ class PartialEvaluator {
 
       textContentItem.trackingSpaceMin =
         textState.fontSize * TRACKING_SPACE_FACTOR;
+      textContentItem.notASpace = textState.fontSize * NOT_A_SPACE_FACTOR;
       textContentItem.negativeSpaceMax =
         textState.fontSize * NEGATIVE_SPACE_FACTOR;
       textContentItem.spaceInFlowMin =
@@ -2478,6 +2638,7 @@ class PartialEvaluator {
             return true;
           }
 
+          resetLastChars();
           flushTextContentItem();
           return true;
         }
@@ -2486,6 +2647,13 @@ class PartialEvaluator {
           appendEOL();
           return true;
         }
+
+        if (advanceY <= textOrientation * textContentItem.notASpace) {
+          // The real spacing between 2 consecutive chars is thin enough to be
+          // considered a non-space.
+          resetLastChars();
+        }
+
         if (advanceY <= textOrientation * textContentItem.trackingSpaceMin) {
           textContentItem.height += advanceY;
         } else if (
@@ -2496,6 +2664,7 @@ class PartialEvaluator {
           )
         ) {
           if (textContentItem.str.length === 0) {
+            resetLastChars();
             textContent.items.push({
               str: " ",
               dir: "ltr",
@@ -2527,6 +2696,10 @@ class PartialEvaluator {
           appendEOL();
           return true;
         }
+
+        // We're moving back so in case the last char was a whitespace
+        // we cancel it: it doesn't make sense to insert it.
+        resetLastChars();
         flushTextContentItem();
         return true;
       }
@@ -2536,12 +2709,19 @@ class PartialEvaluator {
         return true;
       }
 
+      if (advanceX <= textOrientation * textContentItem.notASpace) {
+        // The real spacing between 2 consecutive chars is thin enough to be
+        // considered a non-space.
+        resetLastChars();
+      }
+
       if (advanceX <= textOrientation * textContentItem.trackingSpaceMin) {
         textContentItem.width += advanceX;
       } else if (
         !addFakeSpaces(advanceX, textContentItem.prevTransform, textOrientation)
       ) {
         if (textContentItem.str.length === 0) {
+          resetLastChars();
           textContent.items.push({
             str: " ",
             dir: "ltr",
@@ -2595,14 +2775,7 @@ class PartialEvaluator {
         }
         let scaledDim = glyphWidth * scale;
 
-        if (
-          glyph.isWhitespace &&
-          (i === 0 ||
-            i + 1 === ii ||
-            glyphs[i - 1].isWhitespace ||
-            glyphs[i + 1].isWhitespace ||
-            extraSpacing)
-        ) {
+        if (glyph.isWhitespace) {
           // Don't push a " " in the textContentItem
           // (except when it's between two non-spaces chars),
           // it will be done (if required) in next call to
@@ -2618,6 +2791,7 @@ class PartialEvaluator {
             charSpacing += -scaledDim + textState.wordSpacing;
             textState.translateTextMatrix(0, -charSpacing);
           }
+          saveLastChar(" ");
           continue;
         }
 
@@ -2648,17 +2822,18 @@ class PartialEvaluator {
           textChunk.prevTransform = getCurrentTextTransform();
         }
 
-        if (glyph.isWhitespace) {
+        let glyphUnicode = glyph.unicode;
+        glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
+        glyphUnicode = reverseIfRtl(glyphUnicode);
+        if (saveLastChar(glyphUnicode)) {
+          // The two last chars are a non-whitespace followed by a whitespace
+          // and then this non-whitespace, so we insert a whitespace here.
           // Replaces all whitespaces with standard spaces (0x20), to avoid
           // alignment issues between the textLayer and the canvas if the text
           // contains e.g. tabs (fixes issue6612.pdf).
           textChunk.str.push(" ");
-        } else {
-          let glyphUnicode = glyph.unicode;
-          glyphUnicode = NormalizedUnicodes[glyphUnicode] || glyphUnicode;
-          glyphUnicode = reverseIfRtl(glyphUnicode);
-          textChunk.str.push(glyphUnicode);
         }
+        textChunk.str.push(glyphUnicode);
 
         if (charSpacing) {
           if (!font.vertical) {
@@ -2674,6 +2849,7 @@ class PartialEvaluator {
     }
 
     function appendEOL() {
+      resetLastChars();
       if (textContentItem.initialized) {
         textContentItem.hasEOL = true;
         flushTextContentItem();
@@ -2696,6 +2872,7 @@ class PartialEvaluator {
         width <= textOrientation * textContentItem.spaceInFlowMax
       ) {
         if (textContentItem.initialized) {
+          resetLastChars();
           textContentItem.str.push(" ");
         }
         return false;
@@ -2710,6 +2887,7 @@ class PartialEvaluator {
       }
 
       flushTextContentItem();
+      resetLastChars();
       textContent.items.push({
         str: " ",
         // TODO: check if using the orientation from last chunk is
@@ -3236,7 +3414,12 @@ class PartialEvaluator {
       } else if (encoding instanceof Name) {
         baseEncodingName = encoding.name;
       } else {
-        throw new FormatError("Encoding is not a Name nor a Dict");
+        const msg = "Encoding is not a Name nor a Dict";
+
+        if (!this.options.ignoreErrors) {
+          throw new FormatError(msg);
+        }
+        warn(msg);
       }
       // According to table 114 if the encoding is a named encoding it must be
       // one of these predefined encodings.
@@ -3369,8 +3552,7 @@ class PartialEvaluator {
               }
             }
             break;
-          default:
-            // 'uniXXXX'/'uXXXX{XX}' glyphs
+          default: // 'uniXXXX'/'uXXXX{XX}' glyphs
             const unicode = getUnicodeForGlyph(glyphName, glyphsUnicodeMap);
             if (unicode !== -1) {
               code = unicode;

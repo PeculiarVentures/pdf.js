@@ -82,6 +82,9 @@ import { NullL10n } from "./l10n_utils.js";
  * @property {number} [maxCanvasPixels] - The maximum supported canvas size in
  *   total pixels, i.e. width * height. Use -1 for no limit. The default value
  *   is 4096 * 4096 (16 mega-pixels).
+ * @property {Object} [pageColors] - Overwrites background and foreground colors
+ *   with user defined ones in order to improve readability in high contrast
+ *   mode.
  * @property {IL10n} l10n - Localization service.
  */
 
@@ -118,6 +121,7 @@ class PDFPageView {
     this.imageResourcesPath = options.imageResourcesPath || "";
     this.useOnlyCssZoom = options.useOnlyCssZoom || false;
     this.maxCanvasPixels = options.maxCanvasPixels || MAX_CANVAS_PIXELS;
+    this.pageColors = options.pageColors || null;
 
     this.eventBus = options.eventBus;
     this.renderingQueue = options.renderingQueue;
@@ -320,23 +324,6 @@ class PDFPageView {
   }
 
   update({ scale = 0, rotation = null, optionalContentConfigPromise = null }) {
-    if (
-      typeof PDFJSDev !== "undefined" &&
-      PDFJSDev.test("GENERIC") &&
-      typeof arguments[0] !== "object"
-    ) {
-      console.error(
-        "PDFPageView.update called with separate parameters, please use an object instead."
-      );
-
-      this.update({
-        scale: arguments[0],
-        rotation: arguments[1],
-        optionalContentConfigPromise: arguments[2],
-      });
-      return;
-    }
-
     this.scale = scale || this.scale;
     if (typeof rotation === "number") {
       this.rotation = rotation; // The rotation may be zero.
@@ -346,16 +333,14 @@ class PDFPageView {
     }
 
     const totalRotation = (this.rotation + this.pdfPageRotate) % 360;
-    const viewportScale = this.scale * PixelsPerInch.PDF_TO_CSS_UNITS;
     this.viewport = this.viewport.clone({
-      scale: viewportScale,
+      scale: this.scale * PixelsPerInch.PDF_TO_CSS_UNITS,
       rotation: totalRotation,
     });
 
     if (this._isStandalone) {
       const { style } = document.documentElement;
       style.setProperty("--zoom-factor", this.scale);
-      style.setProperty("--viewport-scale-factor", viewportScale);
     }
 
     if (this.svg) {
@@ -798,13 +783,6 @@ class PDFPageView {
     canvasWrapper.appendChild(canvas);
     this.canvas = canvas;
 
-    if (
-      typeof PDFJSDev === "undefined" ||
-      PDFJSDev.test("MOZCENTRAL || GENERIC")
-    ) {
-      canvas.mozOpaque = true;
-    }
-
     const ctx = canvas.getContext("2d", { alpha: false });
     const outputScale = (this.outputScale = new OutputScale());
 
@@ -851,6 +829,7 @@ class PDFPageView {
       annotationMode: this.#annotationMode,
       optionalContentConfigPromise: this._optionalContentConfigPromise,
       annotationCanvasMap: this._annotationCanvasMap,
+      pageColors: this.pageColors,
     };
     const renderTask = this.pdfPage.render(renderContext);
     renderTask.onContinue = function (cont) {

@@ -87,7 +87,7 @@ class PDFFindBar {
       this.dispatchEvent("diacriticmatchingchange");
     });
 
-    this.eventBus._on("resize", this._adjustWidth.bind(this));
+    this.eventBus._on("resize", this.#adjustWidth.bind(this));
   }
 
   reset() {
@@ -127,10 +127,11 @@ class PDFFindBar {
         break;
     }
     this.findField.setAttribute("data-status", status);
+    this.findField.setAttribute("aria-invalid", state === FindState.NOT_FOUND);
 
     findMsg.then(msg => {
       this.findMsg.textContent = msg;
-      this._adjustWidth();
+      this.#adjustWidth();
     });
 
     this.updateResultsCount(matchesCount);
@@ -165,7 +166,7 @@ class PDFFindBar {
       this.findResultsCount.textContent = msg;
       // Since `updateResultsCount` may be called from `PDFFindController`,
       // ensure that the width of the findbar is always updated correctly.
-      this._adjustWidth();
+      this.#adjustWidth();
     });
   }
 
@@ -179,7 +180,7 @@ class PDFFindBar {
     this.findField.select();
     this.findField.focus();
 
-    this._adjustWidth();
+    this.#adjustWidth();
   }
 
   close() {
@@ -202,10 +203,7 @@ class PDFFindBar {
     }
   }
 
-  /**
-   * @private
-   */
-  _adjustWidth() {
+  #adjustWidth() {
     if (!this.opened) {
       return;
     }

@@ -89,7 +89,7 @@ describe("Scripting", function () {
         return s;
       }
       const number = 123;
-      const expected = (((number - 1) * number) / 2).toString();
+      const expected = ((number - 1) * number) / 2;
       const refId = getId();
 
       const data = {
@@ -120,7 +120,8 @@ describe("Scripting", function () {
       expect(send_queue.has(refId)).toEqual(true);
       expect(send_queue.get(refId)).toEqual({
         id: refId,
-        valueAsString: expected,
+        value: expected,
+        formattedValue: null,
       });
     });
   });
@@ -406,6 +407,7 @@ describe("Scripting", function () {
       expect(send_queue.get(refId)).toEqual({
         id: refId,
         value: "hella",
+        selRange: [5, 5],
       });
     });
 
@@ -478,7 +480,7 @@ describe("Scripting", function () {
       expect(send_queue.get(refId1)).toEqual({
         id: refId1,
         value: "world",
-        valueAsString: "world",
+        formattedValue: null,
       });
     });
   });
@@ -595,6 +597,21 @@ describe("Scripting", function () {
         objects: {},
         calculationOrder: [],
         dispatchEventName: "_dispatchMe",
+      });
+    });
+
+    describe("AFParseDateEx", function () {
+      it("should parse a date with a format", async () => {
+        const check = async (date, format, expected) => {
+          const value = await myeval(
+            `AFParseDateEx("${date}", "${format}").toISOString()`
+          );
+          expect(value).toEqual(new Date(expected).toISOString());
+        };
+
+        await check("05", "dd", "2000/01/05");
+        await check("12", "mm", "2000/12/01");
+        await check("2022", "yyyy", "2022/01/01");
       });
     });
 
@@ -784,7 +801,7 @@ describe("Scripting", function () {
         expect(send_queue.get(refId)).toEqual({
           id: refId,
           value: "123456.789",
-          valueAsString: "123456.789",
+          formattedValue: null,
         });
       });
 
@@ -963,7 +980,7 @@ describe("Scripting", function () {
         expect(send_queue.get(refId)).toEqual({
           id: refId,
           value: "321",
-          valueAsString: "321",
+          formattedValue: null,
         });
       });
 
@@ -1061,7 +1078,7 @@ describe("Scripting", function () {
         expect(send_queue.get(refIds[3])).toEqual({
           id: refIds[3],
           value: 1,
-          valueAsString: "1",
+          formattedValue: null,
         });
 
         await sandbox.dispatchEventInSandbox({
@@ -1074,7 +1091,7 @@ describe("Scripting", function () {
         expect(send_queue.get(refIds[3])).toEqual({
           id: refIds[3],
           value: 3,
-          valueAsString: "3",
+          formattedValue: null,
         });
 
         await sandbox.dispatchEventInSandbox({
@@ -1087,7 +1104,7 @@ describe("Scripting", function () {
         expect(send_queue.get(refIds[3])).toEqual({
           id: refIds[3],
           value: 6,
-          valueAsString: "6",
+          formattedValue: null,
         });
       });
     });
@@ -1122,7 +1139,8 @@ describe("Scripting", function () {
           selStart: 0,
           selEnd: 0,
         });
-        expect(send_queue.has(refId)).toEqual(false);
+        expect(send_queue.has(refId)).toEqual(true);
+        send_queue.delete(refId);
 
         await sandbox.dispatchEventInSandbox({
           id: refId,
@@ -1133,7 +1151,8 @@ describe("Scripting", function () {
           selStart: 1,
           selEnd: 1,
         });
-        expect(send_queue.has(refId)).toEqual(false);
+        expect(send_queue.has(refId)).toEqual(true);
+        send_queue.delete(refId);
 
         await sandbox.dispatchEventInSandbox({
           id: refId,
@@ -1144,7 +1163,8 @@ describe("Scripting", function () {
           selStart: 2,
           selEnd: 2,
         });
-        expect(send_queue.has(refId)).toEqual(false);
+        expect(send_queue.has(refId)).toEqual(true);
+        send_queue.delete(refId);
 
         await sandbox.dispatchEventInSandbox({
           id: refId,
@@ -1172,7 +1192,8 @@ describe("Scripting", function () {
           selStart: 3,
           selEnd: 3,
         });
-        expect(send_queue.has(refId)).toEqual(false);
+        expect(send_queue.has(refId)).toEqual(true);
+        send_queue.delete(refId);
 
         await sandbox.dispatchEventInSandbox({
           id: refId,
@@ -1185,7 +1206,8 @@ describe("Scripting", function () {
         expect(send_queue.has(refId)).toEqual(true);
         expect(send_queue.get(refId)).toEqual({
           id: refId,
-          valueAsString: "3F?0",
+          value: "3F?0",
+          formattedValue: null,
         });
       });
     });
@@ -1227,7 +1249,8 @@ describe("Scripting", function () {
             selStart: i,
             selEnd: i,
           });
-          expect(send_queue.has(refId)).toEqual(false);
+          expect(send_queue.has(refId)).toEqual(true);
+          send_queue.delete(refId);
           value += change;
         }
 
@@ -1286,7 +1309,8 @@ describe("Scripting", function () {
             selStart: i,
             selEnd: i,
           });
-          expect(send_queue.has(refId)).toEqual(false);
+          expect(send_queue.has(refId)).toEqual(true);
+          send_queue.delete(refId);
           value += change;
         }
 
@@ -1345,7 +1369,8 @@ describe("Scripting", function () {
             selStart: i,
             selEnd: i,
           });
-          expect(send_queue.has(refId)).toEqual(false);
+          expect(send_queue.has(refId)).toEqual(true);
+          send_queue.delete(refId);
           value += change;
         }
 
