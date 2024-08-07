@@ -1347,7 +1347,7 @@ class WidgetAnnotation extends Annotation {
     try {
       const actionDict = dict.get('A');
 
-      if (isDict(actionDict)) {
+      if (actionDict instanceof Dict) {
         data.actionDict = {
           S: actionDict.get('S') || '',
           JS: stringToPDFString(actionDict.get('JS') || ''),
