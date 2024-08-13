@@ -76,6 +76,11 @@ class EventDispatcher {
         event.name = baseEvent.name;
       }
       if (id === "doc") {
+        if (event.name === "Open") {
+          // Before running the Open event, we format all the fields
+          // (see bug 1766987).
+          this.formatAll();
+        }
         this._document.obj._dispatchDocEvent(event.name);
       } else if (id === "page") {
         this._document.obj._dispatchPageEvent(
@@ -158,6 +163,7 @@ class EventDispatcher {
         }
         source.obj._send({
           id: source.obj._id,
+          siblings: source.obj._siblings,
           value,
           selRange: [selStart, selEnd],
         });
@@ -165,6 +171,7 @@ class EventDispatcher {
     } else if (!event.willCommit) {
       source.obj._send({
         id: source.obj._id,
+        siblings: source.obj._siblings,
         value: savedChange.value,
         selRange: [savedChange.selStart, savedChange.selEnd],
       });
@@ -173,10 +180,26 @@ class EventDispatcher {
       // so just clear the field.
       source.obj._send({
         id: source.obj._id,
+        siblings: source.obj._siblings,
         value: "",
         formattedValue: null,
         selRange: [0, 0],
       });
+    }
+  }
+
+  formatAll() {
+    // Run format actions if any for all the fields.
+    const event = (globalThis.event = new Event({}));
+    for (const source of Object.values(this._objects)) {
+      event.value = source.obj.value;
+      if (this.runActions(source, source, event, "Format")) {
+        source.obj._send({
+          id: source.obj._id,
+          siblings: source.obj._siblings,
+          formattedValue: event.value?.toString?.(),
+        });
+      }
     }
   }
 
@@ -196,6 +219,7 @@ class EventDispatcher {
 
       source.obj._send({
         id: source.obj._id,
+        siblings: source.obj._siblings,
         value: savedValue,
         formattedValue,
       });
@@ -204,6 +228,7 @@ class EventDispatcher {
       // The value is not valid.
       source.obj._send({
         id: source.obj._id,
+        siblings: source.obj._siblings,
         value: "",
         formattedValue: null,
         selRange: [0, 0],
@@ -301,6 +326,7 @@ class EventDispatcher {
 
       target.obj._send({
         id: target.obj._id,
+        siblings: target.obj._siblings,
         value: savedValue,
         formattedValue,
       });

@@ -37,8 +37,10 @@ const THUMBNAIL_WIDTH = 98; // px
  *   The default value is `null`.
  * @property {IPDFLinkService} linkService - The navigation/linking service.
  * @property {PDFRenderingQueue} renderingQueue - The rendering queue object.
- * @property {function} checkSetImageDisabled
  * @property {IL10n} l10n - Localization service.
+ * @property {Object} [pageColors] - Overwrites background and foreground colors
+ *   with user defined ones in order to improve readability in high contrast
+ *   mode.
  */
 
 class TempImageFactory {
@@ -85,8 +87,8 @@ class PDFThumbnailView {
     optionalContentConfigPromise,
     linkService,
     renderingQueue,
-    checkSetImageDisabled,
     l10n,
+    pageColors,
   }) {
     this.id = id;
     this.renderingId = "thumbnail" + id;
@@ -97,6 +99,7 @@ class PDFThumbnailView {
     this.viewport = defaultViewport;
     this.pdfPageRotate = defaultViewport.rotation;
     this._optionalContentConfigPromise = optionalContentConfigPromise || null;
+    this.pageColors = pageColors || null;
 
     this.linkService = linkService;
     this.renderingQueue = renderingQueue;
@@ -104,11 +107,6 @@ class PDFThumbnailView {
     this.renderTask = null;
     this.renderingState = RenderingStates.INITIAL;
     this.resume = null;
-    this._checkSetImageDisabled =
-      checkSetImageDisabled ||
-      function () {
-        return false;
-      };
 
     const pageWidth = this.viewport.width,
       pageHeight = this.viewport.height,
@@ -143,9 +141,9 @@ class PDFThumbnailView {
     ring.style.height = this.canvasHeight + borderAdjustment + "px";
     this.ring = ring;
 
-    div.appendChild(ring);
-    anchor.appendChild(div);
-    container.appendChild(anchor);
+    div.append(ring);
+    anchor.append(div);
+    container.append(anchor);
   }
 
   setPdfPage(pdfPage) {
@@ -252,7 +250,7 @@ class PDFThumbnailView {
     this.image = image;
 
     this.div.setAttribute("data-loaded", true);
-    this.ring.appendChild(image);
+    this.ring.append(image);
 
     // Zeroing the width and height causes Firefox to release graphics
     // resources immediately, which can greatly reduce memory consumption.
@@ -320,6 +318,7 @@ class PDFThumbnailView {
       transform,
       viewport: drawViewport,
       optionalContentConfigPromise: this._optionalContentConfigPromise,
+      pageColors: this.pageColors,
     };
     const renderTask = (this.renderTask = pdfPage.render(renderContext));
     renderTask.onContinue = renderContinueCallback;
@@ -350,13 +349,10 @@ class PDFThumbnailView {
   }
 
   setImage(pageView) {
-    if (this._checkSetImageDisabled()) {
-      return;
-    }
     if (this.renderingState !== RenderingStates.INITIAL) {
       return;
     }
-    const { canvas, pdfPage } = pageView;
+    const { thumbnailCanvas: canvas, pdfPage } = pageView;
     if (!canvas) {
       return;
     }

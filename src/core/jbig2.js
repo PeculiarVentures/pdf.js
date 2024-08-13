@@ -1473,8 +1473,7 @@ function processSegment(segment, visitor) {
       break;
     default:
       throw new Jbig2Error(
-        `segment type ${header.typeName}(${header.type})` +
-          " is not implemented"
+        `segment type ${header.typeName}(${header.type}) is not implemented`
       );
   }
   const callbackName = "on" + header.typeName;
@@ -1500,6 +1499,9 @@ function parseJbig2Chunks(chunks) {
 }
 
 function parseJbig2(data) {
+  if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("IMAGE_DECODERS")) {
+    throw new Error("Not implemented: parseJbig2");
+  }
   const end = data.length;
   let position = 0;
 
@@ -1661,13 +1663,13 @@ class SimpleSegmentVisitor {
       this.symbols = symbols = {};
     }
 
-    let inputSymbols = [];
-    for (let i = 0, ii = referredSegments.length; i < ii; i++) {
-      const referredSymbols = symbols[referredSegments[i]];
+    const inputSymbols = [];
+    for (const referredSegment of referredSegments) {
+      const referredSymbols = symbols[referredSegment];
       // referredSymbols is undefined when we have a reference to a Tables
       // segment instead of a SymbolDictionary.
       if (referredSymbols) {
-        inputSymbols = inputSymbols.concat(referredSymbols);
+        inputSymbols.push(...referredSymbols);
       }
     }
 
@@ -1694,13 +1696,13 @@ class SimpleSegmentVisitor {
 
     // Combines exported symbols from all referred segments
     const symbols = this.symbols;
-    let inputSymbols = [];
-    for (let i = 0, ii = referredSegments.length; i < ii; i++) {
-      const referredSymbols = symbols[referredSegments[i]];
+    const inputSymbols = [];
+    for (const referredSegment of referredSegments) {
+      const referredSymbols = symbols[referredSegment];
       // referredSymbols is undefined when we have a reference to a Tables
       // segment instead of a SymbolDictionary.
       if (referredSymbols) {
-        inputSymbols = inputSymbols.concat(referredSymbols);
+        inputSymbols.push(...referredSymbols);
       }
     }
     const symbolCodeLength = log2(inputSymbols.length);
@@ -2560,6 +2562,9 @@ class Jbig2Image {
   }
 
   parse(data) {
+    if (typeof PDFJSDev === "undefined" || !PDFJSDev.test("IMAGE_DECODERS")) {
+      throw new Error("Not implemented: Jbig2Image.parse");
+    }
     const { imgData, width, height } = parseJbig2(data);
     this.width = width;
     this.height = height;

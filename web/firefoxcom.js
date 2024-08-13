@@ -38,7 +38,7 @@ class FirefoxCom {
    */
   static requestSync(action, data) {
     const request = document.createTextNode("");
-    document.documentElement.appendChild(request);
+    document.documentElement.append(request);
 
     const sender = document.createEvent("CustomEvent");
     sender.initCustomEvent("pdf.js.message", true, false, {
@@ -86,7 +86,7 @@ class FirefoxCom {
         { once: true }
       );
     }
-    document.documentElement.appendChild(request);
+    document.documentElement.append(request);
 
     const sender = document.createEvent("CustomEvent");
     sender.initCustomEvent("pdf.js.message", true, false, {
@@ -116,13 +116,11 @@ class DownloadManager {
       new Blob([data], { type: contentType })
     );
 
-    FirefoxCom.requestAsync("download", {
+    FirefoxCom.request("download", {
       blobUrl,
       originalUrl: blobUrl,
       filename,
       isAttachment: true,
-    }).then(error => {
-      URL.revokeObjectURL(blobUrl);
     });
   }
 
@@ -158,21 +156,13 @@ class DownloadManager {
     return false;
   }
 
-  download(blob, url, filename, sourceEventType = "download") {
+  download(blob, url, filename) {
     const blobUrl = URL.createObjectURL(blob);
 
-    FirefoxCom.requestAsync("download", {
+    FirefoxCom.request("download", {
       blobUrl,
       originalUrl: url,
       filename,
-      sourceEventType,
-    }).then(error => {
-      if (error) {
-        // If downloading failed in `PdfStreamConverter.jsm` it's very unlikely
-        // that attempting to fallback and re-download would be helpful here.
-        console.error("`ChromeActions.download` failed.");
-      }
-      URL.revokeObjectURL(blobUrl);
     });
   }
 }
@@ -275,10 +265,24 @@ class MozL10n {
     if (!PDFViewerApplication.initialized) {
       return;
     }
-    PDFViewerApplication.eventBus.dispatch(type, { source: window });
+    PDFViewerApplication.eventBus.dispatch("download", { source: window });
   };
 
   window.addEventListener("save", handleEvent);
+})();
+
+(function listenEditingEvent() {
+  const handleEvent = function ({ detail }) {
+    if (!PDFViewerApplication.initialized) {
+      return;
+    }
+    PDFViewerApplication.eventBus.dispatch("editingaction", {
+      source: window,
+      name: detail.name,
+    });
+  };
+
+  window.addEventListener("editingaction", handleEvent);
 })();
 
 class FirefoxComDataRangeTransport extends PDFDataRangeTransport {
@@ -392,6 +396,10 @@ class FirefoxExternalServices extends DefaultExternalServices {
 
   static createPreferences() {
     return new FirefoxPreferences();
+  }
+
+  static updateEditorStates(data) {
+    FirefoxCom.request("updateEditorStates", data);
   }
 
   static createL10n(options) {

@@ -48,6 +48,7 @@ import {
   RenderingCancelledException,
   StatTimer,
 } from "../../src/display/display_utils.js";
+import { AnnotationStorage } from "../../src/display/annotation_storage.js";
 import { AutoPrintRegExp } from "../../web/ui_utils.js";
 import { GlobalImageCache } from "../../src/core/image_utils.js";
 import { GlobalWorkerOptions } from "../../src/display/worker_options.js";
@@ -77,7 +78,9 @@ describe("api", function () {
   }
 
   function mergeText(items) {
-    return items.map(chunk => chunk.str + (chunk.hasEOL ? "\n" : "")).join("");
+    return items
+      .map(chunk => (chunk.str ?? "") + (chunk.hasEOL ? "\n" : ""))
+      .join("");
   }
 
   describe("getDocument", function () {
@@ -498,6 +501,7 @@ describe("api", function () {
       expect(opList.fnArray.length).toEqual(0);
       expect(opList.argsArray.length).toEqual(0);
       expect(opList.lastChunk).toEqual(true);
+      expect(opList.separateAnnots).toEqual(null);
 
       await loadingTask.destroy();
     });
@@ -518,6 +522,7 @@ describe("api", function () {
       expect(opList.fnArray.length).toEqual(0);
       expect(opList.argsArray.length).toEqual(0);
       expect(opList.lastChunk).toEqual(true);
+      expect(opList.separateAnnots).toEqual(null);
 
       await loadingTask.destroy();
     });
@@ -585,6 +590,7 @@ describe("api", function () {
       expect(opList.fnArray.length).toBeGreaterThan(5);
       expect(opList.argsArray.length).toBeGreaterThan(5);
       expect(opList.lastChunk).toEqual(true);
+      expect(opList.separateAnnots).toEqual(null);
 
       try {
         await pdfDocument2.getPage(1);
@@ -628,6 +634,7 @@ describe("api", function () {
         expect(opList.fnArray.length).toBeGreaterThan(5);
         expect(opList.argsArray.length).toBeGreaterThan(5);
         expect(opList.lastChunk).toEqual(true);
+        expect(opList.separateAnnots).toEqual(null);
       }
 
       await Promise.all([loadingTask1.destroy(), loadingTask2.destroy()]);
@@ -669,6 +676,38 @@ describe("api", function () {
       }
 
       await Promise.all([loadingTask1.destroy(), loadingTask2.destroy()]);
+    });
+
+    it("creates pdf doc from PDF file with bad /Resources entry", async function () {
+      const loadingTask = getDocument(buildGetDocumentParams("issue15150.pdf"));
+      expect(loadingTask instanceof PDFDocumentLoadingTask).toEqual(true);
+
+      const pdfDocument = await loadingTask.promise;
+      expect(pdfDocument.numPages).toEqual(1);
+
+      const page = await pdfDocument.getPage(1);
+      expect(page instanceof PDFPageProxy).toEqual(true);
+
+      const opList = await page.getOperatorList();
+      expect(opList.fnArray).toEqual([
+        OPS.setLineWidth,
+        OPS.setStrokeRGBColor,
+        OPS.constructPath,
+        OPS.closeStroke,
+      ]);
+      expect(opList.argsArray).toEqual([
+        [0.5],
+        new Uint8ClampedArray([255, 0, 0]),
+        [
+          [OPS.moveTo, OPS.lineTo],
+          [0, 9.75, 0.5, 9.75],
+          [0, 0.5, 9.75, 9.75],
+        ],
+        null,
+      ]);
+      expect(opList.lastChunk).toEqual(true);
+
+      await loadingTask.destroy();
     });
   });
 
@@ -1333,6 +1372,7 @@ describe("api", function () {
             page: 0,
             strokeColor: null,
             fillColor: null,
+            rotation: 0,
             type: "text",
           },
         ],
@@ -1354,6 +1394,7 @@ describe("api", function () {
             page: 0,
             strokeColor: null,
             fillColor: new Uint8ClampedArray([192, 192, 192]),
+            rotation: 0,
             type: "button",
           },
         ],
@@ -2272,6 +2313,28 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       await loadingTask.destroy();
     });
 
+    it("gets text content with or without includeMarkedContent, and compare (issue 15094)", async function () {
+      if (isNodeJS) {
+        pending("Linked test-cases are not supported in Node.js.");
+      }
+
+      const loadingTask = getDocument(buildGetDocumentParams("pdf.pdf"));
+      const pdfDoc = await loadingTask.promise;
+      const pdfPage = await pdfDoc.getPage(568);
+      let { items } = await pdfPage.getTextContent({
+        includeMarkedContent: false,
+      });
+      const textWithoutMC = mergeText(items);
+      ({ items } = await pdfPage.getTextContent({
+        includeMarkedContent: true,
+      }));
+      const textWithMC = mergeText(items);
+
+      expect(textWithoutMC).toEqual(textWithMC);
+
+      await loadingTask.destroy();
+    });
+
     it("gets empty structure tree", async function () {
       const tree = await page.getStructTree();
 
@@ -2343,6 +2406,10 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(operatorList.fnArray.length).toBeGreaterThan(100);
       expect(operatorList.argsArray.length).toBeGreaterThan(100);
       expect(operatorList.lastChunk).toEqual(true);
+      expect(operatorList.separateAnnots).toEqual({
+        form: false,
+        canvas: false,
+      });
     });
 
     it("gets operatorList with JPEG image (issue 4888)", async function () {
@@ -2383,6 +2450,7 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
               expect(opList.fnArray.length).toBeGreaterThan(100);
               expect(opList.argsArray.length).toBeGreaterThan(100);
               expect(opList.lastChunk).toEqual(true);
+              expect(opList.separateAnnots).toEqual(null);
 
               return loadingTask1.destroy();
             });
@@ -2395,6 +2463,7 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
               expect(opList.fnArray.length).toEqual(0);
               expect(opList.argsArray.length).toEqual(0);
               expect(opList.lastChunk).toEqual(true);
+              expect(opList.separateAnnots).toEqual(null);
 
               return loadingTask2.destroy();
             });
@@ -2416,6 +2485,10 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(operatorList.fnArray.length).toBeGreaterThan(20);
       expect(operatorList.argsArray.length).toBeGreaterThan(20);
       expect(operatorList.lastChunk).toEqual(true);
+      expect(operatorList.separateAnnots).toEqual({
+        form: false,
+        canvas: false,
+      });
 
       // The `getOperatorList` method, similar to the `render` method,
       // is supposed to include any existing Annotation-operatorLists.
@@ -2439,20 +2512,41 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(opListAnnotDisable.fnArray.length).toEqual(0);
       expect(opListAnnotDisable.argsArray.length).toEqual(0);
       expect(opListAnnotDisable.lastChunk).toEqual(true);
+      expect(opListAnnotDisable.separateAnnots).toEqual(null);
 
       const opListAnnotEnable = await pdfPage.getOperatorList({
         annotationMode: AnnotationMode.ENABLE,
       });
-      expect(opListAnnotEnable.fnArray.length).toBeGreaterThan(150);
-      expect(opListAnnotEnable.argsArray.length).toBeGreaterThan(150);
+      expect(opListAnnotEnable.fnArray.length).toBeGreaterThan(140);
+      expect(opListAnnotEnable.argsArray.length).toBeGreaterThan(140);
       expect(opListAnnotEnable.lastChunk).toEqual(true);
+      expect(opListAnnotEnable.separateAnnots).toEqual({
+        form: false,
+        canvas: true,
+      });
+
+      let firstAnnotIndex = opListAnnotEnable.fnArray.indexOf(
+        OPS.beginAnnotation
+      );
+      let isUsingOwnCanvas = opListAnnotEnable.argsArray[firstAnnotIndex][4];
+      expect(isUsingOwnCanvas).toEqual(false);
 
       const opListAnnotEnableForms = await pdfPage.getOperatorList({
         annotationMode: AnnotationMode.ENABLE_FORMS,
       });
-      expect(opListAnnotEnableForms.fnArray.length).toBeGreaterThan(40);
-      expect(opListAnnotEnableForms.argsArray.length).toBeGreaterThan(40);
+      expect(opListAnnotEnableForms.fnArray.length).toBeGreaterThan(30);
+      expect(opListAnnotEnableForms.argsArray.length).toBeGreaterThan(30);
       expect(opListAnnotEnableForms.lastChunk).toEqual(true);
+      expect(opListAnnotEnableForms.separateAnnots).toEqual({
+        form: true,
+        canvas: true,
+      });
+
+      firstAnnotIndex = opListAnnotEnableForms.fnArray.indexOf(
+        OPS.beginAnnotation
+      );
+      isUsingOwnCanvas = opListAnnotEnableForms.argsArray[firstAnnotIndex][4];
+      expect(isUsingOwnCanvas).toEqual(true);
 
       const opListAnnotEnableStorage = await pdfPage.getOperatorList({
         annotationMode: AnnotationMode.ENABLE_STORAGE,
@@ -2460,6 +2554,16 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(opListAnnotEnableStorage.fnArray.length).toBeGreaterThan(170);
       expect(opListAnnotEnableStorage.argsArray.length).toBeGreaterThan(170);
       expect(opListAnnotEnableStorage.lastChunk).toEqual(true);
+      expect(opListAnnotEnableStorage.separateAnnots).toEqual({
+        form: false,
+        canvas: true,
+      });
+
+      firstAnnotIndex = opListAnnotEnableStorage.fnArray.indexOf(
+        OPS.beginAnnotation
+      );
+      isUsingOwnCanvas = opListAnnotEnableStorage.argsArray[firstAnnotIndex][4];
+      expect(isUsingOwnCanvas).toEqual(false);
 
       // Sanity check to ensure that the `annotationMode` is correctly applied.
       expect(opListAnnotDisable.fnArray.length).toBeLessThan(
@@ -2558,8 +2662,9 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(renderTask instanceof RenderTask).toEqual(true);
 
       await renderTask.promise;
-      const stats = pdfPage.stats;
+      expect(renderTask.separateAnnots).toEqual(false);
 
+      const { stats } = pdfPage;
       expect(stats instanceof StatTimer).toEqual(true);
       expect(stats.times.length).toEqual(3);
 
@@ -2642,6 +2747,7 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(reRenderTask instanceof RenderTask).toEqual(true);
 
       await reRenderTask.promise;
+      expect(reRenderTask.separateAnnots).toEqual(false);
 
       CanvasFactory.destroy(canvasAndCtx);
     });
@@ -2708,8 +2814,9 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       expect(renderTask instanceof RenderTask).toEqual(true);
 
       await renderTask.promise;
-      await pdfDoc.cleanup();
+      expect(renderTask.separateAnnots).toEqual(false);
 
+      await pdfDoc.cleanup();
       expect(true).toEqual(true);
 
       CanvasFactory.destroy(canvasAndCtx);
@@ -2754,6 +2861,7 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
         );
       }
       await renderTask.promise;
+      expect(renderTask.separateAnnots).toEqual(false);
 
       CanvasFactory.destroy(canvasAndCtx);
       await loadingTask.destroy();
@@ -2824,6 +2932,77 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
       await loadingTask.destroy();
       firstImgData = null;
     });
+
+    it("render for printing, with `printAnnotationStorage` set", async function () {
+      async function getPrintData(printAnnotationStorage = null) {
+        const canvasAndCtx = CanvasFactory.create(
+          viewport.width,
+          viewport.height
+        );
+        const renderTask = pdfPage.render({
+          canvasContext: canvasAndCtx.context,
+          canvasFactory: CanvasFactory,
+          viewport,
+          intent: "print",
+          annotationMode: AnnotationMode.ENABLE_STORAGE,
+          printAnnotationStorage,
+        });
+
+        await renderTask.promise;
+        expect(renderTask.separateAnnots).toEqual(false);
+
+        const printData = canvasAndCtx.canvas.toDataURL();
+        CanvasFactory.destroy(canvasAndCtx);
+
+        return printData;
+      }
+
+      const loadingTask = getDocument(
+        buildGetDocumentParams("annotation-tx.pdf")
+      );
+      const pdfDoc = await loadingTask.promise;
+      const pdfPage = await pdfDoc.getPage(1);
+      const viewport = pdfPage.getViewport({ scale: 1 });
+
+      // Update the contents of the form-field.
+      const { annotationStorage } = pdfDoc;
+      annotationStorage.setValue("22R", { value: "Hello World" });
+
+      // Render for printing, with default parameters.
+      const printOriginalData = await getPrintData();
+
+      // Get the *frozen* print-storage for use during printing.
+      const printAnnotationStorage = annotationStorage.print;
+      // Update the contents of the form-field again.
+      annotationStorage.setValue("22R", { value: "Printing again..." });
+
+      const annotationHash = AnnotationStorage.getHash(
+        annotationStorage.serializable
+      );
+      const printAnnotationHash = AnnotationStorage.getHash(
+        printAnnotationStorage.serializable
+      );
+      // Sanity check to ensure that the print-storage didn't change,
+      // after the form-field was updated.
+      expect(printAnnotationHash).not.toEqual(annotationHash);
+
+      // Render for printing again, after updating the form-field,
+      // with default parameters.
+      const printAgainData = await getPrintData();
+
+      // Render for printing again, after updating the form-field,
+      // with `printAnnotationStorage` set.
+      const printStorageData = await getPrintData(printAnnotationStorage);
+
+      // Ensure that printing again, with default parameters,
+      // actually uses the "new" form-field data.
+      expect(printAgainData).not.toEqual(printOriginalData);
+      // Finally ensure that printing, with `printAnnotationStorage` set,
+      // still uses the "previous" form-field data.
+      expect(printStorageData).toEqual(printOriginalData);
+
+      await loadingTask.destroy();
+    });
   });
 
   describe("Multiple `getDocument` instances", function () {
@@ -2856,6 +3035,8 @@ Caron Broadcasting, Inc., an Ohio corporation (“Lessee”).`)
         viewport,
       });
       await renderTask.promise;
+      expect(renderTask.separateAnnots).toEqual(false);
+
       const data = canvasAndCtx.canvas.toDataURL();
       CanvasFactory.destroy(canvasAndCtx);
       return data;

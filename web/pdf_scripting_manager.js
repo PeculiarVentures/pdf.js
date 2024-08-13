@@ -311,7 +311,7 @@ class PDFScriptingManager {
           this._pdfViewer.currentScaleValue = value;
           break;
         case "SaveAs":
-          this._eventBus.dispatch("save", { source: this });
+          this._eventBus.dispatch("download", { source: this });
           break;
         case "FirstPage":
           this._pdfViewer.currentPageNumber = 1;
@@ -351,7 +351,9 @@ class PDFScriptingManager {
 
     const ids = siblings ? [id, ...siblings] : [id];
     for (const elementId of ids) {
-      const element = document.getElementById(elementId);
+      const element = document.querySelector(
+        `[data-element-id="${elementId}"]`
+      );
       if (element) {
         element.dispatchEvent(new CustomEvent("updatefromsandbox", { detail }));
       } else {

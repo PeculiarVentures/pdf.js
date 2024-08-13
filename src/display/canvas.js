@@ -26,6 +26,7 @@ import {
   Util,
   warn,
 } from "../shared/util.js";
+import { getRGB, PixelsPerInch } from "./display_utils.js";
 import {
   getShadingPattern,
   PathType,
@@ -33,7 +34,6 @@ import {
 } from "./pattern_helper.js";
 import { applyMaskImageData } from "../shared/image_utils.js";
 import { isNodeJS } from "../shared/is_node.js";
-import { PixelsPerInch } from "./display_utils.js";
 
 // <canvas> contexts store most of the state we need natively.
 // However, PDF needs a bit more state, which we store here.
@@ -1326,10 +1326,7 @@ class CanvasGraphics {
         // Then for every color in the pdf, if its rounded luminance is the
         // same as the background one then it's replaced by the new
         // background color else by the foreground one.
-        const cB = parseInt(defaultBg.slice(1), 16);
-        const rB = (cB && 0xff0000) >> 16;
-        const gB = (cB && 0x00ff00) >> 8;
-        const bB = cB && 0x0000ff;
+        const [rB, gB, bB] = getRGB(defaultBg);
         const newComp = x => {
           x /= 255;
           return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
@@ -1453,7 +1450,7 @@ class CanvasGraphics {
     }
   }
 
-  endDrawing() {
+  #restoreInitialState() {
     // Finishing all opened operations such as SMask group painting.
     while (this.stateStack.length || this.inSMaskMode) {
       this.restore();
@@ -1469,6 +1466,10 @@ class CanvasGraphics {
       this.ctx.restore();
       this.transparentCanvas = null;
     }
+  }
+
+  endDrawing() {
+    this.#restoreInitialState();
 
     this.cachedCanvases.clear();
     this.cachedPatterns.clear();
@@ -2210,8 +2211,7 @@ class CanvasGraphics {
 
     ctx.save();
     ctx.beginPath();
-    for (let i = 0; i < paths.length; i++) {
-      const path = paths[i];
+    for (const path of paths) {
       ctx.setTransform.apply(ctx, path.transform);
       ctx.translate(path.x, path.y);
       path.addToPath(ctx, path.fontSize);
@@ -2652,8 +2652,6 @@ class CanvasGraphics {
   }
 
   setCharWidthAndBounds(xWidth, yWidth, llx, lly, urx, ury) {
-    // TODO According to the spec we're also suppose to ignore any operators
-    // that set color or include images while processing this type3 font.
     this.ctx.rect(llx, lly, urx - llx, ury - lly);
     this.ctx.clip();
     this.endPath();
@@ -2974,19 +2972,20 @@ class CanvasGraphics {
     }
   }
 
-  beginAnnotations() {
+  beginAnnotation(id, rect, transform, matrix, hasOwnCanvas) {
+    // The annotations are drawn just after the page content.
+    // The page content drawing can potentially have set a transform,
+    // a clipping path, whatever...
+    // So in order to have something clean, we restore the initial state.
+    this.#restoreInitialState();
+    resetCtxToDefault(this.ctx, this.foregroundColor);
+
+    this.ctx.save();
     this.save();
+
     if (this.baseTransform) {
       this.ctx.setTransform.apply(this.ctx, this.baseTransform);
     }
-  }
-
-  endAnnotations() {
-    this.restore();
-  }
-
-  beginAnnotation(id, rect, transform, matrix, hasOwnCanvas) {
-    this.save();
 
     if (Array.isArray(rect) && rect.length === 4) {
       const width = rect[2] - rect[0];
@@ -3018,14 +3017,11 @@ class CanvasGraphics {
           canvasHeight
         );
         const { canvas, context } = this.annotationCanvas;
-        const viewportScaleFactorStr = `var(--zoom-factor) * ${PixelsPerInch.PDF_TO_CSS_UNITS}`;
-        canvas.style.width = `calc(${width}px * ${viewportScaleFactorStr})`;
-        canvas.style.height = `calc(${height}px * ${viewportScaleFactorStr})`;
         this.annotationCanvasMap.set(id, canvas);
         this.annotationCanvas.savedCtx = this.ctx;
         this.ctx = context;
-        this.ctx.setTransform(scaleX, 0, 0, -scaleY, 0, height * scaleY);
         addContextCurrentTransform(this.ctx);
+        this.ctx.setTransform(scaleX, 0, 0, -scaleY, 0, height * scaleY);
 
         resetCtxToDefault(this.ctx, this.foregroundColor);
       } else {
@@ -3052,7 +3048,6 @@ class CanvasGraphics {
       delete this.annotationCanvas.savedCtx;
       delete this.annotationCanvas;
     }
-    this.restore();
   }
 
   paintImageMaskXObject(img) {
@@ -3134,10 +3129,9 @@ class CanvasGraphics {
 
     const fillColor = this.current.fillColor;
     const isPatternFill = this.current.patternFill;
-    for (let i = 0, ii = images.length; i < ii; i++) {
-      const image = images[i];
-      const width = image.width,
-        height = image.height;
+
+    for (const image of images) {
+      const { data, width, height, transform } = image;
 
       const maskCanvas = this.cachedCanvases.getCanvas(
         "maskCanvas",
@@ -3148,7 +3142,8 @@ class CanvasGraphics {
       const maskCtx = maskCanvas.context;
       maskCtx.save();
 
-      putBinaryImageMask(maskCtx, image);
+      const img = this.getObject(data, image);
+      putBinaryImageMask(maskCtx, img);
 
       maskCtx.globalCompositeOperation = "source-in";
 
@@ -3165,7 +3160,7 @@ class CanvasGraphics {
       maskCtx.restore();
 
       ctx.save();
-      ctx.transform.apply(ctx, image.transform);
+      ctx.transform.apply(ctx, transform);
       ctx.scale(1, -1);
       drawImageAtIntegerCoords(
         ctx,

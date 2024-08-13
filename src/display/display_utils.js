@@ -459,7 +459,7 @@ function loadScript(src, removeScriptElement = false) {
     script.onerror = function () {
       reject(new Error(`Cannot load script at: ${script.src}`));
     };
-    (document.head || document.documentElement).appendChild(script);
+    (document.head || document.documentElement).append(script);
   });
 }
 
@@ -567,14 +567,91 @@ function getXfaPageViewport(xfaPage, { scale = 1, rotation = 0 }) {
   });
 }
 
+function getRGB(color) {
+  if (color.startsWith("#")) {
+    const colorRGB = parseInt(color.slice(1), 16);
+    return [
+      (colorRGB & 0xff0000) >> 16,
+      (colorRGB & 0x00ff00) >> 8,
+      colorRGB & 0x0000ff,
+    ];
+  }
+
+  if (color.startsWith("rgb(")) {
+    // getComputedStyle(...).color returns a `rgb(R, G, B)` color.
+    return color
+      .slice(/* "rgb(".length */ 4, -1) // Strip out "rgb(" and ")".
+      .split(",")
+      .map(x => parseInt(x));
+  }
+
+  if (color.startsWith("rgba(")) {
+    return color
+      .slice(/* "rgba(".length */ 5, -1) // Strip out "rgba(" and ")".
+      .split(",")
+      .map(x => parseInt(x))
+      .slice(0, 3);
+  }
+
+  warn(`Not a valid color format: "${color}"`);
+  return [0, 0, 0];
+}
+
+function getColorValues(colors) {
+  const span = document.createElement("span");
+  span.style.visibility = "hidden";
+  document.body.append(span);
+  for (const name of colors.keys()) {
+    span.style.color = name;
+    const computedColor = window.getComputedStyle(span).color;
+    colors.set(name, getRGB(computedColor));
+  }
+  span.remove();
+}
+
+/**
+ * Use binary search to find the index of the first item in a given array which
+ * passes a given condition. The items are expected to be sorted in the sense
+ * that if the condition is true for one item in the array, then it is also true
+ * for all following items.
+ *
+ * @returns {number} Index of the first array element to pass the test,
+ *                   or |items.length| if no such element exists.
+ */
+function binarySearchFirstItem(items, condition, start = 0) {
+  let minIndex = start;
+  let maxIndex = items.length - 1;
+
+  if (maxIndex < 0 || !condition(items[maxIndex])) {
+    return items.length;
+  }
+  if (condition(items[minIndex])) {
+    return minIndex;
+  }
+
+  while (minIndex < maxIndex) {
+    const currentIndex = (minIndex + maxIndex) >> 1;
+    const currentItem = items[currentIndex];
+    if (condition(currentItem)) {
+      maxIndex = currentIndex;
+    } else {
+      minIndex = currentIndex + 1;
+    }
+  }
+  return minIndex; /* === maxIndex */
+}
+
 export {
+  binarySearchFirstItem,
   deprecated,
   DOMCanvasFactory,
   DOMCMapReaderFactory,
   DOMStandardFontDataFactory,
   DOMSVGFactory,
+  getColorValues,
   getFilenameFromUrl,
   getPdfFilenameFromUrl,
+  getRGB,
   getXfaPageViewport,
   isDataScheme,
   isPdfFile,
