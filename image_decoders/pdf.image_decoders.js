@@ -2186,7 +2186,7 @@ class SimpleSegmentVisitor {
     this.drawBitmap(regionInfo, bitmap);
   }
   onImmediateLosslessGenericRegion() {
-    this.onImmediateGenericRegion.apply(this, arguments);
+    this.onImmediateGenericRegion(...arguments);
   }
   onSymbolDictionary(dictionary, currentSegment, referredSegments, data, start, end) {
     let huffmanTables, huffmanInput;
@@ -2229,7 +2229,7 @@ class SimpleSegmentVisitor {
     this.drawBitmap(regionInfo, bitmap);
   }
   onImmediateLosslessTextRegion() {
-    this.onImmediateTextRegion.apply(this, arguments);
+    this.onImmediateTextRegion(...arguments);
   }
   onPatternDictionary(dictionary, currentSegment, data, start, end) {
     let patterns = this.patterns;
@@ -2247,7 +2247,7 @@ class SimpleSegmentVisitor {
     this.drawBitmap(regionInfo, bitmap);
   }
   onImmediateLosslessHalftoneRegion() {
-    this.onImmediateHalftoneRegion.apply(this, arguments);
+    this.onImmediateHalftoneRegion(...arguments);
   }
   onTables(currentSegment, data, start, end) {
     let customTables = this.customTables;
@@ -7387,8 +7387,8 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(10);
 var _jpx = __w_pdfjs_require__(11);
-const pdfjsVersion = '2.15.51';
-const pdfjsBuild = '8ff9a37e0';
+const pdfjsVersion = '2.16.158';
+const pdfjsBuild = 'ac84995e3';
 })();
 
 /******/ 	return __webpack_exports__;
