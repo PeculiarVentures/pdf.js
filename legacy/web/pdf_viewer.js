@@ -29,7 +29,7 @@
 		exports["pdfjs-dist/web/pdf_viewer"] = factory();
 	else
 		root["pdfjs-dist/web/pdf_viewer"] = root.pdfjsViewer = factory();
-})(this, () => {
+})(globalThis, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
@@ -42,13 +42,14 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.DefaultXfaLayerFactory = exports.DefaultTextLayerFactory = exports.DefaultStructTreeLayerFactory = exports.DefaultAnnotationLayerFactory = void 0;
-var _annotation_layer_builder = __w_pdfjs_require__(2);
+exports.DefaultXfaLayerFactory = exports.DefaultTextLayerFactory = exports.DefaultStructTreeLayerFactory = exports.DefaultAnnotationLayerFactory = exports.DefaultAnnotationEditorLayerFactory = void 0;
+var _annotation_editor_layer_builder = __w_pdfjs_require__(2);
+var _annotation_layer_builder = __w_pdfjs_require__(5);
 var _l10n_utils = __w_pdfjs_require__(4);
-var _pdf_link_service = __w_pdfjs_require__(5);
-var _struct_tree_layer_builder = __w_pdfjs_require__(7);
-var _text_layer_builder = __w_pdfjs_require__(8);
-var _xfa_layer_builder = __w_pdfjs_require__(9);
+var _pdf_link_service = __w_pdfjs_require__(6);
+var _struct_tree_layer_builder = __w_pdfjs_require__(8);
+var _text_layer_builder = __w_pdfjs_require__(9);
+var _xfa_layer_builder = __w_pdfjs_require__(10);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -61,16 +62,27 @@ var DefaultAnnotationLayerFactory = exports.DefaultAnnotationLayerFactory = /*#_
   }
   return _createClass(DefaultAnnotationLayerFactory, [{
     key: "createAnnotationLayerBuilder",
-    value: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
-      var annotationStorage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var imageResourcesPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
-      var renderForms = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-      var l10n = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _l10n_utils.NullL10n;
-      var enableScripting = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
-      var hasJSActionsPromise = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
-      var mouseState = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
-      var fieldObjectsPromise = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
-      var annotationCanvasMap = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : null;
+    value: function createAnnotationLayerBuilder(_ref) {
+      var pageDiv = _ref.pageDiv,
+        pdfPage = _ref.pdfPage,
+        _ref$annotationStorag = _ref.annotationStorage,
+        annotationStorage = _ref$annotationStorag === void 0 ? null : _ref$annotationStorag,
+        _ref$imageResourcesPa = _ref.imageResourcesPath,
+        imageResourcesPath = _ref$imageResourcesPa === void 0 ? "" : _ref$imageResourcesPa,
+        _ref$renderForms = _ref.renderForms,
+        renderForms = _ref$renderForms === void 0 ? true : _ref$renderForms,
+        _ref$l10n = _ref.l10n,
+        l10n = _ref$l10n === void 0 ? _l10n_utils.NullL10n : _ref$l10n,
+        _ref$enableScripting = _ref.enableScripting,
+        enableScripting = _ref$enableScripting === void 0 ? false : _ref$enableScripting,
+        _ref$hasJSActionsProm = _ref.hasJSActionsPromise,
+        hasJSActionsPromise = _ref$hasJSActionsProm === void 0 ? null : _ref$hasJSActionsProm,
+        _ref$mouseState = _ref.mouseState,
+        mouseState = _ref$mouseState === void 0 ? null : _ref$mouseState,
+        _ref$fieldObjectsProm = _ref.fieldObjectsPromise,
+        fieldObjectsPromise = _ref$fieldObjectsProm === void 0 ? null : _ref$fieldObjectsProm,
+        _ref$annotationCanvas = _ref.annotationCanvasMap,
+        annotationCanvasMap = _ref$annotationCanvas === void 0 ? null : _ref$annotationCanvas;
       return new _annotation_layer_builder.AnnotationLayerBuilder({
         pageDiv: pageDiv,
         pdfPage: pdfPage,
@@ -88,13 +100,38 @@ var DefaultAnnotationLayerFactory = exports.DefaultAnnotationLayerFactory = /*#_
     }
   }]);
 }();
+var DefaultAnnotationEditorLayerFactory = exports.DefaultAnnotationEditorLayerFactory = /*#__PURE__*/function () {
+  function DefaultAnnotationEditorLayerFactory() {
+    _classCallCheck(this, DefaultAnnotationEditorLayerFactory);
+  }
+  return _createClass(DefaultAnnotationEditorLayerFactory, [{
+    key: "createAnnotationEditorLayerBuilder",
+    value: function createAnnotationEditorLayerBuilder(_ref2) {
+      var _ref2$uiManager = _ref2.uiManager,
+        uiManager = _ref2$uiManager === void 0 ? null : _ref2$uiManager,
+        pageDiv = _ref2.pageDiv,
+        pdfPage = _ref2.pdfPage,
+        l10n = _ref2.l10n,
+        _ref2$annotationStora = _ref2.annotationStorage,
+        annotationStorage = _ref2$annotationStora === void 0 ? null : _ref2$annotationStora;
+      return new _annotation_editor_layer_builder.AnnotationEditorLayerBuilder({
+        uiManager: uiManager,
+        pageDiv: pageDiv,
+        pdfPage: pdfPage,
+        l10n: l10n,
+        annotationStorage: annotationStorage
+      });
+    }
+  }]);
+}();
 var DefaultStructTreeLayerFactory = exports.DefaultStructTreeLayerFactory = /*#__PURE__*/function () {
   function DefaultStructTreeLayerFactory() {
     _classCallCheck(this, DefaultStructTreeLayerFactory);
   }
   return _createClass(DefaultStructTreeLayerFactory, [{
     key: "createStructTreeLayerBuilder",
-    value: function createStructTreeLayerBuilder(pdfPage) {
+    value: function createStructTreeLayerBuilder(_ref3) {
+      var pdfPage = _ref3.pdfPage;
       return new _struct_tree_layer_builder.StructTreeLayerBuilder({
         pdfPage: pdfPage
       });
@@ -107,10 +144,14 @@ var DefaultTextLayerFactory = exports.DefaultTextLayerFactory = /*#__PURE__*/fun
   }
   return _createClass(DefaultTextLayerFactory, [{
     key: "createTextLayerBuilder",
-    value: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
-      var enhanceTextSelection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var eventBus = arguments.length > 4 ? arguments[4] : undefined;
-      var highlighter = arguments.length > 5 ? arguments[5] : undefined;
+    value: function createTextLayerBuilder(_ref4) {
+      var textLayerDiv = _ref4.textLayerDiv,
+        pageIndex = _ref4.pageIndex,
+        viewport = _ref4.viewport,
+        _ref4$enhanceTextSele = _ref4.enhanceTextSelection,
+        enhanceTextSelection = _ref4$enhanceTextSele === void 0 ? false : _ref4$enhanceTextSele,
+        eventBus = _ref4.eventBus,
+        highlighter = _ref4.highlighter;
       return new _text_layer_builder.TextLayerBuilder({
         textLayerDiv: textLayerDiv,
         pageIndex: pageIndex,
@@ -128,15 +169,16 @@ var DefaultXfaLayerFactory = exports.DefaultXfaLayerFactory = /*#__PURE__*/funct
   }
   return _createClass(DefaultXfaLayerFactory, [{
     key: "createXfaLayerBuilder",
-    value: function createXfaLayerBuilder(pageDiv, pdfPage) {
-      var annotationStorage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var xfaHtml = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+    value: function createXfaLayerBuilder(_ref5) {
+      var pageDiv = _ref5.pageDiv,
+        pdfPage = _ref5.pdfPage,
+        _ref5$annotationStora = _ref5.annotationStorage,
+        annotationStorage = _ref5$annotationStora === void 0 ? null : _ref5$annotationStora;
       return new _xfa_layer_builder.XfaLayerBuilder({
         pageDiv: pageDiv,
         pdfPage: pdfPage,
         annotationStorage: annotationStorage,
-        linkService: new _pdf_link_service.SimpleLinkService(),
-        xfaHtml: xfaHtml
+        linkService: new _pdf_link_service.SimpleLinkService()
       });
     }
   }]);
@@ -144,6 +186,329 @@ var DefaultXfaLayerFactory = exports.DefaultXfaLayerFactory = /*#__PURE__*/funct
 
 /***/ }),
 /* 2 */
+/***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
+
+
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.AnnotationEditorLayerBuilder = void 0;
+var _pdfjsLib = __w_pdfjs_require__(3);
+var _l10n_utils = __w_pdfjs_require__(4);
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _classPrivateFieldInitSpec(e, t, a) { _checkPrivateRedeclaration(e, t), t.set(e, a); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
+function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+var _uiManager = /*#__PURE__*/new WeakMap();
+var AnnotationEditorLayerBuilder = exports.AnnotationEditorLayerBuilder = /*#__PURE__*/function () {
+  function AnnotationEditorLayerBuilder(options) {
+    _classCallCheck(this, AnnotationEditorLayerBuilder);
+    _classPrivateFieldInitSpec(this, _uiManager, void 0);
+    this.pageDiv = options.pageDiv;
+    this.pdfPage = options.pdfPage;
+    this.annotationStorage = options.annotationStorage || null;
+    this.l10n = options.l10n || _l10n_utils.NullL10n;
+    this.annotationEditorLayer = null;
+    this.div = null;
+    this._cancelled = false;
+    _classPrivateFieldSet(_uiManager, this, options.uiManager);
+  }
+  return _createClass(AnnotationEditorLayerBuilder, [{
+    key: "render",
+    value: function () {
+      var _render = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(viewport) {
+        var intent,
+          clonedViewport,
+          parameters,
+          _args = arguments;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              intent = _args.length > 1 && _args[1] !== undefined ? _args[1] : "display";
+              if (!(intent !== "display")) {
+                _context.next = 3;
+                break;
+              }
+              return _context.abrupt("return");
+            case 3:
+              if (!this._cancelled) {
+                _context.next = 5;
+                break;
+              }
+              return _context.abrupt("return");
+            case 5:
+              clonedViewport = viewport.clone({
+                dontFlip: true
+              });
+              if (!this.div) {
+                _context.next = 10;
+                break;
+              }
+              this.annotationEditorLayer.update({
+                viewport: clonedViewport
+              });
+              this.show();
+              return _context.abrupt("return");
+            case 10:
+              this.div = document.createElement("div");
+              this.div.className = "annotationEditorLayer";
+              this.div.tabIndex = 0;
+              this.pageDiv.append(this.div);
+              this.annotationEditorLayer = new _pdfjsLib.AnnotationEditorLayer({
+                uiManager: _classPrivateFieldGet(_uiManager, this),
+                div: this.div,
+                annotationStorage: this.annotationStorage,
+                pageIndex: this.pdfPage._pageIndex,
+                l10n: this.l10n,
+                viewport: clonedViewport
+              });
+              parameters = {
+                viewport: clonedViewport,
+                div: this.div,
+                annotations: null,
+                intent: intent
+              };
+              this.annotationEditorLayer.render(parameters);
+            case 17:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function render(_x) {
+        return _render.apply(this, arguments);
+      }
+      return render;
+    }()
+  }, {
+    key: "cancel",
+    value: function cancel() {
+      this._cancelled = true;
+      this.destroy();
+    }
+  }, {
+    key: "hide",
+    value: function hide() {
+      if (!this.div) {
+        return;
+      }
+      this.div.hidden = true;
+    }
+  }, {
+    key: "show",
+    value: function show() {
+      if (!this.div) {
+        return;
+      }
+      this.div.hidden = false;
+    }
+  }, {
+    key: "destroy",
+    value: function destroy() {
+      if (!this.div) {
+        return;
+      }
+      this.pageDiv = null;
+      this.annotationEditorLayer.destroy();
+      this.div.remove();
+    }
+  }]);
+}();
+
+/***/ }),
+/* 3 */
+/***/ ((module) => {
+
+
+
+var pdfjsLib;
+if (typeof window !== "undefined" && window["pdfjs-dist/build/pdf"]) {
+  pdfjsLib = window["pdfjs-dist/build/pdf"];
+} else {
+  pdfjsLib = require("../build/pdf.js");
+}
+module.exports = pdfjsLib;
+
+/***/ }),
+/* 4 */
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.NullL10n = void 0;
+exports.fixupLangCode = fixupLangCode;
+exports.getL10nFallback = getL10nFallback;
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+var DEFAULT_L10N_STRINGS = {
+  of_pages: "of {{pagesCount}}",
+  page_of_pages: "({{pageNumber}} of {{pagesCount}})",
+  document_properties_kb: "{{size_kb}} KB ({{size_b}} bytes)",
+  document_properties_mb: "{{size_mb}} MB ({{size_b}} bytes)",
+  document_properties_date_string: "{{date}}, {{time}}",
+  document_properties_page_size_unit_inches: "in",
+  document_properties_page_size_unit_millimeters: "mm",
+  document_properties_page_size_orientation_portrait: "portrait",
+  document_properties_page_size_orientation_landscape: "landscape",
+  document_properties_page_size_name_a3: "A3",
+  document_properties_page_size_name_a4: "A4",
+  document_properties_page_size_name_letter: "Letter",
+  document_properties_page_size_name_legal: "Legal",
+  document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
+  document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
+  document_properties_linearized_yes: "Yes",
+  document_properties_linearized_no: "No",
+  print_progress_percent: "{{progress}}%",
+  "toggle_sidebar.title": "Toggle Sidebar",
+  "toggle_sidebar_notification2.title": "Toggle Sidebar (document contains outline/attachments/layers)",
+  additional_layers: "Additional Layers",
+  page_landmark: "Page {{page}}",
+  thumb_page_title: "Page {{page}}",
+  thumb_page_canvas: "Thumbnail of Page {{page}}",
+  find_reached_top: "Reached top of document, continued from bottom",
+  find_reached_bottom: "Reached end of document, continued from top",
+  "find_match_count[one]": "{{current}} of {{total}} match",
+  "find_match_count[other]": "{{current}} of {{total}} matches",
+  "find_match_count_limit[one]": "More than {{limit}} match",
+  "find_match_count_limit[other]": "More than {{limit}} matches",
+  find_not_found: "Phrase not found",
+  error_version_info: "PDF.js v{{version}} (build: {{build}})",
+  error_message: "Message: {{message}}",
+  error_stack: "Stack: {{stack}}",
+  error_file: "File: {{file}}",
+  error_line: "Line: {{line}}",
+  rendering_error: "An error occurred while rendering the page.",
+  page_scale_width: "Page Width",
+  page_scale_fit: "Page Fit",
+  page_scale_auto: "Automatic Zoom",
+  page_scale_actual: "Actual Size",
+  page_scale_percent: "{{scale}}%",
+  loading: "Loading…",
+  loading_error: "An error occurred while loading the PDF.",
+  invalid_file_error: "Invalid or corrupted PDF file.",
+  missing_file_error: "Missing PDF file.",
+  unexpected_response_error: "Unexpected server response.",
+  printing_not_supported: "Warning: Printing is not fully supported by this browser.",
+  printing_not_ready: "Warning: The PDF is not fully loaded for printing.",
+  web_fonts_disabled: "Web fonts are disabled: unable to use embedded PDF fonts.",
+  free_text_default_content: "Enter text…",
+  editor_free_text_aria_label: "FreeText Editor",
+  editor_ink_aria_label: "Ink Editor",
+  editor_ink_canvas_aria_label: "User-created image"
+};
+function getL10nFallback(key, args) {
+  switch (key) {
+    case "find_match_count":
+      key = "find_match_count[".concat(args.total === 1 ? "one" : "other", "]");
+      break;
+    case "find_match_count_limit":
+      key = "find_match_count_limit[".concat(args.limit === 1 ? "one" : "other", "]");
+      break;
+  }
+  return DEFAULT_L10N_STRINGS[key] || "";
+}
+var PARTIAL_LANG_CODES = {
+  en: "en-US",
+  es: "es-ES",
+  fy: "fy-NL",
+  ga: "ga-IE",
+  gu: "gu-IN",
+  hi: "hi-IN",
+  hy: "hy-AM",
+  nb: "nb-NO",
+  ne: "ne-NP",
+  nn: "nn-NO",
+  pa: "pa-IN",
+  pt: "pt-PT",
+  sv: "sv-SE",
+  zh: "zh-CN"
+};
+function fixupLangCode(langCode) {
+  return PARTIAL_LANG_CODES[langCode === null || langCode === void 0 ? void 0 : langCode.toLowerCase()] || langCode;
+}
+function formatL10nValue(text, args) {
+  if (!args) {
+    return text;
+  }
+  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, function (all, name) {
+    return name in args ? args[name] : "{{" + name + "}}";
+  });
+}
+var NullL10n = exports.NullL10n = {
+  getLanguage: function getLanguage() {
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+      return _regeneratorRuntime().wrap(function _callee$(_context) {
+        while (1) switch (_context.prev = _context.next) {
+          case 0:
+            return _context.abrupt("return", "en-us");
+          case 1:
+          case "end":
+            return _context.stop();
+        }
+      }, _callee);
+    }))();
+  },
+  getDirection: function getDirection() {
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+        while (1) switch (_context2.prev = _context2.next) {
+          case 0:
+            return _context2.abrupt("return", "ltr");
+          case 1:
+          case "end":
+            return _context2.stop();
+        }
+      }, _callee2);
+    }))();
+  },
+  get: function get(key) {
+    var _arguments = arguments;
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+      var args, fallback;
+      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+        while (1) switch (_context3.prev = _context3.next) {
+          case 0:
+            args = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
+            fallback = _arguments.length > 2 && _arguments[2] !== undefined ? _arguments[2] : getL10nFallback(key, args);
+            return _context3.abrupt("return", formatL10nValue(fallback, args));
+          case 3:
+          case "end":
+            return _context3.stop();
+        }
+      }, _callee3);
+    }))();
+  },
+  translate: function translate(element) {
+    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+        while (1) switch (_context4.prev = _context4.next) {
+          case 0:
+          case "end":
+            return _context4.stop();
+        }
+      }, _callee4);
+    }))();
+  }
+};
+
+/***/ }),
+/* 5 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -269,7 +634,7 @@ var AnnotationLayerBuilder = exports.AnnotationLayerBuilder = /*#__PURE__*/funct
               } else {
                 this.div = document.createElement("div");
                 this.div.className = "annotationLayer";
-                this.pageDiv.appendChild(this.div);
+                this.pageDiv.append(this.div);
                 parameters.div = this.div;
                 _pdfjsLib.AnnotationLayer.render(parameters);
                 this.l10n.translate(this.div);
@@ -302,184 +667,7 @@ var AnnotationLayerBuilder = exports.AnnotationLayerBuilder = /*#__PURE__*/funct
 }();
 
 /***/ }),
-/* 3 */
-/***/ ((module) => {
-
-
-
-var pdfjsLib;
-if (typeof window !== "undefined" && window["pdfjs-dist/build/pdf"]) {
-  pdfjsLib = window["pdfjs-dist/build/pdf"];
-} else {
-  pdfjsLib = require("../build/pdf.js");
-}
-module.exports = pdfjsLib;
-
-/***/ }),
-/* 4 */
-/***/ ((__unused_webpack_module, exports) => {
-
-
-
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.NullL10n = void 0;
-exports.fixupLangCode = fixupLangCode;
-exports.getL10nFallback = getL10nFallback;
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-var DEFAULT_L10N_STRINGS = {
-  of_pages: "of {{pagesCount}}",
-  page_of_pages: "({{pageNumber}} of {{pagesCount}})",
-  document_properties_kb: "{{size_kb}} KB ({{size_b}} bytes)",
-  document_properties_mb: "{{size_mb}} MB ({{size_b}} bytes)",
-  document_properties_date_string: "{{date}}, {{time}}",
-  document_properties_page_size_unit_inches: "in",
-  document_properties_page_size_unit_millimeters: "mm",
-  document_properties_page_size_orientation_portrait: "portrait",
-  document_properties_page_size_orientation_landscape: "landscape",
-  document_properties_page_size_name_a3: "A3",
-  document_properties_page_size_name_a4: "A4",
-  document_properties_page_size_name_letter: "Letter",
-  document_properties_page_size_name_legal: "Legal",
-  document_properties_page_size_dimension_string: "{{width}} × {{height}} {{unit}} ({{orientation}})",
-  document_properties_page_size_dimension_name_string: "{{width}} × {{height}} {{unit}} ({{name}}, {{orientation}})",
-  document_properties_linearized_yes: "Yes",
-  document_properties_linearized_no: "No",
-  print_progress_percent: "{{progress}}%",
-  "toggle_sidebar.title": "Toggle Sidebar",
-  "toggle_sidebar_notification2.title": "Toggle Sidebar (document contains outline/attachments/layers)",
-  additional_layers: "Additional Layers",
-  page_landmark: "Page {{page}}",
-  thumb_page_title: "Page {{page}}",
-  thumb_page_canvas: "Thumbnail of Page {{page}}",
-  find_reached_top: "Reached top of document, continued from bottom",
-  find_reached_bottom: "Reached end of document, continued from top",
-  "find_match_count[one]": "{{current}} of {{total}} match",
-  "find_match_count[other]": "{{current}} of {{total}} matches",
-  "find_match_count_limit[one]": "More than {{limit}} match",
-  "find_match_count_limit[other]": "More than {{limit}} matches",
-  find_not_found: "Phrase not found",
-  error_version_info: "PDF.js v{{version}} (build: {{build}})",
-  error_message: "Message: {{message}}",
-  error_stack: "Stack: {{stack}}",
-  error_file: "File: {{file}}",
-  error_line: "Line: {{line}}",
-  rendering_error: "An error occurred while rendering the page.",
-  page_scale_width: "Page Width",
-  page_scale_fit: "Page Fit",
-  page_scale_auto: "Automatic Zoom",
-  page_scale_actual: "Actual Size",
-  page_scale_percent: "{{scale}}%",
-  loading: "Loading…",
-  loading_error: "An error occurred while loading the PDF.",
-  invalid_file_error: "Invalid or corrupted PDF file.",
-  missing_file_error: "Missing PDF file.",
-  unexpected_response_error: "Unexpected server response.",
-  printing_not_supported: "Warning: Printing is not fully supported by this browser.",
-  printing_not_ready: "Warning: The PDF is not fully loaded for printing.",
-  web_fonts_disabled: "Web fonts are disabled: unable to use embedded PDF fonts."
-};
-function getL10nFallback(key, args) {
-  switch (key) {
-    case "find_match_count":
-      key = "find_match_count[".concat(args.total === 1 ? "one" : "other", "]");
-      break;
-    case "find_match_count_limit":
-      key = "find_match_count_limit[".concat(args.limit === 1 ? "one" : "other", "]");
-      break;
-  }
-  return DEFAULT_L10N_STRINGS[key] || "";
-}
-var PARTIAL_LANG_CODES = {
-  en: "en-US",
-  es: "es-ES",
-  fy: "fy-NL",
-  ga: "ga-IE",
-  gu: "gu-IN",
-  hi: "hi-IN",
-  hy: "hy-AM",
-  nb: "nb-NO",
-  ne: "ne-NP",
-  nn: "nn-NO",
-  pa: "pa-IN",
-  pt: "pt-PT",
-  sv: "sv-SE",
-  zh: "zh-CN"
-};
-function fixupLangCode(langCode) {
-  return PARTIAL_LANG_CODES[langCode === null || langCode === void 0 ? void 0 : langCode.toLowerCase()] || langCode;
-}
-function formatL10nValue(text, args) {
-  if (!args) {
-    return text;
-  }
-  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, function (all, name) {
-    return name in args ? args[name] : "{{" + name + "}}";
-  });
-}
-var NullL10n = exports.NullL10n = {
-  getLanguage: function getLanguage() {
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
-          case 0:
-            return _context.abrupt("return", "en-us");
-          case 1:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee);
-    }))();
-  },
-  getDirection: function getDirection() {
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-      return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-        while (1) switch (_context2.prev = _context2.next) {
-          case 0:
-            return _context2.abrupt("return", "ltr");
-          case 1:
-          case "end":
-            return _context2.stop();
-        }
-      }, _callee2);
-    }))();
-  },
-  get: function get(key) {
-    var _arguments = arguments;
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
-      var args, fallback;
-      return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-        while (1) switch (_context3.prev = _context3.next) {
-          case 0:
-            args = _arguments.length > 1 && _arguments[1] !== undefined ? _arguments[1] : null;
-            fallback = _arguments.length > 2 && _arguments[2] !== undefined ? _arguments[2] : getL10nFallback(key, args);
-            return _context3.abrupt("return", formatL10nValue(fallback, args));
-          case 3:
-          case "end":
-            return _context3.stop();
-        }
-      }, _callee3);
-    }))();
-  },
-  translate: function translate(element) {
-    return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-        while (1) switch (_context4.prev = _context4.next) {
-          case 0:
-          case "end":
-            return _context4.stop();
-        }
-      }, _callee4);
-    }))();
-  }
-};
-
-/***/ }),
-/* 5 */
+/* 6 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -488,7 +676,7 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.SimpleLinkService = exports.PDFLinkService = exports.LinkTarget = void 0;
-var _ui_utils = __w_pdfjs_require__(6);
+var _ui_utils = __w_pdfjs_require__(7);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
@@ -1035,8 +1223,8 @@ var SimpleLinkService = exports.SimpleLinkService = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 6 */
-/***/ ((__unused_webpack_module, exports) => {
+/* 7 */
+/***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
 
@@ -1048,7 +1236,7 @@ exports.apiPageLayoutToViewerModes = apiPageLayoutToViewerModes;
 exports.apiPageModeToSidebarView = apiPageModeToSidebarView;
 exports.approximateFraction = approximateFraction;
 exports.backtrackBeforeAllVisibleElements = backtrackBeforeAllVisibleElements;
-exports.binarySearchFirstItem = binarySearchFirstItem;
+exports.docStyle = void 0;
 exports.getActiveOrFocusedElement = getActiveOrFocusedElement;
 exports.getPageSizeInches = getPageSizeInches;
 exports.getVisibleElements = getVisibleElements;
@@ -1064,8 +1252,11 @@ exports.removeNullCharacters = removeNullCharacters;
 exports.roundToDivide = roundToDivide;
 exports.scrollIntoView = scrollIntoView;
 exports.watchScroll = watchScroll;
-function _classPrivateMethodInitSpec(e, a) { _checkPrivateRedeclaration(e, a), a.add(e); }
+var _pdfjsLib = __w_pdfjs_require__(3);
+function _classPrivateFieldInitSpec(e, t, a) { _checkPrivateRedeclaration(e, t), t.set(e, a); }
 function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
+function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -1238,27 +1429,6 @@ function removeNullCharacters(str) {
   }
   return str.replace(NullCharactersRegExp, "");
 }
-function binarySearchFirstItem(items, condition) {
-  var start = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  var minIndex = start;
-  var maxIndex = items.length - 1;
-  if (maxIndex < 0 || !condition(items[maxIndex])) {
-    return items.length;
-  }
-  if (condition(items[minIndex])) {
-    return minIndex;
-  }
-  while (minIndex < maxIndex) {
-    var currentIndex = minIndex + maxIndex >> 1;
-    var currentItem = items[currentIndex];
-    if (condition(currentItem)) {
-      maxIndex = currentIndex;
-    } else {
-      minIndex = currentIndex + 1;
-    }
-  }
-  return minIndex;
-}
 function approximateFraction(x) {
   if (Math.floor(x) === x) {
     return [x, 1];
@@ -1364,7 +1534,7 @@ function getVisibleElements(_ref2) {
   var visible = [],
     ids = new Set(),
     numViews = views.length;
-  var firstVisibleElementInd = binarySearchFirstItem(views, horizontal ? isElementNextAfterViewHorizontally : isElementBottomAfterViewTop);
+  var firstVisibleElementInd = (0, _pdfjsLib.binarySearchFirstItem)(views, horizontal ? isElementNextAfterViewHorizontally : isElementBottomAfterViewTop);
   if (firstVisibleElementInd > 0 && firstVisibleElementInd < numViews && !horizontal) {
     firstVisibleElementInd = backtrackBeforeAllVisibleElements(firstVisibleElementInd, views, top);
   }
@@ -1404,7 +1574,7 @@ function getVisibleElements(_ref2) {
     ids.add(view.id);
   }
   var first = visible[0],
-    last = visible[visible.length - 1];
+    last = visible.at(-1);
   if (sortByVisibility) {
     visible.sort(function (a, b) {
       var pc = a.percent - b.percent;
@@ -1460,31 +1630,38 @@ function isPortraitOrientation(size) {
 var animationStarted = exports.animationStarted = new Promise(function (resolve) {
   window.requestAnimationFrame(resolve);
 });
+var docStyle = exports.docStyle = document.documentElement.style;
 function clamp(v, min, max) {
   return Math.min(Math.max(v, min), max);
 }
-var _ProgressBar_brand = /*#__PURE__*/new WeakSet();
+var _classList = /*#__PURE__*/new WeakMap();
+var _percent = /*#__PURE__*/new WeakMap();
+var _visible = /*#__PURE__*/new WeakMap();
 var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
   function ProgressBar(id) {
     _classCallCheck(this, ProgressBar);
-    _classPrivateMethodInitSpec(this, _ProgressBar_brand);
+    _classPrivateFieldInitSpec(this, _classList, null);
+    _classPrivateFieldInitSpec(this, _percent, 0);
+    _classPrivateFieldInitSpec(this, _visible, true);
     if (arguments.length > 1) {
       throw new Error("ProgressBar no longer accepts any additional options, " + "please use CSS rules to modify its appearance instead.");
     }
-    this.visible = true;
-    this.div = document.querySelector(id + " .progress");
-    this.bar = this.div.parentNode;
-    this.percent = 0;
+    var bar = document.getElementById(id);
+    _classPrivateFieldSet(_classList, this, bar.classList);
   }
   return _createClass(ProgressBar, [{
     key: "percent",
     get: function get() {
-      return this._percent;
+      return _classPrivateFieldGet(_percent, this);
     },
     set: function set(val) {
-      this._indeterminate = isNaN(val);
-      this._percent = clamp(val, 0, 100);
-      _assertClassBrand(_ProgressBar_brand, this, _updateBar).call(this);
+      _classPrivateFieldSet(_percent, this, clamp(val, 0, 100));
+      if (isNaN(val)) {
+        _classPrivateFieldGet(_classList, this).add("indeterminate");
+        return;
+      }
+      _classPrivateFieldGet(_classList, this).remove("indeterminate");
+      docStyle.setProperty("--progressBar-percent", "".concat(_classPrivateFieldGet(_percent, this), "%"));
     }
   }, {
     key: "setWidth",
@@ -1495,39 +1672,29 @@ var ProgressBar = exports.ProgressBar = /*#__PURE__*/function () {
       var container = viewer.parentNode;
       var scrollbarWidth = container.offsetWidth - viewer.offsetWidth;
       if (scrollbarWidth > 0) {
-        var doc = document.documentElement;
-        doc.style.setProperty("--progressBar-end-offset", "".concat(scrollbarWidth, "px"));
+        docStyle.setProperty("--progressBar-end-offset", "".concat(scrollbarWidth, "px"));
       }
     }
   }, {
     key: "hide",
     value: function hide() {
-      if (!this.visible) {
+      if (!_classPrivateFieldGet(_visible, this)) {
         return;
       }
-      this.visible = false;
-      this.bar.classList.add("hidden");
+      _classPrivateFieldSet(_visible, this, false);
+      _classPrivateFieldGet(_classList, this).add("hidden");
     }
   }, {
     key: "show",
     value: function show() {
-      if (this.visible) {
+      if (_classPrivateFieldGet(_visible, this)) {
         return;
       }
-      this.visible = true;
-      this.bar.classList.remove("hidden");
+      _classPrivateFieldSet(_visible, this, true);
+      _classPrivateFieldGet(_classList, this).remove("hidden");
     }
   }]);
 }();
-function _updateBar() {
-  if (this._indeterminate) {
-    this.div.classList.add("indeterminate");
-    return;
-  }
-  this.div.classList.remove("indeterminate");
-  var doc = document.documentElement;
-  doc.style.setProperty("--progressBar-percent", "".concat(this._percent, "%"));
-}
 function getActiveOrFocusedElement() {
   var curRoot = document;
   var curActiveOrFocused = curRoot.activeElement || curRoot.querySelector(":focus");
@@ -1580,7 +1747,7 @@ function apiPageModeToSidebarView(mode) {
 }
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -1692,7 +1859,7 @@ var StructTreeLayerBuilder = exports.StructTreeLayerBuilder = /*#__PURE__*/funct
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var kid = _step.value;
-              element.appendChild(this._walk(kid));
+              element.append(this._walk(kid));
             }
           } catch (err) {
             _iterator.e(err);
@@ -1707,7 +1874,7 @@ var StructTreeLayerBuilder = exports.StructTreeLayerBuilder = /*#__PURE__*/funct
 }();
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -1756,7 +1923,7 @@ var TextLayerBuilder = exports.TextLayerBuilder = /*#__PURE__*/function () {
       if (!this.enhanceTextSelection) {
         var endOfContent = document.createElement("div");
         endOfContent.className = "endOfContent";
-        this.textLayerDiv.appendChild(endOfContent);
+        this.textLayerDiv.append(endOfContent);
       }
       this.eventBus.dispatch("textlayerrendered", {
         source: this,
@@ -1789,7 +1956,7 @@ var TextLayerBuilder = exports.TextLayerBuilder = /*#__PURE__*/function () {
       });
       this.textLayerRenderTask.promise.then(function () {
         var _this$highlighter2;
-        _this.textLayerDiv.appendChild(textLayerFrag);
+        _this.textLayerDiv.append(textLayerFrag);
         _this._finishRendering();
         (_this$highlighter2 = _this.highlighter) === null || _this$highlighter2 === void 0 || _this$highlighter2.enable();
       }, function (reason) {});
@@ -1866,7 +2033,7 @@ var TextLayerBuilder = exports.TextLayerBuilder = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -1917,7 +2084,7 @@ var XfaLayerBuilder = exports.XfaLayerBuilder = /*#__PURE__*/function () {
           intent: intent
         };
         var div = document.createElement("div");
-        this.pageDiv.appendChild(div);
+        this.pageDiv.append(div);
         parameters.div = div;
         var result = _pdfjsLib.XfaLayer.render(parameters);
         return Promise.resolve(result);
@@ -1942,7 +2109,7 @@ var XfaLayerBuilder = exports.XfaLayerBuilder = /*#__PURE__*/function () {
           return _pdfjsLib.XfaLayer.update(parameters);
         }
         _this.div = document.createElement("div");
-        _this.pageDiv.appendChild(_this.div);
+        _this.pageDiv.append(_this.div);
         parameters.div = _this.div;
         return _pdfjsLib.XfaLayer.render(parameters);
       })["catch"](function (error) {
@@ -1966,7 +2133,7 @@ var XfaLayerBuilder = exports.XfaLayerBuilder = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -1976,8 +2143,8 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.PDFViewer = exports.PDFSinglePageViewer = void 0;
-var _ui_utils = __w_pdfjs_require__(6);
-var _base_viewer = __w_pdfjs_require__(11);
+var _ui_utils = __w_pdfjs_require__(7);
+var _base_viewer = __w_pdfjs_require__(12);
 function _superPropGet(t, e, r, o) { var p = _get(_getPrototypeOf(1 & o ? t.prototype : t), e, r); return 2 & o ? function (t) { return p.apply(r, t); } : p; }
 function _get() { return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function (e, t, r) { var p = _superPropBase(e, t); if (p) { var n = Object.getOwnPropertyDescriptor(p, t); return n.get ? n.get.call(arguments.length < 3 ? e : r) : n.value; } }, _get.apply(null, arguments); }
 function _superPropBase(t, o) { for (; !{}.hasOwnProperty.call(t, o) && null !== (t = _getPrototypeOf(t));); return t; }
@@ -2030,7 +2197,7 @@ var PDFSinglePageViewer = exports.PDFSinglePageViewer = /*#__PURE__*/function (_
 }(_base_viewer.BaseViewer);
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -2041,16 +2208,19 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports.PagesCountLimit = exports.PDFPageViewBuffer = exports.BaseViewer = void 0;
 var _pdfjsLib = __w_pdfjs_require__(3);
-var _ui_utils = __w_pdfjs_require__(6);
-var _annotation_layer_builder = __w_pdfjs_require__(2);
+var _ui_utils = __w_pdfjs_require__(7);
+var _annotation_editor_layer_builder = __w_pdfjs_require__(2);
+var _annotation_layer_builder = __w_pdfjs_require__(5);
+var _app_options = __w_pdfjs_require__(13);
 var _l10n_utils = __w_pdfjs_require__(4);
-var _pdf_page_view = __w_pdfjs_require__(12);
-var _pdf_rendering_queue = __w_pdfjs_require__(14);
-var _pdf_link_service = __w_pdfjs_require__(5);
-var _struct_tree_layer_builder = __w_pdfjs_require__(7);
-var _text_highlighter = __w_pdfjs_require__(15);
-var _text_layer_builder = __w_pdfjs_require__(8);
-var _xfa_layer_builder = __w_pdfjs_require__(9);
+var _pdf_page_view = __w_pdfjs_require__(14);
+var _pdf_rendering_queue = __w_pdfjs_require__(15);
+var _pdf_link_service = __w_pdfjs_require__(6);
+var _struct_tree_layer_builder = __w_pdfjs_require__(8);
+var _text_highlighter = __w_pdfjs_require__(16);
+var _text_layer_builder = __w_pdfjs_require__(9);
+var _xfa_layer_builder = __w_pdfjs_require__(10);
+var _compatibilityParams$;
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
@@ -2079,6 +2249,10 @@ var PagesCountLimit = exports.PagesCountLimit = {
   FORCE_LAZY_PAGE_INIT: 7500,
   PAUSE_EAGER_PAGE_INIT: 250
 };
+var ANNOTATION_EDITOR_MODE = (_compatibilityParams$ = _app_options.compatibilityParams.annotationEditorMode) !== null && _compatibilityParams$ !== void 0 ? _compatibilityParams$ : _pdfjsLib.AnnotationEditorType.DISABLE;
+function isValidAnnotationEditorMode(mode) {
+  return Object.values(_pdfjsLib.AnnotationEditorType).includes(mode) && mode !== _pdfjsLib.AnnotationEditorType.DISABLE;
+}
 var _buf = /*#__PURE__*/new WeakMap();
 var _size = /*#__PURE__*/new WeakMap();
 var _PDFPageViewBuffer_brand = /*#__PURE__*/new WeakSet();
@@ -2152,8 +2326,9 @@ function _destroyFirstView() {
   _classPrivateFieldGet(_buf, this)["delete"](firstView);
 }
 var _buffer = /*#__PURE__*/new WeakMap();
+var _annotationEditorMode = /*#__PURE__*/new WeakMap();
+var _annotationEditorUIManager = /*#__PURE__*/new WeakMap();
 var _annotationMode = /*#__PURE__*/new WeakMap();
-var _previousAnnotationMode = /*#__PURE__*/new WeakMap();
 var _enablePermissions = /*#__PURE__*/new WeakMap();
 var _previousContainerHeight = /*#__PURE__*/new WeakMap();
 var _scrollModePageState = /*#__PURE__*/new WeakMap();
@@ -2161,16 +2336,13 @@ var _onVisibilityChange = /*#__PURE__*/new WeakMap();
 var _BaseViewer_brand = /*#__PURE__*/new WeakSet();
 var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
   function BaseViewer(options) {
-    var _this$container,
-      _this$viewer,
-      _options$textLayerMod,
-      _options$annotationMo,
-      _this = this;
+    var _this$container, _this$viewer, _options$textLayerMod, _options$annotationMo, _options$annotationEd;
     _classCallCheck(this, BaseViewer);
     _classPrivateMethodInitSpec(this, _BaseViewer_brand);
     _classPrivateFieldInitSpec(this, _buffer, null);
+    _classPrivateFieldInitSpec(this, _annotationEditorMode, _pdfjsLib.AnnotationEditorType.DISABLE);
+    _classPrivateFieldInitSpec(this, _annotationEditorUIManager, null);
     _classPrivateFieldInitSpec(this, _annotationMode, _pdfjsLib.AnnotationMode.ENABLE_FORMS);
-    _classPrivateFieldInitSpec(this, _previousAnnotationMode, null);
     _classPrivateFieldInitSpec(this, _enablePermissions, false);
     _classPrivateFieldInitSpec(this, _previousContainerHeight, 0);
     _classPrivateFieldInitSpec(this, _scrollModePageState, null);
@@ -2178,7 +2350,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     if (this.constructor === BaseViewer) {
       throw new Error("Cannot initialize BaseViewer.");
     }
-    var viewerVersion = '2.14.356';
+    var viewerVersion = '2.15.51';
     if (_pdfjsLib.version !== viewerVersion) {
       throw new Error("The API version \"".concat(_pdfjsLib.version, "\" does not match the Viewer version \"").concat(viewerVersion, "\"."));
     }
@@ -2198,6 +2370,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     this.removePageBorders = options.removePageBorders || false;
     this.textLayerMode = (_options$textLayerMod = options.textLayerMode) !== null && _options$textLayerMod !== void 0 ? _options$textLayerMod : _ui_utils.TextLayerMode.ENABLE;
     _classPrivateFieldSet(_annotationMode, this, (_options$annotationMo = options.annotationMode) !== null && _options$annotationMo !== void 0 ? _options$annotationMo : _pdfjsLib.AnnotationMode.ENABLE_FORMS);
+    _classPrivateFieldSet(_annotationEditorMode, this, (_options$annotationEd = options.annotationEditorMode) !== null && _options$annotationEd !== void 0 ? _options$annotationEd : ANNOTATION_EDITOR_MODE);
     this.imageResourcesPath = options.imageResourcesPath || "";
     this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
     this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
@@ -2206,9 +2379,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     this.l10n = options.l10n || _l10n_utils.NullL10n;
     _classPrivateFieldSet(_enablePermissions, this, options.enablePermissions || false);
     this.pageColors = options.pageColors || null;
-    if (options.pageColors && (!CSS.supports("color", options.pageColors.background) || !CSS.supports("color", options.pageColors.foreground))) {
-      if (options.pageColors.background || options.pageColors.foreground) {
-        console.warn("Ignoring `pageColors`-option, since the browser doesn't support the values used.");
+    if (this.pageColors && !(CSS.supports("color", this.pageColors.background) && CSS.supports("color", this.pageColors.foreground))) {
+      if (this.pageColors.background || this.pageColors.foreground) {
+        console.warn("BaseViewer: Ignoring `pageColors`-option, since the browser doesn't support the values used.");
       }
       this.pageColors = null;
     }
@@ -2219,7 +2392,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     } else {
       this.renderingQueue = options.renderingQueue;
     }
-    this._doc = document.documentElement;
     this.scroll = (0, _ui_utils.watchScroll)(this.container, this._scrollUpdate.bind(this));
     this.presentationModeState = _ui_utils.PresentationModeState.UNKNOWN;
     this._onBeforeDraw = this._onAfterDraw = null;
@@ -2228,11 +2400,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       this.viewer.classList.add("removePageBorders");
     }
     this.updateContainerHeightCss();
-    Promise.resolve().then(function () {
-      _this.eventBus.dispatch("baseviewerinit", {
-        source: _this
-      });
-    });
   }
   return _createClass(BaseViewer, [{
     key: "pagesCount",
@@ -2419,7 +2586,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
   }, {
     key: "setDocument",
     value: function setDocument(pdfDocument) {
-      var _this2 = this;
+      var _this = this;
       if (this.pdfDocument) {
         this.eventBus.dispatch("pagesdestroy", {
           source: this
@@ -2431,6 +2598,10 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         }
         if (this._scriptingManager) {
           this._scriptingManager.setDocument(null);
+        }
+        if (_classPrivateFieldGet(_annotationEditorUIManager, this)) {
+          _classPrivateFieldGet(_annotationEditorUIManager, this).destroy();
+          _classPrivateFieldSet(_annotationEditorUIManager, this, null);
         }
       }
       this.pdfDocument = pdfDocument;
@@ -2451,31 +2622,31 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         });
       }
       this._pagesCapability.promise.then(function () {
-        _this2.eventBus.dispatch("pagesloaded", {
-          source: _this2,
+        _this.eventBus.dispatch("pagesloaded", {
+          source: _this,
           pagesCount: pagesCount
         });
       }, function () {});
       this._onBeforeDraw = function (evt) {
-        var pageView = _this2._pages[evt.pageNumber - 1];
+        var pageView = _this._pages[evt.pageNumber - 1];
         if (!pageView) {
           return;
         }
-        _classPrivateFieldGet(_buffer, _this2).push(pageView);
+        _classPrivateFieldGet(_buffer, _this).push(pageView);
       };
       this.eventBus._on("pagerender", this._onBeforeDraw);
       this._onAfterDraw = function (evt) {
-        if (evt.cssTransform || _this2._onePageRenderedCapability.settled) {
+        if (evt.cssTransform || _this._onePageRenderedCapability.settled) {
           return;
         }
-        _this2._onePageRenderedCapability.resolve({
+        _this._onePageRenderedCapability.resolve({
           timestamp: evt.timestamp
         });
-        _this2.eventBus._off("pagerendered", _this2._onAfterDraw);
-        _this2._onAfterDraw = null;
-        if (_classPrivateFieldGet(_onVisibilityChange, _this2)) {
-          document.removeEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this2));
-          _classPrivateFieldSet(_onVisibilityChange, _this2, null);
+        _this.eventBus._off("pagerendered", _this._onAfterDraw);
+        _this._onAfterDraw = null;
+        if (_classPrivateFieldGet(_onVisibilityChange, _this)) {
+          document.removeEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this));
+          _classPrivateFieldSet(_onVisibilityChange, _this, null);
         }
       };
       this.eventBus._on("pagerendered", this._onAfterDraw);
@@ -2483,71 +2654,93 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         var _ref2 = _slicedToArray(_ref, 2),
           firstPdfPage = _ref2[0],
           permissions = _ref2[1];
-        if (pdfDocument !== _this2.pdfDocument) {
+        if (pdfDocument !== _this.pdfDocument) {
           return;
         }
-        _this2._firstPageCapability.resolve(firstPdfPage);
-        _this2._optionalContentConfigPromise = optionalContentConfigPromise;
-        _assertClassBrand(_BaseViewer_brand, _this2, _initializePermissions).call(_this2, permissions);
-        var viewerElement = _this2._scrollMode === _ui_utils.ScrollMode.PAGE ? null : _this2.viewer;
-        var scale = _this2.currentScale;
+        _this._firstPageCapability.resolve(firstPdfPage);
+        _this._optionalContentConfigPromise = optionalContentConfigPromise;
+        var _assertClassBrand$cal = _assertClassBrand(_BaseViewer_brand, _this, _initializePermissions).call(_this, permissions),
+          annotationEditorMode = _assertClassBrand$cal.annotationEditorMode,
+          annotationMode = _assertClassBrand$cal.annotationMode,
+          textLayerMode = _assertClassBrand$cal.textLayerMode;
+        if (annotationEditorMode !== _pdfjsLib.AnnotationEditorType.DISABLE) {
+          var _mode = annotationEditorMode;
+          if (isPureXfa) {
+            console.warn("Warning: XFA-editing is not implemented.");
+          } else if (isValidAnnotationEditorMode(_mode)) {
+            _this.eventBus.dispatch("annotationeditormodechanged", {
+              source: _this,
+              mode: _mode
+            });
+            _classPrivateFieldSet(_annotationEditorUIManager, _this, new _pdfjsLib.AnnotationEditorUIManager(_this.container, _this.eventBus));
+            if (_mode !== _pdfjsLib.AnnotationEditorType.NONE) {
+              _classPrivateFieldGet(_annotationEditorUIManager, _this).updateMode(_mode);
+            }
+          } else {
+            console.error("Invalid AnnotationEditor mode: ".concat(_mode));
+          }
+        }
+        var viewerElement = _this._scrollMode === _ui_utils.ScrollMode.PAGE ? null : _this.viewer;
+        var scale = _this.currentScale;
         var viewport = firstPdfPage.getViewport({
           scale: scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS
         });
-        var textLayerFactory = _this2.textLayerMode !== _ui_utils.TextLayerMode.DISABLE && !isPureXfa ? _this2 : null;
-        var annotationLayerFactory = _classPrivateFieldGet(_annotationMode, _this2) !== _pdfjsLib.AnnotationMode.DISABLE ? _this2 : null;
-        var xfaLayerFactory = isPureXfa ? _this2 : null;
+        var textLayerFactory = textLayerMode !== _ui_utils.TextLayerMode.DISABLE && !isPureXfa ? _this : null;
+        var annotationLayerFactory = annotationMode !== _pdfjsLib.AnnotationMode.DISABLE ? _this : null;
+        var xfaLayerFactory = isPureXfa ? _this : null;
+        var annotationEditorLayerFactory = _classPrivateFieldGet(_annotationEditorUIManager, _this) ? _this : null;
         for (var pageNum = 1; pageNum <= pagesCount; ++pageNum) {
           var pageView = new _pdf_page_view.PDFPageView({
             container: viewerElement,
-            eventBus: _this2.eventBus,
+            eventBus: _this.eventBus,
             id: pageNum,
             scale: scale,
             defaultViewport: viewport.clone(),
             optionalContentConfigPromise: optionalContentConfigPromise,
-            renderingQueue: _this2.renderingQueue,
+            renderingQueue: _this.renderingQueue,
             textLayerFactory: textLayerFactory,
-            textLayerMode: _this2.textLayerMode,
+            textLayerMode: textLayerMode,
             annotationLayerFactory: annotationLayerFactory,
-            annotationMode: _classPrivateFieldGet(_annotationMode, _this2),
+            annotationMode: annotationMode,
             xfaLayerFactory: xfaLayerFactory,
-            textHighlighterFactory: _this2,
-            structTreeLayerFactory: _this2,
-            imageResourcesPath: _this2.imageResourcesPath,
-            renderer: _this2.renderer,
-            useOnlyCssZoom: _this2.useOnlyCssZoom,
-            maxCanvasPixels: _this2.maxCanvasPixels,
-            pageColors: _this2.pageColors,
-            l10n: _this2.l10n
+            annotationEditorLayerFactory: annotationEditorLayerFactory,
+            textHighlighterFactory: _this,
+            structTreeLayerFactory: _this,
+            imageResourcesPath: _this.imageResourcesPath,
+            renderer: _this.renderer,
+            useOnlyCssZoom: _this.useOnlyCssZoom,
+            maxCanvasPixels: _this.maxCanvasPixels,
+            pageColors: _this.pageColors,
+            l10n: _this.l10n
           });
-          _this2._pages.push(pageView);
+          _this._pages.push(pageView);
         }
-        var firstPageView = _this2._pages[0];
+        var firstPageView = _this._pages[0];
         if (firstPageView) {
           firstPageView.setPdfPage(firstPdfPage);
-          _this2.linkService.cachePageRef(1, firstPdfPage.ref);
+          _this.linkService.cachePageRef(1, firstPdfPage.ref);
         }
-        if (_this2._scrollMode === _ui_utils.ScrollMode.PAGE) {
-          _assertClassBrand(_BaseViewer_brand, _this2, _ensurePageViewVisible).call(_this2);
-        } else if (_this2._spreadMode !== _ui_utils.SpreadMode.NONE) {
-          _this2._updateSpreadMode();
+        if (_this._scrollMode === _ui_utils.ScrollMode.PAGE) {
+          _assertClassBrand(_BaseViewer_brand, _this, _ensurePageViewVisible).call(_this);
+        } else if (_this._spreadMode !== _ui_utils.SpreadMode.NONE) {
+          _this._updateSpreadMode();
         }
-        _assertClassBrand(_BaseViewer_brand, _this2, _onePageRenderedOrForceFetch).call(_this2).then( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        _assertClassBrand(_BaseViewer_brand, _this, _onePageRenderedOrForceFetch).call(_this).then( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
           var getPagesLeft, _loop, _pageNum;
           return _regeneratorRuntime().wrap(function _callee$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
-                if (_this2.findController) {
-                  _this2.findController.setDocument(pdfDocument);
+                if (_this.findController) {
+                  _this.findController.setDocument(pdfDocument);
                 }
-                if (_this2._scriptingManager) {
-                  _this2._scriptingManager.setDocument(pdfDocument);
+                if (_this._scriptingManager) {
+                  _this._scriptingManager.setDocument(pdfDocument);
                 }
                 if (!(pdfDocument.loadingParams.disableAutoFetch || pagesCount > PagesCountLimit.FORCE_LAZY_PAGE_INIT)) {
                   _context2.next = 5;
                   break;
                 }
-                _this2._pagesCapability.resolve();
+                _this._pagesCapability.resolve();
                 return _context2.abrupt("return");
               case 5:
                 getPagesLeft = pagesCount - 1;
@@ -2555,7 +2748,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                   _context2.next = 9;
                   break;
                 }
-                _this2._pagesCapability.resolve();
+                _this._pagesCapability.resolve();
                 return _context2.abrupt("return");
               case 9:
                 _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop(_pageNum) {
@@ -2564,18 +2757,18 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
                     while (1) switch (_context.prev = _context.next) {
                       case 0:
                         promise = pdfDocument.getPage(_pageNum).then(function (pdfPage) {
-                          var pageView = _this2._pages[_pageNum - 1];
+                          var pageView = _this._pages[_pageNum - 1];
                           if (!pageView.pdfPage) {
                             pageView.setPdfPage(pdfPage);
                           }
-                          _this2.linkService.cachePageRef(_pageNum, pdfPage.ref);
+                          _this.linkService.cachePageRef(_pageNum, pdfPage.ref);
                           if (--getPagesLeft === 0) {
-                            _this2._pagesCapability.resolve();
+                            _this._pagesCapability.resolve();
                           }
                         }, function (reason) {
                           console.error("Unable to get page ".concat(_pageNum, " to initialize viewer"), reason);
                           if (--getPagesLeft === 0) {
-                            _this2._pagesCapability.resolve();
+                            _this._pagesCapability.resolve();
                           }
                         });
                         if (!(_pageNum % PagesCountLimit.PAUSE_EAGER_PAGE_INIT === 0)) {
@@ -2607,24 +2800,24 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
             }
           }, _callee);
         })));
-        _this2.eventBus.dispatch("pagesinit", {
-          source: _this2
+        _this.eventBus.dispatch("pagesinit", {
+          source: _this
         });
         pdfDocument.getMetadata().then(function (_ref4) {
           var info = _ref4.info;
-          if (pdfDocument !== _this2.pdfDocument) {
+          if (pdfDocument !== _this.pdfDocument) {
             return;
           }
           if (info.Language) {
-            _this2.viewer.lang = info.Language;
+            _this.viewer.lang = info.Language;
           }
         });
-        if (_this2.defaultRenderingQueue) {
-          _this2.update();
+        if (_this.defaultRenderingQueue) {
+          _this.update();
         }
       })["catch"](function (reason) {
         console.error("Unable to initialize viewer", reason);
-        _this2._pagesCapability.reject(reason);
+        _this._pagesCapability.reject(reason);
       });
     }
   }, {
@@ -2685,10 +2878,6 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       this._updateScrollMode();
       this.viewer.removeAttribute("lang");
       this.viewer.classList.remove(ENABLE_PERMISSIONS_CLASS);
-      if (_classPrivateFieldGet(_previousAnnotationMode, this) !== null) {
-        _classPrivateFieldSet(_annotationMode, this, _classPrivateFieldGet(_previousAnnotationMode, this));
-        _classPrivateFieldSet(_previousAnnotationMode, this, null);
-      }
     }
   }, {
     key: "_scrollUpdate",
@@ -2714,7 +2903,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         }
         return;
       }
-      this._doc.style.setProperty("--zoom-factor", newScale);
+      _ui_utils.docStyle.setProperty("--scale-factor", newScale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS);
       var updateArgs = {
         scale: newScale
       };
@@ -3101,7 +3290,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
   }, {
     key: "forceRendering",
     value: function forceRendering(currentlyVisiblePages) {
-      var _this3 = this;
+      var _this2 = this;
       var visiblePages = currentlyVisiblePages || this._getVisiblePages();
       var scrollAhead = _assertClassBrand(_BaseViewer_brand, this, _getScrollAhead).call(this, visiblePages);
       var preRenderExtra = this._spreadMode !== _ui_utils.SpreadMode.NONE && this._scrollMode !== _ui_utils.ScrollMode.HORIZONTAL;
@@ -3109,7 +3298,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       _assertClassBrand(_BaseViewer_brand, this, _toggleLoadingIconSpinner).call(this, visiblePages.ids);
       if (pageView) {
         _assertClassBrand(_BaseViewer_brand, this, _ensurePdfPageLoaded).call(this, pageView).then(function () {
-          _this3.renderingQueue.renderView(pageView);
+          _this2.renderingQueue.renderView(pageView);
         });
         return true;
       }
@@ -3117,10 +3306,14 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     }
   }, {
     key: "createTextLayerBuilder",
-    value: function createTextLayerBuilder(textLayerDiv, pageIndex, viewport) {
-      var enhanceTextSelection = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      var eventBus = arguments.length > 4 ? arguments[4] : undefined;
-      var highlighter = arguments.length > 5 ? arguments[5] : undefined;
+    value: function createTextLayerBuilder(_ref7) {
+      var textLayerDiv = _ref7.textLayerDiv,
+        pageIndex = _ref7.pageIndex,
+        viewport = _ref7.viewport,
+        _ref7$enhanceTextSele = _ref7.enhanceTextSelection,
+        enhanceTextSelection = _ref7$enhanceTextSele === void 0 ? false : _ref7$enhanceTextSele,
+        eventBus = _ref7.eventBus,
+        highlighter = _ref7.highlighter;
       return new _text_layer_builder.TextLayerBuilder({
         textLayerDiv: textLayerDiv,
         eventBus: eventBus,
@@ -3132,7 +3325,9 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     }
   }, {
     key: "createTextHighlighter",
-    value: function createTextHighlighter(pageIndex, eventBus) {
+    value: function createTextHighlighter(_ref8) {
+      var pageIndex = _ref8.pageIndex,
+        eventBus = _ref8.eventBus;
       return new _text_highlighter.TextHighlighter({
         eventBus: eventBus,
         pageIndex: pageIndex,
@@ -3141,48 +3336,82 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
     }
   }, {
     key: "createAnnotationLayerBuilder",
-    value: function createAnnotationLayerBuilder(pageDiv, pdfPage) {
-      var _this$pdfDocument, _this$pdfDocument2, _this$pdfDocument3, _this$_scriptingManag;
-      var annotationStorage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var imageResourcesPath = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
-      var renderForms = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-      var l10n = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : _l10n_utils.NullL10n;
-      var enableScripting = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : null;
-      var hasJSActionsPromise = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : null;
-      var mouseState = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : null;
-      var fieldObjectsPromise = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : null;
-      var annotationCanvasMap = arguments.length > 10 && arguments[10] !== undefined ? arguments[10] : null;
+    value: function createAnnotationLayerBuilder(_ref9) {
+      var _this$pdfDocument, _this$pdfDocument2, _this$_scriptingManag, _this$pdfDocument3;
+      var pageDiv = _ref9.pageDiv,
+        pdfPage = _ref9.pdfPage,
+        _ref9$annotationStora = _ref9.annotationStorage,
+        annotationStorage = _ref9$annotationStora === void 0 ? (_this$pdfDocument = this.pdfDocument) === null || _this$pdfDocument === void 0 ? void 0 : _this$pdfDocument.annotationStorage : _ref9$annotationStora,
+        _ref9$imageResourcesP = _ref9.imageResourcesPath,
+        imageResourcesPath = _ref9$imageResourcesP === void 0 ? "" : _ref9$imageResourcesP,
+        _ref9$renderForms = _ref9.renderForms,
+        renderForms = _ref9$renderForms === void 0 ? true : _ref9$renderForms,
+        _ref9$l10n = _ref9.l10n,
+        l10n = _ref9$l10n === void 0 ? _l10n_utils.NullL10n : _ref9$l10n,
+        _ref9$enableScripting = _ref9.enableScripting,
+        enableScripting = _ref9$enableScripting === void 0 ? this.enableScripting : _ref9$enableScripting,
+        _ref9$hasJSActionsPro = _ref9.hasJSActionsPromise,
+        hasJSActionsPromise = _ref9$hasJSActionsPro === void 0 ? (_this$pdfDocument2 = this.pdfDocument) === null || _this$pdfDocument2 === void 0 ? void 0 : _this$pdfDocument2.hasJSActions() : _ref9$hasJSActionsPro,
+        _ref9$mouseState = _ref9.mouseState,
+        mouseState = _ref9$mouseState === void 0 ? (_this$_scriptingManag = this._scriptingManager) === null || _this$_scriptingManag === void 0 ? void 0 : _this$_scriptingManag.mouseState : _ref9$mouseState,
+        _ref9$fieldObjectsPro = _ref9.fieldObjectsPromise,
+        fieldObjectsPromise = _ref9$fieldObjectsPro === void 0 ? (_this$pdfDocument3 = this.pdfDocument) === null || _this$pdfDocument3 === void 0 ? void 0 : _this$pdfDocument3.getFieldObjects() : _ref9$fieldObjectsPro,
+        _ref9$annotationCanva = _ref9.annotationCanvasMap,
+        annotationCanvasMap = _ref9$annotationCanva === void 0 ? null : _ref9$annotationCanva;
       return new _annotation_layer_builder.AnnotationLayerBuilder({
         pageDiv: pageDiv,
         pdfPage: pdfPage,
-        annotationStorage: annotationStorage || ((_this$pdfDocument = this.pdfDocument) === null || _this$pdfDocument === void 0 ? void 0 : _this$pdfDocument.annotationStorage),
+        annotationStorage: annotationStorage,
         imageResourcesPath: imageResourcesPath,
         renderForms: renderForms,
         linkService: this.linkService,
         downloadManager: this.downloadManager,
         l10n: l10n,
-        enableScripting: enableScripting !== null && enableScripting !== void 0 ? enableScripting : this.enableScripting,
-        hasJSActionsPromise: hasJSActionsPromise || ((_this$pdfDocument2 = this.pdfDocument) === null || _this$pdfDocument2 === void 0 ? void 0 : _this$pdfDocument2.hasJSActions()),
-        fieldObjectsPromise: fieldObjectsPromise || ((_this$pdfDocument3 = this.pdfDocument) === null || _this$pdfDocument3 === void 0 ? void 0 : _this$pdfDocument3.getFieldObjects()),
-        mouseState: mouseState || ((_this$_scriptingManag = this._scriptingManager) === null || _this$_scriptingManag === void 0 ? void 0 : _this$_scriptingManag.mouseState),
+        enableScripting: enableScripting,
+        hasJSActionsPromise: hasJSActionsPromise,
+        mouseState: mouseState,
+        fieldObjectsPromise: fieldObjectsPromise,
         annotationCanvasMap: annotationCanvasMap
       });
     }
   }, {
-    key: "createXfaLayerBuilder",
-    value: function createXfaLayerBuilder(pageDiv, pdfPage) {
+    key: "createAnnotationEditorLayerBuilder",
+    value: function createAnnotationEditorLayerBuilder(_ref10) {
       var _this$pdfDocument4;
-      var annotationStorage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var _ref10$uiManager = _ref10.uiManager,
+        uiManager = _ref10$uiManager === void 0 ? _classPrivateFieldGet(_annotationEditorUIManager, this) : _ref10$uiManager,
+        pageDiv = _ref10.pageDiv,
+        pdfPage = _ref10.pdfPage,
+        l10n = _ref10.l10n,
+        _ref10$annotationStor = _ref10.annotationStorage,
+        annotationStorage = _ref10$annotationStor === void 0 ? (_this$pdfDocument4 = this.pdfDocument) === null || _this$pdfDocument4 === void 0 ? void 0 : _this$pdfDocument4.annotationStorage : _ref10$annotationStor;
+      return new _annotation_editor_layer_builder.AnnotationEditorLayerBuilder({
+        uiManager: uiManager,
+        pageDiv: pageDiv,
+        pdfPage: pdfPage,
+        annotationStorage: annotationStorage,
+        l10n: l10n
+      });
+    }
+  }, {
+    key: "createXfaLayerBuilder",
+    value: function createXfaLayerBuilder(_ref11) {
+      var _this$pdfDocument5;
+      var pageDiv = _ref11.pageDiv,
+        pdfPage = _ref11.pdfPage,
+        _ref11$annotationStor = _ref11.annotationStorage,
+        annotationStorage = _ref11$annotationStor === void 0 ? (_this$pdfDocument5 = this.pdfDocument) === null || _this$pdfDocument5 === void 0 ? void 0 : _this$pdfDocument5.annotationStorage : _ref11$annotationStor;
       return new _xfa_layer_builder.XfaLayerBuilder({
         pageDiv: pageDiv,
         pdfPage: pdfPage,
-        annotationStorage: annotationStorage || ((_this$pdfDocument4 = this.pdfDocument) === null || _this$pdfDocument4 === void 0 ? void 0 : _this$pdfDocument4.annotationStorage),
+        annotationStorage: annotationStorage,
         linkService: this.linkService
       });
     }
   }, {
     key: "createStructTreeLayerBuilder",
-    value: function createStructTreeLayerBuilder(pdfPage) {
+    value: function createStructTreeLayerBuilder(_ref12) {
+      var pdfPage = _ref12.pdfPage;
       return new _struct_tree_layer_builder.StructTreeLayerBuilder({
         pdfPage: pdfPage
       });
@@ -3202,12 +3431,12 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
   }, {
     key: "getPagesOverview",
     value: function getPagesOverview() {
-      var _this4 = this;
+      var _this3 = this;
       return this._pages.map(function (pageView) {
         var viewport = pageView.pdfPage.getViewport({
           scale: 1
         });
-        if (!_this4.enablePrintAutoRotate || (0, _ui_utils.isPortraitOrientation)(viewport)) {
+        if (!_this3.enablePrintAutoRotate || (0, _ui_utils.isPortraitOrientation)(viewport)) {
           return {
             width: viewport.width,
             height: viewport.height,
@@ -3228,6 +3457,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
         return Promise.resolve(null);
       }
       if (!this._optionalContentConfigPromise) {
+        console.error("optionalContentConfigPromise: Not initialized yet.");
         return this.pdfDocument.getOptionalContentConfig();
       }
       return this._optionalContentConfigPromise;
@@ -3347,7 +3577,7 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
           try {
             for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
               var pageView = _step8.value;
-              viewer.appendChild(pageView.div);
+              viewer.append(pageView.div);
             }
           } catch (err) {
             _iterator8.e(err);
@@ -3361,12 +3591,12 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
             if (spread === null) {
               spread = document.createElement("div");
               spread.className = "spread";
-              viewer.appendChild(spread);
+              viewer.append(spread);
             } else if (i % 2 === parity) {
               spread = spread.cloneNode(false);
-              viewer.appendChild(spread);
+              viewer.append(spread);
             }
-            spread.appendChild(pages[i].div);
+            spread.append(pages[i].div);
           }
         }
       }
@@ -3560,40 +3790,81 @@ var BaseViewer = exports.BaseViewer = /*#__PURE__*/function () {
       var height = this.container.clientHeight;
       if (height !== _classPrivateFieldGet(_previousContainerHeight, this)) {
         _classPrivateFieldSet(_previousContainerHeight, this, height);
-        this._doc.style.setProperty("--viewer-container-height", "".concat(height, "px"));
+        _ui_utils.docStyle.setProperty("--viewer-container-height", "".concat(height, "px"));
       }
+    }
+  }, {
+    key: "annotationEditorMode",
+    get: function get() {
+      return _classPrivateFieldGet(_annotationEditorUIManager, this) ? _classPrivateFieldGet(_annotationEditorMode, this) : _pdfjsLib.AnnotationEditorType.DISABLE;
+    },
+    set: function set(mode) {
+      if (!_classPrivateFieldGet(_annotationEditorUIManager, this)) {
+        throw new Error("The AnnotationEditor is not enabled.");
+      }
+      if (_classPrivateFieldGet(_annotationEditorMode, this) === mode) {
+        return;
+      }
+      if (!isValidAnnotationEditorMode(mode)) {
+        throw new Error("Invalid AnnotationEditor mode: ".concat(mode));
+      }
+      if (!this.pdfDocument) {
+        return;
+      }
+      _classPrivateFieldSet(_annotationEditorMode, this, mode);
+      this.eventBus.dispatch("annotationeditormodechanged", {
+        source: this,
+        mode: mode
+      });
+      _classPrivateFieldGet(_annotationEditorUIManager, this).updateMode(mode);
+    }
+  }, {
+    key: "annotationEditorParams",
+    set: function set(_ref13) {
+      var type = _ref13.type,
+        value = _ref13.value;
+      if (!_classPrivateFieldGet(_annotationEditorUIManager, this)) {
+        throw new Error("The AnnotationEditor is not enabled.");
+      }
+      _classPrivateFieldGet(_annotationEditorUIManager, this).updateParams(type, value);
     }
   }]);
 }();
 function _initializePermissions(permissions) {
+  var params = {
+    annotationEditorMode: _classPrivateFieldGet(_annotationEditorMode, this),
+    annotationMode: _classPrivateFieldGet(_annotationMode, this),
+    textLayerMode: this.textLayerMode
+  };
   if (!permissions) {
-    return;
+    return params;
   }
   if (!permissions.includes(_pdfjsLib.PermissionFlag.COPY)) {
     this.viewer.classList.add(ENABLE_PERMISSIONS_CLASS);
   }
-  if (!permissions.includes(_pdfjsLib.PermissionFlag.MODIFY_ANNOTATIONS) && !permissions.includes(_pdfjsLib.PermissionFlag.FILL_INTERACTIVE_FORMS)) {
-    if (_classPrivateFieldGet(_annotationMode, this) === _pdfjsLib.AnnotationMode.ENABLE_FORMS) {
-      _classPrivateFieldSet(_previousAnnotationMode, this, _classPrivateFieldGet(_annotationMode, this));
-      _classPrivateFieldSet(_annotationMode, this, _pdfjsLib.AnnotationMode.ENABLE);
-    }
+  if (!permissions.includes(_pdfjsLib.PermissionFlag.MODIFY_CONTENTS)) {
+    params.annotationEditorMode = _pdfjsLib.AnnotationEditorType.DISABLE;
   }
+  if (!permissions.includes(_pdfjsLib.PermissionFlag.MODIFY_ANNOTATIONS) && !permissions.includes(_pdfjsLib.PermissionFlag.FILL_INTERACTIVE_FORMS) && _classPrivateFieldGet(_annotationMode, this) === _pdfjsLib.AnnotationMode.ENABLE_FORMS) {
+    params.annotationMode = _pdfjsLib.AnnotationMode.ENABLE;
+  }
+  return params;
 }
 function _onePageRenderedOrForceFetch() {
-  var _this5 = this;
+  var _this4 = this;
   if (document.visibilityState === "hidden" || !this.container.offsetParent || this._getVisiblePages().views.length === 0) {
     return Promise.resolve();
   }
   var visibilityChangePromise = new Promise(function (resolve) {
-    _classPrivateFieldSet(_onVisibilityChange, _this5, function () {
+    _classPrivateFieldSet(_onVisibilityChange, _this4, function () {
       if (document.visibilityState !== "hidden") {
         return;
       }
       resolve();
-      document.removeEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this5));
-      _classPrivateFieldSet(_onVisibilityChange, _this5, null);
+      document.removeEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this4));
+      _classPrivateFieldSet(_onVisibilityChange, _this4, null);
     });
-    document.addEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this5));
+    document.addEventListener("visibilitychange", _classPrivateFieldGet(_onVisibilityChange, _this4));
   });
   return Promise.race([this._onePageRenderedCapability.promise, visibilityChangePromise]);
 }
@@ -3608,7 +3879,7 @@ function _ensurePageViewVisible() {
   state.pages.length = 0;
   if (this._spreadMode === _ui_utils.SpreadMode.NONE && !this.isInPresentationMode) {
     var pageView = this._pages[pageNumber - 1];
-    viewer.appendChild(pageView.div);
+    viewer.append(pageView.div);
     state.pages.push(pageView);
   } else {
     var pageIndexSet = new Set(),
@@ -3627,7 +3898,7 @@ function _ensurePageViewVisible() {
     if (this.isInPresentationMode) {
       var dummyPage = document.createElement("div");
       dummyPage.className = "dummyPage";
-      spread.appendChild(dummyPage);
+      spread.append(dummyPage);
     }
     var _iterator12 = _createForOfIteratorHelper(pageIndexSet),
       _step12;
@@ -3638,7 +3909,7 @@ function _ensurePageViewVisible() {
         if (!_pageView) {
           continue;
         }
-        spread.appendChild(_pageView.div);
+        spread.append(_pageView.div);
         state.pages.push(_pageView);
       }
     } catch (err) {
@@ -3646,7 +3917,7 @@ function _ensurePageViewVisible() {
     } finally {
       _iterator12.f();
     }
-    viewer.appendChild(spread);
+    viewer.append(spread);
   }
   state.scrollDown = pageNumber >= state.previousPageNumber;
   state.previousPageNumber = pageNumber;
@@ -3772,817 +4043,6 @@ function _toggleLoadingIconSpinner(visibleIds) {
 }
 
 /***/ }),
-/* 12 */
-/***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
-
-
-
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-Object.defineProperty(exports, "__esModule", ({
-  value: true
-}));
-exports.PDFPageView = void 0;
-var _pdfjsLib = __w_pdfjs_require__(3);
-var _ui_utils = __w_pdfjs_require__(6);
-var _app_options = __w_pdfjs_require__(13);
-var _l10n_utils = __w_pdfjs_require__(4);
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
-function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
-function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-function _classPrivateFieldInitSpec(e, t, a) { _checkPrivateRedeclaration(e, t), t.set(e, a); }
-function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
-function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
-function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
-function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
-var MAX_CANVAS_PIXELS = _app_options.compatibilityParams.maxCanvasPixels || 16777216;
-var _annotationMode = /*#__PURE__*/new WeakMap();
-var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
-  function PDFPageView(options) {
-    var _options$textLayerMod, _options$annotationMo, _options$textHighligh, _this$renderingQueue;
-    _classCallCheck(this, PDFPageView);
-    _classPrivateFieldInitSpec(this, _annotationMode, _pdfjsLib.AnnotationMode.ENABLE_FORMS);
-    var container = options.container;
-    var defaultViewport = options.defaultViewport;
-    this.id = options.id;
-    this.renderingId = "page" + this.id;
-    this.pdfPage = null;
-    this.pageLabel = null;
-    this.rotation = 0;
-    this.scale = options.scale || _ui_utils.DEFAULT_SCALE;
-    this.viewport = defaultViewport;
-    this.pdfPageRotate = defaultViewport.rotation;
-    this._optionalContentConfigPromise = options.optionalContentConfigPromise || null;
-    this.hasRestrictedScaling = false;
-    this.textLayerMode = (_options$textLayerMod = options.textLayerMode) !== null && _options$textLayerMod !== void 0 ? _options$textLayerMod : _ui_utils.TextLayerMode.ENABLE;
-    _classPrivateFieldSet(_annotationMode, this, (_options$annotationMo = options.annotationMode) !== null && _options$annotationMo !== void 0 ? _options$annotationMo : _pdfjsLib.AnnotationMode.ENABLE_FORMS);
-    this.imageResourcesPath = options.imageResourcesPath || "";
-    this.useOnlyCssZoom = options.useOnlyCssZoom || false;
-    this.maxCanvasPixels = options.maxCanvasPixels || MAX_CANVAS_PIXELS;
-    this.pageColors = options.pageColors || null;
-    this.eventBus = options.eventBus;
-    this.renderingQueue = options.renderingQueue;
-    this.textLayerFactory = options.textLayerFactory;
-    this.annotationLayerFactory = options.annotationLayerFactory;
-    this.xfaLayerFactory = options.xfaLayerFactory;
-    this.textHighlighter = (_options$textHighligh = options.textHighlighterFactory) === null || _options$textHighligh === void 0 ? void 0 : _options$textHighligh.createTextHighlighter(this.id - 1, this.eventBus);
-    this.structTreeLayerFactory = options.structTreeLayerFactory;
-    this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
-    this.l10n = options.l10n || _l10n_utils.NullL10n;
-    this.paintTask = null;
-    this.paintedViewportMap = new WeakMap();
-    this.renderingState = _ui_utils.RenderingStates.INITIAL;
-    this.resume = null;
-    this._renderError = null;
-    this._isStandalone = !((_this$renderingQueue = this.renderingQueue) !== null && _this$renderingQueue !== void 0 && _this$renderingQueue.hasViewer());
-    this._annotationCanvasMap = null;
-    this.annotationLayer = null;
-    this.textLayer = null;
-    this.zoomLayer = null;
-    this.xfaLayer = null;
-    this.structTreeLayer = null;
-    var div = document.createElement("div");
-    div.className = "page";
-    div.style.width = Math.floor(this.viewport.width) + "px";
-    div.style.height = Math.floor(this.viewport.height) + "px";
-    div.setAttribute("data-page-number", this.id);
-    div.setAttribute("role", "region");
-    this.l10n.get("page_landmark", {
-      page: this.id
-    }).then(function (msg) {
-      div.setAttribute("aria-label", msg);
-    });
-    this.div = div;
-    container === null || container === void 0 || container.appendChild(div);
-  }
-  return _createClass(PDFPageView, [{
-    key: "setPdfPage",
-    value: function setPdfPage(pdfPage) {
-      this.pdfPage = pdfPage;
-      this.pdfPageRotate = pdfPage.rotate;
-      var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
-      this.viewport = pdfPage.getViewport({
-        scale: this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS,
-        rotation: totalRotation
-      });
-      this.reset();
-    }
-  }, {
-    key: "destroy",
-    value: function destroy() {
-      this.reset();
-      if (this.pdfPage) {
-        this.pdfPage.cleanup();
-      }
-    }
-  }, {
-    key: "_renderAnnotationLayer",
-    value: function () {
-      var _renderAnnotationLayer2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var error;
-        return _regeneratorRuntime().wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
-            case 0:
-              error = null;
-              _context.prev = 1;
-              _context.next = 4;
-              return this.annotationLayer.render(this.viewport, "display");
-            case 4:
-              _context.next = 9;
-              break;
-            case 6:
-              _context.prev = 6;
-              _context.t0 = _context["catch"](1);
-              error = _context.t0;
-            case 9:
-              _context.prev = 9;
-              this.eventBus.dispatch("annotationlayerrendered", {
-                source: this,
-                pageNumber: this.id,
-                error: error
-              });
-              return _context.finish(9);
-            case 12:
-            case "end":
-              return _context.stop();
-          }
-        }, _callee, this, [[1, 6, 9, 12]]);
-      }));
-      function _renderAnnotationLayer() {
-        return _renderAnnotationLayer2.apply(this, arguments);
-      }
-      return _renderAnnotationLayer;
-    }()
-  }, {
-    key: "_renderXfaLayer",
-    value: function () {
-      var _renderXfaLayer2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
-        var error, result;
-        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
-          while (1) switch (_context2.prev = _context2.next) {
-            case 0:
-              error = null;
-              _context2.prev = 1;
-              _context2.next = 4;
-              return this.xfaLayer.render(this.viewport, "display");
-            case 4:
-              result = _context2.sent;
-              if (this.textHighlighter) {
-                this._buildXfaTextContentItems(result.textDivs);
-              }
-              _context2.next = 11;
-              break;
-            case 8:
-              _context2.prev = 8;
-              _context2.t0 = _context2["catch"](1);
-              error = _context2.t0;
-            case 11:
-              _context2.prev = 11;
-              this.eventBus.dispatch("xfalayerrendered", {
-                source: this,
-                pageNumber: this.id,
-                error: error
-              });
-              return _context2.finish(11);
-            case 14:
-            case "end":
-              return _context2.stop();
-          }
-        }, _callee2, this, [[1, 8, 11, 14]]);
-      }));
-      function _renderXfaLayer() {
-        return _renderXfaLayer2.apply(this, arguments);
-      }
-      return _renderXfaLayer;
-    }()
-  }, {
-    key: "_buildXfaTextContentItems",
-    value: function () {
-      var _buildXfaTextContentItems2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(textDivs) {
-        var text, items, _iterator, _step, item;
-        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-          while (1) switch (_context3.prev = _context3.next) {
-            case 0:
-              _context3.next = 2;
-              return this.pdfPage.getTextContent();
-            case 2:
-              text = _context3.sent;
-              items = [];
-              _iterator = _createForOfIteratorHelper(text.items);
-              try {
-                for (_iterator.s(); !(_step = _iterator.n()).done;) {
-                  item = _step.value;
-                  items.push(item.str);
-                }
-              } catch (err) {
-                _iterator.e(err);
-              } finally {
-                _iterator.f();
-              }
-              this.textHighlighter.setTextMapping(textDivs, items);
-              this.textHighlighter.enable();
-            case 8:
-            case "end":
-              return _context3.stop();
-          }
-        }, _callee3, this);
-      }));
-      function _buildXfaTextContentItems(_x) {
-        return _buildXfaTextContentItems2.apply(this, arguments);
-      }
-      return _buildXfaTextContentItems;
-    }()
-  }, {
-    key: "_resetZoomLayer",
-    value: function _resetZoomLayer() {
-      var removeFromDOM = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      if (!this.zoomLayer) {
-        return;
-      }
-      var zoomLayerCanvas = this.zoomLayer.firstChild;
-      this.paintedViewportMap["delete"](zoomLayerCanvas);
-      zoomLayerCanvas.width = 0;
-      zoomLayerCanvas.height = 0;
-      if (removeFromDOM) {
-        this.zoomLayer.remove();
-      }
-      this.zoomLayer = null;
-    }
-  }, {
-    key: "reset",
-    value: function reset() {
-      var _this$annotationLayer,
-        _this$xfaLayer,
-        _this = this;
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$keepZoomLayer = _ref.keepZoomLayer,
-        keepZoomLayer = _ref$keepZoomLayer === void 0 ? false : _ref$keepZoomLayer,
-        _ref$keepAnnotationLa = _ref.keepAnnotationLayer,
-        keepAnnotationLayer = _ref$keepAnnotationLa === void 0 ? false : _ref$keepAnnotationLa,
-        _ref$keepXfaLayer = _ref.keepXfaLayer,
-        keepXfaLayer = _ref$keepXfaLayer === void 0 ? false : _ref$keepXfaLayer;
-      this.cancelRendering({
-        keepAnnotationLayer: keepAnnotationLayer,
-        keepXfaLayer: keepXfaLayer
-      });
-      this.renderingState = _ui_utils.RenderingStates.INITIAL;
-      var div = this.div;
-      div.style.width = Math.floor(this.viewport.width) + "px";
-      div.style.height = Math.floor(this.viewport.height) + "px";
-      var childNodes = div.childNodes,
-        zoomLayerNode = keepZoomLayer && this.zoomLayer || null,
-        annotationLayerNode = keepAnnotationLayer && ((_this$annotationLayer = this.annotationLayer) === null || _this$annotationLayer === void 0 ? void 0 : _this$annotationLayer.div) || null,
-        xfaLayerNode = keepXfaLayer && ((_this$xfaLayer = this.xfaLayer) === null || _this$xfaLayer === void 0 ? void 0 : _this$xfaLayer.div) || null;
-      for (var i = childNodes.length - 1; i >= 0; i--) {
-        var node = childNodes[i];
-        switch (node) {
-          case zoomLayerNode:
-          case annotationLayerNode:
-          case xfaLayerNode:
-            continue;
-        }
-        node.remove();
-      }
-      div.removeAttribute("data-loaded");
-      if (annotationLayerNode) {
-        this.annotationLayer.hide();
-      }
-      if (xfaLayerNode) {
-        this.xfaLayer.hide();
-      }
-      if (!zoomLayerNode) {
-        if (this.canvas) {
-          this.paintedViewportMap["delete"](this.canvas);
-          this.canvas.width = 0;
-          this.canvas.height = 0;
-          delete this.canvas;
-        }
-        this._resetZoomLayer();
-      }
-      if (this.svg) {
-        this.paintedViewportMap["delete"](this.svg);
-        delete this.svg;
-      }
-      this.loadingIconDiv = document.createElement("div");
-      this.loadingIconDiv.className = "loadingIcon notVisible";
-      if (this._isStandalone) {
-        this.toggleLoadingIconSpinner(true);
-      }
-      this.loadingIconDiv.setAttribute("role", "img");
-      this.l10n.get("loading").then(function (msg) {
-        var _this$loadingIconDiv;
-        (_this$loadingIconDiv = _this.loadingIconDiv) === null || _this$loadingIconDiv === void 0 || _this$loadingIconDiv.setAttribute("aria-label", msg);
-      });
-      div.appendChild(this.loadingIconDiv);
-    }
-  }, {
-    key: "update",
-    value: function update(_ref2) {
-      var _ref2$scale = _ref2.scale,
-        scale = _ref2$scale === void 0 ? 0 : _ref2$scale,
-        _ref2$rotation = _ref2.rotation,
-        rotation = _ref2$rotation === void 0 ? null : _ref2$rotation,
-        _ref2$optionalContent = _ref2.optionalContentConfigPromise,
-        optionalContentConfigPromise = _ref2$optionalContent === void 0 ? null : _ref2$optionalContent;
-      this.scale = scale || this.scale;
-      if (typeof rotation === "number") {
-        this.rotation = rotation;
-      }
-      if (optionalContentConfigPromise instanceof Promise) {
-        this._optionalContentConfigPromise = optionalContentConfigPromise;
-      }
-      var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
-      this.viewport = this.viewport.clone({
-        scale: this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS,
-        rotation: totalRotation
-      });
-      if (this._isStandalone) {
-        var style = document.documentElement.style;
-        style.setProperty("--zoom-factor", this.scale);
-      }
-      if (this.svg) {
-        this.cssTransform({
-          target: this.svg,
-          redrawAnnotationLayer: true,
-          redrawXfaLayer: true
-        });
-        this.eventBus.dispatch("pagerendered", {
-          source: this,
-          pageNumber: this.id,
-          cssTransform: true,
-          timestamp: performance.now(),
-          error: this._renderError
-        });
-        return;
-      }
-      var isScalingRestricted = false;
-      if (this.canvas && this.maxCanvasPixels > 0) {
-        var outputScale = this.outputScale;
-        if ((Math.floor(this.viewport.width) * outputScale.sx | 0) * (Math.floor(this.viewport.height) * outputScale.sy | 0) > this.maxCanvasPixels) {
-          isScalingRestricted = true;
-        }
-      }
-      if (this.canvas) {
-        if (this.useOnlyCssZoom || this.hasRestrictedScaling && isScalingRestricted) {
-          this.cssTransform({
-            target: this.canvas,
-            redrawAnnotationLayer: true,
-            redrawXfaLayer: true
-          });
-          this.eventBus.dispatch("pagerendered", {
-            source: this,
-            pageNumber: this.id,
-            cssTransform: true,
-            timestamp: performance.now(),
-            error: this._renderError
-          });
-          return;
-        }
-        if (!this.zoomLayer && !this.canvas.hidden) {
-          this.zoomLayer = this.canvas.parentNode;
-          this.zoomLayer.style.position = "absolute";
-        }
-      }
-      if (this.zoomLayer) {
-        this.cssTransform({
-          target: this.zoomLayer.firstChild
-        });
-      }
-      this.reset({
-        keepZoomLayer: true,
-        keepAnnotationLayer: true,
-        keepXfaLayer: true
-      });
-    }
-  }, {
-    key: "cancelRendering",
-    value: function cancelRendering() {
-      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref3$keepAnnotationL = _ref3.keepAnnotationLayer,
-        keepAnnotationLayer = _ref3$keepAnnotationL === void 0 ? false : _ref3$keepAnnotationL,
-        _ref3$keepXfaLayer = _ref3.keepXfaLayer,
-        keepXfaLayer = _ref3$keepXfaLayer === void 0 ? false : _ref3$keepXfaLayer;
-      if (this.paintTask) {
-        this.paintTask.cancel();
-        this.paintTask = null;
-      }
-      this.resume = null;
-      if (this.textLayer) {
-        this.textLayer.cancel();
-        this.textLayer = null;
-      }
-      if (this.annotationLayer && (!keepAnnotationLayer || !this.annotationLayer.div)) {
-        this.annotationLayer.cancel();
-        this.annotationLayer = null;
-        this._annotationCanvasMap = null;
-      }
-      if (this.xfaLayer && (!keepXfaLayer || !this.xfaLayer.div)) {
-        var _this$textHighlighter;
-        this.xfaLayer.cancel();
-        this.xfaLayer = null;
-        (_this$textHighlighter = this.textHighlighter) === null || _this$textHighlighter === void 0 || _this$textHighlighter.disable();
-      }
-      if (this._onTextLayerRendered) {
-        this.eventBus._off("textlayerrendered", this._onTextLayerRendered);
-        this._onTextLayerRendered = null;
-      }
-    }
-  }, {
-    key: "cssTransform",
-    value: function cssTransform(_ref4) {
-      var target = _ref4.target,
-        _ref4$redrawAnnotatio = _ref4.redrawAnnotationLayer,
-        redrawAnnotationLayer = _ref4$redrawAnnotatio === void 0 ? false : _ref4$redrawAnnotatio,
-        _ref4$redrawXfaLayer = _ref4.redrawXfaLayer,
-        redrawXfaLayer = _ref4$redrawXfaLayer === void 0 ? false : _ref4$redrawXfaLayer;
-      var width = this.viewport.width;
-      var height = this.viewport.height;
-      var div = this.div;
-      target.style.width = target.parentNode.style.width = div.style.width = Math.floor(width) + "px";
-      target.style.height = target.parentNode.style.height = div.style.height = Math.floor(height) + "px";
-      var relativeRotation = this.viewport.rotation - this.paintedViewportMap.get(target).rotation;
-      var absRotation = Math.abs(relativeRotation);
-      var scaleX = 1,
-        scaleY = 1;
-      if (absRotation === 90 || absRotation === 270) {
-        scaleX = height / width;
-        scaleY = width / height;
-      }
-      target.style.transform = "rotate(".concat(relativeRotation, "deg) scale(").concat(scaleX, ", ").concat(scaleY, ")");
-      if (this.textLayer) {
-        var textLayerViewport = this.textLayer.viewport;
-        var textRelativeRotation = this.viewport.rotation - textLayerViewport.rotation;
-        var textAbsRotation = Math.abs(textRelativeRotation);
-        var scale = width / textLayerViewport.width;
-        if (textAbsRotation === 90 || textAbsRotation === 270) {
-          scale = width / textLayerViewport.height;
-        }
-        var textLayerDiv = this.textLayer.textLayerDiv;
-        var transX, transY;
-        switch (textAbsRotation) {
-          case 0:
-            transX = transY = 0;
-            break;
-          case 90:
-            transX = 0;
-            transY = "-" + textLayerDiv.style.height;
-            break;
-          case 180:
-            transX = "-" + textLayerDiv.style.width;
-            transY = "-" + textLayerDiv.style.height;
-            break;
-          case 270:
-            transX = "-" + textLayerDiv.style.width;
-            transY = 0;
-            break;
-          default:
-            console.error("Bad rotation value.");
-            break;
-        }
-        textLayerDiv.style.transform = "rotate(".concat(textAbsRotation, "deg) ") + "scale(".concat(scale, ") ") + "translate(".concat(transX, ", ").concat(transY, ")");
-        textLayerDiv.style.transformOrigin = "0% 0%";
-      }
-      if (redrawAnnotationLayer && this.annotationLayer) {
-        this._renderAnnotationLayer();
-      }
-      if (redrawXfaLayer && this.xfaLayer) {
-        this._renderXfaLayer();
-      }
-    }
-  }, {
-    key: "width",
-    get: function get() {
-      return this.viewport.width;
-    }
-  }, {
-    key: "height",
-    get: function get() {
-      return this.viewport.height;
-    }
-  }, {
-    key: "getPagePoint",
-    value: function getPagePoint(x, y) {
-      return this.viewport.convertToPdfPoint(x, y);
-    }
-  }, {
-    key: "toggleLoadingIconSpinner",
-    value: function toggleLoadingIconSpinner() {
-      var _this$loadingIconDiv2;
-      var viewVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-      (_this$loadingIconDiv2 = this.loadingIconDiv) === null || _this$loadingIconDiv2 === void 0 || _this$loadingIconDiv2.classList.toggle("notVisible", !viewVisible);
-    }
-  }, {
-    key: "draw",
-    value: function draw() {
-      var _this$annotationLayer2,
-        _this$xfaLayer2,
-        _this2 = this;
-      if (this.renderingState !== _ui_utils.RenderingStates.INITIAL) {
-        console.error("Must be in new state before drawing");
-        this.reset();
-      }
-      var div = this.div,
-        pdfPage = this.pdfPage;
-      if (!pdfPage) {
-        this.renderingState = _ui_utils.RenderingStates.FINISHED;
-        if (this.loadingIconDiv) {
-          this.loadingIconDiv.remove();
-          delete this.loadingIconDiv;
-        }
-        return Promise.reject(new Error("pdfPage is not loaded"));
-      }
-      this.renderingState = _ui_utils.RenderingStates.RUNNING;
-      var canvasWrapper = document.createElement("div");
-      canvasWrapper.style.width = div.style.width;
-      canvasWrapper.style.height = div.style.height;
-      canvasWrapper.classList.add("canvasWrapper");
-      if ((_this$annotationLayer2 = this.annotationLayer) !== null && _this$annotationLayer2 !== void 0 && _this$annotationLayer2.div) {
-        div.insertBefore(canvasWrapper, this.annotationLayer.div);
-      } else {
-        div.appendChild(canvasWrapper);
-      }
-      var textLayer = null;
-      if (this.textLayerMode !== _ui_utils.TextLayerMode.DISABLE && this.textLayerFactory) {
-        var _this$annotationLayer3;
-        var textLayerDiv = document.createElement("div");
-        textLayerDiv.className = "textLayer";
-        textLayerDiv.style.width = canvasWrapper.style.width;
-        textLayerDiv.style.height = canvasWrapper.style.height;
-        if ((_this$annotationLayer3 = this.annotationLayer) !== null && _this$annotationLayer3 !== void 0 && _this$annotationLayer3.div) {
-          div.insertBefore(textLayerDiv, this.annotationLayer.div);
-        } else {
-          div.appendChild(textLayerDiv);
-        }
-        textLayer = this.textLayerFactory.createTextLayerBuilder(textLayerDiv, this.id - 1, this.viewport, this.textLayerMode === _ui_utils.TextLayerMode.ENABLE_ENHANCE, this.eventBus, this.textHighlighter);
-      }
-      this.textLayer = textLayer;
-      if (_classPrivateFieldGet(_annotationMode, this) !== _pdfjsLib.AnnotationMode.DISABLE && this.annotationLayerFactory) {
-        this._annotationCanvasMap || (this._annotationCanvasMap = new Map());
-        this.annotationLayer || (this.annotationLayer = this.annotationLayerFactory.createAnnotationLayerBuilder(div, pdfPage, null, this.imageResourcesPath, _classPrivateFieldGet(_annotationMode, this) === _pdfjsLib.AnnotationMode.ENABLE_FORMS, this.l10n, null, null, null, null, this._annotationCanvasMap));
-      }
-      if ((_this$xfaLayer2 = this.xfaLayer) !== null && _this$xfaLayer2 !== void 0 && _this$xfaLayer2.div) {
-        div.appendChild(this.xfaLayer.div);
-      }
-      var renderContinueCallback = null;
-      if (this.renderingQueue) {
-        renderContinueCallback = function renderContinueCallback(cont) {
-          if (!_this2.renderingQueue.isHighestPriority(_this2)) {
-            _this2.renderingState = _ui_utils.RenderingStates.PAUSED;
-            _this2.resume = function () {
-              _this2.renderingState = _ui_utils.RenderingStates.RUNNING;
-              cont();
-            };
-            return;
-          }
-          cont();
-        };
-      }
-      var finishPaintTask = /*#__PURE__*/function () {
-        var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
-          var error,
-            _args4 = arguments;
-          return _regeneratorRuntime().wrap(function _callee4$(_context4) {
-            while (1) switch (_context4.prev = _context4.next) {
-              case 0:
-                error = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : null;
-                if (paintTask === _this2.paintTask) {
-                  _this2.paintTask = null;
-                }
-                if (!(error instanceof _pdfjsLib.RenderingCancelledException)) {
-                  _context4.next = 5;
-                  break;
-                }
-                _this2._renderError = null;
-                return _context4.abrupt("return");
-              case 5:
-                _this2._renderError = error;
-                _this2.renderingState = _ui_utils.RenderingStates.FINISHED;
-                if (_this2.loadingIconDiv) {
-                  _this2.loadingIconDiv.remove();
-                  delete _this2.loadingIconDiv;
-                }
-                _this2._resetZoomLayer(true);
-                _this2.eventBus.dispatch("pagerendered", {
-                  source: _this2,
-                  pageNumber: _this2.id,
-                  cssTransform: false,
-                  timestamp: performance.now(),
-                  error: _this2._renderError
-                });
-                if (!error) {
-                  _context4.next = 12;
-                  break;
-                }
-                throw error;
-              case 12:
-              case "end":
-                return _context4.stop();
-            }
-          }, _callee4);
-        }));
-        return function finishPaintTask() {
-          return _ref5.apply(this, arguments);
-        };
-      }();
-      var paintTask = this.renderer === _ui_utils.RendererType.SVG ? this.paintOnSvg(canvasWrapper) : this.paintOnCanvas(canvasWrapper);
-      paintTask.onRenderContinue = renderContinueCallback;
-      this.paintTask = paintTask;
-      var resultPromise = paintTask.promise.then(function () {
-        return finishPaintTask(null).then(function () {
-          if (textLayer) {
-            var readableStream = pdfPage.streamTextContent({
-              includeMarkedContent: true
-            });
-            textLayer.setTextContentStream(readableStream);
-            textLayer.render();
-          }
-          if (_this2.annotationLayer) {
-            _this2._renderAnnotationLayer();
-          }
-        });
-      }, function (reason) {
-        return finishPaintTask(reason);
-      });
-      if (this.xfaLayerFactory) {
-        if (!this.xfaLayer) {
-          this.xfaLayer = this.xfaLayerFactory.createXfaLayerBuilder(div, pdfPage, null);
-        }
-        this._renderXfaLayer();
-      }
-      if (this.structTreeLayerFactory && this.textLayer && this.canvas) {
-        this._onTextLayerRendered = function (event) {
-          if (event.pageNumber !== _this2.id) {
-            return;
-          }
-          _this2.eventBus._off("textlayerrendered", _this2._onTextLayerRendered);
-          _this2._onTextLayerRendered = null;
-          if (!_this2.canvas) {
-            return;
-          }
-          _this2.pdfPage.getStructTree().then(function (tree) {
-            if (!tree) {
-              return;
-            }
-            if (!_this2.canvas) {
-              return;
-            }
-            var treeDom = _this2.structTreeLayer.render(tree);
-            treeDom.classList.add("structTree");
-            _this2.canvas.appendChild(treeDom);
-          });
-        };
-        this.eventBus._on("textlayerrendered", this._onTextLayerRendered);
-        this.structTreeLayer = this.structTreeLayerFactory.createStructTreeLayerBuilder(pdfPage);
-      }
-      div.setAttribute("data-loaded", true);
-      this.eventBus.dispatch("pagerender", {
-        source: this,
-        pageNumber: this.id
-      });
-      return resultPromise;
-    }
-  }, {
-    key: "paintOnCanvas",
-    value: function paintOnCanvas(canvasWrapper) {
-      var renderCapability = (0, _pdfjsLib.createPromiseCapability)();
-      var result = {
-        promise: renderCapability.promise,
-        onRenderContinue: function onRenderContinue(cont) {
-          cont();
-        },
-        cancel: function cancel() {
-          renderTask.cancel();
-        }
-      };
-      var viewport = this.viewport;
-      var canvas = document.createElement("canvas");
-      canvas.hidden = true;
-      var isCanvasHidden = true;
-      var showCanvas = function showCanvas() {
-        if (isCanvasHidden) {
-          canvas.hidden = false;
-          isCanvasHidden = false;
-        }
-      };
-      canvasWrapper.appendChild(canvas);
-      this.canvas = canvas;
-      var ctx = canvas.getContext("2d", {
-        alpha: false
-      });
-      var outputScale = this.outputScale = new _ui_utils.OutputScale();
-      if (this.useOnlyCssZoom) {
-        var actualSizeViewport = viewport.clone({
-          scale: _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS
-        });
-        outputScale.sx *= actualSizeViewport.width / viewport.width;
-        outputScale.sy *= actualSizeViewport.height / viewport.height;
-      }
-      if (this.maxCanvasPixels > 0) {
-        var pixelsInViewport = viewport.width * viewport.height;
-        var maxScale = Math.sqrt(this.maxCanvasPixels / pixelsInViewport);
-        if (outputScale.sx > maxScale || outputScale.sy > maxScale) {
-          outputScale.sx = maxScale;
-          outputScale.sy = maxScale;
-          this.hasRestrictedScaling = true;
-        } else {
-          this.hasRestrictedScaling = false;
-        }
-      }
-      var sfx = (0, _ui_utils.approximateFraction)(outputScale.sx);
-      var sfy = (0, _ui_utils.approximateFraction)(outputScale.sy);
-      canvas.width = (0, _ui_utils.roundToDivide)(viewport.width * outputScale.sx, sfx[0]);
-      canvas.height = (0, _ui_utils.roundToDivide)(viewport.height * outputScale.sy, sfy[0]);
-      canvas.style.width = (0, _ui_utils.roundToDivide)(viewport.width, sfx[1]) + "px";
-      canvas.style.height = (0, _ui_utils.roundToDivide)(viewport.height, sfy[1]) + "px";
-      this.paintedViewportMap.set(canvas, viewport);
-      var transform = outputScale.scaled ? [outputScale.sx, 0, 0, outputScale.sy, 0, 0] : null;
-      var renderContext = {
-        canvasContext: ctx,
-        transform: transform,
-        viewport: this.viewport,
-        annotationMode: _classPrivateFieldGet(_annotationMode, this),
-        optionalContentConfigPromise: this._optionalContentConfigPromise,
-        annotationCanvasMap: this._annotationCanvasMap,
-        pageColors: this.pageColors
-      };
-      var renderTask = this.pdfPage.render(renderContext);
-      renderTask.onContinue = function (cont) {
-        showCanvas();
-        if (result.onRenderContinue) {
-          result.onRenderContinue(cont);
-        } else {
-          cont();
-        }
-      };
-      renderTask.promise.then(function () {
-        showCanvas();
-        renderCapability.resolve();
-      }, function (error) {
-        showCanvas();
-        renderCapability.reject(error);
-      });
-      return result;
-    }
-  }, {
-    key: "paintOnSvg",
-    value: function paintOnSvg(wrapper) {
-      var _this3 = this;
-      var cancelled = false;
-      var ensureNotCancelled = function ensureNotCancelled() {
-        if (cancelled) {
-          throw new _pdfjsLib.RenderingCancelledException("Rendering cancelled, page ".concat(_this3.id), "svg");
-        }
-      };
-      var pdfPage = this.pdfPage;
-      var actualSizeViewport = this.viewport.clone({
-        scale: _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS
-      });
-      var promise = pdfPage.getOperatorList({
-        annotationMode: _classPrivateFieldGet(_annotationMode, this)
-      }).then(function (opList) {
-        ensureNotCancelled();
-        var svgGfx = new _pdfjsLib.SVGGraphics(pdfPage.commonObjs, pdfPage.objs);
-        return svgGfx.getSVG(opList, actualSizeViewport).then(function (svg) {
-          ensureNotCancelled();
-          _this3.svg = svg;
-          _this3.paintedViewportMap.set(svg, actualSizeViewport);
-          svg.style.width = wrapper.style.width;
-          svg.style.height = wrapper.style.height;
-          _this3.renderingState = _ui_utils.RenderingStates.FINISHED;
-          wrapper.appendChild(svg);
-        });
-      });
-      return {
-        promise: promise,
-        onRenderContinue: function onRenderContinue(cont) {
-          cont();
-        },
-        cancel: function cancel() {
-          cancelled = true;
-        }
-      };
-    }
-  }, {
-    key: "setPageLabel",
-    value: function setPageLabel(label) {
-      this.pageLabel = typeof label === "string" ? label : null;
-      if (this.pageLabel !== null) {
-        this.div.setAttribute("data-page-label", this.pageLabel);
-      } else {
-        this.div.removeAttribute("data-page-label");
-      }
-    }
-  }]);
-}();
-
-/***/ }),
 /* 13 */
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -4610,6 +4070,11 @@ var compatibilityParams = exports.compatibilityParams = Object.create(null);
       compatibilityParams.maxCanvasPixels = 5242880;
     }
   })();
+  (function checkResizeObserver() {
+    if (typeof ResizeObserver === "undefined") {
+      compatibilityParams.annotationEditorMode = -1;
+    }
+  })();
 }
 var OptionKind = exports.OptionKind = {
   VIEWER: 0x02,
@@ -4618,6 +4083,10 @@ var OptionKind = exports.OptionKind = {
   PREFERENCE: 0x80
 };
 var defaultOptions = {
+  annotationEditorMode: {
+    value: -1,
+    kind: OptionKind.VIEWER + OptionKind.PREFERENCE
+  },
   annotationMode: {
     value: 2,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
@@ -4625,10 +4094,6 @@ var defaultOptions = {
   cursorToolOnLoad: {
     value: 0,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
-  },
-  defaultUrl: {
-    value: "compressed.tracemonkey-pldi-09.pdf",
-    kind: OptionKind.VIEWER
   },
   defaultZoomValue: {
     value: "",
@@ -4676,8 +4141,11 @@ var defaultOptions = {
   },
   maxCanvasPixels: {
     value: 16777216,
-    compatibility: compatibilityParams.maxCanvasPixels,
     kind: OptionKind.VIEWER
+  },
+  forcePageColors: {
+    value: false,
+    kind: OptionKind.VIEWER + OptionKind.PREFERENCE
   },
   pageColorsBackground: {
     value: "Canvas",
@@ -4693,10 +4161,6 @@ var defaultOptions = {
   },
   printResolution: {
     value: 150,
-    kind: OptionKind.VIEWER
-  },
-  renderer: {
-    value: "canvas",
     kind: OptionKind.VIEWER
   },
   sidebarViewOnLoad: {
@@ -4793,6 +4257,10 @@ var defaultOptions = {
   }
 };
 {
+  defaultOptions.defaultUrl = {
+    value: "compressed.tracemonkey-pldi-09.pdf",
+    kind: OptionKind.VIEWER
+  };
   defaultOptions.disablePreferences = {
     value: false,
     kind: OptionKind.VIEWER
@@ -4801,11 +4269,14 @@ var defaultOptions = {
     value: navigator.language || "en-US",
     kind: OptionKind.VIEWER
   };
+  defaultOptions.renderer = {
+    value: "canvas",
+    kind: OptionKind.VIEWER + OptionKind.PREFERENCE
+  };
   defaultOptions.sandboxBundleSrc = {
     value: "../build/pdf.sandbox.js",
     kind: OptionKind.VIEWER
   };
-  defaultOptions.renderer.kind += OptionKind.PREFERENCE;
 }
 var userOptions = Object.create(null);
 var AppOptions = exports.AppOptions = /*#__PURE__*/function () {
@@ -4822,8 +4293,8 @@ var AppOptions = exports.AppOptions = /*#__PURE__*/function () {
       }
       var defaultOption = defaultOptions[name];
       if (defaultOption !== undefined) {
-        var _defaultOption$compat;
-        return (_defaultOption$compat = defaultOption.compatibility) !== null && _defaultOption$compat !== void 0 ? _defaultOption$compat : defaultOption.value;
+        var _compatibilityParams$;
+        return (_compatibilityParams$ = compatibilityParams[name]) !== null && _compatibilityParams$ !== void 0 ? _compatibilityParams$ : defaultOption.value;
       }
       return undefined;
     }
@@ -4833,7 +4304,7 @@ var AppOptions = exports.AppOptions = /*#__PURE__*/function () {
       var kind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var options = Object.create(null);
       for (var name in defaultOptions) {
-        var _defaultOption$compat2;
+        var _compatibilityParams$2;
         var defaultOption = defaultOptions[name];
         if (kind) {
           if ((kind & defaultOption.kind) === 0) {
@@ -4850,7 +4321,7 @@ var AppOptions = exports.AppOptions = /*#__PURE__*/function () {
           }
         }
         var userOption = userOptions[name];
-        options[name] = userOption !== undefined ? userOption : (_defaultOption$compat2 = defaultOption.compatibility) !== null && _defaultOption$compat2 !== void 0 ? _defaultOption$compat2 : defaultOption.value;
+        options[name] = userOption !== undefined ? userOption : (_compatibilityParams$2 = compatibilityParams[name]) !== null && _compatibilityParams$2 !== void 0 ? _compatibilityParams$2 : defaultOption.value;
       }
       return options;
     }
@@ -4885,12 +4356,963 @@ var AppOptions = exports.AppOptions = /*#__PURE__*/function () {
 
 
 
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+Object.defineProperty(exports, "__esModule", ({
+  value: true
+}));
+exports.PDFPageView = void 0;
+var _pdfjsLib = __w_pdfjs_require__(3);
+var _ui_utils = __w_pdfjs_require__(7);
+var _app_options = __w_pdfjs_require__(13);
+var _l10n_utils = __w_pdfjs_require__(4);
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _classPrivateFieldInitSpec(e, t, a) { _checkPrivateRedeclaration(e, t), t.set(e, a); }
+function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
+function _classPrivateFieldGet(s, a) { return s.get(_assertClassBrand(s, a)); }
+function _classPrivateFieldSet(s, a, r) { return s.set(_assertClassBrand(s, a), r), r; }
+function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+var MAX_CANVAS_PIXELS = _app_options.compatibilityParams.maxCanvasPixels || 16777216;
+var _annotationMode = /*#__PURE__*/new WeakMap();
+var _useThumbnailCanvas = /*#__PURE__*/new WeakMap();
+var PDFPageView = exports.PDFPageView = /*#__PURE__*/function () {
+  function PDFPageView(options) {
+    var _options$textLayerMod,
+      _options$annotationMo,
+      _options$textHighligh,
+      _this$renderingQueue,
+      _this = this;
+    _classCallCheck(this, PDFPageView);
+    _classPrivateFieldInitSpec(this, _annotationMode, _pdfjsLib.AnnotationMode.ENABLE_FORMS);
+    _classPrivateFieldInitSpec(this, _useThumbnailCanvas, {
+      initialOptionalContent: true,
+      regularAnnotations: true
+    });
+    var container = options.container;
+    var defaultViewport = options.defaultViewport;
+    this.id = options.id;
+    this.renderingId = "page" + this.id;
+    this.pdfPage = null;
+    this.pageLabel = null;
+    this.rotation = 0;
+    this.scale = options.scale || _ui_utils.DEFAULT_SCALE;
+    this.viewport = defaultViewport;
+    this.pdfPageRotate = defaultViewport.rotation;
+    this._optionalContentConfigPromise = options.optionalContentConfigPromise || null;
+    this.hasRestrictedScaling = false;
+    this.textLayerMode = (_options$textLayerMod = options.textLayerMode) !== null && _options$textLayerMod !== void 0 ? _options$textLayerMod : _ui_utils.TextLayerMode.ENABLE;
+    _classPrivateFieldSet(_annotationMode, this, (_options$annotationMo = options.annotationMode) !== null && _options$annotationMo !== void 0 ? _options$annotationMo : _pdfjsLib.AnnotationMode.ENABLE_FORMS);
+    this.imageResourcesPath = options.imageResourcesPath || "";
+    this.useOnlyCssZoom = options.useOnlyCssZoom || false;
+    this.maxCanvasPixels = options.maxCanvasPixels || MAX_CANVAS_PIXELS;
+    this.pageColors = options.pageColors || null;
+    this.eventBus = options.eventBus;
+    this.renderingQueue = options.renderingQueue;
+    this.textLayerFactory = options.textLayerFactory;
+    this.annotationLayerFactory = options.annotationLayerFactory;
+    this.annotationEditorLayerFactory = options.annotationEditorLayerFactory;
+    this.xfaLayerFactory = options.xfaLayerFactory;
+    this.textHighlighter = (_options$textHighligh = options.textHighlighterFactory) === null || _options$textHighligh === void 0 ? void 0 : _options$textHighligh.createTextHighlighter({
+      pageIndex: this.id - 1,
+      eventBus: this.eventBus
+    });
+    this.structTreeLayerFactory = options.structTreeLayerFactory;
+    this.renderer = options.renderer || _ui_utils.RendererType.CANVAS;
+    this.l10n = options.l10n || _l10n_utils.NullL10n;
+    this.paintTask = null;
+    this.paintedViewportMap = new WeakMap();
+    this.renderingState = _ui_utils.RenderingStates.INITIAL;
+    this.resume = null;
+    this._renderError = null;
+    this._isStandalone = !((_this$renderingQueue = this.renderingQueue) !== null && _this$renderingQueue !== void 0 && _this$renderingQueue.hasViewer());
+    this._annotationCanvasMap = null;
+    this.annotationLayer = null;
+    this.annotationEditorLayer = null;
+    this.textLayer = null;
+    this.zoomLayer = null;
+    this.xfaLayer = null;
+    this.structTreeLayer = null;
+    var div = document.createElement("div");
+    div.className = "page";
+    div.style.width = Math.floor(this.viewport.width) + "px";
+    div.style.height = Math.floor(this.viewport.height) + "px";
+    div.setAttribute("data-page-number", this.id);
+    div.setAttribute("role", "region");
+    this.l10n.get("page_landmark", {
+      page: this.id
+    }).then(function (msg) {
+      div.setAttribute("aria-label", msg);
+    });
+    this.div = div;
+    container === null || container === void 0 || container.append(div);
+    if (this._isStandalone) {
+      var optionalContentConfigPromise = options.optionalContentConfigPromise;
+      if (optionalContentConfigPromise) {
+        optionalContentConfigPromise.then(function (optionalContentConfig) {
+          if (optionalContentConfigPromise !== _this._optionalContentConfigPromise) {
+            return;
+          }
+          _classPrivateFieldGet(_useThumbnailCanvas, _this).initialOptionalContent = optionalContentConfig.hasInitialVisibility;
+        });
+      }
+    }
+  }
+  return _createClass(PDFPageView, [{
+    key: "setPdfPage",
+    value: function setPdfPage(pdfPage) {
+      this.pdfPage = pdfPage;
+      this.pdfPageRotate = pdfPage.rotate;
+      var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
+      this.viewport = pdfPage.getViewport({
+        scale: this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS,
+        rotation: totalRotation
+      });
+      this.reset();
+    }
+  }, {
+    key: "destroy",
+    value: function destroy() {
+      this.reset();
+      if (this.pdfPage) {
+        this.pdfPage.cleanup();
+      }
+    }
+  }, {
+    key: "_renderAnnotationLayer",
+    value: function () {
+      var _renderAnnotationLayer2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var error;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              error = null;
+              _context.prev = 1;
+              _context.next = 4;
+              return this.annotationLayer.render(this.viewport, "display");
+            case 4:
+              _context.next = 9;
+              break;
+            case 6:
+              _context.prev = 6;
+              _context.t0 = _context["catch"](1);
+              error = _context.t0;
+            case 9:
+              _context.prev = 9;
+              this.eventBus.dispatch("annotationlayerrendered", {
+                source: this,
+                pageNumber: this.id,
+                error: error
+              });
+              return _context.finish(9);
+            case 12:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this, [[1, 6, 9, 12]]);
+      }));
+      function _renderAnnotationLayer() {
+        return _renderAnnotationLayer2.apply(this, arguments);
+      }
+      return _renderAnnotationLayer;
+    }()
+  }, {
+    key: "_renderAnnotationEditorLayer",
+    value: function () {
+      var _renderAnnotationEditorLayer2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        var error;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              error = null;
+              _context2.prev = 1;
+              _context2.next = 4;
+              return this.annotationEditorLayer.render(this.viewport, "display");
+            case 4:
+              _context2.next = 9;
+              break;
+            case 6:
+              _context2.prev = 6;
+              _context2.t0 = _context2["catch"](1);
+              error = _context2.t0;
+            case 9:
+              _context2.prev = 9;
+              this.eventBus.dispatch("annotationeditorlayerrendered", {
+                source: this,
+                pageNumber: this.id,
+                error: error
+              });
+              return _context2.finish(9);
+            case 12:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this, [[1, 6, 9, 12]]);
+      }));
+      function _renderAnnotationEditorLayer() {
+        return _renderAnnotationEditorLayer2.apply(this, arguments);
+      }
+      return _renderAnnotationEditorLayer;
+    }()
+  }, {
+    key: "_renderXfaLayer",
+    value: function () {
+      var _renderXfaLayer2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+        var error, result;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              error = null;
+              _context3.prev = 1;
+              _context3.next = 4;
+              return this.xfaLayer.render(this.viewport, "display");
+            case 4:
+              result = _context3.sent;
+              if (this.textHighlighter) {
+                this._buildXfaTextContentItems(result.textDivs);
+              }
+              _context3.next = 11;
+              break;
+            case 8:
+              _context3.prev = 8;
+              _context3.t0 = _context3["catch"](1);
+              error = _context3.t0;
+            case 11:
+              _context3.prev = 11;
+              this.eventBus.dispatch("xfalayerrendered", {
+                source: this,
+                pageNumber: this.id,
+                error: error
+              });
+              return _context3.finish(11);
+            case 14:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, this, [[1, 8, 11, 14]]);
+      }));
+      function _renderXfaLayer() {
+        return _renderXfaLayer2.apply(this, arguments);
+      }
+      return _renderXfaLayer;
+    }()
+  }, {
+    key: "_buildXfaTextContentItems",
+    value: function () {
+      var _buildXfaTextContentItems2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(textDivs) {
+        var text, items, _iterator, _step, item;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.next = 2;
+              return this.pdfPage.getTextContent();
+            case 2:
+              text = _context4.sent;
+              items = [];
+              _iterator = _createForOfIteratorHelper(text.items);
+              try {
+                for (_iterator.s(); !(_step = _iterator.n()).done;) {
+                  item = _step.value;
+                  items.push(item.str);
+                }
+              } catch (err) {
+                _iterator.e(err);
+              } finally {
+                _iterator.f();
+              }
+              this.textHighlighter.setTextMapping(textDivs, items);
+              this.textHighlighter.enable();
+            case 8:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, this);
+      }));
+      function _buildXfaTextContentItems(_x) {
+        return _buildXfaTextContentItems2.apply(this, arguments);
+      }
+      return _buildXfaTextContentItems;
+    }()
+  }, {
+    key: "_resetZoomLayer",
+    value: function _resetZoomLayer() {
+      var removeFromDOM = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      if (!this.zoomLayer) {
+        return;
+      }
+      var zoomLayerCanvas = this.zoomLayer.firstChild;
+      this.paintedViewportMap["delete"](zoomLayerCanvas);
+      zoomLayerCanvas.width = 0;
+      zoomLayerCanvas.height = 0;
+      if (removeFromDOM) {
+        this.zoomLayer.remove();
+      }
+      this.zoomLayer = null;
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      var _this$annotationLayer,
+        _this$annotationEdito,
+        _this$xfaLayer,
+        _this2 = this;
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref$keepZoomLayer = _ref.keepZoomLayer,
+        keepZoomLayer = _ref$keepZoomLayer === void 0 ? false : _ref$keepZoomLayer,
+        _ref$keepAnnotationLa = _ref.keepAnnotationLayer,
+        keepAnnotationLayer = _ref$keepAnnotationLa === void 0 ? false : _ref$keepAnnotationLa,
+        _ref$keepAnnotationEd = _ref.keepAnnotationEditorLayer,
+        keepAnnotationEditorLayer = _ref$keepAnnotationEd === void 0 ? false : _ref$keepAnnotationEd,
+        _ref$keepXfaLayer = _ref.keepXfaLayer,
+        keepXfaLayer = _ref$keepXfaLayer === void 0 ? false : _ref$keepXfaLayer;
+      this.cancelRendering({
+        keepAnnotationLayer: keepAnnotationLayer,
+        keepAnnotationEditorLayer: keepAnnotationEditorLayer,
+        keepXfaLayer: keepXfaLayer
+      });
+      this.renderingState = _ui_utils.RenderingStates.INITIAL;
+      var div = this.div;
+      div.style.width = Math.floor(this.viewport.width) + "px";
+      div.style.height = Math.floor(this.viewport.height) + "px";
+      var childNodes = div.childNodes,
+        zoomLayerNode = keepZoomLayer && this.zoomLayer || null,
+        annotationLayerNode = keepAnnotationLayer && ((_this$annotationLayer = this.annotationLayer) === null || _this$annotationLayer === void 0 ? void 0 : _this$annotationLayer.div) || null,
+        annotationEditorLayerNode = keepAnnotationEditorLayer && ((_this$annotationEdito = this.annotationEditorLayer) === null || _this$annotationEdito === void 0 ? void 0 : _this$annotationEdito.div) || null,
+        xfaLayerNode = keepXfaLayer && ((_this$xfaLayer = this.xfaLayer) === null || _this$xfaLayer === void 0 ? void 0 : _this$xfaLayer.div) || null;
+      for (var i = childNodes.length - 1; i >= 0; i--) {
+        var node = childNodes[i];
+        switch (node) {
+          case zoomLayerNode:
+          case annotationLayerNode:
+          case annotationEditorLayerNode:
+          case xfaLayerNode:
+            continue;
+        }
+        node.remove();
+      }
+      div.removeAttribute("data-loaded");
+      if (annotationLayerNode) {
+        this.annotationLayer.hide();
+      }
+      if (annotationEditorLayerNode) {
+        this.annotationEditorLayer.hide();
+      } else {
+        var _this$annotationEdito2;
+        (_this$annotationEdito2 = this.annotationEditorLayer) === null || _this$annotationEdito2 === void 0 || _this$annotationEdito2.destroy();
+      }
+      if (xfaLayerNode) {
+        this.xfaLayer.hide();
+      }
+      if (!zoomLayerNode) {
+        if (this.canvas) {
+          this.paintedViewportMap["delete"](this.canvas);
+          this.canvas.width = 0;
+          this.canvas.height = 0;
+          delete this.canvas;
+        }
+        this._resetZoomLayer();
+      }
+      if (this.svg) {
+        this.paintedViewportMap["delete"](this.svg);
+        delete this.svg;
+      }
+      this.loadingIconDiv = document.createElement("div");
+      this.loadingIconDiv.className = "loadingIcon notVisible";
+      if (this._isStandalone) {
+        this.toggleLoadingIconSpinner(true);
+      }
+      this.loadingIconDiv.setAttribute("role", "img");
+      this.l10n.get("loading").then(function (msg) {
+        var _this2$loadingIconDiv;
+        (_this2$loadingIconDiv = _this2.loadingIconDiv) === null || _this2$loadingIconDiv === void 0 || _this2$loadingIconDiv.setAttribute("aria-label", msg);
+      });
+      div.append(this.loadingIconDiv);
+    }
+  }, {
+    key: "update",
+    value: function update(_ref2) {
+      var _this3 = this;
+      var _ref2$scale = _ref2.scale,
+        scale = _ref2$scale === void 0 ? 0 : _ref2$scale,
+        _ref2$rotation = _ref2.rotation,
+        rotation = _ref2$rotation === void 0 ? null : _ref2$rotation,
+        _ref2$optionalContent = _ref2.optionalContentConfigPromise,
+        optionalContentConfigPromise = _ref2$optionalContent === void 0 ? null : _ref2$optionalContent;
+      this.scale = scale || this.scale;
+      if (typeof rotation === "number") {
+        this.rotation = rotation;
+      }
+      if (optionalContentConfigPromise instanceof Promise) {
+        this._optionalContentConfigPromise = optionalContentConfigPromise;
+        optionalContentConfigPromise.then(function (optionalContentConfig) {
+          if (optionalContentConfigPromise !== _this3._optionalContentConfigPromise) {
+            return;
+          }
+          _classPrivateFieldGet(_useThumbnailCanvas, _this3).initialOptionalContent = optionalContentConfig.hasInitialVisibility;
+        });
+      }
+      var totalRotation = (this.rotation + this.pdfPageRotate) % 360;
+      this.viewport = this.viewport.clone({
+        scale: this.scale * _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS,
+        rotation: totalRotation
+      });
+      if (this._isStandalone) {
+        _ui_utils.docStyle.setProperty("--scale-factor", this.viewport.scale);
+      }
+      if (this.svg) {
+        this.cssTransform({
+          target: this.svg,
+          redrawAnnotationLayer: true,
+          redrawAnnotationEditorLayer: true,
+          redrawXfaLayer: true
+        });
+        this.eventBus.dispatch("pagerendered", {
+          source: this,
+          pageNumber: this.id,
+          cssTransform: true,
+          timestamp: performance.now(),
+          error: this._renderError
+        });
+        return;
+      }
+      var isScalingRestricted = false;
+      if (this.canvas && this.maxCanvasPixels > 0) {
+        var outputScale = this.outputScale;
+        if ((Math.floor(this.viewport.width) * outputScale.sx | 0) * (Math.floor(this.viewport.height) * outputScale.sy | 0) > this.maxCanvasPixels) {
+          isScalingRestricted = true;
+        }
+      }
+      if (this.canvas) {
+        if (this.useOnlyCssZoom || this.hasRestrictedScaling && isScalingRestricted) {
+          this.cssTransform({
+            target: this.canvas,
+            redrawAnnotationLayer: true,
+            redrawAnnotationEditorLayer: true,
+            redrawXfaLayer: true
+          });
+          this.eventBus.dispatch("pagerendered", {
+            source: this,
+            pageNumber: this.id,
+            cssTransform: true,
+            timestamp: performance.now(),
+            error: this._renderError
+          });
+          return;
+        }
+        if (!this.zoomLayer && !this.canvas.hidden) {
+          this.zoomLayer = this.canvas.parentNode;
+          this.zoomLayer.style.position = "absolute";
+        }
+      }
+      if (this.zoomLayer) {
+        this.cssTransform({
+          target: this.zoomLayer.firstChild
+        });
+      }
+      this.reset({
+        keepZoomLayer: true,
+        keepAnnotationLayer: true,
+        keepAnnotationEditorLayer: true,
+        keepXfaLayer: true
+      });
+    }
+  }, {
+    key: "cancelRendering",
+    value: function cancelRendering() {
+      var _ref3 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref3$keepAnnotationL = _ref3.keepAnnotationLayer,
+        keepAnnotationLayer = _ref3$keepAnnotationL === void 0 ? false : _ref3$keepAnnotationL,
+        _ref3$keepAnnotationE = _ref3.keepAnnotationEditorLayer,
+        keepAnnotationEditorLayer = _ref3$keepAnnotationE === void 0 ? false : _ref3$keepAnnotationE,
+        _ref3$keepXfaLayer = _ref3.keepXfaLayer,
+        keepXfaLayer = _ref3$keepXfaLayer === void 0 ? false : _ref3$keepXfaLayer;
+      if (this.paintTask) {
+        this.paintTask.cancel();
+        this.paintTask = null;
+      }
+      this.resume = null;
+      if (this.textLayer) {
+        this.textLayer.cancel();
+        this.textLayer = null;
+      }
+      if (this.annotationLayer && (!keepAnnotationLayer || !this.annotationLayer.div)) {
+        this.annotationLayer.cancel();
+        this.annotationLayer = null;
+        this._annotationCanvasMap = null;
+      }
+      if (this.annotationEditorLayer && (!keepAnnotationEditorLayer || !this.annotationEditorLayer.div)) {
+        this.annotationEditorLayer.cancel();
+        this.annotationEditorLayer = null;
+      }
+      if (this.xfaLayer && (!keepXfaLayer || !this.xfaLayer.div)) {
+        var _this$textHighlighter;
+        this.xfaLayer.cancel();
+        this.xfaLayer = null;
+        (_this$textHighlighter = this.textHighlighter) === null || _this$textHighlighter === void 0 || _this$textHighlighter.disable();
+      }
+      if (this._onTextLayerRendered) {
+        this.eventBus._off("textlayerrendered", this._onTextLayerRendered);
+        this._onTextLayerRendered = null;
+      }
+    }
+  }, {
+    key: "cssTransform",
+    value: function cssTransform(_ref4) {
+      var target = _ref4.target,
+        _ref4$redrawAnnotatio = _ref4.redrawAnnotationLayer,
+        redrawAnnotationLayer = _ref4$redrawAnnotatio === void 0 ? false : _ref4$redrawAnnotatio,
+        _ref4$redrawAnnotatio2 = _ref4.redrawAnnotationEditorLayer,
+        redrawAnnotationEditorLayer = _ref4$redrawAnnotatio2 === void 0 ? false : _ref4$redrawAnnotatio2,
+        _ref4$redrawXfaLayer = _ref4.redrawXfaLayer,
+        redrawXfaLayer = _ref4$redrawXfaLayer === void 0 ? false : _ref4$redrawXfaLayer;
+      var width = this.viewport.width;
+      var height = this.viewport.height;
+      var div = this.div;
+      target.style.width = target.parentNode.style.width = div.style.width = Math.floor(width) + "px";
+      target.style.height = target.parentNode.style.height = div.style.height = Math.floor(height) + "px";
+      var relativeRotation = this.viewport.rotation - this.paintedViewportMap.get(target).rotation;
+      var absRotation = Math.abs(relativeRotation);
+      var scaleX = 1,
+        scaleY = 1;
+      if (absRotation === 90 || absRotation === 270) {
+        scaleX = height / width;
+        scaleY = width / height;
+      }
+      target.style.transform = "rotate(".concat(relativeRotation, "deg) scale(").concat(scaleX, ", ").concat(scaleY, ")");
+      if (this.textLayer) {
+        var textLayerViewport = this.textLayer.viewport;
+        var textRelativeRotation = this.viewport.rotation - textLayerViewport.rotation;
+        var textAbsRotation = Math.abs(textRelativeRotation);
+        var scale = width / textLayerViewport.width;
+        if (textAbsRotation === 90 || textAbsRotation === 270) {
+          scale = width / textLayerViewport.height;
+        }
+        var textLayerDiv = this.textLayer.textLayerDiv;
+        var transX, transY;
+        switch (textAbsRotation) {
+          case 0:
+            transX = transY = 0;
+            break;
+          case 90:
+            transX = 0;
+            transY = "-" + textLayerDiv.style.height;
+            break;
+          case 180:
+            transX = "-" + textLayerDiv.style.width;
+            transY = "-" + textLayerDiv.style.height;
+            break;
+          case 270:
+            transX = "-" + textLayerDiv.style.width;
+            transY = 0;
+            break;
+          default:
+            console.error("Bad rotation value.");
+            break;
+        }
+        textLayerDiv.style.transform = "rotate(".concat(textAbsRotation, "deg) ") + "scale(".concat(scale, ") ") + "translate(".concat(transX, ", ").concat(transY, ")");
+        textLayerDiv.style.transformOrigin = "0% 0%";
+      }
+      if (redrawAnnotationLayer && this.annotationLayer) {
+        this._renderAnnotationLayer();
+      }
+      if (redrawAnnotationEditorLayer && this.annotationEditorLayer) {
+        this._renderAnnotationEditorLayer();
+      }
+      if (redrawXfaLayer && this.xfaLayer) {
+        this._renderXfaLayer();
+      }
+    }
+  }, {
+    key: "width",
+    get: function get() {
+      return this.viewport.width;
+    }
+  }, {
+    key: "height",
+    get: function get() {
+      return this.viewport.height;
+    }
+  }, {
+    key: "getPagePoint",
+    value: function getPagePoint(x, y) {
+      return this.viewport.convertToPdfPoint(x, y);
+    }
+  }, {
+    key: "toggleLoadingIconSpinner",
+    value: function toggleLoadingIconSpinner() {
+      var _this$loadingIconDiv;
+      var viewVisible = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+      (_this$loadingIconDiv = this.loadingIconDiv) === null || _this$loadingIconDiv === void 0 || _this$loadingIconDiv.classList.toggle("notVisible", !viewVisible);
+    }
+  }, {
+    key: "draw",
+    value: function draw() {
+      var _this$annotationLayer2,
+        _this$annotationEdito3,
+        _this$xfaLayer2,
+        _this4 = this;
+      if (this.renderingState !== _ui_utils.RenderingStates.INITIAL) {
+        console.error("Must be in new state before drawing");
+        this.reset();
+      }
+      var div = this.div,
+        pdfPage = this.pdfPage;
+      if (!pdfPage) {
+        this.renderingState = _ui_utils.RenderingStates.FINISHED;
+        if (this.loadingIconDiv) {
+          this.loadingIconDiv.remove();
+          delete this.loadingIconDiv;
+        }
+        return Promise.reject(new Error("pdfPage is not loaded"));
+      }
+      this.renderingState = _ui_utils.RenderingStates.RUNNING;
+      var canvasWrapper = document.createElement("div");
+      canvasWrapper.style.width = div.style.width;
+      canvasWrapper.style.height = div.style.height;
+      canvasWrapper.classList.add("canvasWrapper");
+      var lastDivBeforeTextDiv = ((_this$annotationLayer2 = this.annotationLayer) === null || _this$annotationLayer2 === void 0 ? void 0 : _this$annotationLayer2.div) || ((_this$annotationEdito3 = this.annotationEditorLayer) === null || _this$annotationEdito3 === void 0 ? void 0 : _this$annotationEdito3.div);
+      if (lastDivBeforeTextDiv) {
+        lastDivBeforeTextDiv.before(canvasWrapper);
+      } else {
+        div.append(canvasWrapper);
+      }
+      var textLayer = null;
+      if (this.textLayerMode !== _ui_utils.TextLayerMode.DISABLE && this.textLayerFactory) {
+        var textLayerDiv = document.createElement("div");
+        textLayerDiv.className = "textLayer";
+        textLayerDiv.style.width = canvasWrapper.style.width;
+        textLayerDiv.style.height = canvasWrapper.style.height;
+        if (lastDivBeforeTextDiv) {
+          lastDivBeforeTextDiv.before(textLayerDiv);
+        } else {
+          div.append(textLayerDiv);
+        }
+        textLayer = this.textLayerFactory.createTextLayerBuilder({
+          textLayerDiv: textLayerDiv,
+          pageIndex: this.id - 1,
+          viewport: this.viewport,
+          enhanceTextSelection: this.textLayerMode === _ui_utils.TextLayerMode.ENABLE_ENHANCE,
+          eventBus: this.eventBus,
+          highlighter: this.textHighlighter
+        });
+      }
+      this.textLayer = textLayer;
+      if (_classPrivateFieldGet(_annotationMode, this) !== _pdfjsLib.AnnotationMode.DISABLE && this.annotationLayerFactory) {
+        this._annotationCanvasMap || (this._annotationCanvasMap = new Map());
+        this.annotationLayer || (this.annotationLayer = this.annotationLayerFactory.createAnnotationLayerBuilder({
+          pageDiv: div,
+          pdfPage: pdfPage,
+          imageResourcesPath: this.imageResourcesPath,
+          renderForms: _classPrivateFieldGet(_annotationMode, this) === _pdfjsLib.AnnotationMode.ENABLE_FORMS,
+          l10n: this.l10n,
+          annotationCanvasMap: this._annotationCanvasMap
+        }));
+      }
+      if ((_this$xfaLayer2 = this.xfaLayer) !== null && _this$xfaLayer2 !== void 0 && _this$xfaLayer2.div) {
+        div.append(this.xfaLayer.div);
+      }
+      var renderContinueCallback = null;
+      if (this.renderingQueue) {
+        renderContinueCallback = function renderContinueCallback(cont) {
+          if (!_this4.renderingQueue.isHighestPriority(_this4)) {
+            _this4.renderingState = _ui_utils.RenderingStates.PAUSED;
+            _this4.resume = function () {
+              _this4.renderingState = _ui_utils.RenderingStates.RUNNING;
+              cont();
+            };
+            return;
+          }
+          cont();
+        };
+      }
+      var finishPaintTask = /*#__PURE__*/function () {
+        var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+          var error,
+            _args5 = arguments;
+          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+            while (1) switch (_context5.prev = _context5.next) {
+              case 0:
+                error = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : null;
+                if (paintTask === _this4.paintTask) {
+                  _this4.paintTask = null;
+                }
+                if (!(error instanceof _pdfjsLib.RenderingCancelledException)) {
+                  _context5.next = 5;
+                  break;
+                }
+                _this4._renderError = null;
+                return _context5.abrupt("return");
+              case 5:
+                _this4._renderError = error;
+                _this4.renderingState = _ui_utils.RenderingStates.FINISHED;
+                if (_this4.loadingIconDiv) {
+                  _this4.loadingIconDiv.remove();
+                  delete _this4.loadingIconDiv;
+                }
+                _this4._resetZoomLayer(true);
+                _classPrivateFieldGet(_useThumbnailCanvas, _this4).regularAnnotations = !paintTask.separateAnnots;
+                _this4.eventBus.dispatch("pagerendered", {
+                  source: _this4,
+                  pageNumber: _this4.id,
+                  cssTransform: false,
+                  timestamp: performance.now(),
+                  error: _this4._renderError
+                });
+                if (!error) {
+                  _context5.next = 13;
+                  break;
+                }
+                throw error;
+              case 13:
+              case "end":
+                return _context5.stop();
+            }
+          }, _callee5);
+        }));
+        return function finishPaintTask() {
+          return _ref5.apply(this, arguments);
+        };
+      }();
+      var paintTask = this.renderer === _ui_utils.RendererType.SVG ? this.paintOnSvg(canvasWrapper) : this.paintOnCanvas(canvasWrapper);
+      paintTask.onRenderContinue = renderContinueCallback;
+      this.paintTask = paintTask;
+      var resultPromise = paintTask.promise.then(function () {
+        return finishPaintTask(null).then(function () {
+          if (textLayer) {
+            var readableStream = pdfPage.streamTextContent({
+              includeMarkedContent: true
+            });
+            textLayer.setTextContentStream(readableStream);
+            textLayer.render();
+          }
+          if (_this4.annotationLayer) {
+            _this4._renderAnnotationLayer().then(function () {
+              if (_this4.annotationEditorLayerFactory) {
+                _this4.annotationEditorLayer || (_this4.annotationEditorLayer = _this4.annotationEditorLayerFactory.createAnnotationEditorLayerBuilder({
+                  pageDiv: div,
+                  pdfPage: pdfPage,
+                  l10n: _this4.l10n
+                }));
+                _this4._renderAnnotationEditorLayer();
+              }
+            });
+          }
+        });
+      }, function (reason) {
+        return finishPaintTask(reason);
+      });
+      if (this.xfaLayerFactory) {
+        if (!this.xfaLayer) {
+          this.xfaLayer = this.xfaLayerFactory.createXfaLayerBuilder({
+            pageDiv: div,
+            pdfPage: pdfPage
+          });
+        }
+        this._renderXfaLayer();
+      }
+      if (this.structTreeLayerFactory && this.textLayer && this.canvas) {
+        this._onTextLayerRendered = function (event) {
+          if (event.pageNumber !== _this4.id) {
+            return;
+          }
+          _this4.eventBus._off("textlayerrendered", _this4._onTextLayerRendered);
+          _this4._onTextLayerRendered = null;
+          if (!_this4.canvas) {
+            return;
+          }
+          _this4.pdfPage.getStructTree().then(function (tree) {
+            if (!tree) {
+              return;
+            }
+            if (!_this4.canvas) {
+              return;
+            }
+            var treeDom = _this4.structTreeLayer.render(tree);
+            treeDom.classList.add("structTree");
+            _this4.canvas.append(treeDom);
+          });
+        };
+        this.eventBus._on("textlayerrendered", this._onTextLayerRendered);
+        this.structTreeLayer = this.structTreeLayerFactory.createStructTreeLayerBuilder({
+          pdfPage: pdfPage
+        });
+      }
+      div.setAttribute("data-loaded", true);
+      this.eventBus.dispatch("pagerender", {
+        source: this,
+        pageNumber: this.id
+      });
+      return resultPromise;
+    }
+  }, {
+    key: "paintOnCanvas",
+    value: function paintOnCanvas(canvasWrapper) {
+      var renderCapability = (0, _pdfjsLib.createPromiseCapability)();
+      var result = {
+        promise: renderCapability.promise,
+        onRenderContinue: function onRenderContinue(cont) {
+          cont();
+        },
+        cancel: function cancel() {
+          renderTask.cancel();
+        },
+        get separateAnnots() {
+          return renderTask.separateAnnots;
+        }
+      };
+      var viewport = this.viewport;
+      var canvas = document.createElement("canvas");
+      canvas.setAttribute("role", "presentation");
+      canvas.hidden = true;
+      var isCanvasHidden = true;
+      var showCanvas = function showCanvas() {
+        if (isCanvasHidden) {
+          canvas.hidden = false;
+          isCanvasHidden = false;
+        }
+      };
+      canvasWrapper.append(canvas);
+      this.canvas = canvas;
+      var ctx = canvas.getContext("2d", {
+        alpha: false
+      });
+      var outputScale = this.outputScale = new _ui_utils.OutputScale();
+      if (this.useOnlyCssZoom) {
+        var actualSizeViewport = viewport.clone({
+          scale: _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS
+        });
+        outputScale.sx *= actualSizeViewport.width / viewport.width;
+        outputScale.sy *= actualSizeViewport.height / viewport.height;
+      }
+      if (this.maxCanvasPixels > 0) {
+        var pixelsInViewport = viewport.width * viewport.height;
+        var maxScale = Math.sqrt(this.maxCanvasPixels / pixelsInViewport);
+        if (outputScale.sx > maxScale || outputScale.sy > maxScale) {
+          outputScale.sx = maxScale;
+          outputScale.sy = maxScale;
+          this.hasRestrictedScaling = true;
+        } else {
+          this.hasRestrictedScaling = false;
+        }
+      }
+      var sfx = (0, _ui_utils.approximateFraction)(outputScale.sx);
+      var sfy = (0, _ui_utils.approximateFraction)(outputScale.sy);
+      canvas.width = (0, _ui_utils.roundToDivide)(viewport.width * outputScale.sx, sfx[0]);
+      canvas.height = (0, _ui_utils.roundToDivide)(viewport.height * outputScale.sy, sfy[0]);
+      canvas.style.width = (0, _ui_utils.roundToDivide)(viewport.width, sfx[1]) + "px";
+      canvas.style.height = (0, _ui_utils.roundToDivide)(viewport.height, sfy[1]) + "px";
+      this.paintedViewportMap.set(canvas, viewport);
+      var transform = outputScale.scaled ? [outputScale.sx, 0, 0, outputScale.sy, 0, 0] : null;
+      var renderContext = {
+        canvasContext: ctx,
+        transform: transform,
+        viewport: this.viewport,
+        annotationMode: _classPrivateFieldGet(_annotationMode, this),
+        optionalContentConfigPromise: this._optionalContentConfigPromise,
+        annotationCanvasMap: this._annotationCanvasMap,
+        pageColors: this.pageColors
+      };
+      var renderTask = this.pdfPage.render(renderContext);
+      renderTask.onContinue = function (cont) {
+        showCanvas();
+        if (result.onRenderContinue) {
+          result.onRenderContinue(cont);
+        } else {
+          cont();
+        }
+      };
+      renderTask.promise.then(function () {
+        showCanvas();
+        renderCapability.resolve();
+      }, function (error) {
+        showCanvas();
+        renderCapability.reject(error);
+      });
+      return result;
+    }
+  }, {
+    key: "paintOnSvg",
+    value: function paintOnSvg(wrapper) {
+      var _this5 = this;
+      var cancelled = false;
+      var ensureNotCancelled = function ensureNotCancelled() {
+        if (cancelled) {
+          throw new _pdfjsLib.RenderingCancelledException("Rendering cancelled, page ".concat(_this5.id), "svg");
+        }
+      };
+      var pdfPage = this.pdfPage;
+      var actualSizeViewport = this.viewport.clone({
+        scale: _pdfjsLib.PixelsPerInch.PDF_TO_CSS_UNITS
+      });
+      var promise = pdfPage.getOperatorList({
+        annotationMode: _classPrivateFieldGet(_annotationMode, this)
+      }).then(function (opList) {
+        ensureNotCancelled();
+        var svgGfx = new _pdfjsLib.SVGGraphics(pdfPage.commonObjs, pdfPage.objs);
+        return svgGfx.getSVG(opList, actualSizeViewport).then(function (svg) {
+          ensureNotCancelled();
+          _this5.svg = svg;
+          _this5.paintedViewportMap.set(svg, actualSizeViewport);
+          svg.style.width = wrapper.style.width;
+          svg.style.height = wrapper.style.height;
+          _this5.renderingState = _ui_utils.RenderingStates.FINISHED;
+          wrapper.append(svg);
+        });
+      });
+      return {
+        promise: promise,
+        onRenderContinue: function onRenderContinue(cont) {
+          cont();
+        },
+        cancel: function cancel() {
+          cancelled = true;
+        },
+        get separateAnnots() {
+          return false;
+        }
+      };
+    }
+  }, {
+    key: "setPageLabel",
+    value: function setPageLabel(label) {
+      this.pageLabel = typeof label === "string" ? label : null;
+      if (this.pageLabel !== null) {
+        this.div.setAttribute("data-page-label", this.pageLabel);
+      } else {
+        this.div.removeAttribute("data-page-label");
+      }
+    }
+  }, {
+    key: "thumbnailCanvas",
+    get: function get() {
+      var _classPrivateFieldGet2 = _classPrivateFieldGet(_useThumbnailCanvas, this),
+        initialOptionalContent = _classPrivateFieldGet2.initialOptionalContent,
+        regularAnnotations = _classPrivateFieldGet2.regularAnnotations;
+      return initialOptionalContent && regularAnnotations ? this.canvas : null;
+    }
+  }]);
+}();
+
+/***/ }),
+/* 15 */
+/***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
+
+
+
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.PDFRenderingQueue = void 0;
 var _pdfjsLib = __w_pdfjs_require__(3);
-var _ui_utils = __w_pdfjs_require__(6);
+var _ui_utils = __w_pdfjs_require__(7);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
 function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
@@ -5031,7 +5453,7 @@ var PDFRenderingQueue = exports.PDFRenderingQueue = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -5166,8 +5588,8 @@ var TextHighlighter = exports.TextHighlighter = /*#__PURE__*/function () {
         var div = textDivs[divIdx];
         if (div.nodeType === Node.TEXT_NODE) {
           var span = document.createElement("span");
-          div.parentNode.insertBefore(span, div);
-          span.appendChild(div);
+          div.before(span);
+          span.append(div);
           textDivs[divIdx] = span;
           div = span;
         }
@@ -5176,11 +5598,11 @@ var TextHighlighter = exports.TextHighlighter = /*#__PURE__*/function () {
         if (className) {
           var _span = document.createElement("span");
           _span.className = "".concat(className, " appended");
-          _span.appendChild(node);
-          div.appendChild(_span);
+          _span.append(node);
+          div.append(_span);
           return className.includes("selected") ? _span.offsetLeft : 0;
         }
-        div.appendChild(node);
+        div.append(node);
         return 0;
       }
       var i0 = selectedMatchIdx,
@@ -5263,7 +5685,7 @@ var TextHighlighter = exports.TextHighlighter = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -5290,7 +5712,7 @@ function _download(blobUrl, filename) {
   if ("download" in a) {
     a.download = filename;
   }
-  (document.body || document.documentElement).appendChild(a);
+  (document.body || document.documentElement).append(a);
   a.click();
   a.remove();
 }
@@ -5346,7 +5768,6 @@ var DownloadManager = exports.DownloadManager = /*#__PURE__*/function () {
   }, {
     key: "download",
     value: function download(blob, url, filename) {
-      var sourceEventType = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "download";
       var blobUrl = URL.createObjectURL(blob);
       _download(blobUrl, filename);
     }
@@ -5354,7 +5775,7 @@ var DownloadManager = exports.DownloadManager = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -5527,7 +5948,7 @@ var AutomationEventBus = exports.AutomationEventBus = /*#__PURE__*/function (_Ev
 }(EventBus);
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -5536,7 +5957,7 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.GenericL10n = void 0;
-__w_pdfjs_require__(19);
+__w_pdfjs_require__(20);
 var _l10n_utils = __w_pdfjs_require__(4);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
@@ -5663,7 +6084,7 @@ var GenericL10n = exports.GenericL10n = /*#__PURE__*/function () {
 }();
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (() => {
 
 
@@ -6297,7 +6718,7 @@ document.webL10n = function (window, document, undefined) {
         }
         if (!found) {
           var textNode = document.createTextNode(data[gTextProp]);
-          element.insertBefore(textNode, element.firstChild);
+          element.prepend(textNode);
         }
       }
       delete data[gTextProp];
@@ -6388,7 +6809,7 @@ document.webL10n = function (window, document, undefined) {
 }(window, document);
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -6398,10 +6819,9 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.PDFFindController = exports.FindState = void 0;
-var _ui_utils = __w_pdfjs_require__(6);
 var _pdfjsLib = __w_pdfjs_require__(3);
-var _pdf_find_utils = __w_pdfjs_require__(21);
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+var _pdf_find_utils = __w_pdfjs_require__(22);
+var _ui_utils = __w_pdfjs_require__(7);
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
@@ -6415,6 +6835,7 @@ function _classPrivateMethodInitSpec(e, a) { _checkPrivateRedeclaration(e, a), a
 function _checkPrivateRedeclaration(e, t) { if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object"); }
 function _classPrivateGetter(s, r, a) { return a(_assertClassBrand(s, r)); }
 function _assertClassBrand(e, t, n) { if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n; throw new TypeError("Private element is not present on this object"); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
@@ -6452,25 +6873,63 @@ var DIACRITICS_REG_EXP = /(?:[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C
 var SPECIAL_CHARS_REG_EXP = /([\$\(-\+\.\?\[-\^\{-\}])|((?:[!-#%-\*,-\/:;\?@\[-\]_\{\}\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061D-\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u09FD\u0A76\u0AF0\u0C77\u0C84\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1B7D\u1B7E\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E4F\u2E52-\u2E5D\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD803[\uDEAD\uDF55-\uDF59\uDF86-\uDF89]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC8\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDC4B-\uDC4F\uDC5A\uDC5B\uDC5D\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDE60-\uDE6C\uDEB9\uDF3C-\uDF3E]|\uD806[\uDC3B\uDD44-\uDD46\uDDE2\uDE3F-\uDE46\uDE9A-\uDE9C\uDE9E-\uDEA2\uDF00-\uDF09]|\uD807[\uDC41-\uDC45\uDC70\uDC71\uDEF7\uDEF8\uDF43-\uDF4F\uDFFF]|\uD809[\uDC70-\uDC74]|\uD80B[\uDFF1\uDFF2]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD81B[\uDE97-\uDE9A\uDFE2]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]|\uD83A[\uDD5E\uDD5F]))|([\t-\r \xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000\uFEFF]+)|((?:[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u0898-\u089F\u08CA-\u08E1\u08E3-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u09FE\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B55-\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C04\u0C3C\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0CF3\u0D00-\u0D03\u0D3B\u0D3C\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D81-\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECE\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u180F\u1885\u1886\u18A9\u1920-\u192B\u1930-\u193B\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ACE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF4\u1CF7-\u1CF9\u1DC0-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA82C\uA880\uA881\uA8B4-\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F]|\uD800[\uDDFD\uDEE0\uDF76-\uDF7A]|\uD802[\uDE01-\uDE03\uDE05\uDE06\uDE0C-\uDE0F\uDE38-\uDE3A\uDE3F\uDEE5\uDEE6]|\uD803[\uDD24-\uDD27\uDEAB\uDEAC\uDEFD-\uDEFF\uDF46-\uDF50\uDF82-\uDF85]|\uD804[\uDC00-\uDC02\uDC38-\uDC46\uDC70\uDC73\uDC74\uDC7F-\uDC82\uDCB0-\uDCBA\uDCC2\uDD00-\uDD02\uDD27-\uDD34\uDD45\uDD46\uDD73\uDD80-\uDD82\uDDB3-\uDDC0\uDDC9-\uDDCC\uDDCE\uDDCF\uDE2C-\uDE37\uDE3E\uDE41\uDEDF-\uDEEA\uDF00-\uDF03\uDF3B\uDF3C\uDF3E-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF57\uDF62\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDC35-\uDC46\uDC5E\uDCB0-\uDCC3\uDDAF-\uDDB5\uDDB8-\uDDC0\uDDDC\uDDDD\uDE30-\uDE40\uDEAB-\uDEB7\uDF1D-\uDF2B]|\uD806[\uDC2C-\uDC3A\uDD30-\uDD35\uDD37\uDD38\uDD3B-\uDD3E\uDD40\uDD42\uDD43\uDDD1-\uDDD7\uDDDA-\uDDE0\uDDE4\uDE01-\uDE0A\uDE33-\uDE39\uDE3B-\uDE3E\uDE47\uDE51-\uDE5B\uDE8A-\uDE99]|\uD807[\uDC2F-\uDC36\uDC38-\uDC3F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD31-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD45\uDD47\uDD8A-\uDD8E\uDD90\uDD91\uDD93-\uDD97\uDEF3-\uDEF6\uDF00\uDF01\uDF03\uDF34-\uDF3A\uDF3E-\uDF42]|\uD80D[\uDC40\uDC47-\uDC55]|\uD81A[\uDEF0-\uDEF4\uDF30-\uDF36]|\uD81B[\uDF4F\uDF51-\uDF87\uDF8F-\uDF92\uDFE4\uDFF0\uDFF1]|\uD82F[\uDC9D\uDC9E]|\uD833[\uDF00-\uDF2D\uDF30-\uDF46]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD836[\uDE00-\uDE36\uDE3B-\uDE6C\uDE75\uDE84\uDE9B-\uDE9F\uDEA1-\uDEAF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDC8F\uDD30-\uDD36\uDEAE\uDEEC-\uDEEF]|\uD839[\uDCEC-\uDCEF]|\uD83A[\uDCD0-\uDCD6\uDD44-\uDD4A]|\uDB40[\uDD00-\uDDEF]))|((?:[A-Za-z\xAA\xB5\xBA\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05D0-\u05EA\u05EF-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u0860-\u086A\u0870-\u0887\u0889-\u088E\u08A0-\u08C9\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0980\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u09FC\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0AF9\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D\u0C58-\u0C5A\u0C5D\u0C60\u0C61\u0C80\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D04-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D54-\u0D56\u0D5F-\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16F1-\u16F8\u1700-\u1711\u171F-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1878\u1880-\u1884\u1887-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191E\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4C\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u31A0-\u31BF\u31F0-\u31FF\u3400-\u4DBF\u4E00-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA69D\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA7CA\uA7D0\uA7D1\uA7D3\uA7D5-\uA7D9\uA7F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA8FD\uA8FE\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uA9E0-\uA9E4\uA9E6-\uA9EF\uA9FA-\uA9FE\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDE80-\uDE9C\uDEA0-\uDED0\uDF00-\uDF1F\uDF2D-\uDF40\uDF42-\uDF49\uDF50-\uDF75\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF]|\uD801[\uDC00-\uDC9D\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDD70-\uDD7A\uDD7C-\uDD8A\uDD8C-\uDD92\uDD94\uDD95\uDD97-\uDDA1\uDDA3-\uDDB1\uDDB3-\uDDB9\uDDBB\uDDBC\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67\uDF80-\uDF85\uDF87-\uDFB0\uDFB2-\uDFBA]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC60-\uDC76\uDC80-\uDC9E\uDCE0-\uDCF2\uDCF4\uDCF5\uDD00-\uDD15\uDD20-\uDD39\uDD80-\uDDB7\uDDBE\uDDBF\uDE00\uDE10-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE60-\uDE7C\uDE80-\uDE9C\uDEC0-\uDEC7\uDEC9-\uDEE4\uDF00-\uDF35\uDF40-\uDF55\uDF60-\uDF72\uDF80-\uDF91]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDD00-\uDD23\uDE80-\uDEA9\uDEB0\uDEB1\uDF00-\uDF1C\uDF27\uDF30-\uDF45\uDF70-\uDF81\uDFB0-\uDFC4\uDFE0-\uDFF6]|\uD804[\uDC03-\uDC37\uDC71\uDC72\uDC75\uDC83-\uDCAF\uDCD0-\uDCE8\uDD03-\uDD26\uDD44\uDD47\uDD50-\uDD72\uDD76\uDD83-\uDDB2\uDDC1-\uDDC4\uDDDA\uDDDC\uDE00-\uDE11\uDE13-\uDE2B\uDE3F\uDE40\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEDE\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D\uDF50\uDF5D-\uDF61]|\uD805[\uDC00-\uDC34\uDC47-\uDC4A\uDC5F-\uDC61\uDC80-\uDCAF\uDCC4\uDCC5\uDCC7\uDD80-\uDDAE\uDDD8-\uDDDB\uDE00-\uDE2F\uDE44\uDE80-\uDEAA\uDEB8\uDF00-\uDF1A\uDF40-\uDF46]|\uD806[\uDC00-\uDC2B\uDCA0-\uDCDF\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD2F\uDD3F\uDD41\uDDA0-\uDDA7\uDDAA-\uDDD0\uDDE1\uDDE3\uDE00\uDE0B-\uDE32\uDE3A\uDE50\uDE5C-\uDE89\uDE9D\uDEB0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC2E\uDC40\uDC72-\uDC8F\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD30\uDD46\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD89\uDD98\uDEE0-\uDEF2\uDF02\uDF04-\uDF10\uDF12-\uDF33\uDFB0]|\uD808[\uDC00-\uDF99]|\uD809[\uDC80-\uDD43]|\uD80B[\uDF90-\uDFF0]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883\uD885-\uD887][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2F\uDC41-\uDC46]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE70-\uDEBE\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE7F\uDF00-\uDF4A\uDF50\uDF93-\uDF9F\uDFE0\uDFE1\uDFE3]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82B[\uDFF0-\uDFF3\uDFF5-\uDFFB\uDFFD\uDFFE]|\uD82C[\uDC00-\uDD22\uDD32\uDD50-\uDD52\uDD55\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB]|\uD837[\uDF00-\uDF1E\uDF25-\uDF2A]|\uD838[\uDC30-\uDC6D\uDD00-\uDD2C\uDD37-\uDD3D\uDD4E\uDE90-\uDEAD\uDEC0-\uDEEB]|\uD839[\uDCD0-\uDCEB\uDFE0-\uDFE6\uDFE8-\uDFEB\uDFED\uDFEE\uDFF0-\uDFFE]|\uD83A[\uDC00-\uDCC4\uDD00-\uDD43\uDD4B]|\uD83B[\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD869[\uDC00-\uDEDF\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF39\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0\uDFF0-\uDFFF]|\uD87B[\uDC00-\uDE5D]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A\uDF50-\uDFFF]|\uD888[\uDC00-\uDFAF]))/g;
 var NOT_DIACRITIC_FROM_END_REG_EXP = /((?:[\0-\u02FF\u0370-\u0482\u048A-\u0590\u05BE\u05C0\u05C3\u05C6\u05C8-\u060F\u061B-\u064A\u0660-\u066F\u0671-\u06D5\u06DD\u06DE\u06E5\u06E6\u06E9\u06EE-\u0710\u0712-\u072F\u074B-\u07A5\u07B1-\u07EA\u07F4-\u07FC\u07FE-\u0815\u081A\u0824\u0828\u082E-\u0858\u085C-\u0897\u08A0-\u08C9\u08E2\u0904-\u0939\u093D\u0950\u0958-\u0961\u0964-\u0980\u0984-\u09BB\u09BD\u09C5\u09C6\u09C9\u09CA\u09CE-\u09D6\u09D8-\u09E1\u09E4-\u09FD\u09FF\u0A00\u0A04-\u0A3B\u0A3D\u0A43-\u0A46\u0A49\u0A4A\u0A4E-\u0A50\u0A52-\u0A6F\u0A72-\u0A74\u0A76-\u0A80\u0A84-\u0ABB\u0ABD\u0AC6\u0ACA\u0ACE-\u0AE1\u0AE4-\u0AF9\u0B00\u0B04-\u0B3B\u0B3D\u0B45\u0B46\u0B49\u0B4A\u0B4E-\u0B54\u0B58-\u0B61\u0B64-\u0B81\u0B83-\u0BBD\u0BC3-\u0BC5\u0BC9\u0BCE-\u0BD6\u0BD8-\u0BFF\u0C05-\u0C3B\u0C3D\u0C45\u0C49\u0C4E-\u0C54\u0C57-\u0C61\u0C64-\u0C80\u0C84-\u0CBB\u0CBD\u0CC5\u0CC9\u0CCE-\u0CD4\u0CD7-\u0CE1\u0CE4-\u0CF2\u0CF4-\u0CFF\u0D04-\u0D3A\u0D3D\u0D45\u0D49\u0D4E-\u0D56\u0D58-\u0D61\u0D64-\u0D80\u0D84-\u0DC9\u0DCB-\u0DCE\u0DD5\u0DD7\u0DE0-\u0DF1\u0DF4-\u0E30\u0E32\u0E33\u0E3B-\u0E46\u0E4F-\u0EB0\u0EB2\u0EB3\u0EBD-\u0EC7\u0ECF-\u0F17\u0F1A-\u0F34\u0F36\u0F38\u0F3A-\u0F3D\u0F40-\u0F70\u0F85\u0F88-\u0F8C\u0F98\u0FBD-\u0FC5\u0FC7-\u102A\u103F-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u109E-\u135C\u1360-\u1711\u1716-\u1731\u1735-\u1751\u1754-\u1771\u1774-\u17B3\u17D4-\u17DC\u17DE-\u180A\u180E\u1810-\u1884\u1887-\u18A8\u18AA-\u191F\u192C-\u192F\u193C-\u1A16\u1A1C-\u1A54\u1A5F\u1A7D\u1A7E\u1A80-\u1AAF\u1ACF-\u1AFF\u1B05-\u1B33\u1B45-\u1B6A\u1B74-\u1B7F\u1B83-\u1BA0\u1BAE-\u1BE5\u1BF4-\u1C23\u1C38-\u1CCF\u1CD3\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA-\u1DBF\u1E00-\u20CF\u20F1-\u2CEE\u2CF2-\u2D7E\u2D80-\u2DDF\u2E00-\u3029\u3030-\u3098\u309B-\uA66E\uA673\uA67E-\uA69D\uA6A0-\uA6EF\uA6F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA828-\uA82B\uA82D-\uA87F\uA882-\uA8B3\uA8C6-\uA8DF\uA8F2-\uA8FE\uA900-\uA925\uA92E-\uA946\uA954-\uA97F\uA984-\uA9B2\uA9C1-\uA9E4\uA9E6-\uAA28\uAA37-\uAA42\uAA44-\uAA4B\uAA4E-\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2-\uAAEA\uAAF0-\uAAF4\uAAF7-\uABE2\uABEB\uABEE-\uD7FF\uE000-\uFB1D\uFB1F-\uFDFF\uFE10-\uFE1F\uFE30-\uFFFF]|\uD800[\uDC00-\uDDFC\uDDFE-\uDEDF\uDEE1-\uDF75\uDF7B-\uDFFF]|[\uD801\uD808-\uD80C\uD80E-\uD819\uD81C-\uD82E\uD830-\uD832\uD835\uD837\uD83B-\uDB3F\uDB41-\uDBFF][\uDC00-\uDFFF]|\uD802[\uDC00-\uDE00\uDE04\uDE07-\uDE0B\uDE10-\uDE37\uDE3B-\uDE3E\uDE40-\uDEE4\uDEE7-\uDFFF]|\uD803[\uDC00-\uDD23\uDD28-\uDEAA\uDEAD-\uDEFC\uDF00-\uDF45\uDF51-\uDF81\uDF86-\uDFFF]|\uD804[\uDC03-\uDC37\uDC47-\uDC6F\uDC71\uDC72\uDC75-\uDC7E\uDC83-\uDCAF\uDCBB-\uDCC1\uDCC3-\uDCFF\uDD03-\uDD26\uDD35-\uDD44\uDD47-\uDD72\uDD74-\uDD7F\uDD83-\uDDB2\uDDC1-\uDDC8\uDDCD\uDDD0-\uDE2B\uDE38-\uDE3D\uDE3F\uDE40\uDE42-\uDEDE\uDEEB-\uDEFF\uDF04-\uDF3A\uDF3D\uDF45\uDF46\uDF49\uDF4A\uDF4E-\uDF56\uDF58-\uDF61\uDF64\uDF65\uDF6D-\uDF6F\uDF75-\uDFFF]|\uD805[\uDC00-\uDC34\uDC47-\uDC5D\uDC5F-\uDCAF\uDCC4-\uDDAE\uDDB6\uDDB7\uDDC1-\uDDDB\uDDDE-\uDE2F\uDE41-\uDEAA\uDEB8-\uDF1C\uDF2C-\uDFFF]|\uD806[\uDC00-\uDC2B\uDC3B-\uDD2F\uDD36\uDD39\uDD3A\uDD3F\uDD41\uDD44-\uDDD0\uDDD8\uDDD9\uDDE1-\uDDE3\uDDE5-\uDE00\uDE0B-\uDE32\uDE3A\uDE3F-\uDE46\uDE48-\uDE50\uDE5C-\uDE89\uDE9A-\uDFFF]|\uD807[\uDC00-\uDC2E\uDC37\uDC40-\uDC91\uDCA8\uDCB7-\uDD30\uDD37-\uDD39\uDD3B\uDD3E\uDD46\uDD48-\uDD89\uDD8F\uDD92\uDD98-\uDEF2\uDEF7-\uDEFF\uDF02\uDF04-\uDF33\uDF3B-\uDF3D\uDF43-\uDFFF]|\uD80D[\uDC00-\uDC3F\uDC41-\uDC46\uDC56-\uDFFF]|\uD81A[\uDC00-\uDEEF\uDEF5-\uDF2F\uDF37-\uDFFF]|\uD81B[\uDC00-\uDF4E\uDF50\uDF88-\uDF8E\uDF93-\uDFE3\uDFE5-\uDFEF\uDFF2-\uDFFF]|\uD82F[\uDC00-\uDC9C\uDC9F-\uDFFF]|\uD833[\uDC00-\uDEFF\uDF2E\uDF2F\uDF47-\uDFFF]|\uD834[\uDC00-\uDD64\uDD6A-\uDD6C\uDD73-\uDD7A\uDD83\uDD84\uDD8C-\uDDA9\uDDAE-\uDE41\uDE45-\uDFFF]|\uD836[\uDC00-\uDDFF\uDE37-\uDE3A\uDE6D-\uDE74\uDE76-\uDE83\uDE85-\uDE9A\uDEA0\uDEB0-\uDFFF]|\uD838[\uDC07\uDC19\uDC1A\uDC22\uDC25\uDC2B-\uDC8E\uDC90-\uDD2F\uDD37-\uDEAD\uDEAF-\uDEEB\uDEF0-\uDFFF]|\uD839[\uDC00-\uDCEB\uDCF0-\uDFFF]|\uD83A[\uDC00-\uDCCF\uDCD7-\uDD43\uDD4B-\uDFFF]|\uDB40[\uDC00-\uDCFF\uDDF0-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]))(?:[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u0898-\u089F\u08CA-\u08E1\u08E3-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u09FE\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B55-\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C04\u0C3C\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0CF3\u0D00-\u0D03\u0D3B\u0D3C\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D81-\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECE\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u180F\u1885\u1886\u18A9\u1920-\u192B\u1930-\u193B\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ACE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF4\u1CF7-\u1CF9\u1DC0-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA82C\uA880\uA881\uA8B4-\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F]|\uD800[\uDDFD\uDEE0\uDF76-\uDF7A]|\uD802[\uDE01-\uDE03\uDE05\uDE06\uDE0C-\uDE0F\uDE38-\uDE3A\uDE3F\uDEE5\uDEE6]|\uD803[\uDD24-\uDD27\uDEAB\uDEAC\uDEFD-\uDEFF\uDF46-\uDF50\uDF82-\uDF85]|\uD804[\uDC00-\uDC02\uDC38-\uDC46\uDC70\uDC73\uDC74\uDC7F-\uDC82\uDCB0-\uDCBA\uDCC2\uDD00-\uDD02\uDD27-\uDD34\uDD45\uDD46\uDD73\uDD80-\uDD82\uDDB3-\uDDC0\uDDC9-\uDDCC\uDDCE\uDDCF\uDE2C-\uDE37\uDE3E\uDE41\uDEDF-\uDEEA\uDF00-\uDF03\uDF3B\uDF3C\uDF3E-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF57\uDF62\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDC35-\uDC46\uDC5E\uDCB0-\uDCC3\uDDAF-\uDDB5\uDDB8-\uDDC0\uDDDC\uDDDD\uDE30-\uDE40\uDEAB-\uDEB7\uDF1D-\uDF2B]|\uD806[\uDC2C-\uDC3A\uDD30-\uDD35\uDD37\uDD38\uDD3B-\uDD3E\uDD40\uDD42\uDD43\uDDD1-\uDDD7\uDDDA-\uDDE0\uDDE4\uDE01-\uDE0A\uDE33-\uDE39\uDE3B-\uDE3E\uDE47\uDE51-\uDE5B\uDE8A-\uDE99]|\uD807[\uDC2F-\uDC36\uDC38-\uDC3F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD31-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD45\uDD47\uDD8A-\uDD8E\uDD90\uDD91\uDD93-\uDD97\uDEF3-\uDEF6\uDF00\uDF01\uDF03\uDF34-\uDF3A\uDF3E-\uDF42]|\uD80D[\uDC40\uDC47-\uDC55]|\uD81A[\uDEF0-\uDEF4\uDF30-\uDF36]|\uD81B[\uDF4F\uDF51-\uDF87\uDF8F-\uDF92\uDFE4\uDFF0\uDFF1]|\uD82F[\uDC9D\uDC9E]|\uD833[\uDF00-\uDF2D\uDF30-\uDF46]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD836[\uDE00-\uDE36\uDE3B-\uDE6C\uDE75\uDE84\uDE9B-\uDE9F\uDEA1-\uDEAF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDC8F\uDD30-\uDD36\uDEAE\uDEEC-\uDEEF]|\uD839[\uDCEC-\uDCEF]|\uD83A[\uDCD0-\uDCD6\uDD44-\uDD4A]|\uDB40[\uDD00-\uDDEF])*$/;
 var NOT_DIACRITIC_FROM_START_REG_EXP = /^(?:[\u0300-\u036F\u0483-\u0489\u0591-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0711\u0730-\u074A\u07A6-\u07B0\u07EB-\u07F3\u07FD\u0816-\u0819\u081B-\u0823\u0825-\u0827\u0829-\u082D\u0859-\u085B\u0898-\u089F\u08CA-\u08E1\u08E3-\u0903\u093A-\u093C\u093E-\u094F\u0951-\u0957\u0962\u0963\u0981-\u0983\u09BC\u09BE-\u09C4\u09C7\u09C8\u09CB-\u09CD\u09D7\u09E2\u09E3\u09FE\u0A01-\u0A03\u0A3C\u0A3E-\u0A42\u0A47\u0A48\u0A4B-\u0A4D\u0A51\u0A70\u0A71\u0A75\u0A81-\u0A83\u0ABC\u0ABE-\u0AC5\u0AC7-\u0AC9\u0ACB-\u0ACD\u0AE2\u0AE3\u0AFA-\u0AFF\u0B01-\u0B03\u0B3C\u0B3E-\u0B44\u0B47\u0B48\u0B4B-\u0B4D\u0B55-\u0B57\u0B62\u0B63\u0B82\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCD\u0BD7\u0C00-\u0C04\u0C3C\u0C3E-\u0C44\u0C46-\u0C48\u0C4A-\u0C4D\u0C55\u0C56\u0C62\u0C63\u0C81-\u0C83\u0CBC\u0CBE-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCD\u0CD5\u0CD6\u0CE2\u0CE3\u0CF3\u0D00-\u0D03\u0D3B\u0D3C\u0D3E-\u0D44\u0D46-\u0D48\u0D4A-\u0D4D\u0D57\u0D62\u0D63\u0D81-\u0D83\u0DCA\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DF2\u0DF3\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\u0EB1\u0EB4-\u0EBC\u0EC8-\u0ECE\u0F18\u0F19\u0F35\u0F37\u0F39\u0F3E\u0F3F\u0F71-\u0F84\u0F86\u0F87\u0F8D-\u0F97\u0F99-\u0FBC\u0FC6\u102B-\u103E\u1056-\u1059\u105E-\u1060\u1062-\u1064\u1067-\u106D\u1071-\u1074\u1082-\u108D\u108F\u109A-\u109D\u135D-\u135F\u1712-\u1715\u1732-\u1734\u1752\u1753\u1772\u1773\u17B4-\u17D3\u17DD\u180B-\u180D\u180F\u1885\u1886\u18A9\u1920-\u192B\u1930-\u193B\u1A17-\u1A1B\u1A55-\u1A5E\u1A60-\u1A7C\u1A7F\u1AB0-\u1ACE\u1B00-\u1B04\u1B34-\u1B44\u1B6B-\u1B73\u1B80-\u1B82\u1BA1-\u1BAD\u1BE6-\u1BF3\u1C24-\u1C37\u1CD0-\u1CD2\u1CD4-\u1CE8\u1CED\u1CF4\u1CF7-\u1CF9\u1DC0-\u1DFF\u20D0-\u20F0\u2CEF-\u2CF1\u2D7F\u2DE0-\u2DFF\u302A-\u302F\u3099\u309A\uA66F-\uA672\uA674-\uA67D\uA69E\uA69F\uA6F0\uA6F1\uA802\uA806\uA80B\uA823-\uA827\uA82C\uA880\uA881\uA8B4-\uA8C5\uA8E0-\uA8F1\uA8FF\uA926-\uA92D\uA947-\uA953\uA980-\uA983\uA9B3-\uA9C0\uA9E5\uAA29-\uAA36\uAA43\uAA4C\uAA4D\uAA7B-\uAA7D\uAAB0\uAAB2-\uAAB4\uAAB7\uAAB8\uAABE\uAABF\uAAC1\uAAEB-\uAAEF\uAAF5\uAAF6\uABE3-\uABEA\uABEC\uABED\uFB1E\uFE00-\uFE0F\uFE20-\uFE2F]|\uD800[\uDDFD\uDEE0\uDF76-\uDF7A]|\uD802[\uDE01-\uDE03\uDE05\uDE06\uDE0C-\uDE0F\uDE38-\uDE3A\uDE3F\uDEE5\uDEE6]|\uD803[\uDD24-\uDD27\uDEAB\uDEAC\uDEFD-\uDEFF\uDF46-\uDF50\uDF82-\uDF85]|\uD804[\uDC00-\uDC02\uDC38-\uDC46\uDC70\uDC73\uDC74\uDC7F-\uDC82\uDCB0-\uDCBA\uDCC2\uDD00-\uDD02\uDD27-\uDD34\uDD45\uDD46\uDD73\uDD80-\uDD82\uDDB3-\uDDC0\uDDC9-\uDDCC\uDDCE\uDDCF\uDE2C-\uDE37\uDE3E\uDE41\uDEDF-\uDEEA\uDF00-\uDF03\uDF3B\uDF3C\uDF3E-\uDF44\uDF47\uDF48\uDF4B-\uDF4D\uDF57\uDF62\uDF63\uDF66-\uDF6C\uDF70-\uDF74]|\uD805[\uDC35-\uDC46\uDC5E\uDCB0-\uDCC3\uDDAF-\uDDB5\uDDB8-\uDDC0\uDDDC\uDDDD\uDE30-\uDE40\uDEAB-\uDEB7\uDF1D-\uDF2B]|\uD806[\uDC2C-\uDC3A\uDD30-\uDD35\uDD37\uDD38\uDD3B-\uDD3E\uDD40\uDD42\uDD43\uDDD1-\uDDD7\uDDDA-\uDDE0\uDDE4\uDE01-\uDE0A\uDE33-\uDE39\uDE3B-\uDE3E\uDE47\uDE51-\uDE5B\uDE8A-\uDE99]|\uD807[\uDC2F-\uDC36\uDC38-\uDC3F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD31-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD45\uDD47\uDD8A-\uDD8E\uDD90\uDD91\uDD93-\uDD97\uDEF3-\uDEF6\uDF00\uDF01\uDF03\uDF34-\uDF3A\uDF3E-\uDF42]|\uD80D[\uDC40\uDC47-\uDC55]|\uD81A[\uDEF0-\uDEF4\uDF30-\uDF36]|\uD81B[\uDF4F\uDF51-\uDF87\uDF8F-\uDF92\uDFE4\uDFF0\uDFF1]|\uD82F[\uDC9D\uDC9E]|\uD833[\uDF00-\uDF2D\uDF30-\uDF46]|\uD834[\uDD65-\uDD69\uDD6D-\uDD72\uDD7B-\uDD82\uDD85-\uDD8B\uDDAA-\uDDAD\uDE42-\uDE44]|\uD836[\uDE00-\uDE36\uDE3B-\uDE6C\uDE75\uDE84\uDE9B-\uDE9F\uDEA1-\uDEAF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDC8F\uDD30-\uDD36\uDEAE\uDEEC-\uDEEF]|\uD839[\uDCEC-\uDCEF]|\uD83A[\uDCD0-\uDCD6\uDD44-\uDD4A]|\uDB40[\uDD00-\uDDEF])*((?:[\0-\u02FF\u0370-\u0482\u048A-\u0590\u05BE\u05C0\u05C3\u05C6\u05C8-\u060F\u061B-\u064A\u0660-\u066F\u0671-\u06D5\u06DD\u06DE\u06E5\u06E6\u06E9\u06EE-\u0710\u0712-\u072F\u074B-\u07A5\u07B1-\u07EA\u07F4-\u07FC\u07FE-\u0815\u081A\u0824\u0828\u082E-\u0858\u085C-\u0897\u08A0-\u08C9\u08E2\u0904-\u0939\u093D\u0950\u0958-\u0961\u0964-\u0980\u0984-\u09BB\u09BD\u09C5\u09C6\u09C9\u09CA\u09CE-\u09D6\u09D8-\u09E1\u09E4-\u09FD\u09FF\u0A00\u0A04-\u0A3B\u0A3D\u0A43-\u0A46\u0A49\u0A4A\u0A4E-\u0A50\u0A52-\u0A6F\u0A72-\u0A74\u0A76-\u0A80\u0A84-\u0ABB\u0ABD\u0AC6\u0ACA\u0ACE-\u0AE1\u0AE4-\u0AF9\u0B00\u0B04-\u0B3B\u0B3D\u0B45\u0B46\u0B49\u0B4A\u0B4E-\u0B54\u0B58-\u0B61\u0B64-\u0B81\u0B83-\u0BBD\u0BC3-\u0BC5\u0BC9\u0BCE-\u0BD6\u0BD8-\u0BFF\u0C05-\u0C3B\u0C3D\u0C45\u0C49\u0C4E-\u0C54\u0C57-\u0C61\u0C64-\u0C80\u0C84-\u0CBB\u0CBD\u0CC5\u0CC9\u0CCE-\u0CD4\u0CD7-\u0CE1\u0CE4-\u0CF2\u0CF4-\u0CFF\u0D04-\u0D3A\u0D3D\u0D45\u0D49\u0D4E-\u0D56\u0D58-\u0D61\u0D64-\u0D80\u0D84-\u0DC9\u0DCB-\u0DCE\u0DD5\u0DD7\u0DE0-\u0DF1\u0DF4-\u0E30\u0E32\u0E33\u0E3B-\u0E46\u0E4F-\u0EB0\u0EB2\u0EB3\u0EBD-\u0EC7\u0ECF-\u0F17\u0F1A-\u0F34\u0F36\u0F38\u0F3A-\u0F3D\u0F40-\u0F70\u0F85\u0F88-\u0F8C\u0F98\u0FBD-\u0FC5\u0FC7-\u102A\u103F-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u1090-\u1099\u109E-\u135C\u1360-\u1711\u1716-\u1731\u1735-\u1751\u1754-\u1771\u1774-\u17B3\u17D4-\u17DC\u17DE-\u180A\u180E\u1810-\u1884\u1887-\u18A8\u18AA-\u191F\u192C-\u192F\u193C-\u1A16\u1A1C-\u1A54\u1A5F\u1A7D\u1A7E\u1A80-\u1AAF\u1ACF-\u1AFF\u1B05-\u1B33\u1B45-\u1B6A\u1B74-\u1B7F\u1B83-\u1BA0\u1BAE-\u1BE5\u1BF4-\u1C23\u1C38-\u1CCF\u1CD3\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA-\u1DBF\u1E00-\u20CF\u20F1-\u2CEE\u2CF2-\u2D7E\u2D80-\u2DDF\u2E00-\u3029\u3030-\u3098\u309B-\uA66E\uA673\uA67E-\uA69D\uA6A0-\uA6EF\uA6F2-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA828-\uA82B\uA82D-\uA87F\uA882-\uA8B3\uA8C6-\uA8DF\uA8F2-\uA8FE\uA900-\uA925\uA92E-\uA946\uA954-\uA97F\uA984-\uA9B2\uA9C1-\uA9E4\uA9E6-\uAA28\uAA37-\uAA42\uAA44-\uAA4B\uAA4E-\uAA7A\uAA7E-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2-\uAAEA\uAAF0-\uAAF4\uAAF7-\uABE2\uABEB\uABEE-\uD7FF\uE000-\uFB1D\uFB1F-\uFDFF\uFE10-\uFE1F\uFE30-\uFFFF]|\uD800[\uDC00-\uDDFC\uDDFE-\uDEDF\uDEE1-\uDF75\uDF7B-\uDFFF]|[\uD801\uD808-\uD80C\uD80E-\uD819\uD81C-\uD82E\uD830-\uD832\uD835\uD837\uD83B-\uDB3F\uDB41-\uDBFF][\uDC00-\uDFFF]|\uD802[\uDC00-\uDE00\uDE04\uDE07-\uDE0B\uDE10-\uDE37\uDE3B-\uDE3E\uDE40-\uDEE4\uDEE7-\uDFFF]|\uD803[\uDC00-\uDD23\uDD28-\uDEAA\uDEAD-\uDEFC\uDF00-\uDF45\uDF51-\uDF81\uDF86-\uDFFF]|\uD804[\uDC03-\uDC37\uDC47-\uDC6F\uDC71\uDC72\uDC75-\uDC7E\uDC83-\uDCAF\uDCBB-\uDCC1\uDCC3-\uDCFF\uDD03-\uDD26\uDD35-\uDD44\uDD47-\uDD72\uDD74-\uDD7F\uDD83-\uDDB2\uDDC1-\uDDC8\uDDCD\uDDD0-\uDE2B\uDE38-\uDE3D\uDE3F\uDE40\uDE42-\uDEDE\uDEEB-\uDEFF\uDF04-\uDF3A\uDF3D\uDF45\uDF46\uDF49\uDF4A\uDF4E-\uDF56\uDF58-\uDF61\uDF64\uDF65\uDF6D-\uDF6F\uDF75-\uDFFF]|\uD805[\uDC00-\uDC34\uDC47-\uDC5D\uDC5F-\uDCAF\uDCC4-\uDDAE\uDDB6\uDDB7\uDDC1-\uDDDB\uDDDE-\uDE2F\uDE41-\uDEAA\uDEB8-\uDF1C\uDF2C-\uDFFF]|\uD806[\uDC00-\uDC2B\uDC3B-\uDD2F\uDD36\uDD39\uDD3A\uDD3F\uDD41\uDD44-\uDDD0\uDDD8\uDDD9\uDDE1-\uDDE3\uDDE5-\uDE00\uDE0B-\uDE32\uDE3A\uDE3F-\uDE46\uDE48-\uDE50\uDE5C-\uDE89\uDE9A-\uDFFF]|\uD807[\uDC00-\uDC2E\uDC37\uDC40-\uDC91\uDCA8\uDCB7-\uDD30\uDD37-\uDD39\uDD3B\uDD3E\uDD46\uDD48-\uDD89\uDD8F\uDD92\uDD98-\uDEF2\uDEF7-\uDEFF\uDF02\uDF04-\uDF33\uDF3B-\uDF3D\uDF43-\uDFFF]|\uD80D[\uDC00-\uDC3F\uDC41-\uDC46\uDC56-\uDFFF]|\uD81A[\uDC00-\uDEEF\uDEF5-\uDF2F\uDF37-\uDFFF]|\uD81B[\uDC00-\uDF4E\uDF50\uDF88-\uDF8E\uDF93-\uDFE3\uDFE5-\uDFEF\uDFF2-\uDFFF]|\uD82F[\uDC00-\uDC9C\uDC9F-\uDFFF]|\uD833[\uDC00-\uDEFF\uDF2E\uDF2F\uDF47-\uDFFF]|\uD834[\uDC00-\uDD64\uDD6A-\uDD6C\uDD73-\uDD7A\uDD83\uDD84\uDD8C-\uDDA9\uDDAE-\uDE41\uDE45-\uDFFF]|\uD836[\uDC00-\uDDFF\uDE37-\uDE3A\uDE6D-\uDE74\uDE76-\uDE83\uDE85-\uDE9A\uDEA0\uDEB0-\uDFFF]|\uD838[\uDC07\uDC19\uDC1A\uDC22\uDC25\uDC2B-\uDC8E\uDC90-\uDD2F\uDD37-\uDEAD\uDEAF-\uDEEB\uDEF0-\uDFFF]|\uD839[\uDC00-\uDCEB\uDCF0-\uDFFF]|\uD83A[\uDC00-\uDCCF\uDCD7-\uDD43\uDD4B-\uDFFF]|\uDB40[\uDC00-\uDCFF\uDDF0-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]))/;
-var normalizationRegex = null;
+var SYLLABLES_REG_EXP = /[\uAC00-\uD7AF\uFA6C\uFACF-\uFAD1\uFAD5-\uFAD7]+/g;
+var SYLLABLES_LENGTHS = new Map();
+var FIRST_CHAR_SYLLABLES_REG_EXP = "[\\u1100-\\u1112\\ud7a4-\\ud7af\\ud84a\\ud84c\\ud850\\ud854\\ud857\\ud85f]";
+var noSyllablesRegExp = null;
+var withSyllablesRegExp = null;
 function normalize(text) {
-  if (!normalizationRegex) {
+  var syllablePositions = [];
+  var m;
+  while ((m = SYLLABLES_REG_EXP.exec(text)) !== null) {
+    var _m = m,
+      index = _m.index;
+    var _iterator = _createForOfIteratorHelper(m[0]),
+      _step;
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var _char = _step.value;
+        var len = SYLLABLES_LENGTHS.get(_char);
+        if (!len) {
+          len = _char.normalize("NFD").length;
+          SYLLABLES_LENGTHS.set(_char, len);
+        }
+        syllablePositions.push([len, index++]);
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  }
+  var normalizationRegex;
+  if (syllablePositions.length === 0 && noSyllablesRegExp) {
+    normalizationRegex = noSyllablesRegExp;
+  } else if (syllablePositions.length > 0 && withSyllablesRegExp) {
+    normalizationRegex = withSyllablesRegExp;
+  } else {
     var replace = Object.keys(CHARACTERS_TO_NORMALIZE).join("");
-    normalizationRegex = new RegExp("([".concat(replace, "])|(\\p{M}+(?:-\\n)?)|(\\S-\\n)|(\\n)"), "gum");
+    var regexp = "([".concat(replace, "])|(\\p{M}+(?:-\\n)?)|(\\S-\\n)|(\\n)");
+    if (syllablePositions.length === 0) {
+      normalizationRegex = noSyllablesRegExp = new RegExp(regexp + "|(\\u0000)", "gum");
+    } else {
+      normalizationRegex = withSyllablesRegExp = new RegExp(regexp + "|(".concat(FIRST_CHAR_SYLLABLES_REG_EXP, ")"), "gum");
+    }
   }
   var rawDiacriticsPositions = [];
-  var m;
   while ((m = DIACRITICS_REG_EXP.exec(text)) !== null) {
     rawDiacriticsPositions.push([m[0].length, m.index]);
   }
   var normalized = text.normalize("NFD");
   var positions = [[0, 0]];
-  var k = 0;
+  var rawDiacriticsIndex = 0;
+  var syllableIndex = 0;
   var shift = 0;
   var shiftOrigin = 0;
   var eol = 0;
   var hasDiacritics = false;
-  normalized = normalized.replace(normalizationRegex, function (match, p1, p2, p3, p4, i) {
+  normalized = normalized.replace(normalizationRegex, function (match, p1, p2, p3, p4, p5, i) {
+    var _syllablePositions$sy;
     i -= shiftOrigin;
     if (p1) {
       var replacement = CHARACTERS_TO_NORMALIZE[match];
@@ -6484,25 +6943,25 @@ function normalize(text) {
     if (p2) {
       var _rawDiacriticsPositio;
       var hasTrailingDashEOL = p2.endsWith("\n");
-      var len = hasTrailingDashEOL ? p2.length - 2 : p2.length;
+      var _len = hasTrailingDashEOL ? p2.length - 2 : p2.length;
       hasDiacritics = true;
-      var _jj = len;
-      if (i + eol === ((_rawDiacriticsPositio = rawDiacriticsPositions[k]) === null || _rawDiacriticsPositio === void 0 ? void 0 : _rawDiacriticsPositio[1])) {
-        _jj -= rawDiacriticsPositions[k][0];
-        ++k;
+      var _jj = _len;
+      if (i + eol === ((_rawDiacriticsPositio = rawDiacriticsPositions[rawDiacriticsIndex]) === null || _rawDiacriticsPositio === void 0 ? void 0 : _rawDiacriticsPositio[1])) {
+        _jj -= rawDiacriticsPositions[rawDiacriticsIndex][0];
+        ++rawDiacriticsIndex;
       }
-      for (var _j = 1; _j < _jj + 1; _j++) {
+      for (var _j = 1; _j <= _jj; _j++) {
         positions.push([i - 1 - shift + _j, shift - _j]);
       }
       shift -= _jj;
       shiftOrigin += _jj;
       if (hasTrailingDashEOL) {
-        i += len - 1;
+        i += _len - 1;
         positions.push([i - shift + 1, 1 + shift]);
         shift += 1;
         shiftOrigin += 1;
         eol += 1;
-        return p2.slice(0, len);
+        return p2.slice(0, _len);
       }
       return p2;
     }
@@ -6513,11 +6972,23 @@ function normalize(text) {
       eol += 1;
       return p3.charAt(0);
     }
-    positions.push([i - shift + 1, shift - 1]);
-    shift -= 1;
-    shiftOrigin += 1;
-    eol += 1;
-    return " ";
+    if (p4) {
+      positions.push([i - shift + 1, shift - 1]);
+      shift -= 1;
+      shiftOrigin += 1;
+      eol += 1;
+      return " ";
+    }
+    if (i + eol === ((_syllablePositions$sy = syllablePositions[syllableIndex]) === null || _syllablePositions$sy === void 0 ? void 0 : _syllablePositions$sy[1])) {
+      var newCharLen = syllablePositions[syllableIndex][0] - 1;
+      ++syllableIndex;
+      for (var _j2 = 1; _j2 <= newCharLen; _j2++) {
+        positions.push([i - (shift - _j2), shift - _j2]);
+      }
+      shift -= newCharLen;
+      shiftOrigin += newCharLen;
+    }
+    return p5;
   });
   positions.push([normalized.length, shift]);
   return [normalized, positions, hasDiacritics];
@@ -6528,13 +6999,13 @@ function getOriginalIndex(diffs, pos, len) {
   }
   var start = pos;
   var end = pos + len;
-  var i = (0, _ui_utils.binarySearchFirstItem)(diffs, function (x) {
+  var i = (0, _pdfjsLib.binarySearchFirstItem)(diffs, function (x) {
     return x[0] >= start;
   });
   if (diffs[i][0] > start) {
     --i;
   }
-  var j = (0, _ui_utils.binarySearchFirstItem)(diffs, function (x) {
+  var j = (0, _pdfjsLib.binarySearchFirstItem)(diffs, function (x) {
     return x[0] >= end;
   }, i);
   if (diffs[j][0] > end) {
@@ -6861,20 +7332,20 @@ function _extractText() {
         return pdfPage.getTextContent();
       }).then(function (textContent) {
         var strBuf = [];
-        var _iterator = _createForOfIteratorHelper(textContent.items),
-          _step;
+        var _iterator2 = _createForOfIteratorHelper(textContent.items),
+          _step2;
         try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var textItem = _step.value;
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var textItem = _step2.value;
             strBuf.push(textItem.str);
             if (textItem.hasEOL) {
               strBuf.push("\n");
             }
           }
         } catch (err) {
-          _iterator.e(err);
+          _iterator2.e(err);
         } finally {
-          _iterator.f();
+          _iterator2.f();
         }
         var _normalize3 = normalize(strBuf.join(""));
         var _normalize4 = _slicedToArray(_normalize3, 3);
@@ -7085,7 +7556,7 @@ function _updateUIState(state) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -7164,7 +7635,7 @@ function getCharacterType(charCode) {
 }
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -7175,8 +7646,8 @@ Object.defineProperty(exports, "__esModule", ({
 exports.PDFHistory = void 0;
 exports.isDestArraysEqual = isDestArraysEqual;
 exports.isDestHashesEqual = isDestHashesEqual;
-var _ui_utils = __w_pdfjs_require__(6);
-var _event_utils = __w_pdfjs_require__(17);
+var _ui_utils = __w_pdfjs_require__(7);
+var _event_utils = __w_pdfjs_require__(18);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -7707,7 +8178,7 @@ function isDestArraysEqual(firstDest, secondDest) {
 }
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -7716,7 +8187,7 @@ Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
 exports.PDFScriptingManager = void 0;
-var _ui_utils = __w_pdfjs_require__(6);
+var _ui_utils = __w_pdfjs_require__(7);
 var _pdfjsLib = __w_pdfjs_require__(3);
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
@@ -8168,7 +8639,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
               this._pdfViewer.currentScaleValue = value;
               return _context7.abrupt("break", 45);
             case 27:
-              this._eventBus.dispatch("save", {
+              this._eventBus.dispatch("download", {
                 source: this
               });
               return _context7.abrupt("break", 45);
@@ -8222,7 +8693,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
               try {
                 for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
                   elementId = _step3.value;
-                  element = document.getElementById(elementId);
+                  element = document.querySelector("[data-element-id=\"".concat(elementId, "\"]"));
                   if (element) {
                     element.dispatchEvent(new CustomEvent("updatefromsandbox", {
                       detail: detail
@@ -8392,7 +8863,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
               }
               return _context11.abrupt("return", this._docPropertiesLookup(this._pdfDocument));
             case 2:
-              _require = __w_pdfjs_require__(24), docPropertiesLookup = _require.docPropertiesLookup;
+              _require = __w_pdfjs_require__(25), docPropertiesLookup = _require.docPropertiesLookup;
               return _context11.abrupt("return", docPropertiesLookup(this._pdfDocument));
             case 4:
             case "end":
@@ -8417,7 +8888,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
           sandboxBundleSrc: this._sandboxBundleSrc
         });
       }
-      var _require2 = __w_pdfjs_require__(24),
+      var _require2 = __w_pdfjs_require__(25),
         GenericScripting = _require2.GenericScripting;
       return new GenericScripting(this._sandboxBundleSrc);
     }
@@ -8505,7 +8976,7 @@ var PDFScriptingManager = exports.PDFScriptingManager = /*#__PURE__*/function ()
 }();
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ ((__unused_webpack_module, exports, __w_pdfjs_require__) => {
 
 
@@ -8834,22 +9305,22 @@ Object.defineProperty(exports, "parseQueryString", ({
   }
 }));
 var _default_factory = __w_pdfjs_require__(1);
-var _pdf_link_service = __w_pdfjs_require__(5);
-var _ui_utils = __w_pdfjs_require__(6);
-var _pdf_viewer = __w_pdfjs_require__(10);
-var _annotation_layer_builder = __w_pdfjs_require__(2);
-var _download_manager = __w_pdfjs_require__(16);
-var _event_utils = __w_pdfjs_require__(17);
-var _genericl10n = __w_pdfjs_require__(18);
+var _pdf_link_service = __w_pdfjs_require__(6);
+var _ui_utils = __w_pdfjs_require__(7);
+var _pdf_viewer = __w_pdfjs_require__(11);
+var _annotation_layer_builder = __w_pdfjs_require__(5);
+var _download_manager = __w_pdfjs_require__(17);
+var _event_utils = __w_pdfjs_require__(18);
+var _genericl10n = __w_pdfjs_require__(19);
 var _l10n_utils = __w_pdfjs_require__(4);
-var _pdf_find_controller = __w_pdfjs_require__(20);
-var _pdf_history = __w_pdfjs_require__(22);
-var _pdf_page_view = __w_pdfjs_require__(12);
-var _pdf_scripting_manager = __w_pdfjs_require__(23);
-var _struct_tree_layer_builder = __w_pdfjs_require__(7);
-var _text_layer_builder = __w_pdfjs_require__(8);
-var _xfa_layer_builder = __w_pdfjs_require__(9);
-var pdfjsVersion = '2.14.356';
+var _pdf_find_controller = __w_pdfjs_require__(21);
+var _pdf_history = __w_pdfjs_require__(23);
+var _pdf_page_view = __w_pdfjs_require__(14);
+var _pdf_scripting_manager = __w_pdfjs_require__(24);
+var _struct_tree_layer_builder = __w_pdfjs_require__(8);
+var _text_layer_builder = __w_pdfjs_require__(9);
+var _xfa_layer_builder = __w_pdfjs_require__(10);
+var pdfjsVersion = '2.15.51';
 var pdfjsBuild = '8ff9a37e0';
 })();
 

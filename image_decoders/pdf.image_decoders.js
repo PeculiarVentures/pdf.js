@@ -29,7 +29,7 @@
 		exports["pdfjs-dist/image_decoders/pdf.image_decoders"] = factory();
 	else
 		root["pdfjs-dist/image_decoders/pdf.image_decoders"] = root.pdfjsImageDecoders = factory();
-})(this, () => {
+})(globalThis, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ([
@@ -42,7 +42,7 @@ return /******/ (() => { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", ({
   value: true
 }));
-exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FeatureTest = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
+exports.VerbosityLevel = exports.Util = exports.UnknownErrorException = exports.UnexpectedResponseException = exports.UNSUPPORTED_FEATURES = exports.TextRenderingMode = exports.StreamType = exports.RenderingIntentFlag = exports.PermissionFlag = exports.PasswordResponses = exports.PasswordException = exports.PageActionEventType = exports.OPS = exports.MissingPDFException = exports.LINE_FACTOR = exports.LINE_DESCENT_FACTOR = exports.InvalidPDFException = exports.ImageKind = exports.IDENTITY_MATRIX = exports.FormatError = exports.FontType = exports.FeatureTest = exports.FONT_IDENTITY_MATRIX = exports.DocumentActionEventType = exports.CMapCompressionType = exports.BaseException = exports.AnnotationType = exports.AnnotationStateModelType = exports.AnnotationReviewState = exports.AnnotationReplyType = exports.AnnotationMode = exports.AnnotationMarkedState = exports.AnnotationFlag = exports.AnnotationFieldFlag = exports.AnnotationEditorType = exports.AnnotationEditorPrefix = exports.AnnotationEditorParamsType = exports.AnnotationBorderStyleType = exports.AnnotationActionEventType = exports.AbortException = void 0;
 exports.arrayByteLength = arrayByteLength;
 exports.arraysToBytes = arraysToBytes;
 exports.assert = assert;
@@ -71,6 +71,8 @@ exports.warn = warn;
 __w_pdfjs_require__(2);
 const IDENTITY_MATRIX = exports.IDENTITY_MATRIX = [1, 0, 0, 1, 0, 0];
 const FONT_IDENTITY_MATRIX = exports.FONT_IDENTITY_MATRIX = [0.001, 0, 0, 0.001, 0, 0];
+const LINE_FACTOR = exports.LINE_FACTOR = 1.35;
+const LINE_DESCENT_FACTOR = exports.LINE_DESCENT_FACTOR = 0.35;
 const RenderingIntentFlag = exports.RenderingIntentFlag = {
   ANY: 0x01,
   DISPLAY: 0x02,
@@ -85,6 +87,21 @@ const AnnotationMode = exports.AnnotationMode = {
   ENABLE: 1,
   ENABLE_FORMS: 2,
   ENABLE_STORAGE: 3
+};
+const AnnotationEditorPrefix = exports.AnnotationEditorPrefix = "pdfjs_internal_editor_";
+const AnnotationEditorType = exports.AnnotationEditorType = {
+  DISABLE: -1,
+  NONE: 0,
+  FREETEXT: 3,
+  INK: 15
+};
+const AnnotationEditorParamsType = exports.AnnotationEditorParamsType = {
+  FREETEXT_SIZE: 1,
+  FREETEXT_COLOR: 2,
+  FREETEXT_OPACITY: 3,
+  INK_COLOR: 11,
+  INK_THICKNESS: 12,
+  INK_OPACITY: 13
 };
 const PermissionFlag = exports.PermissionFlag = {
   PRINT: 0x04,
@@ -2039,7 +2056,7 @@ function processSegment(segment, visitor) {
     case 62:
       break;
     default:
-      throw new Jbig2Error(`segment type ${header.typeName}(${header.type})` + " is not implemented");
+      throw new Jbig2Error(`segment type ${header.typeName}(${header.type}) is not implemented`);
   }
   const callbackName = "on" + header.typeName;
   if (callbackName in visitor) {
@@ -2181,11 +2198,11 @@ class SimpleSegmentVisitor {
     if (!symbols) {
       this.symbols = symbols = {};
     }
-    let inputSymbols = [];
-    for (let i = 0, ii = referredSegments.length; i < ii; i++) {
-      const referredSymbols = symbols[referredSegments[i]];
+    const inputSymbols = [];
+    for (const referredSegment of referredSegments) {
+      const referredSymbols = symbols[referredSegment];
       if (referredSymbols) {
-        inputSymbols = inputSymbols.concat(referredSymbols);
+        inputSymbols.push(...referredSymbols);
       }
     }
     const decodingContext = new DecodingContext(data, start, end);
@@ -2195,11 +2212,11 @@ class SimpleSegmentVisitor {
     const regionInfo = region.info;
     let huffmanTables, huffmanInput;
     const symbols = this.symbols;
-    let inputSymbols = [];
-    for (let i = 0, ii = referredSegments.length; i < ii; i++) {
-      const referredSymbols = symbols[referredSegments[i]];
+    const inputSymbols = [];
+    for (const referredSegment of referredSegments) {
+      const referredSymbols = symbols[referredSegment];
       if (referredSymbols) {
-        inputSymbols = inputSymbols.concat(referredSymbols);
+        inputSymbols.push(...referredSymbols);
       }
     }
     const symbolCodeLength = (0, _core_utils.log2)(inputSymbols.length);
@@ -2714,8 +2731,10 @@ exports.escapePDFName = escapePDFName;
 exports.getArrayLookupTableFactory = getArrayLookupTableFactory;
 exports.getInheritableProperty = getInheritableProperty;
 exports.getLookupTableFactory = getLookupTableFactory;
+exports.getNewAnnotationsMap = getNewAnnotationsMap;
 exports.isWhiteSpace = isWhiteSpace;
 exports.log2 = log2;
+exports.numberToString = numberToString;
 exports.parseXFAPath = parseXFAPath;
 exports.readInt8 = readInt8;
 exports.readUint16 = readUint16;
@@ -2940,7 +2959,7 @@ function _collectJS(entry, xref, list, parents) {
       } else if (typeof js === "string") {
         code = js;
       }
-      code = code && (0, _util.stringToPDFString)(code);
+      code = code && (0, _util.stringToPDFString)(code).replace(/\u0000/g, "");
       if (code) {
         list.push(code);
       }
@@ -3080,6 +3099,37 @@ function recoverJsURL(str) {
   }
   return null;
 }
+function numberToString(value) {
+  if (Number.isInteger(value)) {
+    return value.toString();
+  }
+  const roundedValue = Math.round(value * 100);
+  if (roundedValue % 100 === 0) {
+    return (roundedValue / 100).toString();
+  }
+  if (roundedValue % 10 === 0) {
+    return value.toFixed(1);
+  }
+  return value.toFixed(2);
+}
+function getNewAnnotationsMap(annotationStorage) {
+  if (!annotationStorage) {
+    return null;
+  }
+  const newAnnotationsByPage = new Map();
+  for (const [key, value] of annotationStorage) {
+    if (!key.startsWith(_util.AnnotationEditorPrefix)) {
+      continue;
+    }
+    let annotations = newAnnotationsByPage.get(value.pageIndex);
+    if (!annotations) {
+      annotations = [];
+      newAnnotationsByPage.set(value.pageIndex, annotations);
+    }
+    annotations.push(value);
+  }
+  return newAnnotationsByPage.size > 0 ? newAnnotationsByPage : null;
+}
 
 /***/ }),
 /* 6 */
@@ -3106,8 +3156,7 @@ const Name = exports.Name = function NameClosure() {
       this.name = name;
     }
     static get(name) {
-      const nameValue = nameCache[name];
-      return nameValue ? nameValue : nameCache[name] = new Name(name);
+      return nameCache[name] || (nameCache[name] = new Name(name));
     }
     static _clearCache() {
       nameCache = Object.create(null);
@@ -3122,8 +3171,7 @@ const Cmd = exports.Cmd = function CmdClosure() {
       this.cmd = cmd;
     }
     static get(cmd) {
-      const cmdValue = cmdCache[cmd];
-      return cmdValue ? cmdValue : cmdCache[cmd] = new Cmd(cmd);
+      return cmdCache[cmd] || (cmdCache[cmd] = new Cmd(cmd));
     }
     static _clearCache() {
       cmdCache = Object.create(null);
@@ -3281,8 +3329,7 @@ const Ref = exports.Ref = function RefClosure() {
     }
     static get(num, gen) {
       const key = gen === 0 ? `${num}R` : `${num}R${gen}`;
-      const refValue = refCache[key];
-      return refValue ? refValue : refCache[key] = new Ref(num, gen);
+      return refCache[key] || (refCache[key] = new Ref(num, gen));
     }
     static _clearCache() {
       refCache = Object.create(null);
@@ -7340,7 +7387,7 @@ var _util = __w_pdfjs_require__(1);
 var _jbig = __w_pdfjs_require__(4);
 var _jpg = __w_pdfjs_require__(10);
 var _jpx = __w_pdfjs_require__(11);
-const pdfjsVersion = '2.14.356';
+const pdfjsVersion = '2.15.51';
 const pdfjsBuild = '8ff9a37e0';
 })();
 
