@@ -51,19 +51,20 @@ import {
 } from "./ui_utils.js";
 import { compatibilityParams } from "./app_options.js";
 import { NullL10n } from "./l10n_utils.js";
+import { TextAccessibilityManager } from "./text_accessibility.js";
 
 /**
  * @typedef {Object} PDFPageViewOptions
  * @property {HTMLDivElement} [container] - The viewer element.
  * @property {EventBus} eventBus - The application event bus.
  * @property {number} id - The page unique ID (normally its number).
- * @property {number} scale - The page scale display.
+ * @property {number} [scale] - The page scale display.
  * @property {PageViewport} defaultViewport - The page viewport.
  * @property {Promise<OptionalContentConfig>} [optionalContentConfigPromise] -
  *   A promise that is resolved with an {@link OptionalContentConfig} instance.
  *   The default value is `null`.
- * @property {PDFRenderingQueue} renderingQueue - The rendering queue object.
- * @property {IPDFTextLayerFactory} textLayerFactory
+ * @property {PDFRenderingQueue} [renderingQueue] - The rendering queue object.
+ * @property {IPDFTextLayerFactory} [textLayerFactory]
  * @property {number} [textLayerMode] - Controls if the text layer used for
  *   selection and searching is created, and if the improved text selection
  *   behaviour is enabled. The constants from {TextLayerMode} should be used.
@@ -73,10 +74,10 @@ import { NullL10n } from "./l10n_utils.js";
  *   being rendered. The constants from {@link AnnotationMode} should be used;
  *   see also {@link RenderParameters} and {@link GetOperatorListParameters}.
  *   The default value is `AnnotationMode.ENABLE_FORMS`.
- * @property {IPDFAnnotationLayerFactory} annotationLayerFactory
- * @property {IPDFAnnotationEditorLayerFactory} annotationEditorLayerFactory
- * @property {IPDFXfaLayerFactory} xfaLayerFactory
- * @property {IPDFStructTreeLayerFactory} structTreeLayerFactory
+ * @property {IPDFAnnotationLayerFactory} [annotationLayerFactory]
+ * @property {IPDFAnnotationEditorLayerFactory} [annotationEditorLayerFactory]
+ * @property {IPDFXfaLayerFactory} [xfaLayerFactory]
+ * @property {IPDFStructTreeLayerFactory} [structTreeLayerFactory]
  * @property {Object} [textHighlighterFactory]
  * @property {string} [imageResourcesPath] - Path for image resources, mainly
  *   for annotation icons. Include trailing slash.
@@ -88,7 +89,7 @@ import { NullL10n } from "./l10n_utils.js";
  * @property {Object} [pageColors] - Overwrites background and foreground colors
  *   with user defined ones in order to improve readability in high contrast
  *   mode.
- * @property {IL10n} l10n - Localization service.
+ * @property {IL10n} [l10n] - Localization service.
  */
 
 const MAX_CANVAS_PIXELS = compatibilityParams.maxCanvasPixels || 16777216;
@@ -234,6 +235,7 @@ class PDFPageView {
     try {
       await this.annotationLayer.render(this.viewport, "display");
     } catch (ex) {
+      console.error(`_renderAnnotationLayer: "${ex}".`);
       error = ex;
     } finally {
       this.eventBus.dispatch("annotationlayerrendered", {
@@ -252,6 +254,7 @@ class PDFPageView {
     try {
       await this.annotationEditorLayer.render(this.viewport, "display");
     } catch (ex) {
+      console.error(`_renderAnnotationEditorLayer: "${ex}".`);
       error = ex;
     } finally {
       this.eventBus.dispatch("annotationeditorlayerrendered", {
@@ -273,6 +276,7 @@ class PDFPageView {
         this._buildXfaTextContentItems(result.textDivs);
       }
     } catch (ex) {
+      console.error(`_renderXfaLayer: "${ex}".`);
       error = ex;
     } finally {
       this.eventBus.dispatch("xfalayerrendered", {
@@ -697,6 +701,7 @@ class PDFPageView {
 
     let textLayer = null;
     if (this.textLayerMode !== TextLayerMode.DISABLE && this.textLayerFactory) {
+      this._accessibilityManager ||= new TextAccessibilityManager();
       const textLayerDiv = document.createElement("div");
       textLayerDiv.className = "textLayer";
       textLayerDiv.style.width = canvasWrapper.style.width;
@@ -716,6 +721,7 @@ class PDFPageView {
           this.textLayerMode === TextLayerMode.ENABLE_ENHANCE,
         eventBus: this.eventBus,
         highlighter: this.textHighlighter,
+        accessibilityManager: this._accessibilityManager,
       });
     }
     this.textLayer = textLayer;
@@ -733,6 +739,7 @@ class PDFPageView {
           renderForms: this.#annotationMode === AnnotationMode.ENABLE_FORMS,
           l10n: this.l10n,
           annotationCanvasMap: this._annotationCanvasMap,
+          accessibilityManager: this._accessibilityManager,
         });
     }
 
@@ -824,6 +831,7 @@ class PDFPageView {
                       pageDiv: div,
                       pdfPage,
                       l10n: this.l10n,
+                      accessibilityManager: this._accessibilityManager,
                     }
                   );
                 this._renderAnnotationEditorLayer();
@@ -838,12 +846,10 @@ class PDFPageView {
     );
 
     if (this.xfaLayerFactory) {
-      if (!this.xfaLayer) {
-        this.xfaLayer = this.xfaLayerFactory.createXfaLayerBuilder({
-          pageDiv: div,
-          pdfPage,
-        });
-      }
+      this.xfaLayer ||= this.xfaLayerFactory.createXfaLayerBuilder({
+        pageDiv: div,
+        pdfPage,
+      });
       this._renderXfaLayer();
     }
 

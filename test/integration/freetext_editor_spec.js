@@ -15,7 +15,7 @@
 
 const {
   closePages,
-  editorPrefix,
+  getEditorSelector,
   getSelectedEditors,
   loadAndWait,
 } = require("./test_utils.js");
@@ -32,6 +32,11 @@ describe("Editor", () => {
       await closePages(pages);
     });
 
+    const countStorageEntries = async page =>
+      page.evaluate(
+        () => window.PDFViewerApplication.pdfDocument.annotationStorage.size
+      );
+
     it("must write a string in a FreeText editor", async () => {
       await Promise.all(
         pages.map(async ([browserName, page]) => {
@@ -46,9 +51,9 @@ describe("Editor", () => {
 
           const data = "Hello PDF.js World !!";
           await page.mouse.click(rect.x + 100, rect.y + 100);
-          await page.type(`${editorPrefix}0 .internal`, data);
+          await page.type(`${getEditorSelector(0)} .internal`, data);
 
-          const editorRect = await page.$eval(`${editorPrefix}0`, el => {
+          const editorRect = await page.$eval(getEditorSelector(0), el => {
             const { x, y, width, height } = el.getBoundingClientRect();
             return {
               x,
@@ -64,7 +69,11 @@ describe("Editor", () => {
             editorRect.y + 2 * editorRect.height
           );
 
-          const content = await page.$eval(`${editorPrefix}0`, el =>
+          expect(await countStorageEntries(page))
+            .withContext(`In ${browserName}`)
+            .toEqual(1);
+
+          const content = await page.$eval(getEditorSelector(0), el =>
             el.innerText.trimEnd()
           );
           expect(content).withContext(`In ${browserName}`).toEqual(data);
@@ -75,7 +84,7 @@ describe("Editor", () => {
     it("must copy/paste", async () => {
       await Promise.all(
         pages.map(async ([browserName, page]) => {
-          const editorRect = await page.$eval(`${editorPrefix}0`, el => {
+          const editorRect = await page.$eval(getEditorSelector(0), el => {
             const { x, y, width, height } = el.getBoundingClientRect();
             return { x, y, width, height };
           });
@@ -94,11 +103,15 @@ describe("Editor", () => {
           await page.keyboard.press("v");
           await page.keyboard.up("Control");
 
-          const content = await page.$eval(`${editorPrefix}0`, el =>
+          expect(await countStorageEntries(page))
+            .withContext(`In ${browserName}`)
+            .toEqual(2);
+
+          const content = await page.$eval(getEditorSelector(0), el =>
             el.innerText.trimEnd()
           );
 
-          let pastedContent = await page.$eval(`${editorPrefix}1`, el =>
+          let pastedContent = await page.$eval(getEditorSelector(1), el =>
             el.innerText.trimEnd()
           );
 
@@ -114,7 +127,11 @@ describe("Editor", () => {
           await page.keyboard.press("v");
           await page.keyboard.up("Control");
 
-          pastedContent = await page.$eval(`${editorPrefix}2`, el =>
+          expect(await countStorageEntries(page))
+            .withContext(`In ${browserName}`)
+            .toEqual(3);
+
+          pastedContent = await page.$eval(getEditorSelector(2), el =>
             el.innerText.trimEnd()
           );
           expect(pastedContent)
@@ -138,10 +155,14 @@ describe("Editor", () => {
           for (const n of [0, 1, 2]) {
             const hasEditor = await page.evaluate(sel => {
               return !!document.querySelector(sel);
-            }, `${editorPrefix}${n}`);
+            }, getEditorSelector(n));
 
             expect(hasEditor).withContext(`In ${browserName}`).toEqual(false);
           }
+
+          expect(await countStorageEntries(page))
+            .withContext(`In ${browserName}`)
+            .toEqual(0);
         })
       );
     });
@@ -156,9 +177,9 @@ describe("Editor", () => {
 
           const data = "Hello PDF.js World !!";
           await page.mouse.click(rect.x + 100, rect.y + 100);
-          await page.type(`${editorPrefix}3 .internal`, data);
+          await page.type(`${getEditorSelector(3)} .internal`, data);
 
-          const editorRect = await page.$eval(`${editorPrefix}3`, el => {
+          const editorRect = await page.$eval(getEditorSelector(3), el => {
             const { x, y, width, height } = el.getBoundingClientRect();
             return { x, y, width, height };
           });
@@ -184,7 +205,7 @@ describe("Editor", () => {
 
           let hasEditor = await page.evaluate(sel => {
             return !!document.querySelector(sel);
-          }, `${editorPrefix}4`);
+          }, getEditorSelector(4));
 
           expect(hasEditor).withContext(`In ${browserName}`).toEqual(true);
 
@@ -194,7 +215,7 @@ describe("Editor", () => {
 
           hasEditor = await page.evaluate(sel => {
             return !!document.querySelector(sel);
-          }, `${editorPrefix}4`);
+          }, getEditorSelector(4));
 
           expect(hasEditor).withContext(`In ${browserName}`).toEqual(false);
 
@@ -206,7 +227,7 @@ describe("Editor", () => {
 
           let length = await page.evaluate(sel => {
             return document.querySelectorAll(sel).length;
-          }, `${editorPrefix}5, ${editorPrefix}6`);
+          }, `${getEditorSelector(5)}, ${getEditorSelector(6)}`);
           expect(length).withContext(`In ${browserName}`).toEqual(2);
 
           for (let i = 0; i < 2; i++) {
@@ -217,7 +238,7 @@ describe("Editor", () => {
 
           length = await page.evaluate(sel => {
             return document.querySelectorAll(sel).length;
-          }, `${editorPrefix}5, ${editorPrefix}6`);
+          }, `${getEditorSelector(5)}, ${getEditorSelector(6)}`);
           expect(length).withContext(`In ${browserName}`).toEqual(0);
         })
       );
@@ -252,7 +273,7 @@ describe("Editor", () => {
             stacksRect.x + stacksRect.width + 1,
             stacksRect.y + stacksRect.height / 2
           );
-          await page.type(`${editorPrefix}7 .internal`, data);
+          await page.type(`${getEditorSelector(7)} .internal`, data);
 
           // Commit.
           await page.keyboard.press("Escape");
@@ -262,9 +283,9 @@ describe("Editor", () => {
             return span?.getAttribute("aria-owns") || null;
           });
 
-          expect(ariaOwns)
+          expect(ariaOwns.endsWith("_7-editor"))
             .withContext(`In ${browserName}`)
-            .toEqual(`${editorPrefix}7-editor`.slice(1));
+            .toEqual(true);
         })
       );
     });
@@ -287,9 +308,9 @@ describe("Editor", () => {
 
           const data = "Hello PDF.js World !!";
           await page.mouse.click(rect.x + 100, rect.y + 100);
-          await page.type(`${editorPrefix}8 .internal`, data);
+          await page.type(`${getEditorSelector(8)} .internal`, data);
 
-          const editorRect = await page.$eval(`${editorPrefix}8`, el => {
+          const editorRect = await page.$eval(getEditorSelector(8), el => {
             const { x, y, width, height } = el.getBoundingClientRect();
             return { x, y, width, height };
           });
@@ -364,9 +385,9 @@ describe("Editor", () => {
               rect.x + (i + 1) * 100,
               rect.y + (i + 1) * 100
             );
-            await page.type(`${editorPrefix}${i} .internal`, data);
+            await page.type(`${getEditorSelector(i)} .internal`, data);
 
-            const editorRect = await page.$eval(`${editorPrefix}${i}`, el => {
+            const editorRect = await page.$eval(getEditorSelector(i), el => {
               const { x, y, width, height } = el.getBoundingClientRect();
               return {
                 x,

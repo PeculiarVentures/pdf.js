@@ -23,6 +23,8 @@ import { BaseException, stringToBytes, Util, warn } from "../shared/util.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+const AnnotationPrefix = "pdfjs_internal_id_";
+
 class PixelsPerInch {
   static CSS = 96.0;
 
@@ -609,46 +611,26 @@ function getColorValues(colors) {
   span.remove();
 }
 
-/**
- * Use binary search to find the index of the first item in a given array which
- * passes a given condition. The items are expected to be sorted in the sense
- * that if the condition is true for one item in the array, then it is also true
- * for all following items.
- *
- * @returns {number} Index of the first array element to pass the test,
- *                   or |items.length| if no such element exists.
- */
-function binarySearchFirstItem(items, condition, start = 0) {
-  let minIndex = start;
-  let maxIndex = items.length - 1;
+function getCurrentTransform(ctx) {
+  const { a, b, c, d, e, f } = ctx.getTransform();
+  return [a, b, c, d, e, f];
+}
 
-  if (maxIndex < 0 || !condition(items[maxIndex])) {
-    return items.length;
-  }
-  if (condition(items[minIndex])) {
-    return minIndex;
-  }
-
-  while (minIndex < maxIndex) {
-    const currentIndex = (minIndex + maxIndex) >> 1;
-    const currentItem = items[currentIndex];
-    if (condition(currentItem)) {
-      maxIndex = currentIndex;
-    } else {
-      minIndex = currentIndex + 1;
-    }
-  }
-  return minIndex; /* === maxIndex */
+function getCurrentTransformInverse(ctx) {
+  const { a, b, c, d, e, f } = ctx.getTransform().invertSelf();
+  return [a, b, c, d, e, f];
 }
 
 export {
-  binarySearchFirstItem,
+  AnnotationPrefix,
   deprecated,
   DOMCanvasFactory,
   DOMCMapReaderFactory,
   DOMStandardFontDataFactory,
   DOMSVGFactory,
   getColorValues,
+  getCurrentTransform,
+  getCurrentTransformInverse,
   getFilenameFromUrl,
   getPdfFilenameFromUrl,
   getRGB,

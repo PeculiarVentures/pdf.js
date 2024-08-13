@@ -481,6 +481,7 @@
 !issue11442_reduced.pdf
 !issue11549_reduced.pdf
 !issue8097_reduced.pdf
+!issue15262.pdf
 !bug1743245.pdf
 !quadpoints.pdf
 !transparent.pdf
@@ -533,3 +534,5 @@
 !bug1675139.pdf
 !issue15092.pdf
 !bug1782186.pdf
+!tracemonkey_a11y.pdf
+!bug1782564.pdf

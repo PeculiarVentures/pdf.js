@@ -2708,6 +2708,13 @@
        "lastPage": 33,
        "type": "eq"
     },
+    {  "id": "issue15262",
+       "file": "pdfs/issue15262.pdf",
+       "md5": "f33f73848cea3c7034457653d5cfb9be",
+       "rounds": 1,
+       "type": "eq",
+       "forms": true
+    },
     {  "id": "smaskdim",
       "file": "pdfs/smaskdim.pdf",
       "md5": "de80aeca7cbf79940189fd34d59671ee",
@@ -6875,5 +6882,14 @@
    "md5": "8505033d63625dfd77e90a3722b0c316",
    "rounds": 1,
    "type": "eq"
+   },
+   {  "id": "issue15289",
+      "file": "pdfs/issue15289.pdf",
+      "md5": "f3d20aee398e052ac3dce7cc030f50de",
+      "link": true,
+      "rounds": 1,
+      "firstPage": 1,
+      "lastPage": 1,
+      "type": "eq"
    }
 ]

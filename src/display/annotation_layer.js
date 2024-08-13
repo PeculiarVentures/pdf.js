@@ -29,6 +29,7 @@ import {
   warn,
 } from "../shared/util.js";
 import {
+  AnnotationPrefix,
   DOMSVGFactory,
   getFilenameFromUrl,
   PDFDateString,
@@ -222,6 +223,9 @@ class AnnotationElement {
       if (horizontalRadius > 0 || verticalRadius > 0) {
         const radius = `calc(${horizontalRadius}px * var(--scale-factor)) / calc(${verticalRadius}px * var(--scale-factor))`;
         container.style.borderRadius = radius;
+      } else if (this instanceof RadioButtonWidgetAnnotationElement) {
+        const radius = `calc(${width}px * var(--scale-factor)) / calc(${height}px * var(--scale-factor))`;
+        container.style.borderRadius = radius;
       }
 
       switch (data.borderStyle.style) {
@@ -397,7 +401,13 @@ class AnnotationElement {
     for (const [actionName, detail] of Object.entries(storedData)) {
       const action = commonActions[actionName];
       if (action) {
-        action({ detail, target: element });
+        const eventProxy = {
+          detail: {
+            [actionName]: detail,
+          },
+          target: element,
+        };
+        action(eventProxy);
         // The action has been consumed: no need to keep it.
         delete storedData[actionName];
       }
@@ -996,7 +1006,14 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
       const storedData = storage.getValue(id, {
         value: this.data.fieldValue,
       });
-      const textContent = storedData.formattedValue || storedData.value || "";
+      let textContent = storedData.formattedValue || storedData.value || "";
+      const maxLen = storage.getValue(id, {
+        charLimit: this.data.maxLen,
+      }).charLimit;
+      if (maxLen && textContent.length > maxLen) {
+        textContent = textContent.slice(0, maxLen);
+      }
+
       const elementData = {
         userValue: textContent,
         formattedValue: null,
@@ -1025,6 +1042,10 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
       element.tabIndex = DEFAULT_TAB_INDEX;
 
       this._setRequired(element, this.data.required);
+
+      if (maxLen) {
+        element.maxLength = maxLen;
+      }
 
       element.addEventListener("input", event => {
         storage.setValue(id, { value: event.target.value });
@@ -1083,6 +1104,36 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
             },
             selRange(event) {
               event.target.setSelectionRange(...event.detail.selRange);
+            },
+            charLimit: event => {
+              const { charLimit } = event.detail;
+              const { target } = event;
+              if (charLimit === 0) {
+                target.removeAttribute("maxLength");
+                return;
+              }
+
+              target.setAttribute("maxLength", charLimit);
+              let value = elementData.userValue;
+              if (!value || value.length <= charLimit) {
+                return;
+              }
+              value = value.slice(0, charLimit);
+              target.value = elementData.userValue = value;
+              storage.setValue(id, { value });
+
+              this.linkService.eventBus?.dispatch("dispatcheventinsandbox", {
+                source: this,
+                detail: {
+                  id,
+                  name: "Keystroke",
+                  value,
+                  willCommit: true,
+                  commitKey: 1,
+                  selStart: target.selectionStart,
+                  selEnd: target.selectionEnd,
+                },
+              });
             },
           };
           this._dispatchEventFromSandbox(actions, jsEvent);
@@ -1221,13 +1272,9 @@ class TextWidgetAnnotationElement extends WidgetAnnotationElement {
         element.addEventListener("blur", blurListener);
       }
 
-      if (this.data.maxLen !== null) {
-        element.maxLength = this.data.maxLen;
-      }
-
       if (this.data.comb) {
         const fieldWidth = this.data.rect[2] - this.data.rect[0];
-        const combWidth = fieldWidth / this.data.maxLen;
+        const combWidth = fieldWidth / maxLen;
 
         element.classList.add("comb");
         element.style.letterSpacing = `calc(${combWidth}px * var(--scale-factor) - 1ch)`;
@@ -1898,7 +1945,8 @@ class PopupElement {
     }
     if (this.hideElement.hidden) {
       this.hideElement.hidden = false;
-      this.container.style.zIndex += 1;
+      this.container.style.zIndex =
+        parseInt(this.container.style.zIndex) + 1000;
     }
   }
 
@@ -1915,7 +1963,8 @@ class PopupElement {
     }
     if (!this.hideElement.hidden && !this.pinned) {
       this.hideElement.hidden = true;
-      this.container.style.zIndex -= 1;
+      this.container.style.zIndex =
+        parseInt(this.container.style.zIndex) - 1000;
     }
   }
 }
@@ -1929,10 +1978,23 @@ class FreeTextAnnotationElement extends AnnotationElement {
       parameters.data.richText?.str
     );
     super(parameters, { isRenderable, ignoreBorder: true });
+    this.textContent = parameters.data.textContent;
   }
 
   render() {
     this.container.className = "freeTextAnnotation";
+
+    if (this.textContent) {
+      const content = document.createElement("div");
+      content.className = "annotationTextContent";
+      content.setAttribute("role", "comment");
+      for (const line of this.textContent) {
+        const lineSpan = document.createElement("span");
+        lineSpan.textContent = line;
+        content.append(lineSpan);
+      }
+      this.container.append(content);
+    }
 
     if (!this.data.hasPopup) {
       this._createPopup(null, this.data);
@@ -2450,6 +2512,19 @@ class FileAttachmentAnnotationElement extends AnnotationElement {
  */
 
 class AnnotationLayer {
+  static #appendElement(element, id, div, accessibilityManager) {
+    const contentElement = element.firstChild || element;
+    contentElement.id = `${AnnotationPrefix}${id}`;
+
+    div.append(element);
+    accessibilityManager?.moveElementInDOM(
+      div,
+      element,
+      contentElement,
+      /* isRemovable = */ false
+    );
+  }
+
   /**
    * Render a new annotation layer with all annotation elements.
    *
@@ -2458,34 +2533,18 @@ class AnnotationLayer {
    * @memberof AnnotationLayer
    */
   static render(parameters) {
-    const { annotations, div, viewport } = parameters;
+    const { annotations, div, viewport, accessibilityManager } = parameters;
 
     this.#setDimensions(div, viewport);
+    let zIndex = 0;
 
-    const sortedAnnotations = [],
-      popupAnnotations = [];
-    // Ensure that Popup annotations are handled last, since they're dependant
-    // upon the parent annotation having already been rendered (please refer to
-    // the `PopupAnnotationElement.render` method); fixes issue 11362.
     for (const data of annotations) {
-      if (!data) {
-        continue;
+      if (data.annotationType !== AnnotationType.POPUP) {
+        const { width, height } = getRectDims(data.rect);
+        if (width <= 0 || height <= 0) {
+          continue; // Ignore empty annotations.
+        }
       }
-      if (data.annotationType === AnnotationType.POPUP) {
-        popupAnnotations.push(data);
-        continue;
-      }
-      const { width, height } = getRectDims(data.rect);
-      if (width <= 0 || height <= 0) {
-        continue; // Ignore empty annotations.
-      }
-      sortedAnnotations.push(data);
-    }
-    if (popupAnnotations.length) {
-      sortedAnnotations.push(...popupAnnotations);
-    }
-
-    for (const data of sortedAnnotations) {
       const element = AnnotationElementFactory.create({
         data,
         layer: div,
@@ -2510,15 +2569,33 @@ class AnnotationLayer {
         }
         if (Array.isArray(rendered)) {
           for (const renderedElement of rendered) {
-            div.append(renderedElement);
+            renderedElement.style.zIndex = zIndex++;
+            AnnotationLayer.#appendElement(
+              renderedElement,
+              data.id,
+              div,
+              accessibilityManager
+            );
           }
         } else {
+          // The accessibility manager will move the annotation in the DOM in
+          // order to match the visual ordering.
+          // But if an annotation is above an other one, then we must draw it
+          // after the other one whatever the order is in the DOM, hence the
+          // use of the z-index.
+          rendered.style.zIndex = zIndex++;
+
           if (element instanceof PopupAnnotationElement) {
             // Popup annotation elements should not be on top of other
             // annotation elements to prevent interfering with mouse events.
             div.prepend(rendered);
           } else {
-            div.append(rendered);
+            AnnotationLayer.#appendElement(
+              rendered,
+              data.id,
+              div,
+              accessibilityManager
+            );
           }
         }
       }

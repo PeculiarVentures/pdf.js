@@ -30,6 +30,8 @@
 // eslint-disable-next-line max-len
 /** @typedef {import("./interfaces").IPDFTextLayerFactory} IPDFTextLayerFactory */
 /** @typedef {import("./interfaces").IPDFXfaLayerFactory} IPDFXfaLayerFactory */
+// eslint-disable-next-line max-len
+/** @typedef {import("./text_accessibility.js").TextAccessibilityManager} TextAccessibilityManager */
 
 import {
   AnnotationEditorType,
@@ -67,7 +69,6 @@ import {
 } from "./ui_utils.js";
 import { AnnotationEditorLayerBuilder } from "./annotation_editor_layer_builder.js";
 import { AnnotationLayerBuilder } from "./annotation_layer_builder.js";
-import { compatibilityParams } from "./app_options.js";
 import { NullL10n } from "./l10n_utils.js";
 import { PDFPageView } from "./pdf_page_view.js";
 import { PDFRenderingQueue } from "./pdf_rendering_queue.js";
@@ -85,9 +86,6 @@ const PagesCountLimit = {
   FORCE_LAZY_PAGE_INIT: 7500,
   PAUSE_EAGER_PAGE_INIT: 250,
 };
-
-const ANNOTATION_EDITOR_MODE =
-  compatibilityParams.annotationEditorMode ?? AnnotationEditorType.DISABLE;
 
 function isValidAnnotationEditorMode(mode) {
   return (
@@ -281,7 +279,7 @@ class BaseViewer {
     this.#annotationMode =
       options.annotationMode ?? AnnotationMode.ENABLE_FORMS;
     this.#annotationEditorMode =
-      options.annotationEditorMode ?? ANNOTATION_EDITOR_MODE;
+      options.annotationEditorMode ?? AnnotationEditorType.DISABLE;
     this.imageResourcesPath = options.imageResourcesPath || "";
     this.enablePrintAutoRotate = options.enablePrintAutoRotate || false;
     if (
@@ -731,12 +729,6 @@ class BaseViewer {
           if (isPureXfa) {
             console.warn("Warning: XFA-editing is not implemented.");
           } else if (isValidAnnotationEditorMode(mode)) {
-            // Ensure that the Editor buttons, in the toolbar, are updated.
-            this.eventBus.dispatch("annotationeditormodechanged", {
-              source: this,
-              mode,
-            });
-
             this.#annotationEditorUIManager = new AnnotationEditorUIManager(
               this.container,
               this.eventBus
@@ -819,6 +811,14 @@ class BaseViewer {
           }
           if (this._scriptingManager) {
             this._scriptingManager.setDocument(pdfDocument); // Enable scripting.
+          }
+
+          if (this.#annotationEditorUIManager) {
+            // Ensure that the Editor buttons, in the toolbar, are updated.
+            this.eventBus.dispatch("annotationeditormodechanged", {
+              source: this,
+              mode: this.#annotationEditorMode,
+            });
           }
 
           // In addition to 'disableAutoFetch' being set, also attempt to reduce
@@ -1639,6 +1639,7 @@ class BaseViewer {
    * @property {boolean} [enhanceTextSelection]
    * @property {EventBus} eventBus
    * @property {TextHighlighter} highlighter
+   * @property {TextAccessibilityManager} [accessibilityManager]
    */
 
   /**
@@ -1652,6 +1653,7 @@ class BaseViewer {
     enhanceTextSelection = false,
     eventBus,
     highlighter,
+    accessibilityManager = null,
   }) {
     return new TextLayerBuilder({
       textLayerDiv,
@@ -1662,6 +1664,7 @@ class BaseViewer {
         ? false
         : enhanceTextSelection,
       highlighter,
+      accessibilityManager,
     });
   }
 
@@ -1700,6 +1703,7 @@ class BaseViewer {
    *   [fieldObjectsPromise]
    * @property {Map<string, HTMLCanvasElement>} [annotationCanvasMap] - Map some
    *   annotation ids with canvases used to render them.
+   * @property {TextAccessibilityManager} [accessibilityManager]
    */
 
   /**
@@ -1718,6 +1722,7 @@ class BaseViewer {
     mouseState = this._scriptingManager?.mouseState,
     fieldObjectsPromise = this.pdfDocument?.getFieldObjects(),
     annotationCanvasMap = null,
+    accessibilityManager = null,
   }) {
     return new AnnotationLayerBuilder({
       pageDiv,
@@ -1733,6 +1738,7 @@ class BaseViewer {
       mouseState,
       fieldObjectsPromise,
       annotationCanvasMap,
+      accessibilityManager,
     });
   }
 
@@ -1743,6 +1749,7 @@ class BaseViewer {
    * @property {PDFPageProxy} pdfPage
    * @property {IL10n} l10n
    * @property {AnnotationStorage} [annotationStorage] - Storage for annotation
+   * @property {TextAccessibilityManager} [accessibilityManager]
    *   data in forms.
    */
 
@@ -1754,6 +1761,7 @@ class BaseViewer {
     uiManager = this.#annotationEditorUIManager,
     pageDiv,
     pdfPage,
+    accessibilityManager = null,
     l10n,
     annotationStorage = this.pdfDocument?.annotationStorage,
   }) {
@@ -1762,6 +1770,7 @@ class BaseViewer {
       pageDiv,
       pdfPage,
       annotationStorage,
+      accessibilityManager,
       l10n,
     });
   }
@@ -2237,6 +2246,17 @@ class BaseViewer {
       throw new Error(`The AnnotationEditor is not enabled.`);
     }
     this.#annotationEditorUIManager.updateParams(type, value);
+  }
+
+  refresh() {
+    if (!this.pdfDocument) {
+      return;
+    }
+    const updateArgs = {};
+    for (const pageView of this._pages) {
+      pageView.update(updateArgs);
+    }
+    this.update();
   }
 }
 

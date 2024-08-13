@@ -13,7 +13,9 @@
  * limitations under the License.
  */
 
+import { RenderingStates, ScrollMode, SpreadMode } from "./ui_utils.js";
 import { AppOptions } from "./app_options.js";
+import { LinkTarget } from "./pdf_link_service.js";
 import { PDFViewerApplication } from "./app.js";
 
 /* eslint-disable-next-line no-unused-vars */
@@ -23,7 +25,13 @@ const pdfjsVersion =
 const pdfjsBuild =
   typeof PDFJSDev !== "undefined" ? PDFJSDev.eval("BUNDLE_BUILD") : void 0;
 
+const AppConstants =
+  typeof PDFJSDev === "undefined" || PDFJSDev.test("GENERIC")
+    ? { LinkTarget, RenderingStates, ScrollMode, SpreadMode }
+    : null;
+
 window.PDFViewerApplication = PDFViewerApplication;
+window.PDFViewerApplicationConstants = AppConstants;
 window.PDFViewerApplicationOptions = AppOptions;
 
 if (typeof PDFJSDev !== "undefined" && PDFJSDev.test("CHROME")) {
@@ -93,7 +101,6 @@ function getViewerConfiguration() {
           ? document.getElementById("openFile")
           : null,
       print: document.getElementById("print"),
-      editorNoneButton: document.getElementById("editorNone"),
       editorFreeTextButton: document.getElementById("editorFreeText"),
       editorFreeTextParamsToolbar: document.getElementById(
         "editorFreeTextParamsToolbar"
@@ -270,4 +277,8 @@ if (
   document.addEventListener("DOMContentLoaded", webViewerLoad, true);
 }
 
-export { PDFViewerApplication, AppOptions as PDFViewerApplicationOptions };
+export {
+  PDFViewerApplication,
+  AppConstants as PDFViewerApplicationConstants,
+  AppOptions as PDFViewerApplicationOptions,
+};
